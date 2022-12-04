@@ -45,6 +45,20 @@ export async function searchShows(query: String | null) {
 }
 
 export async function addShow(userId: User["id"], showId: Show["maze_id"]) {
+  const alreadyExistingShow = await prisma.show.findFirst({
+    where: { maze_id: showId },
+  });
+
+  if (alreadyExistingShow) {
+    const alreadyAddedConnection = await prisma.showOnUser.findFirst({
+      where: { userId, showId: alreadyExistingShow.id },
+    });
+
+    if (alreadyAddedConnection) {
+      return {};
+    }
+  }
+
   const response = await fetch(`${TV_GET_API_PREFIX}${showId}`);
   const showResult = await response.json();
 
