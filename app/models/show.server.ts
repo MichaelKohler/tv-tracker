@@ -31,22 +31,22 @@ export async function searchShows(query: String | null) {
   const response = await fetch(`${TV_SEARCH_API_PREFIX}${query}`);
   const showsResult = await response.json();
   const shows = showsResult.map((showResult: any) => ({
-    maze_id: showResult.show.id,
+    mazeId: showResult.show.id,
     name: showResult.show.name,
     premiered: new Date(showResult.show.premiered),
     ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
     rating: showResult.show.rating.average,
     imdb: showResult.show.externals?.imdb,
-    image_url: showResult.show.image?.medium,
+    imageUrl: showResult.show.image?.medium,
     summary: striptags(showResult.show.summary),
   }));
 
   return shows;
 }
 
-export async function addShow(userId: User["id"], showId: Show["maze_id"]) {
+export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
   const alreadyExistingShow = await prisma.show.findFirst({
-    where: { maze_id: showId },
+    where: { mazeId: showId },
   });
 
   if (alreadyExistingShow) {
@@ -57,9 +57,19 @@ export async function addShow(userId: User["id"], showId: Show["maze_id"]) {
     if (alreadyAddedConnection) {
       return {};
     }
+
+    // We already have the show, however we still need to add the connection to the user
+    await prisma.showOnUser.create({
+      data: {
+        showId: alreadyExistingShow.id,
+        userId,
+      },
+    });
+
+    return {};
   }
 
-  const response = await fetch(`${TV_GET_API_PREFIX}${showId}`);
+  const response = await fetch(`${TV_GET_API_PREFIX}${showId}?&embed=episodes`);
   const showResult = await response.json();
 
   if (!showResult) {
@@ -67,17 +77,29 @@ export async function addShow(userId: User["id"], showId: Show["maze_id"]) {
   }
 
   const show = {
-    maze_id: `${showResult.id}`,
+    mazeId: `${showResult.id}`,
     name: showResult.name,
     premiered: new Date(showResult.premiered),
     ended: showResult.ended ? new Date(showResult.ended) : null,
     rating: showResult.rating.average,
     imdb: showResult.externals.imdb,
-    image_url: showResult.image.medium,
+    imageUrl: showResult.image.medium,
     summary: striptags(showResult.summary),
   };
 
-  await prisma.show.create({
+  const episodes = showResult._embedded.episodes.map((episode: any) => ({
+    mazeId: `${episode.id}`,
+    name: episode.name,
+    season: episode.season,
+    number: episode.number,
+    airDate: new Date(episode.airstamp),
+    runtime: episode.runtime,
+    rating: episode.rating.average,
+    imageUrl: episode.image.medium,
+    summary: striptags(episode.summary),
+  }));
+
+  const record = await prisma.show.create({
     data: {
       ...show,
       users: {
@@ -89,6 +111,21 @@ export async function addShow(userId: User["id"], showId: Show["maze_id"]) {
       },
     },
   });
+
+  await prisma.$transaction(
+    episodes.map((episode: any) =>
+      prisma.episode.create({
+        data: {
+          ...episode,
+          show: {
+            connect: {
+              id: record.id,
+            },
+          },
+        },
+      })
+    )
+  );
 
   return {};
 }

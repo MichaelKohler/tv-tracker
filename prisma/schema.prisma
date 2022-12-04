@@ -42,12 +42,12 @@ model PasswordReset {
 model Show {
   id         String @id @default(uuid())
   name       String
-  maze_id    String @unique
+  mazeId     String @unique
   premiered  DateTime
   ended      DateTime?
   rating     Float?
   imdb       String?
-  image_url  String?
+  imageUrl   String?
   summary    String @db.Text
 
   createdAt  DateTime @default(now())
@@ -57,7 +57,7 @@ model Show {
 
   users     ShowOnUser[]
 
-  @@index([maze_id])
+  @@index([mazeId])
 }
 
 model ShowOnUser {
@@ -66,11 +66,11 @@ model ShowOnUser {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  show      Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  showId    String
+  show       Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  showId     String
 
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     String
 
   @@index([userId])
   @@index([showId])
@@ -78,15 +78,15 @@ model ShowOnUser {
 
 model Episode {
   id        String @id @default(uuid())
-  maze_id   String
+  mazeId    String
   name      String
   season    Int
   number    Int
-  air_date  DateTime
+  airDate   DateTime
   runtime   Int
   rating    Float
-  image_url String
-  summary   String
+  imageUrl  String
+  summary   String @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
