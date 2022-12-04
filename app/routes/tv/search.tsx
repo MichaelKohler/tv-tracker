@@ -1,5 +1,5 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   useLoaderData,
   useSearchParams,
@@ -36,7 +36,7 @@ export async function action({ request }: ActionArgs) {
     return json({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
   }
 
-  return json({});
+  return redirect("/tv");
 }
 
 export default function TVSearch() {
