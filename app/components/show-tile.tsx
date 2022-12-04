@@ -1,8 +1,8 @@
-import type { Show } from "@prisma/client";
 import { Link } from "@remix-run/react";
 
+import type { FrontendShow } from "~/utils";
 interface Props {
-  show: Show;
+  show: FrontendShow;
 }
 
 export default function ShowTile({ show }: Props) {

@@ -50,9 +50,6 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
     }),
   ]);
 
-  console.log("show", show);
-  console.log("seenEpisodes", seenEpisodes);
-
   return {
     show,
     seenEpisodes: seenEpisodes.map((episode) => episode.episodeId),

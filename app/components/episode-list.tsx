@@ -2,6 +2,7 @@ import type { Episode, Show } from "@prisma/client";
 
 import { Form } from "@remix-run/react";
 
+import { EPISODE_FALLBACK_IMG_PATH } from "~/constants";
 import { padNumber } from "~/utils";
 
 interface Props {
@@ -21,7 +22,7 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
           >
             <div className="flex-none pr-4">
               <img
-                src={episode.imageUrl}
+                src={episode.imageUrl || EPISODE_FALLBACK_IMG_PATH}
                 alt=""
                 className={`${
                   seenEpisodes.includes(episode.id) ? "grayscale" : ""
