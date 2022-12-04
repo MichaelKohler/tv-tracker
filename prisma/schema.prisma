@@ -85,8 +85,8 @@ model Episode {
   number    Int
   airDate   DateTime
   runtime   Int
-  rating    Float
-  imageUrl  String
+  rating    Float?
+  imageUrl  String?
   summary   String @db.Text
 
   createdAt DateTime @default(now())

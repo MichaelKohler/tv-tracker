@@ -2,6 +2,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useTransition, Form } from "@remix-run/react";
 
+import ShowTiles from "~/components/show-tiles";
 import Spinner from "~/components/spinner";
 import { getShowsByUserId } from "~/models/show.server";
 import { requireUserId } from "~/session.server";
@@ -43,6 +44,7 @@ export default function TVIndex() {
           the search field above.
         </p>
       )}
+      {shows.length > 0 && <ShowTiles shows={shows} />}
     </>
   );
 }

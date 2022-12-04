@@ -119,7 +119,7 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
     ended: showResult.ended ? new Date(showResult.ended) : null,
     rating: showResult.rating.average,
     imdb: showResult.externals.imdb,
-    imageUrl: showResult.image.medium,
+    imageUrl: showResult.image?.medium,
     summary: striptags(showResult.summary),
   };
 
@@ -131,7 +131,7 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
     airDate: new Date(episode.airstamp),
     runtime: episode.runtime,
     rating: episode.rating.average,
-    imageUrl: episode.image.medium,
+    imageUrl: episode.image?.medium,
     summary: striptags(episode.summary),
   }));
 
