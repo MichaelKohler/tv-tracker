@@ -20,16 +20,17 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
             key={episode.id}
             className="mt-4 flex flex-col border-b-2 border-slate-200 pb-4 last:border-b-0 sm:flex-row"
           >
-            <div className="flex-none pr-4">
+            <div className="min-h-[140px] min-w-[250px] flex-none">
               <img
                 src={episode.imageUrl || EPISODE_FALLBACK_IMG_PATH}
                 alt=""
                 className={`${
                   seenEpisodes.includes(episode.id) ? "grayscale" : ""
                 } hover:grayscale-0`}
+                loading="lazy"
               />
             </div>
-            <div className="pr-4 pt-4 sm:pt-0">
+            <div className="px-4 pt-4 sm:pt-0">
               <p>
                 <strong>{episode.name}</strong> (S{padNumber(episode.season)}E
                 {padNumber(episode.number)}) -{" "}
