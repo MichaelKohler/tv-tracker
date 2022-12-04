@@ -1,0 +1,87 @@
+datasource db {
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  shadowDatabaseUrl    = env("SHADOW_DATABASE_URL")
+  referentialIntegrity = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
+}
+
+model User {
+  id        String @id @default(uuid())
+  email     String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  password  Password?
+  shows     Show[]
+  episodes  Episode[]
+}
+
+model Password {
+  hash   String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+}
+
+model PasswordReset {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+
+  token String @unique
+  email String
+}
+
+model Show {
+  id         String @id @default(uuid())
+  name       String
+  maze_id    String @unique
+  premiered  DateTime
+  ended      DateTime
+  rating     Float
+  imdb       String
+  image_url  String
+  summary    String
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     String
+
+  episodes  Episode[]
+
+  @@index([maze_id])
+  @@index([userId])
+}
+
+model Episode {
+  id        String @id @default(uuid())
+  maze_id   String
+  name      String
+  season    Int
+  number    Int
+  air_date  DateTime
+  runtime   Int
+  rating    Float
+  image_url String
+  summary   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    String
+
+  show     Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  showId   String
+
+  @@index([userId])
+  @@index([showId])
+}
