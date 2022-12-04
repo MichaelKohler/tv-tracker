@@ -1,7 +1,6 @@
 import type { Show } from "@prisma/client";
 
-import React from "react";
-
+import ShowResult from "~/components/show-result";
 import Spinner from "~/components/spinner";
 
 interface Props {
@@ -24,11 +23,11 @@ export default function ShowResults({ shows, isLoading = false }: Props) {
       )}
 
       {!isLoading && shows.length > 0 && (
-        <>
+        <div className="mt-3">
           {shows.map((show) => (
-            <li key={show.id}>{show.name}</li>
+            <ShowResult key={show.id} show={show} />
           ))}
-        </>
+        </div>
       )}
     </>
   );
