@@ -69,3 +69,11 @@ export function useUser(): User {
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
+
+export function padNumber(number: Number) {
+  if (number < 10) {
+    return `0${number}`;
+  }
+
+  return `${number}`;
+}

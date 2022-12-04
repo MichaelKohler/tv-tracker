@@ -23,6 +23,42 @@ export async function getShowsByUserId(userId: User["id"]) {
   return shows;
 }
 
+export async function getShowById(showId: Show["id"], userId: User["id"]) {
+  const [show, seenEpisodes] = await Promise.all([
+    prisma.show.findFirst({
+      where: {
+        id: showId,
+      },
+      include: {
+        episodes: {
+          orderBy: [
+            {
+              season: "desc",
+            },
+            {
+              number: "desc",
+            },
+          ],
+        },
+      },
+    }),
+    prisma.episodeOnUser.findMany({
+      where: {
+        userId,
+        showId,
+      },
+    }),
+  ]);
+
+  console.log("show", show);
+  console.log("seenEpisodes", seenEpisodes);
+
+  return {
+    show,
+    seenEpisodes: seenEpisodes.map((episode) => episode.episodeId),
+  };
+}
+
 export async function searchShows(query: String | null) {
   if (!query) {
     return [];
