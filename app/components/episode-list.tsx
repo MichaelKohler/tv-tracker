@@ -1,8 +1,9 @@
 import type { Episode, Show } from "@prisma/client";
 
-import { Form } from "@remix-run/react";
+import { Form, useTransition } from "@remix-run/react";
 
 import { EPISODE_FALLBACK_IMG_PATH } from "~/constants";
+import Spinner from "~/components/spinner";
 import { padNumber } from "~/utils";
 
 interface Props {
@@ -12,6 +13,16 @@ interface Props {
 }
 
 export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
+  const transition = useTransition();
+
+  if (transition.submission) {
+    return (
+      <div className="mt-4">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <div className="my-3 flex flex-col py-5">
       <ul>
