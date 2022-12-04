@@ -18,8 +18,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   password  Password?
-  shows     Show[]
-  episodes  Episode[]
+
+  shows     ShowOnUser[]
+  episodes  EpisodeOnUser[]
 }
 
 model Password {
@@ -43,22 +44,36 @@ model Show {
   name       String
   maze_id    String @unique
   premiered  DateTime
-  ended      DateTime
-  rating     Float
-  imdb       String
-  image_url  String
-  summary    String
+  ended      DateTime?
+  rating     Float?
+  imdb       String?
+  image_url  String?
+  summary    String @db.Text
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     String
-
   episodes  Episode[]
 
+  users     ShowOnUser[]
+
   @@index([maze_id])
+}
+
+model ShowOnUser {
+  id         String @id @default(uuid())
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  show      Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  showId    String
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    String
+
   @@index([userId])
+  @@index([showId])
 }
 
 model Episode {
@@ -76,12 +91,26 @@ model Episode {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  show      Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  showId    String
+
+  users     EpisodeOnUser[]
+
+  @@index([showId])
+}
+
+model EpisodeOnUser {
+  id         String @id @default(uuid())
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  episode      Episode   @relation(fields: [episodeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  episodeId    String
+
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    String
 
-  show     Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  showId   String
-
   @@index([userId])
-  @@index([showId])
+  @@index([episodeId])
 }

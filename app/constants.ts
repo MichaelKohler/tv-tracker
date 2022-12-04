@@ -1,1 +1,2 @@
 export const TV_SEARCH_API_PREFIX = "https://api.tvmaze.com/search/shows?q=";
+export const TV_GET_API_PREFIX = "https://api.tvmaze.com/shows/";

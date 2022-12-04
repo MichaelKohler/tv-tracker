@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   useLoaderData,
@@ -8,7 +8,7 @@ import {
 } from "@remix-run/react";
 
 import ShowResults from "~/components/show-results";
-import { searchShows } from "~/models/show.server";
+import { addShow, searchShows } from "~/models/show.server";
 import { requireUserId } from "~/session.server";
 
 export async function loader({ request }: LoaderArgs) {
@@ -21,6 +21,22 @@ export async function loader({ request }: LoaderArgs) {
   const shows = await searchShows(query);
 
   return json(shows);
+}
+
+export async function action({ request }: ActionArgs) {
+  const userId = await requireUserId(request);
+  const formData = await request.formData();
+  const showId = (formData.get("showId") as string) || "";
+
+  try {
+    await addShow(userId, showId);
+  } catch (error) {
+    console.log(error);
+
+    return json({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
+  }
+
+  return json({});
 }
 
 export default function TVSearch() {
