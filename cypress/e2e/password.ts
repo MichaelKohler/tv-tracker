@@ -26,7 +26,8 @@ describe("password tests", () => {
     cy.findByRole("textbox", { name: /email/i }).type(email);
     cy.findByLabelText(/password/i).type(newPassword);
     cy.findByRole("button", { name: /log in/i }).click();
-    cy.findByRole("link", { name: /trips/i }).click();
+    cy.findByRole("link", { name: /TV/ }).click();
+    cy.findByText(/Your Shows/i);
   });
 
   it("should check for non-matching passwords", () => {

@@ -11,7 +11,7 @@ export async function loader({ request }: LoaderArgs) {
 }
 
 export async function action({ request }: ActionArgs) {
-  const userId = await requireUserId(request);
+  await requireUserId(request);
 
   const formData = await request.formData();
   const username = formData.get("username");

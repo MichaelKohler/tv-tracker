@@ -18,11 +18,10 @@ describe("login tests", () => {
     cy.findByRole("link", { name: /sign up/i }).click();
     cy.findByRole("textbox", { name: /email/i }).type(loginForm.email);
     cy.findByLabelText(/password/i).type(loginForm.password);
-    cy.findByRole("textbox", { name: /username/i }).type(loginForm.username);
     cy.findByRole("button", { name: /create account/i }).click();
 
-    cy.findByRole("link", { name: /trips/i }).click();
-    cy.findByText(/no trip selected/i);
+    cy.findByRole("link", { name: /TV/ }).click();
+    cy.findByText(/Your Shows/i);
 
     cy.findByRole("button", { name: /logout/i }).click();
 
@@ -30,6 +29,7 @@ describe("login tests", () => {
     cy.findByRole("textbox", { name: /email/i }).type(loginForm.email);
     cy.findByLabelText(/password/i).type(loginForm.password);
     cy.findByRole("button", { name: /log in/i }).click();
-    cy.findByRole("link", { name: /trips/i }).click();
+    cy.findByRole("link", { name: /TV/ }).click();
+    cy.findByText(/Your Shows/i);
   });
 });
