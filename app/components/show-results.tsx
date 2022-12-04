@@ -12,6 +12,13 @@ export default function ShowResults({ shows, isLoading = false }: Props) {
   return (
     <>
       <h2 className="mt-9 font-title text-3xl">Results</h2>
+      <p className="text-sm text-gray-500">
+        All TV series data is provided by{" "}
+        <a href="https://www.tvmaze.com/" target="_blank" rel="noreferrer">
+          tvmaze
+        </a>
+      </p>
+
       {isLoading && (
         <div className="mt-4">
           <Spinner />
