@@ -15,7 +15,10 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
     <div className="my-3 flex flex-col py-5">
       <ul>
         {episodes.map((episode) => (
-          <li key={episode.id} className="mt-4 flex flex-row">
+          <li
+            key={episode.id}
+            className="mt-4 flex flex-col border-b-2 border-slate-200 pb-4 last:border-b-0 sm:flex-row"
+          >
             <div className="flex-none pr-4">
               <img
                 src={episode.imageUrl}
@@ -25,7 +28,7 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
                 } hover:grayscale-0`}
               />
             </div>
-            <div className="pr-4">
+            <div className="pr-4 pt-4 sm:pt-0">
               <p>
                 <strong>{episode.name}</strong> (S{padNumber(episode.season)}E
                 {padNumber(episode.number)}) -{" "}
