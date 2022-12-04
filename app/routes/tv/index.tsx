@@ -21,7 +21,7 @@ export default function TVIndex() {
   return (
     <>
       <Form action="/tv/search">
-        <label className="mt-10 flex w-full flex-col gap-1">
+        <label className="flex w-full flex-col gap-1">
           <input
             name="query"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
