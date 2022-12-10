@@ -34,7 +34,13 @@ export async function loader({ request }: LoaderArgs) {
   });
 }
 
-function App({ children }: { children?: React.ReactNode }) {
+function App({
+  renderLoginButtons = true,
+  children,
+}: {
+  children?: React.ReactNode;
+  renderLoginButtons?: boolean;
+}) {
   return (
     <html lang="en" className="h-full">
       <head>
@@ -52,7 +58,7 @@ function App({ children }: { children?: React.ReactNode }) {
         <Links />
       </head>
       <body className="h-full">
-        <Header />
+        <Header renderLoginButtons={renderLoginButtons} />
         <Outlet />
         {children}
         <Footer />
@@ -82,4 +88,16 @@ export function CatchBoundary() {
   }
 
   throw new Error(`Unexpected caught response with status: ${caught.status}`);
+}
+
+export function ErrorBoundary() {
+  return (
+    <App renderLoginButtons={false}>
+      <main className="flex h-full min-h-screen justify-center bg-white">
+        <h1 className="mt-10 font-title text-3xl">
+          Something went wrong. Please try again.
+        </h1>
+      </main>
+    </App>
+  );
 }

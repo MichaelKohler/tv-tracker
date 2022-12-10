@@ -1,4 +1,4 @@
-import type { Episode, Show } from "@prisma/client";
+import type { FrontendEpisode, FrontendShow } from "~/utils";
 
 import { Form, useTransition } from "@remix-run/react";
 
@@ -7,9 +7,9 @@ import Spinner from "~/components/spinner";
 import { padNumber } from "~/utils";
 
 interface Props {
-  episodes: Episode[];
-  seenEpisodes: Episode["id"][];
-  showId: Show["id"];
+  episodes: FrontendEpisode[];
+  seenEpisodes: FrontendEpisode["id"][];
+  showId: FrontendShow["id"];
 }
 
 export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {

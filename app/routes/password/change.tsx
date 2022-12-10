@@ -84,6 +84,7 @@ export async function action({ request }: ActionArgs) {
   try {
     await changePassword(user.email, newPassword, token.toString());
   } catch (error) {
+    console.error("CHANGE_PASSWORD_ERROR", error);
     if (error instanceof Error && error.message === "PASSWORD_RESET_EXPIRED") {
       return json(
         {

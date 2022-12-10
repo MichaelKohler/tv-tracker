@@ -1,7 +1,7 @@
-import type { Show } from "@prisma/client";
+import type { FrontendShow } from "~/utils";
 
 interface Props {
-  show: Show;
+  show: FrontendShow;
 }
 
 export default function ShowHeader({ show }: Props) {

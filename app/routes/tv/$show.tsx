@@ -12,7 +12,7 @@ export async function loader({ request, params }: LoaderArgs) {
   const userId = await requireUserId(request);
 
   if (!params.show) {
-    return new Response("Not Found", {
+    throw new Response("Not Found", {
       status: 404,
     });
   }
@@ -20,7 +20,7 @@ export async function loader({ request, params }: LoaderArgs) {
   const showResult = await getShowById(params.show, userId);
 
   if (!showResult.show) {
-    return new Response("Not Found", {
+    throw new Response("Not Found", {
       status: 404,
     });
   }
@@ -47,6 +47,10 @@ export async function action({ request }: ActionArgs) {
 
 export default function TVShow() {
   const { show, seenEpisodes } = useLoaderData<typeof loader>();
+
+  if (!show) {
+    return undefined;
+  }
 
   return (
     <>

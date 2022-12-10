@@ -17,6 +17,8 @@ export async function action({ request }: ActionArgs) {
   try {
     await deleteUserByUserId(userId);
   } catch (error) {
+    console.error("DELETE_USER_ERROR", error);
+
     return json(
       { errors: { deletion: "Could not delete user. Please try again." } },
       { status: 500 }
@@ -53,11 +55,7 @@ export default function DeletionPage() {
         </p>
         <p>
           If you think you might use this service again in the future, you can{" "}
-          <a
-            href="/export"
-            className="text-blue-500 underline"
-            target="_blank"
-          >
+          <a href="/export" className="text-blue-500 underline" target="_blank">
             export
           </a>{" "}
           your data and later on import it on a new account again. Right-click

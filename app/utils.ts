@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Show } from "@prisma/client";
+import type { Episode, Show } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
 
 import type { User } from "~/models/user.server";
@@ -83,6 +83,13 @@ export interface FrontendShow
   extends Omit<Show, "premiered" | "ended" | "createdAt" | "updatedAt"> {
   premiered: string;
   ended: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FrontendEpisode
+  extends Omit<Episode, "airDate" | "createdAt" | "updatedAt"> {
+  airDate: string;
   createdAt: string;
   updatedAt: string;
 }

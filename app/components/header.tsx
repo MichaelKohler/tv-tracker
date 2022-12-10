@@ -2,7 +2,11 @@ import React from "react";
 import { Form, Link, useMatches } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
 
-export default function Header() {
+export default function Header({
+  renderLoginButtons = true,
+}: {
+  renderLoginButtons?: boolean;
+}) {
   const user = useOptionalUser();
   const matches = useMatches();
   const latestRoute = matches[matches.length - 1].id;
@@ -57,37 +61,39 @@ export default function Header() {
           )}
         </nav>
 
-        <section className="mt-8 lg:mt-0">
-          {user ? (
-            <Form action="/logout" method="post">
-              <button
-                type="submit"
-                className="text-white-100 rounded bg-slate-600 py-2 px-4 hover:bg-slate-500 active:bg-slate-500"
+        {renderLoginButtons && (
+          <section className="mt-8 lg:mt-0">
+            {user ? (
+              <Form action="/logout" method="post">
+                <button
+                  type="submit"
+                  className="text-white-100 rounded bg-slate-600 py-2 px-4 hover:bg-slate-500 active:bg-slate-500"
+                >
+                  Logout
+                </button>
+              </Form>
+            ) : (
+              <div
+                className={`flex ${
+                  menuOpen ? "flex-col space-y-4" : "flex-row space-x-4"
+                }`}
               >
-                Logout
-              </button>
-            </Form>
-          ) : (
-            <div
-              className={`flex ${
-                menuOpen ? "flex-col space-y-4" : "flex-row space-x-4"
-              }`}
-            >
-              <Link
-                to="/join"
-                className="text-white-100 flex items-center justify-center rounded bg-yellow-600 py-2 px-4 font-medium hover:bg-yellow-500 active:bg-yellow-500"
-              >
-                Sign up
-              </Link>
-              <Link
-                to="/login"
-                className="text-white-100 flex items-center justify-center rounded bg-slate-600 py-2 px-4 font-medium hover:bg-slate-500 active:bg-slate-500"
-              >
-                Log In
-              </Link>
-            </div>
-          )}
-        </section>
+                <Link
+                  to="/join"
+                  className="text-white-100 flex items-center justify-center rounded bg-yellow-600 py-2 px-4 font-medium hover:bg-yellow-500 active:bg-yellow-500"
+                >
+                  Sign up
+                </Link>
+                <Link
+                  to="/login"
+                  className="text-white-100 flex items-center justify-center rounded bg-slate-600 py-2 px-4 font-medium hover:bg-slate-500 active:bg-slate-500"
+                >
+                  Log In
+                </Link>
+              </div>
+            )}
+          </section>
+        )}
       </section>
 
       <button
