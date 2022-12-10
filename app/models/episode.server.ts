@@ -25,7 +25,7 @@ export async function getEpisodesByShowId(showId: Show["id"]) {
   return episodes;
 }
 
-export async function markEpisodeAsSeen({
+export async function markEpisodeAsWatched({
   userId,
   episodeId,
   showId,
@@ -55,7 +55,7 @@ export async function markEpisodeAsSeen({
   });
 }
 
-export async function markEpisodeAsUnseen({
+export async function markEpisodeAsUnwatched({
   userId,
   episodeId,
   showId,
@@ -73,7 +73,7 @@ export async function markEpisodeAsUnseen({
   });
 }
 
-export async function markAllEpisodesAsSeen({
+export async function markAllEpisodesAsWatched({
   userId,
   showId,
 }: {
@@ -81,7 +81,7 @@ export async function markAllEpisodesAsSeen({
   showId: Show["id"];
 }) {
   const showEpisodes = await getEpisodesByShowId(showId);
-  const seenEpisodesIds = (
+  const watchedEpisodesIds = (
     await prisma.episodeOnUser.findMany({
       where: {
         userId,
@@ -90,12 +90,12 @@ export async function markAllEpisodesAsSeen({
     })
   ).map((episodeMapping) => episodeMapping.episodeId);
 
-  const episodesToMarkSeen = showEpisodes
-    .filter((episode) => !seenEpisodesIds.includes(episode.id))
+  const episodesToMarkWatched = showEpisodes
+    .filter((episode) => !watchedEpisodesIds.includes(episode.id))
     .map((episode) => episode.id);
 
   await Promise.all(
-    episodesToMarkSeen.map((episodeId) => {
+    episodesToMarkWatched.map((episodeId) => {
       return prisma.episodeOnUser.create({
         data: {
           show: {

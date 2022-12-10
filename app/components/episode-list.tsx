@@ -8,11 +8,15 @@ import { padNumber } from "~/utils";
 
 interface Props {
   episodes: FrontendEpisode[];
-  seenEpisodes: FrontendEpisode["id"][];
+  watchedEpisodes: FrontendEpisode["id"][];
   showId: FrontendShow["id"];
 }
 
-export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
+export default function EpisodeList({
+  episodes,
+  watchedEpisodes,
+  showId,
+}: Props) {
   const transition = useTransition();
 
   if (transition.submission) {
@@ -36,7 +40,7 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
                 src={episode.imageUrl || EPISODE_FALLBACK_IMG_PATH}
                 alt=""
                 className={`${
-                  seenEpisodes.includes(episode.id) ? "grayscale" : ""
+                  watchedEpisodes.includes(episode.id) ? "grayscale" : ""
                 } hover:grayscale-0`}
                 loading="lazy"
               />
@@ -48,29 +52,29 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
                 {new Date(episode.airDate).toLocaleDateString()}
               </p>
               <p>{episode.summary}</p>
-              {!seenEpisodes.includes(episode.id) && (
+              {!watchedEpisodes.includes(episode.id) && (
                 <Form method="post">
-                  <input type="hidden" name="intent" value="MARK_SEEN" />
+                  <input type="hidden" name="intent" value="MARK_WATCHED" />
                   <input type="hidden" name="showId" value={showId} />
                   <input type="hidden" name="episodeId" value={episode.id} />
                   <button
                     type="submit"
                     className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
                   >
-                    Mark as seen
+                    Mark as watched
                   </button>
                 </Form>
               )}
-              {seenEpisodes.includes(episode.id) && (
+              {watchedEpisodes.includes(episode.id) && (
                 <Form method="post">
-                  <input type="hidden" name="intent" value="MARK_UNSEEN" />
+                  <input type="hidden" name="intent" value="MARK_UNWATCHED" />
                   <input type="hidden" name="showId" value={showId} />
                   <input type="hidden" name="episodeId" value={episode.id} />
                   <button
                     type="submit"
                     className="mt-4 rounded bg-red-300 py-2 px-4 text-black hover:bg-red-200 active:bg-red-200"
                   >
-                    Mark as unseen
+                    Mark as not watched
                   </button>
                 </Form>
               )}

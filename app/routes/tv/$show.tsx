@@ -6,9 +6,9 @@ import { useLoaderData } from "@remix-run/react";
 import EpisodeList from "~/components/episode-list";
 import ShowHeader from "~/components/show-header";
 import {
-  markEpisodeAsSeen,
-  markAllEpisodesAsSeen,
-  markEpisodeAsUnseen,
+  markEpisodeAsWatched,
+  markAllEpisodesAsWatched,
+  markEpisodeAsUnwatched,
 } from "~/models/episode.server";
 import { getShowById, removeShowFromUser } from "~/models/show.server";
 import { requireUserId } from "~/session.server";
@@ -40,9 +40,9 @@ export async function action({ request }: ActionArgs) {
   const showId = (formData.get("showId") as string) || "";
   const episodeId = (formData.get("episodeId") as string) || "";
 
-  if (intent === "MARK_SEEN") {
+  if (intent === "MARK_WATCHED") {
     try {
-      await markEpisodeAsSeen({ userId, showId, episodeId });
+      await markEpisodeAsWatched({ userId, showId, episodeId });
     } catch (error) {
       console.log(error);
 
@@ -50,19 +50,22 @@ export async function action({ request }: ActionArgs) {
     }
   }
 
-  if (intent === "MARK_UNSEEN") {
+  if (intent === "MARK_UNWATCHED") {
     try {
-      await markEpisodeAsUnseen({ userId, showId, episodeId });
+      await markEpisodeAsUnwatched({ userId, showId, episodeId });
     } catch (error) {
       console.log(error);
 
-      return json({ error: "MARKING_EPISODE_UNSEEN_FAILED" }, { status: 500 });
+      return json(
+        { error: "MARKING_EPISODE_UNWATCHED_FAILED" },
+        { status: 500 }
+      );
     }
   }
 
-  if (intent === "MARK_ALL_SEEN") {
+  if (intent === "MARK_ALL_WATCHED") {
     try {
-      await markAllEpisodesAsSeen({ userId, showId });
+      await markAllEpisodesAsWatched({ userId, showId });
     } catch (error) {
       console.log(error);
 
@@ -85,7 +88,7 @@ export async function action({ request }: ActionArgs) {
 }
 
 export default function TVShow() {
-  const { show, seenEpisodes } = useLoaderData<typeof loader>();
+  const { show, watchedEpisodes } = useLoaderData<typeof loader>();
 
   if (!show) {
     return undefined;
@@ -98,7 +101,7 @@ export default function TVShow() {
       <h2 className="font-title text-3xl">Episodes</h2>
       <EpisodeList
         episodes={show.episodes}
-        seenEpisodes={seenEpisodes}
+        watchedEpisodes={watchedEpisodes}
         showId={show.id}
       />
     </>
