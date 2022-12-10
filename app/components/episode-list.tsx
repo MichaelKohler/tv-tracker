@@ -45,7 +45,7 @@ export default function EpisodeList({
                 loading="lazy"
               />
             </div>
-            <div className="px-4 pt-4 sm:pt-0">
+            <div className="pl-0 pr-4 pt-4 sm:pl-4 sm:pt-0">
               <p>
                 <strong>{episode.name}</strong> (S{padNumber(episode.season)}E
                 {padNumber(episode.number)}) -{" "}
