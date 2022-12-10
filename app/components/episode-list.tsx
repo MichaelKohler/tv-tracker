@@ -61,6 +61,19 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
                   </button>
                 </Form>
               )}
+              {seenEpisodes.includes(episode.id) && (
+                <Form method="post">
+                  <input type="hidden" name="intent" value="MARK_UNSEEN" />
+                  <input type="hidden" name="showId" value={showId} />
+                  <input type="hidden" name="episodeId" value={episode.id} />
+                  <button
+                    type="submit"
+                    className="mt-4 rounded bg-red-300 py-2 px-4 text-black hover:bg-red-200 active:bg-red-200"
+                  >
+                    Mark as unseen
+                  </button>
+                </Form>
+              )}
             </div>
           </li>
         ))}

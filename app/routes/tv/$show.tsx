@@ -8,6 +8,7 @@ import ShowHeader from "~/components/show-header";
 import {
   markEpisodeAsSeen,
   markAllEpisodesAsSeen,
+  markEpisodeAsUnseen,
 } from "~/models/episode.server";
 import { getShowById, removeShowFromUser } from "~/models/show.server";
 import { requireUserId } from "~/session.server";
@@ -46,6 +47,16 @@ export async function action({ request }: ActionArgs) {
       console.log(error);
 
       return json({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
+    }
+  }
+
+  if (intent === "MARK_UNSEEN") {
+    try {
+      await markEpisodeAsUnseen({ userId, showId, episodeId });
+    } catch (error) {
+      console.log(error);
+
+      return json({ error: "MARKING_EPISODE_UNSEEN_FAILED" }, { status: 500 });
     }
   }
 

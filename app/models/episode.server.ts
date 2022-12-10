@@ -55,6 +55,24 @@ export async function markEpisodeAsSeen({
   });
 }
 
+export async function markEpisodeAsUnseen({
+  userId,
+  episodeId,
+  showId,
+}: {
+  userId: User["id"];
+  episodeId: Episode["id"];
+  showId: Show["id"];
+}) {
+  await prisma.episodeOnUser.deleteMany({
+    where: {
+      userId,
+      episodeId,
+      showId,
+    },
+  });
+}
+
 export async function markAllEpisodesAsSeen({
   userId,
   showId,
