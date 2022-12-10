@@ -50,6 +50,7 @@ export default function EpisodeList({ episodes, seenEpisodes, showId }: Props) {
               <p>{episode.summary}</p>
               {!seenEpisodes.includes(episode.id) && (
                 <Form method="post">
+                  <input type="hidden" name="intent" value="MARK_SEEN" />
                   <input type="hidden" name="showId" value={showId} />
                   <input type="hidden" name="episodeId" value={episode.id} />
                   <button

@@ -1,11 +1,15 @@
+import { redirect } from "@remix-run/node";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import EpisodeList from "~/components/episode-list";
 import ShowHeader from "~/components/show-header";
-import { markEpisodeAsSeen } from "~/models/episode.server";
-import { getShowById } from "~/models/show.server";
+import {
+  markEpisodeAsSeen,
+  markAllEpisodesAsSeen,
+} from "~/models/episode.server";
+import { getShowById, removeShowFromUser } from "~/models/show.server";
 import { requireUserId } from "~/session.server";
 
 export async function loader({ request, params }: LoaderArgs) {
@@ -31,15 +35,39 @@ export async function loader({ request, params }: LoaderArgs) {
 export async function action({ request }: ActionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
+  const intent = (formData.get("intent") as string) || "";
   const showId = (formData.get("showId") as string) || "";
   const episodeId = (formData.get("episodeId") as string) || "";
 
-  try {
-    await markEpisodeAsSeen({ userId, showId, episodeId });
-  } catch (error) {
-    console.log(error);
+  if (intent === "MARK_SEEN") {
+    try {
+      await markEpisodeAsSeen({ userId, showId, episodeId });
+    } catch (error) {
+      console.log(error);
 
-    return json({ error: "MARKIN_EPISODE_FAILED" }, { status: 500 });
+      return json({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
+    }
+  }
+
+  if (intent === "MARK_ALL_SEEN") {
+    try {
+      await markAllEpisodesAsSeen({ userId, showId });
+    } catch (error) {
+      console.log(error);
+
+      return json({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
+    }
+  }
+
+  if (intent === "DELETE_SHOW") {
+    try {
+      await removeShowFromUser({ userId, showId });
+      return redirect("/tv");
+    } catch (error) {
+      console.log(error);
+
+      return json({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
+    }
   }
 
   return json({});

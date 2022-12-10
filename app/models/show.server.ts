@@ -56,6 +56,28 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
   };
 }
 
+export async function removeShowFromUser({
+  userId,
+  showId,
+}: {
+  userId: User["id"];
+  showId: Show["id"];
+}) {
+  await prisma.showOnUser.deleteMany({
+    where: {
+      showId,
+      userId,
+    },
+  });
+
+  await prisma.episodeOnUser.deleteMany({
+    where: {
+      showId,
+      userId,
+    },
+  });
+}
+
 export async function searchShows(query: String | null) {
   if (!query) {
     return [];

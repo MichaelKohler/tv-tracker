@@ -1,5 +1,6 @@
-import type { FrontendShow } from "~/utils";
+import { Form } from "@remix-run/react";
 
+import type { FrontendShow } from "~/utils";
 interface Props {
   show: FrontendShow;
 }
@@ -31,6 +32,26 @@ export default function ShowHeader({ show }: Props) {
               <strong>Rating:</strong> {show.rating}
             </p>
           )}
+          <Form method="post">
+            <input type="hidden" name="intent" value="MARK_ALL_SEEN" />
+            <input type="hidden" name="showId" value={show.id} />
+            <button
+              type="submit"
+              className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
+            >
+              Mark all episodes as seen
+            </button>
+          </Form>
+          <Form method="post">
+            <input type="hidden" name="intent" value="DELETE_SHOW" />
+            <input type="hidden" name="showId" value={show.id} />
+            <button
+              type="submit"
+              className="mt-4 rounded bg-red-300 py-2 px-4 text-black hover:bg-red-200 active:bg-red-200"
+            >
+              Remove show
+            </button>
+          </Form>
         </div>
       </div>
     </div>
