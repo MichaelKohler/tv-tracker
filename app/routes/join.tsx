@@ -1,8 +1,16 @@
 import * as React from "react";
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useSearchParams,
+} from "@remix-run/react";
 
+import { getFlagsFromEnvironment } from "~/models/config.server";
+import { redeemInviteCode } from "~/models/invite.server";
 import { createUser, getUserByEmail } from "~/models/user.server";
 import { getUserId, createUserSession } from "~/session.server";
 import { safeRedirect, validateEmail } from "~/utils";
@@ -14,18 +22,22 @@ export async function loader({ request }: LoaderArgs) {
     return redirect("/");
   }
 
-  return json({});
+  const environment = getFlagsFromEnvironment();
+  return json({ environment });
 }
 
 export async function action({ request }: ActionArgs) {
+  const { SIGNUP_DISABLED } = getFlagsFromEnvironment();
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
+  const invite = formData.get("invite");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
 
   const errors = {
     email: null,
     password: null,
+    invite: null,
   };
 
   if (!validateEmail(email)) {
@@ -57,6 +69,23 @@ export async function action({ request }: ActionArgs) {
     );
   }
 
+  if (SIGNUP_DISABLED) {
+    if (typeof invite !== "string" || invite.length === 0) {
+      return json(
+        { errors: { ...errors, invite: "Invite code is required" } },
+        { status: 400 }
+      );
+    }
+
+    const validInvite = await redeemInviteCode(invite);
+    if (!validInvite) {
+      return json(
+        { errors: { ...errors, invite: "Invite code is invalid" } },
+        { status: 400 }
+      );
+    }
+  }
+
   const user = await createUser(email, password);
 
   return createUserSession({
@@ -74,22 +103,34 @@ export function meta(): ReturnType<MetaFunction> {
 }
 
 export default function Join() {
+  const data = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const actionData = useActionData<typeof action>();
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const inviteRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (actionData?.errors.email) {
       emailRef.current?.focus();
     } else if (actionData?.errors.password) {
       passwordRef.current?.focus();
+    } else if (actionData?.errors.invite) {
+      inviteRef.current?.focus();
     }
   }, [actionData]);
 
   return (
     <main className="my-12 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
+      {data.environment.SIGNUP_DISABLED && (
+        <p className="mb-4">
+          Signup is currently disabled. However, if you have an invite code, go
+          ahead and paste it in below while signing up. General signup may be
+          available soon.
+        </p>
+      )}
+
       <Form method="post" className="space-y-6">
         <div>
           <label
@@ -144,6 +185,34 @@ export default function Join() {
             )}
           </div>
         </div>
+
+        {data.environment.SIGNUP_DISABLED && (
+          <div>
+            <label
+              htmlFor="invite"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Invite code
+            </label>
+            <div className="mt-1">
+              <input
+                ref={inviteRef}
+                id="invite"
+                required
+                name="invite"
+                type="text"
+                aria-invalid={actionData?.errors.invite ? true : undefined}
+                aria-describedby="invite-error"
+                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+              />
+              {actionData?.errors.invite && (
+                <div className="pt-1 text-red-700" id="invite-error">
+                  {actionData.errors.invite}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <input type="hidden" name="redirectTo" value={redirectTo} />
         <button

@@ -112,11 +112,15 @@ model EpisodeOnUser {
   show       Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   showId     String
 
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     String
 
   @@index([userId])
   @@index([episodeId, showId])
   @@index([episodeId])
   @@index([showId])
+}
+
+model Invite {
+  id         String @id @default(uuid())
 }
