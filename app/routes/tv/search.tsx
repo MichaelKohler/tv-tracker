@@ -31,7 +31,7 @@ export async function action({ request }: ActionArgs) {
   try {
     await addShow(userId, showId);
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     return json({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
   }

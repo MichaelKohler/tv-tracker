@@ -32,7 +32,9 @@ export default function ShowResults({ shows, isLoading = false }: Props) {
       {!isLoading && shows.length > 0 && (
         <div className="mt-3">
           {shows.map((show) => (
-            <ShowResult key={show.id} show={show} />
+            <div key={show.mazeId}>
+              <ShowResult show={show} />
+            </div>
           ))}
         </div>
       )}
