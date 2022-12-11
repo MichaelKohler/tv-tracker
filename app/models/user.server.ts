@@ -20,10 +20,7 @@ export function countUsers() {
   return prisma.user.count();
 }
 
-export async function createUser(
-  email: User["email"],
-  password: string,
-) {
+export async function createUser(email: User["email"], password: string) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   return prisma.user.create({
@@ -125,4 +122,8 @@ export async function verifyLogin(
   const { password: _password, ...userWithoutPassword } = userWithPassword;
 
   return userWithoutPassword;
+}
+
+export async function getUserCount() {
+  return prisma.user.count();
 }

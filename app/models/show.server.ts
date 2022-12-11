@@ -207,3 +207,18 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
 
   return {};
 }
+
+export async function getShowCount() {
+  return prisma.show.count();
+}
+
+export async function getConnectedShowCount() {
+  const distinctShows = await prisma.showOnUser.findMany({
+    distinct: ["showId"],
+    select: {
+      showId: true,
+    },
+  });
+
+  return distinctShows.length;
+}

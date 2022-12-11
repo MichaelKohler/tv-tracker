@@ -118,3 +118,18 @@ export async function markAllEpisodesAsWatched({
     })
   );
 }
+
+export async function getEpisodeCount() {
+  return prisma.episode.count();
+}
+
+export async function getConnectedEpisodeCount() {
+  const distinctEpisodes = await prisma.episodeOnUser.findMany({
+    distinct: ["episodeId"],
+    select: {
+      episodeId: true,
+    },
+  });
+
+  return distinctEpisodes.length;
+}
