@@ -1,7 +1,7 @@
 import { redirect } from "@remix-run/node";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 
 import EpisodeList from "~/components/episode-list";
 import ShowHeader from "~/components/show-header";
@@ -96,6 +96,7 @@ export default function TVShow() {
 
   return (
     <>
+      <Link to="/tv">← Back to TV Overview</Link>
       <ShowHeader show={show} watchedEpisodes={watchedEpisodes} />
 
       <h2 className="font-title text-3xl">Episodes</h2>
