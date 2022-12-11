@@ -22,7 +22,7 @@ export async function triggerPasswordReset(email: User["email"]) {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 
   sendPasswordResetMail({ email, token });

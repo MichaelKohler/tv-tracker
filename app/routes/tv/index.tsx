@@ -11,6 +11,26 @@ export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
   const shows = await getShowsByUserId(userId);
 
+  shows.sort((showA, showB) => {
+    if (showB.unwatchedEpisodesCount > showA.unwatchedEpisodesCount) {
+      return 1;
+    }
+
+    if (showB.unwatchedEpisodesCount < showA.unwatchedEpisodesCount) {
+      return -1;
+    }
+
+    if (showB.name > showA.name) {
+      return 1;
+    }
+
+    if (showB.name < showA.name) {
+      return -1;
+    }
+
+    return 0;
+  });
+
   return json(shows);
 }
 

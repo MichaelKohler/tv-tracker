@@ -1,14 +1,15 @@
 import { Form } from "@remix-run/react";
 
-import type { FrontendShow } from "~/utils";
+import type { FrontendEpisode, FrontendShow } from "~/utils";
 interface Props {
   show: FrontendShow;
+  watchedEpisodes: FrontendEpisode["id"][];
 }
 
-export default function ShowHeader({ show }: Props) {
+export default function ShowHeader({ show, watchedEpisodes }: Props) {
   return (
     <div className="my-3 flex flex-col py-5 md:flex-row">
-      <div>
+      <div className="flex flex-col">
         {show.imageUrl && (
           <img
             className="mb-8 min-w-[250px] max-w-[250px] md:mb-0 md:flex-none"
@@ -16,6 +17,9 @@ export default function ShowHeader({ show }: Props) {
             alt=""
           />
         )}
+        <p className="mt-2 text-center">
+          Watched {watchedEpisodes.length} of {show.episodes?.length} episodes
+        </p>
       </div>
       <div className="flex flex-col">
         <div className={`flex flex-col pl-0 pr-10 md:pl-4`}>

@@ -44,7 +44,7 @@ export async function action({ request }: ActionArgs) {
     try {
       await markEpisodeAsWatched({ userId, showId, episodeId });
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       return json({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
     }
@@ -54,7 +54,7 @@ export async function action({ request }: ActionArgs) {
     try {
       await markEpisodeAsUnwatched({ userId, showId, episodeId });
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       return json(
         { error: "MARKING_EPISODE_UNWATCHED_FAILED" },
@@ -67,7 +67,7 @@ export async function action({ request }: ActionArgs) {
     try {
       await markAllEpisodesAsWatched({ userId, showId });
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       return json({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
     }
@@ -78,7 +78,7 @@ export async function action({ request }: ActionArgs) {
       await removeShowFromUser({ userId, showId });
       return redirect("/tv");
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       return json({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
     }
@@ -96,7 +96,7 @@ export default function TVShow() {
 
   return (
     <>
-      <ShowHeader show={show} />
+      <ShowHeader show={show} watchedEpisodes={watchedEpisodes} />
 
       <h2 className="font-title text-3xl">Episodes</h2>
       <EpisodeList

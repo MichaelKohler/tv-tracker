@@ -14,13 +14,36 @@ export async function getShowsByUserId(userId: User["id"]) {
         },
       },
     },
+    include: {
+      episodes: true,
+    },
   });
 
   if (!shows) {
     return [];
   }
 
-  return shows;
+  const watchedEpisodes = await prisma.episodeOnUser.findMany({
+    where: {
+      userId,
+    },
+  });
+
+  const showsToReturn = shows.map((show) => {
+    const watchedEpisodeForShow = watchedEpisodes.filter(
+      (episode) => episode.showId === show.id
+    );
+    const unwatchedEpisodesCount =
+      show.episodes.length - watchedEpisodeForShow.length;
+
+    return {
+      ...show,
+      episodes: undefined, // we do not need the episodes here anymore, so no need to transfer it
+      unwatchedEpisodesCount,
+    };
+  });
+
+  return showsToReturn;
 }
 
 export async function getShowById(showId: Show["id"], userId: User["id"]) {
