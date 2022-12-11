@@ -19,7 +19,7 @@ export default function ShowTile({ show }: Props) {
           />
         )}
         {(show.unwatchedEpisodesCount ?? 0) > 0 && (
-          <div className="absolute top-0 left-0 rounded-tl-lg bg-blue-300 py-2 px-2 text-xl">
+          <div className="absolute top-0 left-0 rounded-tl-lg bg-orange-400 py-2 px-2 text-xl">
             {show.unwatchedEpisodesCount}
           </div>
         )}
