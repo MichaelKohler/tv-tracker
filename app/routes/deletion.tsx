@@ -53,15 +53,6 @@ export default function DeletionPage() {
           Are you sure you want to delete your account? This will also delete
           all your saved data. Once deleted, this data can't be restored.
         </p>
-        <p>
-          If you think you might use this service again in the future, you can{" "}
-          <a href="/export" className="text-blue-500 underline" target="_blank">
-            export
-          </a>{" "}
-          your data and later on import it on a new account again. Right-click
-          the "export" link and choose "Save as" to export all your data into a
-          file on your computer.
-        </p>
 
         <button
           type="submit"
