@@ -12,7 +12,6 @@ describe("account deletion tests", () => {
     }).click();
 
     // Confirmation page
-    cy.findByRole("link", { name: /export/i });
     cy.findByRole("button", {
       name: /delete my account and all data/i,
     }).click();
