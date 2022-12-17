@@ -1,6 +1,6 @@
 # tv-tracker
 
-Track TV shows you've watched.
+Track TV shows you've watched. Note that this is mostly for myself, however feel free to contribute as well :)
 
 This is based on the [Remix Indie Stack](https://github.com/remix-run/indie-stack).
 
