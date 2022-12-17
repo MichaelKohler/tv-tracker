@@ -190,7 +190,7 @@ export function prepareShow(showResult: {
       season: episode.season,
       number: episode.number,
       airDate: new Date(episode.airstamp),
-      runtime: episode.runtime,
+      runtime: episode.runtime || 0,
       rating: episode.rating.average,
       imageUrl: episode.image?.medium,
       summary: striptags(episode.summary),
