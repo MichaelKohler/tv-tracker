@@ -38,10 +38,22 @@ export default function TVIndex() {
   const shows = useLoaderData<typeof loader>();
   const transition = useTransition();
   const isLoading = !!transition.submission;
+  const stats = {
+    shows: shows.length,
+    unwatchedEpisodes: shows.reduce((unwatchedEpisodes, show) => {
+      unwatchedEpisodes = (unwatchedEpisodes +
+        show.unwatchedEpisodesCount) as number;
+      return unwatchedEpisodes;
+    }, 0),
+  };
 
   return (
     <>
-      <Form action="/tv/search">
+      <p className=" text-2xl">
+        You are currently tracking <strong>{stats.shows}</strong> shows with{" "}
+        <strong>{stats.unwatchedEpisodes}</strong> unwatched episodes.
+      </p>
+      <Form action="/tv/search" className="mt-8">
         <label className="flex w-full flex-col gap-1">
           <input
             name="query"
