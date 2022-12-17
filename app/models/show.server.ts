@@ -2,7 +2,11 @@ import type { Show, User } from "@prisma/client";
 
 import striptags from "striptags";
 
-import { TV_SEARCH_API_PREFIX, TV_GET_API_PREFIX } from "../constants";
+import {
+  MAX_EPISODES_TO_INITIALLY_CREATE,
+  TV_SEARCH_API_PREFIX,
+  TV_GET_API_PREFIX,
+} from "../constants";
 import { prisma } from "../db.server";
 
 export async function getAllShowIds() {
@@ -243,20 +247,22 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
     },
   });
 
-  await prisma.$transaction(
-    episodes.map((episode: any) =>
-      prisma.episode.create({
-        data: {
-          ...episode,
-          show: {
-            connect: {
-              id: record.id,
+  if (episodes.length <= MAX_EPISODES_TO_INITIALLY_CREATE) {
+    await prisma.$transaction(
+      episodes.map((episode: any) =>
+        prisma.episode.create({
+          data: {
+            ...episode,
+            show: {
+              connect: {
+                id: record.id,
+              },
             },
           },
-        },
-      })
-    )
-  );
+        })
+      )
+    );
+  }
 
   return {};
 }

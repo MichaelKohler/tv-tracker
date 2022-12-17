@@ -50,13 +50,10 @@ beforeEach(() => {
   });
 });
 
-test("renders empty list without episodes", async () => {
-  const { container } = render(
-    <EpisodeList episodes={[]} watchedEpisodes={[]} showId="1" />
-  );
+test("renders without episodes", async () => {
+  render(<EpisodeList episodes={[]} watchedEpisodes={[]} showId="1" />);
 
-  const list = container.querySelector("ul");
-  expect(list).toBeEmptyDOMElement();
+  expect(screen.getByText(/There are no episodes/)).toBeDefined();
 });
 
 test("renders episodes", async () => {

@@ -68,20 +68,20 @@ async function updateEpisodes(showId: Show["mazeId"]) {
 
   console.log(`Adding ${episodesToCreate.length} episodes..`);
 
-  await prisma.$transaction(
-    episodesToCreate.map((episode: any) =>
-      prisma.episode.create({
-        data: {
-          ...episode,
-          show: {
-            connect: {
-              id: existingShow.id,
-            },
+  for (const episode of episodesToCreate) {
+    await prisma.episode.create({
+      data: {
+        ...episode,
+        show: {
+          connect: {
+            id: existingShow.id,
           },
         },
-      })
-    )
-  );
+      },
+    });
+
+    console.log(`Added episode ${episode.number} of season ${episode.season}!`);
+  }
 }
 
 const { DATABASE_URL } = process.env;
