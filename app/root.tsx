@@ -1,3 +1,4 @@
+import { redirect } from "@remix-run/node";
 import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
@@ -9,12 +10,13 @@ import {
   ScrollRestoration,
   useCatch,
 } from "@remix-run/react";
+import React from "react";
 
 import Footer from "./components/footer";
 import Header from "./components/header";
+import { getFlagsFromEnvironment } from "./models/config.server";
 import tailwindStylesheetUrl from "./styles/tailwind.css";
 import { getUser } from "./session.server";
-import React from "react";
 
 export function links(): ReturnType<LinksFunction> {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
@@ -29,6 +31,14 @@ export function meta(): ReturnType<MetaFunction> {
 }
 
 export async function loader({ request }: LoaderArgs) {
+  const pathname = new URL(request.url).pathname;
+  if (pathname !== "/maintenance") {
+    const { MAINTENANCE_MODE_ENABLED } = getFlagsFromEnvironment();
+    if (MAINTENANCE_MODE_ENABLED) {
+      return redirect("/maintenance");
+    }
+  }
+
   return json({
     user: await getUser(request),
   });
