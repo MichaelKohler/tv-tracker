@@ -2,8 +2,20 @@ import type { Show, User } from "@prisma/client";
 
 import striptags from "striptags";
 
-import { TV_SEARCH_API_PREFIX, TV_GET_API_PREFIX } from "~/constants";
-import { prisma } from "~/db.server";
+import { TV_SEARCH_API_PREFIX, TV_GET_API_PREFIX } from "../constants";
+import { prisma } from "../db.server";
+
+export async function getAllShowIds() {
+  const showIds = (
+    await prisma.show.findMany({
+      select: {
+        mazeId: true,
+      },
+    })
+  ).map((show) => show.mazeId);
+
+  return showIds;
+}
 
 export async function getShowsByUserId(userId: User["id"]) {
   const shows = await prisma.show.findMany({
@@ -122,6 +134,68 @@ export async function searchShows(query: String | null) {
   return shows;
 }
 
+type EmbeddedEpisode = {
+  id: string;
+  name: string;
+  season: number;
+  number: number;
+  airstamp: string;
+  runtime: number;
+  rating: {
+    average: number;
+  };
+  image: {
+    medium: string;
+  };
+  summary: string;
+};
+export function prepareShow(showResult: {
+  id: string;
+  name: string;
+  premiered: string;
+  ended: string;
+  rating: {
+    average: number;
+  };
+  externals: {
+    imdb: string;
+  };
+  summary: string;
+  image: {
+    medium: string;
+  };
+  _embedded: {
+    episodes: EmbeddedEpisode[];
+  };
+}) {
+  const show = {
+    mazeId: `${showResult.id}`,
+    name: showResult.name,
+    premiered: new Date(showResult.premiered),
+    ended: showResult.ended ? new Date(showResult.ended) : null,
+    rating: showResult.rating.average,
+    imdb: showResult.externals.imdb,
+    imageUrl: showResult.image?.medium,
+    summary: striptags(showResult.summary),
+  };
+
+  const episodes = showResult._embedded.episodes.map(
+    (episode: EmbeddedEpisode) => ({
+      mazeId: `${episode.id}`,
+      name: episode.name,
+      season: episode.season,
+      number: episode.number,
+      airDate: new Date(episode.airstamp),
+      runtime: episode.runtime,
+      rating: episode.rating.average,
+      imageUrl: episode.image?.medium,
+      summary: striptags(episode.summary),
+    })
+  );
+
+  return { show, episodes };
+}
+
 export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
   const alreadyExistingShow = await prisma.show.findFirst({
     where: { mazeId: showId },
@@ -154,28 +228,7 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
     throw new Error("SHOW_NOT_FOUND");
   }
 
-  const show = {
-    mazeId: `${showResult.id}`,
-    name: showResult.name,
-    premiered: new Date(showResult.premiered),
-    ended: showResult.ended ? new Date(showResult.ended) : null,
-    rating: showResult.rating.average,
-    imdb: showResult.externals.imdb,
-    imageUrl: showResult.image?.medium,
-    summary: striptags(showResult.summary),
-  };
-
-  const episodes = showResult._embedded.episodes.map((episode: any) => ({
-    mazeId: `${episode.id}`,
-    name: episode.name,
-    season: episode.season,
-    number: episode.number,
-    airDate: new Date(episode.airstamp),
-    runtime: episode.runtime,
-    rating: episode.rating.average,
-    imageUrl: episode.image?.medium,
-    summary: striptags(episode.summary),
-  }));
+  const { show, episodes } = prepareShow(showResult);
 
   const record = await prisma.show.create({
     data: {

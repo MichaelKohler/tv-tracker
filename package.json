@@ -22,6 +22,7 @@
     "pretest:e2e:run": "npm run build",
     "test:e2e:run": "cross-env PORT=8811 start-server-and-test start:mocks http://localhost:8811 'npx cypress run'",
     "typecheck": "tsc -b && tsc -b cypress",
+    "update:episodes": "ts-node scripts/update-shows.ts",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
   },
   "prettier": {},
@@ -58,6 +59,7 @@
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^2.2.0",
+    "axios": "^1.2.1",
     "c8": "^7.12.0",
     "cross-env": "^7.0.3",
     "cypress": "^11.2.0",
@@ -72,6 +74,7 @@
     "prisma": "^4.7.1",
     "start-server-and-test": "^1.14.0",
     "tailwindcss": "^3.2.4",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.3",
     "vite-tsconfig-paths": "^3.6.0",
     "vitest": "^0.25.3"
