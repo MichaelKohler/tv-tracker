@@ -1,7 +1,13 @@
 import * as React from "react";
 import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useSearchParams,
+  useTransition,
+} from "@remix-run/react";
 
 import { verifyLogin } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
@@ -64,6 +70,7 @@ export function meta(): ReturnType<MetaFunction> {
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
+  const transition = useTransition();
   const redirectTo = searchParams.get("redirectTo") || "/tv";
   const actionData = useActionData<typeof action>();
   const emailRef = React.useRef<HTMLInputElement>(null);
@@ -138,8 +145,9 @@ export default function LoginPage() {
         <button
           type="submit"
           className="w-full rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 focus:bg-slate-500"
+          disabled={!!transition.submission}
         >
-          Log in
+          {transition.submission ? "Logging in..." : "Log in"}
         </button>
         <div className="flex items-center justify-between">
           <div className="flex items-center">

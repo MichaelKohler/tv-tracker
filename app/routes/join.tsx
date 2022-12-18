@@ -7,6 +7,7 @@ import {
   useActionData,
   useLoaderData,
   useSearchParams,
+  useTransition,
 } from "@remix-run/react";
 
 import { getFlagsFromEnvironment } from "~/models/config.server";
@@ -104,6 +105,7 @@ export function meta(): ReturnType<MetaFunction> {
 
 export default function Join() {
   const data = useLoaderData<typeof loader>();
+  const transition = useTransition();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const actionData = useActionData<typeof action>();
@@ -218,8 +220,9 @@ export default function Join() {
         <button
           type="submit"
           className="w-full rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 focus:bg-slate-500"
+          disabled={!!transition.submission}
         >
-          Create Account
+          {transition.submission ? "Creating Account..." : "Create Account"}
         </button>
         <div className="flex items-center justify-center">
           <div className="text-center text-sm text-gray-500">
