@@ -3,13 +3,13 @@ import axios from "axios";
 
 import { TV_GET_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
-import { getAllShowIds, prepareShow } from "../app/models/show.server";
+import { getAllRunningShowIds, prepareShow } from "../app/models/show.server";
 
 async function update() {
   console.log("Starting update..");
 
   console.log("Fetching existing shows to update..");
-  const showsToUpdate = await getAllShowIds();
+  const showsToUpdate = await getAllRunningShowIds();
   console.log(`Found ${showsToUpdate.length} shows to update`, showsToUpdate);
 
   for (const id of showsToUpdate) {

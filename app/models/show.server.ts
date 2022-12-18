@@ -9,11 +9,17 @@ import {
 } from "../constants";
 import { prisma } from "../db.server";
 
-export async function getAllShowIds() {
+// Used to update the episodes of shows in the GitHub action
+// We only want to return currently ongoing shows as we otherwise
+// do not care about new episodes..
+export async function getAllRunningShowIds() {
   const showIds = (
     await prisma.show.findMany({
       select: {
         mazeId: true,
+      },
+      where: {
+        ended: null,
       },
     })
   ).map((show) => show.mazeId);
