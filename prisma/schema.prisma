@@ -74,11 +74,12 @@ model ShowOnUser {
 
   @@index([userId])
   @@index([showId])
+  @@unique([showId, userId])
 }
 
 model Episode {
   id        String @id @default(uuid())
-  mazeId    String
+  mazeId    String @unique
   name      String
   season    Int
   number    Int
@@ -118,6 +119,7 @@ model EpisodeOnUser {
   @@index([episodeId, showId])
   @@index([episodeId])
   @@index([showId])
+  @@unique([episodeId, showId, userId])
 }
 
 model Invite {
