@@ -20,12 +20,12 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
       <div className="flex flex-col">
         {show.imageUrl && (
           <img
-            className="mb-8 min-w-[250px] max-w-[250px] md:mb-0 md:flex-none"
+            className="mb-4 min-w-[250px] max-w-[250px] md:mb-0 md:flex-none"
             src={show.imageUrl}
             alt=""
           />
         )}
-        <p className="mt-2 text-center">
+        <p className="mb-4 md:mt-4 md:text-center">
           Watched {watchedEpisodes.length} of {pastEpisodes?.length} episodes
         </p>
       </div>
