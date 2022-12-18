@@ -21,11 +21,11 @@ export async function loader({ request }: LoaderArgs) {
     }
 
     if (showB.name > showA.name) {
-      return 1;
+      return -1;
     }
 
     if (showB.name < showA.name) {
-      return -1;
+      return 1;
     }
 
     return 0;
