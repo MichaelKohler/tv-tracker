@@ -1,7 +1,7 @@
 import { redirect } from "@remix-run/node";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useCatch, useLoaderData } from "@remix-run/react";
 
 import EpisodeList from "~/components/episode-list";
 import ShowHeader from "~/components/show-header";
@@ -107,4 +107,20 @@ export default function TVShow() {
       />
     </>
   );
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  if (caught.status === 404) {
+    return (
+      <>
+        <Link to="/tv">← Back to TV Overview</Link>
+        <h1 className="mt-4 font-title text-3xl">Not found</h1>
+        <p className="mt-4">The requested show could not be found.</p>
+      </>
+    );
+  }
+
+  throw new Error(`Unexpected caught response with status: ${caught.status}`);
 }
