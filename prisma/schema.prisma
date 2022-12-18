@@ -45,7 +45,6 @@ model Show {
   premiered  DateTime
   ended      DateTime?
   rating     Float?
-  imdb       String?
   imageUrl   String?
   summary    String @db.Text
 
@@ -85,7 +84,6 @@ model Episode {
   number    Int
   airDate   DateTime
   runtime   Int
-  rating    Float?
   imageUrl  String?
   summary   String @db.Text
 

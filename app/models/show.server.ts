@@ -154,7 +154,6 @@ export async function searchShows(query: String | null, userId: User["id"]) {
     premiered: new Date(showResult.show.premiered),
     ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
     rating: showResult.show.rating.average,
-    imdb: showResult.show.externals?.imdb,
     imageUrl: showResult.show.image?.medium,
     summary: striptags(showResult.show.summary),
   }));
@@ -174,9 +173,6 @@ type EmbeddedEpisode = {
   number: number;
   airstamp: string;
   runtime: number;
-  rating: {
-    average: number;
-  };
   image: {
     medium: string;
   };
@@ -189,9 +185,6 @@ export function prepareShow(showResult: {
   ended: string;
   rating: {
     average: number;
-  };
-  externals: {
-    imdb: string;
   };
   summary: string;
   image: {
@@ -207,7 +200,6 @@ export function prepareShow(showResult: {
     premiered: new Date(showResult.premiered),
     ended: showResult.ended ? new Date(showResult.ended) : null,
     rating: showResult.rating.average,
-    imdb: showResult.externals.imdb,
     imageUrl: showResult.image?.medium,
     summary: striptags(showResult.summary),
   };
@@ -220,7 +212,6 @@ export function prepareShow(showResult: {
       number: episode.number,
       airDate: new Date(episode.airstamp),
       runtime: episode.runtime || 0,
-      rating: episode.rating.average,
       imageUrl: episode.image?.medium,
       summary: striptags(episode.summary),
     })
