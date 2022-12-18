@@ -103,7 +103,7 @@ jobs:
           mysql -e 'SHOW DATABASES;' -uroot -proot
 
       - name: 🛠 Setup Database
-        run: npx prisma migrate reset --force
+        run: npx prisma db push
 
       - name: 🌱 Seed the Database
         run: npx prisma db seed
