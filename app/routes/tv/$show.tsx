@@ -103,7 +103,7 @@ export default function TVShow() {
       <ShowHeader show={show} watchedEpisodes={watchedEpisodes} />
 
       {error && error === "MARKING_ALL_EPISODES_FAILED" && (
-        <div className="mt-8">
+        <div className="mt-2 mb-8">
           <ErrorAlert
             title="Marking all as watched failed"
             message="There was an error while marking all episodes as watched. Please try again as required. Sorry for the inconvenience!"
@@ -112,7 +112,7 @@ export default function TVShow() {
       )}
 
       {error && error === "REMOVE_SHOW_FAILED" && (
-        <div className="mt-8">
+        <div className="mt-2 mb-8">
           <ErrorAlert
             title="Removing show failed"
             message="There was an error while removing the show. Please try again. Sorry for the inconvenience!"

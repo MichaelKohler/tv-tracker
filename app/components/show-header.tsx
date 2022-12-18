@@ -16,7 +16,7 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
   );
 
   return (
-    <div className="my-3 flex flex-col py-5 md:flex-row">
+    <div className="mt-8 flex flex-col md:flex-row">
       <div className="flex flex-col">
         {show.imageUrl && (
           <img
