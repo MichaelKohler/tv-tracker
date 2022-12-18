@@ -62,6 +62,25 @@ export async function getShowsByUserId(userId: User["id"]) {
   return showsToReturn;
 }
 
+async function getAddedShowsMazeIds(userId: User["id"]) {
+  const addedShowsIds = (
+    await prisma.show.findMany({
+      where: {
+        users: {
+          some: {
+            userId,
+          },
+        },
+      },
+      select: {
+        mazeId: true,
+      },
+    })
+  ).map((show) => show.mazeId);
+
+  return addedShowsIds;
+}
+
 export async function getShowById(showId: Show["id"], userId: User["id"]) {
   const [show, watchedEpisodes] = await Promise.all([
     prisma.show.findFirst({
@@ -117,10 +136,12 @@ export async function removeShowFromUser({
   });
 }
 
-export async function searchShows(query: String | null) {
+export async function searchShows(query: String | null, userId: User["id"]) {
   if (!query) {
     return [];
   }
+
+  const addedShowsPromise = getAddedShowsMazeIds(userId);
 
   const response = await fetch(`${TV_SEARCH_API_PREFIX}${query}`);
   const showsResult = await response.json();
@@ -135,7 +156,12 @@ export async function searchShows(query: String | null) {
     summary: striptags(showResult.show.summary),
   }));
 
-  return shows;
+  const addedShowIds = await addedShowsPromise;
+  const filteredShows = shows.filter(
+    (show: Show) => !addedShowIds.includes(show.mazeId.toString())
+  );
+
+  return filteredShows;
 }
 
 type EmbeddedEpisode = {

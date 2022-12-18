@@ -13,13 +13,13 @@ import { addShow, searchShows } from "~/models/show.server";
 import { requireUserId } from "~/session.server";
 
 export async function loader({ request }: LoaderArgs) {
-  await requireUserId(request);
+  const userId = await requireUserId(request);
 
   const url = new URL(request.url);
   const search = new URLSearchParams(url.search);
   const query = search.get("query");
 
-  const shows = await searchShows(query);
+  const shows = await searchShows(query, userId);
 
   return json(shows);
 }
