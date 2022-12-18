@@ -1,8 +1,9 @@
 import { redirect } from "@remix-run/node";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useCatch, useLoaderData } from "@remix-run/react";
+import { Link, useActionData, useCatch, useLoaderData } from "@remix-run/react";
 
+import ErrorAlert from "~/components/error-alert";
 import EpisodeList from "~/components/episode-list";
 import ShowHeader from "~/components/show-header";
 import {
@@ -84,11 +85,13 @@ export async function action({ request }: ActionArgs) {
     }
   }
 
-  return json({});
+  return json({ error: "" });
 }
 
 export default function TVShow() {
   const { show, watchedEpisodes } = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const error = actionData?.error;
 
   if (!show) {
     return undefined;
@@ -98,6 +101,24 @@ export default function TVShow() {
     <>
       <Link to="/tv">← Back to TV Overview</Link>
       <ShowHeader show={show} watchedEpisodes={watchedEpisodes} />
+
+      {error && error === "MARKING_ALL_EPISODES_FAILED" && (
+        <div className="mt-8">
+          <ErrorAlert
+            title="Marking all as watched failed"
+            message="There was an error while marking all episodes as watched. Please try again as required. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
+
+      {error && error === "REMOVE_SHOW_FAILED" && (
+        <div className="mt-8">
+          <ErrorAlert
+            title="Removing show failed"
+            message="There was an error while removing the show. Please try again. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
 
       <h2 className="font-title text-3xl">Episodes</h2>
       <EpisodeList
