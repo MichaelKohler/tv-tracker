@@ -46,11 +46,14 @@ export default function TVSearch({ error }: { error: string }) {
   const [params] = useSearchParams();
   const searchParam = params.get("query") || "";
   const transition = useTransition();
+  const loadingResults =
+    transition?.submission?.formData.get("intent") === "search";
 
   return (
     <>
       <h1 className="font-title text-5xl">Search</h1>
       <Form>
+        <input type="hidden" name="intent" value="search" />
         <label className="mt-10 flex w-full flex-col gap-1">
           <input
             name="query"
@@ -64,7 +67,7 @@ export default function TVSearch({ error }: { error: string }) {
 
       <ShowResults
         shows={shows}
-        isLoading={!!transition.submission}
+        isLoading={loadingResults}
         error={actionData?.error}
       />
     </>
