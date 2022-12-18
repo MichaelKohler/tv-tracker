@@ -1,6 +1,7 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
+  useActionData,
   useLoaderData,
   useSearchParams,
   useTransition,
@@ -39,8 +40,9 @@ export async function action({ request }: ActionArgs) {
   return redirect("/tv");
 }
 
-export default function TVSearch() {
+export default function TVSearch({ error }: { error: string }) {
   const shows = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   const [params] = useSearchParams();
   const searchParam = params.get("query") || "";
   const transition = useTransition();
@@ -60,7 +62,11 @@ export default function TVSearch() {
         </label>
       </Form>
 
-      <ShowResults shows={shows} isLoading={!!transition.submission} />
+      <ShowResults
+        shows={shows}
+        isLoading={!!transition.submission}
+        error={actionData?.error}
+      />
     </>
   );
 }
