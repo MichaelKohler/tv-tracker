@@ -11,6 +11,9 @@ interface Props {
 export default function ShowHeader({ show, watchedEpisodes }: Props) {
   const transition = useTransition();
   const submissionIntent = transition?.submission?.formData.get("intent");
+  const pastEpisodes = show.episodes?.filter(
+    (episode) => new Date(episode.airDate) < new Date()
+  );
 
   return (
     <div className="my-3 flex flex-col py-5 md:flex-row">
@@ -23,7 +26,7 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
           />
         )}
         <p className="mt-2 text-center">
-          Watched {watchedEpisodes.length} of {show.episodes?.length} episodes
+          Watched {watchedEpisodes.length} of {pastEpisodes?.length} episodes
         </p>
       </div>
       <div className="flex flex-col">

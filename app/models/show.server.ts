@@ -49,8 +49,11 @@ export async function getShowsByUserId(userId: User["id"]) {
     const watchedEpisodeForShow = watchedEpisodes.filter(
       (episode) => episode.showId === show.id
     );
+    const pastEpisodes = show.episodes.filter(
+      (episode) => episode.airDate < new Date()
+    );
     const unwatchedEpisodesCount =
-      show.episodes.length - watchedEpisodeForShow.length;
+      pastEpisodes.length - watchedEpisodeForShow.length;
 
     return {
       ...show,
