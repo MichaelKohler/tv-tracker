@@ -15,10 +15,13 @@ export async function getEpisodeById(episodeId: Episode["id"]) {
   return episode;
 }
 
-export async function getEpisodesByShowId(showId: Show["id"]) {
+export async function getAiredEpisodesByShowId(showId: Show["id"]) {
   const episodes = await prisma.episode.findMany({
     where: {
       showId: showId,
+      airDate: {
+        lte: new Date(),
+      },
     },
   });
 
@@ -80,7 +83,7 @@ export async function markAllEpisodesAsWatched({
   userId: User["id"];
   showId: Show["id"];
 }) {
-  const showEpisodes = await getEpisodesByShowId(showId);
+  const showEpisodes = await getAiredEpisodesByShowId(showId);
   const watchedEpisodesIds = (
     await prisma.episodeOnUser.findMany({
       where: {
