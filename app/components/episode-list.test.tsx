@@ -48,12 +48,6 @@ beforeEach(() => {
   });
 });
 
-test("renders without episodes", async () => {
-  render(<EpisodeList episodes={[]} watchedEpisodes={[]} showId="1" />);
-
-  expect(screen.getByText(/There are no episodes/)).toBeDefined();
-});
-
 test("renders episodes", async () => {
   render(
     <EpisodeList episodes={DEFAULT_EPISODES} watchedEpisodes={[]} showId="1" />
