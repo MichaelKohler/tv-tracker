@@ -2,11 +2,7 @@ import type { Show, User } from "@prisma/client";
 
 import striptags from "striptags";
 
-import {
-  MAX_EPISODES_TO_INITIALLY_CREATE,
-  TV_SEARCH_API_PREFIX,
-  TV_GET_API_PREFIX,
-} from "../constants";
+import { TV_SEARCH_API_PREFIX, TV_GET_API_PREFIX } from "../constants";
 import { prisma } from "../db.server";
 
 // Used to update the episodes of shows in the GitHub action
@@ -273,22 +269,12 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
     },
   });
 
-  if (episodes.length <= MAX_EPISODES_TO_INITIALLY_CREATE) {
-    await prisma.$transaction(
-      episodes.map((episode: any) =>
-        prisma.episode.create({
-          data: {
-            ...episode,
-            show: {
-              connect: {
-                id: record.id,
-              },
-            },
-          },
-        })
-      )
-    );
-  }
+  await prisma.episode.createMany({
+    data: episodes.map((episode) => ({
+      ...episode,
+      showId: record.id,
+    })),
+  });
 
   return {};
 }

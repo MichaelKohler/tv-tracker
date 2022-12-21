@@ -20,17 +20,6 @@ export default function EpisodeList({
   const transition = useTransition();
   const submissionEpisodeId = transition?.submission?.formData.get("episodeId");
 
-  if (episodes.length === 0) {
-    return (
-      <p className="mt-4 text-xl">
-        There are no episodes (yet). Either this show does not have any episodes
-        or we have not yet finished processing all the episodes. For shows with
-        a large amount of episodes this process might take a while. Please check
-        back later.
-      </p>
-    );
-  }
-
   return (
     <div className="my-3 flex flex-col py-5">
       <ul>

@@ -94,29 +94,13 @@ export async function markAllEpisodesAsWatched({
     .filter((episode) => !watchedEpisodesIds.includes(episode.id))
     .map((episode) => episode.id);
 
-  await Promise.all(
-    episodesToMarkWatched.map((episodeId) => {
-      return prisma.episodeOnUser.create({
-        data: {
-          show: {
-            connect: {
-              id: showId,
-            },
-          },
-          episode: {
-            connect: {
-              id: episodeId,
-            },
-          },
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
-        },
-      });
-    })
-  );
+  await prisma.episodeOnUser.createMany({
+    data: episodesToMarkWatched.map((episodeId) => ({
+      showId,
+      episodeId,
+      userId,
+    })),
+  });
 }
 
 export async function getEpisodeCount() {
