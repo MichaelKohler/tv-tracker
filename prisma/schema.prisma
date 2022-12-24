@@ -96,6 +96,7 @@ model Episode {
   users     EpisodeOnUser[]
 
   @@index([showId])
+  @@index([imageUrl])
 }
 
 model EpisodeOnUser {
