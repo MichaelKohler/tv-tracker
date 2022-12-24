@@ -1,6 +1,6 @@
 import type { Episode, Show, User } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 
 export async function getEpisodeById(episodeId: Episode["id"]) {
   const episode = await prisma.episode.findFirst({
@@ -119,4 +119,21 @@ export async function getConnectedEpisodeCount() {
   });
 
   return distinctEpisodes.length;
+}
+
+export async function getEpisodesWithoutImage() {
+  const episode = await prisma.episode.findMany({
+    where: {
+      OR: [
+        {
+          imageUrl: null,
+        },
+        {
+          imageUrl: "",
+        },
+      ],
+    },
+  });
+
+  return episode;
 }

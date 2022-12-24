@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  update:
+  update-episodes:
     name: ⬣ Update Episodes
     runs-on: ubuntu-latest
     steps:
@@ -25,5 +25,24 @@ jobs:
 
       - name: ✨ Update Episodes
         run: npm run update:episodes
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  update-images:
+    name: ⬣ Update Episode Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: ✨ Update Episode Images
+        run: npm run update:episodes:images
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
