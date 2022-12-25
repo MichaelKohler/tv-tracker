@@ -100,6 +100,33 @@ test("renders spinner while submitting mark as read", async () => {
   );
 
   expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeDefined();
-  expect(screen.queryByText("Loading")).toBeDefined();
+  expect(screen.queryByTestId("spinner")).toBeDefined();
   expect(screen.queryByText("Mark as watched")).toBeNull();
+});
+
+test("does not render spinner while submitting mark as read for another episode", async () => {
+  vi.mocked(useTransition).mockReturnValue({
+    submission: {
+      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+      formData: {
+        get(key: string) {
+          if (key === "episodeId") {
+            return "2";
+          }
+
+          return "";
+        },
+      },
+    },
+  });
+  render(
+    <EpisodeList
+      episodes={[DEFAULT_EPISODES[0]]}
+      watchedEpisodes={[]}
+      showId="1"
+    />
+  );
+
+  expect(screen.queryByTestId("spinner")).toBeNull();
+  expect(screen.getByText("Mark as watched")).toBeDefined();
 });
