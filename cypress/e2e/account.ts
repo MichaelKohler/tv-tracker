@@ -35,6 +35,10 @@ describe("login tests", () => {
 });
 
 describe("account deletion tests", () => {
+  afterEach(() => {
+    cy.cleanupUser();
+  });
+
   it("should allow to delete account with confirmation", () => {
     cy.login();
     cy.visitAndCheck("/");
@@ -82,6 +86,7 @@ describe("password tests", () => {
     cy.findByLabelText(/new password/i).type(newPassword);
     cy.findByLabelText(/confirm password/i).type(newPassword);
     cy.findByRole("button", { name: /change password/i }).click();
+    cy.findByText(/Your password has been changed/);
 
     cy.findByRole("button", { name: /logout/i }).click();
 
