@@ -58,7 +58,7 @@ export default function TVIndex() {
           <input
             name="query"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            data-testid="search-input"
+            data-test-id="search-input"
             placeholder="Search..."
           />
         </label>
