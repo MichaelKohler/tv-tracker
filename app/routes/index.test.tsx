@@ -1,0 +1,87 @@
+import * as React from "react";
+import { useLoaderData } from "@remix-run/react";
+import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
+
+import { getFlagsFromEnvironment } from "~/models/config.server";
+import { useOptionalUser } from "~/utils";
+
+import Index, { loader } from "./index";
+
+beforeEach(() => {
+  vi.mock("@remix-run/node", () => {
+    return {
+      json: vi.fn().mockImplementation((arg) => arg),
+    };
+  });
+  vi.mock("@remix-run/react", () => {
+    return {
+      useLoaderData: vi
+        .fn()
+        .mockReturnValue({ environment: { SIGNUP_DISABLED: false } }),
+      Link: ({ children }: { children: React.ReactNode }) => (
+        <span>{children}</span>
+      ),
+    };
+  });
+  vi.mock("~/models/config.server", () => {
+    return {
+      getFlagsFromEnvironment: vi.fn(),
+    };
+  });
+  vi.mock("~/utils", () => {
+    return {
+      useOptionalUser: vi.fn().mockReturnValue(null),
+    };
+  });
+});
+
+test("renders index", () => {
+  render(<Index />);
+
+  expect(screen.getByText("What have you watched?")).toBeDefined();
+  expect(screen.getByText("Sign up")).toBeDefined();
+  expect(screen.getByText("Log In")).toBeDefined();
+  expect(screen.queryByText("Coming Soon!")).toBeNull();
+});
+
+test("renders index with disabled signup", () => {
+  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
+    environment: { SIGNUP_DISABLED: true },
+  });
+
+  render(<Index />);
+
+  expect(screen.getByText("What have you watched?")).toBeDefined();
+  expect(screen.queryByText("Sign up")).toBeNull();
+  expect(screen.getByText("Log In")).toBeDefined();
+  expect(screen.getByText("Coming Soon!")).toBeDefined();
+});
+
+test("renders index with logged in user", () => {
+  vi.mocked(useOptionalUser).mockReturnValue({
+    id: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    email: "foo@example.com",
+  });
+
+  render(<Index />);
+
+  expect(screen.getByText("What have you watched?")).toBeDefined();
+  expect(screen.queryByText("Sign up")).toBeNull();
+  expect(screen.queryByText("Log In")).toBeNull();
+});
+
+test("loaders returns signup flag", async () => {
+  vi.mocked(getFlagsFromEnvironment).mockReturnValue({
+    SIGNUP_DISABLED: true,
+    MAINTENANCE_MODE_ENABLED: true,
+  });
+
+  // TODO: fix type, for some reason environment does not exist as property.. wrongly mocked?
+  // @ts-expect-error
+  const { environment } = await loader();
+
+  expect(environment.SIGNUP_DISABLED).toBe(true);
+});
