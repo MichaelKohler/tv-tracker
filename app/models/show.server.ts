@@ -2,8 +2,11 @@ import type { Show, User } from "@prisma/client";
 
 import striptags from "striptags";
 
-import { TV_SEARCH_API_PREFIX, TV_GET_API_PREFIX } from "../constants";
 import { prisma } from "../db.server";
+import {
+  fetchSearchResults,
+  fetchShowWithEmbededEpisodes,
+} from "./maze.server";
 
 // Used to update the episodes of shows in the GitHub action
 // We only want to return currently ongoing shows as we otherwise
@@ -148,8 +151,7 @@ export async function searchShows(query: String | null, userId: User["id"]) {
 
   const addedShowsPromise = getAddedShowsMazeIds(userId);
 
-  const response = await fetch(`${TV_SEARCH_API_PREFIX}${query}`);
-  const showsResult = await response.json();
+  const showsResult = await fetchSearchResults(query);
   const shows = showsResult.map((showResult: any) => ({
     mazeId: showResult.show.id,
     name: showResult.show.name,
@@ -247,8 +249,7 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
     return {};
   }
 
-  const response = await fetch(`${TV_GET_API_PREFIX}${showId}?&embed=episodes`);
-  const showResult = await response.json();
+  const showResult = await fetchShowWithEmbededEpisodes(showId);
 
   if (!showResult) {
     throw new Error("SHOW_NOT_FOUND");

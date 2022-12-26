@@ -21,7 +21,6 @@ export async function redeemInviteCode(inviteCode: Invite["id"]) {
     });
   } catch (error) {
     console.error("INVITE_DELETION_ERROR", error);
-    return true;
   }
 
   return true;
