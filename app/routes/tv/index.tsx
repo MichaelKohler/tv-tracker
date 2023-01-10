@@ -50,15 +50,15 @@ export default function TVIndex() {
   return (
     <>
       <p className=" text-2xl">
-        You are currently tracking <strong>{stats.shows}</strong> shows with{" "}
-        <strong>{stats.unwatchedEpisodes}</strong> unwatched episodes.
+        You are currently tracking {stats.shows} shows with{" "}
+        {stats.unwatchedEpisodes} unwatched episodes.
       </p>
       <Form action="/tv/search" className="mt-8">
         <label className="flex w-full flex-col gap-1">
           <input
             name="query"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            data-test-id="search-input"
+            data-testid="search-input"
             placeholder="Search..."
           />
         </label>

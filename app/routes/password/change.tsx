@@ -23,7 +23,10 @@ export async function action({ request }: ActionArgs) {
 
   if (typeof newPassword !== "string" || newPassword === "") {
     return json(
-      { errors: { ...errors, password: "Password is required" }, done: false },
+      {
+        errors: { ...errors, newPassword: "New password is required" },
+        done: false,
+      },
       { status: 400 }
     );
   }
