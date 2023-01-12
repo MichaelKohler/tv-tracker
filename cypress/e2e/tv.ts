@@ -7,7 +7,7 @@ describe("TV tests", () => {
     cy.login();
     cy.visitAndCheck("/tv");
 
-    cy.get('[data-test-id="search-input"]').type("House of the dragon{enter}");
+    cy.get('[data-testid="search-input"]').type("House of the dragon{enter}");
     cy.findAllByText(/House of the Dragon/);
     cy.findAllByRole("button", { name: /Add Show/i })
       .first()
