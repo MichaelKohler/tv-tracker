@@ -1,7 +1,7 @@
 import { redirect } from "@remix-run/node";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Link, useActionData, useCatch, useLoaderData } from "@remix-run/react";
+import { useActionData, useCatch, useLoaderData } from "@remix-run/react";
 
 import ErrorAlert from "~/components/error-alert";
 import EpisodeList from "~/components/episode-list";
@@ -99,7 +99,6 @@ export default function TVShow() {
 
   return (
     <>
-      <Link to="/tv">← Back to TV Overview</Link>
       <ShowHeader show={show} watchedEpisodes={watchedEpisodes} />
 
       {error && error === "MARKING_ALL_EPISODES_FAILED" && (
@@ -136,7 +135,6 @@ export function CatchBoundary() {
   if (caught.status === 404) {
     return (
       <>
-        <Link to="/tv">← Back to TV Overview</Link>
         <h1 className="mt-4 font-title text-3xl">Not found</h1>
         <p className="mt-4">The requested show could not be found.</p>
       </>

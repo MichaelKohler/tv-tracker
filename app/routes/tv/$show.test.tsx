@@ -17,9 +17,6 @@ beforeEach(() => {
       Form: ({ children }: { children: React.ReactNode }) => (
         <form>{children}</form>
       ),
-      Link: ({ children }: { children: React.ReactNode }) => (
-        <span>{children}</span>
-      ),
     };
   });
   vi.mock("~/components/episode-list", async () => {
