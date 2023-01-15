@@ -94,7 +94,7 @@ export default function TVShow() {
   const error = actionData?.error;
 
   if (!show) {
-    return undefined;
+    return null;
   }
 
   return (
