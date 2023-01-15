@@ -50,6 +50,14 @@ export default function Header({
                 TV
               </Link>
               <Link
+                to="/tv/upcoming"
+                className={`text-white-700 flex ${
+                  menuOpen ? "border-b py-8" : "px-8 py-2"
+                } text-base font-semibold hover:text-blue-300 hover:transition-colors hover:duration-300 focus:text-blue-300`}
+              >
+                Upcoming
+              </Link>
+              <Link
                 to="/account"
                 className={`text-white-700 flex ${
                   menuOpen ? "border-b py-8" : "px-8 py-2"

@@ -37,6 +37,7 @@ test("renders header for logged in user", async () => {
 
   expect(screen.getByText("TV")).toBeDefined();
   expect(screen.getByText("Account")).toBeDefined();
+  expect(screen.getByText("Upcoming")).toBeDefined();
   expect(screen.getByText(/Logout/)).toBeDefined();
 });
 
@@ -52,6 +53,7 @@ test("renders header without buttons for logged in user", async () => {
 
   expect(screen.getByText("TV")).toBeDefined();
   expect(screen.getByText("Account")).toBeDefined();
+  expect(screen.getByText("Upcoming")).toBeDefined();
   expect(screen.queryByText(/Logout/)).toBeNull();
 });
 
@@ -61,6 +63,7 @@ test("renders header for logged out user", async () => {
   render(<Header />);
 
   expect(screen.queryByText("TV")).toBeNull();
+  expect(screen.queryByText("Upcoming")).toBeNull();
   expect(screen.queryByText("Account")).toBeNull();
   expect(screen.getByText("Log In")).toBeDefined();
   expect(screen.getByText("Sign up")).toBeDefined();
@@ -72,6 +75,7 @@ test("renders header without buttons for logged out user", async () => {
   render(<Header renderLoginButtons={false} />);
 
   expect(screen.queryByText(/TV/)).toBeNull();
+  expect(screen.queryByText(/Upcoming/)).toBeNull();
   expect(screen.queryByText(/Account/)).toBeNull();
   expect(screen.queryByText(/Log In/)).toBeNull();
   expect(screen.queryByText(/Sign Up/)).toBeNull();

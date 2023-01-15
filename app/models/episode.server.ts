@@ -28,6 +28,31 @@ export async function getAiredEpisodesByShowId(showId: Show["id"]) {
   return episodes;
 }
 
+export async function getUpcomingEpisodes(userId: User["id"]) {
+  const upcomingEpisodes = await prisma.episode.findMany({
+    where: {
+      airDate: {
+        gt: new Date(),
+      },
+      show: {
+        users: {
+          some: {
+            userId,
+          },
+        },
+      },
+    },
+    include: {
+      show: true,
+    },
+    orderBy: {
+      airDate: "asc",
+    },
+  });
+
+  return upcomingEpisodes;
+}
+
 export async function markEpisodeAsWatched({
   userId,
   episodeId,

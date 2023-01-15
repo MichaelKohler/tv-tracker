@@ -6,6 +6,7 @@ import {
   getEpisodeById,
   getEpisodeCount,
   getEpisodesWithoutImage,
+  getUpcomingEpisodes,
   markEpisodeAsWatched,
   markEpisodeAsUnwatched,
   markAllEpisodesAsWatched,
@@ -76,6 +77,13 @@ test("getAiredEpisodesByShowId should return episodes", async () => {
 test("getEpisodesWithoutImage should return episodes", async () => {
   prisma.episode.findMany.mockResolvedValue([EPISODE]);
   const episodes = await getEpisodesWithoutImage();
+  expect(episodes).toStrictEqual([EPISODE]);
+});
+
+// Not actually covering the query itself..
+test("getUpcomingEpisodes should return episodes", async () => {
+  prisma.episode.findMany.mockResolvedValue([EPISODE]);
+  const episodes = await getUpcomingEpisodes("1");
   expect(episodes).toStrictEqual([EPISODE]);
 });
 
