@@ -34,7 +34,7 @@
   ],
   "dependencies": {
     "@node-rs/bcrypt": "^1.6.2",
-    "@prisma/client": "^4.8.0",
+    "@prisma/client": "^4.8.1",
     "@remix-run/node": "^1.9.0",
     "@remix-run/react": "^1.9.0",
     "@remix-run/serve": "^1.9.0",
