@@ -35,10 +35,10 @@
   "dependencies": {
     "@node-rs/bcrypt": "^1.6.2",
     "@prisma/client": "^4.9.0",
-    "@remix-run/node": "^1.10.1",
-    "@remix-run/react": "^1.10.1",
-    "@remix-run/serve": "^1.10.1",
-    "@remix-run/vercel": "^1.10.1",
+    "@remix-run/node": "^1.11.1",
+    "@remix-run/react": "^1.11.1",
+    "@remix-run/serve": "^1.11.1",
+    "@remix-run/vercel": "^1.11.1",
     "@vitest/coverage-c8": "^0.28.3",
     "nodemailer": "^6.9.1",
     "react": "^18.2.0",
@@ -48,8 +48,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
-    "@remix-run/dev": "^1.10.1",
-    "@remix-run/eslint-config": "^1.10.1",
+    "@remix-run/dev": "^1.11.1",
+    "@remix-run/eslint-config": "^1.11.1",
     "@testing-library/cypress": "^9.0.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -77,7 +77,7 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4",
     "vite-tsconfig-paths": "^4.0.5",
-    "vitest": "^0.27.1",
+    "vitest": "^0.28.3",
     "vitest-mock-extended": "^1.0.8"
   },
   "engines": {
