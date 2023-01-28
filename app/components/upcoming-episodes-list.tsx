@@ -1,6 +1,6 @@
-import type { FrontendEpisode, FrontendShow } from "~/utils";
+import type { FrontendEpisode, FrontendShow } from "../utils";
 
-import { padNumber } from "~/utils";
+import { padNumber } from "../utils";
 
 interface Props {
   episodes: (FrontendEpisode & {

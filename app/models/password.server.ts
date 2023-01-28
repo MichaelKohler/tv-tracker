@@ -1,8 +1,8 @@
 import type { User } from "@prisma/client";
 import { createHash, randomUUID } from "crypto";
 
-import { sendPasswordResetMail } from "~/models/mail.server";
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
+import { sendPasswordResetMail } from "./mail.server";
 
 export async function triggerPasswordReset(email: User["email"]) {
   prisma.passwordReset.deleteMany({

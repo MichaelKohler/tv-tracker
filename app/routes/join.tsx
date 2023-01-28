@@ -10,11 +10,11 @@ import {
   useTransition,
 } from "@remix-run/react";
 
-import { getFlagsFromEnvironment } from "~/models/config.server";
-import { redeemInviteCode } from "~/models/invite.server";
-import { createUser, getUserByEmail } from "~/models/user.server";
-import { getUserId, createUserSession } from "~/session.server";
-import { safeRedirect, validateEmail } from "~/utils";
+import { getFlagsFromEnvironment } from "../models/config.server";
+import { redeemInviteCode } from "../models/invite.server";
+import { createUser, getUserByEmail } from "../models/user.server";
+import { getUserId, createUserSession } from "../session.server";
+import { safeRedirect, validateEmail } from "../utils";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await getUserId(request);

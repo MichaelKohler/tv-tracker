@@ -1,8 +1,8 @@
 import type { Show } from "@prisma/client";
 
-import ErrorAlert from "~/components/error-alert";
-import ShowResult from "~/components/show-result";
-import Spinner from "~/components/spinner";
+import ErrorAlert from "./error-alert";
+import ShowResult from "./show-result";
+import Spinner from "./spinner";
 
 interface Props {
   shows: Show[];

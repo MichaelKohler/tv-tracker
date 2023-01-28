@@ -1,7 +1,7 @@
 import { Form, useTransition } from "@remix-run/react";
 
-import Spinner from "~/components/spinner";
-import type { FrontendEpisode, FrontendShow } from "~/utils";
+import type { FrontendEpisode, FrontendShow } from "../utils";
+import Spinner from "./spinner";
 
 interface Props {
   show: FrontendShow;

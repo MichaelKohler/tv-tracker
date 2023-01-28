@@ -2,8 +2,8 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useTransition } from "@remix-run/react";
 
-import { deleteUserByUserId } from "~/models/user.server";
-import { requireUserId, logout } from "~/session.server";
+import { deleteUserByUserId } from "../models/user.server";
+import { requireUserId, logout } from "../session.server";
 
 export async function loader({ request }: LoaderArgs) {
   await requireUserId(request);

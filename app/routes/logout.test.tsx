@@ -1,10 +1,10 @@
 import { redirect } from "@remix-run/node";
 
+import { logout } from "../session.server";
 import { action, loader } from "./logout";
-import { logout } from "~/session.server";
 
 beforeEach(() => {
-  vi.mock("~/session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       logout: vi.fn(),
     };

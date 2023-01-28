@@ -1,7 +1,7 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 
-import { requireUserId } from "~/session.server";
+import { requireUserId } from "../session.server";
 
 export async function loader({ request }: LoaderArgs) {
   await requireUserId(request);

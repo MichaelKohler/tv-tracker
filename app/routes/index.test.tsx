@@ -3,8 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getFlagsFromEnvironment } from "~/models/config.server";
-import { useOptionalUser } from "~/utils";
+import { getFlagsFromEnvironment } from "../models/config.server";
+import { useOptionalUser } from "../utils";
 
 import Index, { loader } from "./index";
 
@@ -24,12 +24,12 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("~/models/config.server", () => {
+  vi.mock("../models/config.server", () => {
     return {
       getFlagsFromEnvironment: vi.fn(),
     };
   });
-  vi.mock("~/utils", () => {
+  vi.mock("../utils", () => {
     return {
       useOptionalUser: vi.fn().mockReturnValue(null),
     };

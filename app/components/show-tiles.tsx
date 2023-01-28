@@ -1,5 +1,5 @@
-import ShowTile from "~/components/show-tile";
-import type { FrontendShow } from "~/utils";
+import type { FrontendShow } from "../utils";
+import ShowTile from "./show-tile";
 
 interface Props {
   shows: FrontendShow[];

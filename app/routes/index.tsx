@@ -1,7 +1,8 @@
 import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { getFlagsFromEnvironment } from "~/models/config.server";
-import { useOptionalUser } from "~/utils";
+
+import { getFlagsFromEnvironment } from "../models/config.server";
+import { useOptionalUser } from "../utils";
 
 export async function loader() {
   const { SIGNUP_DISABLED } = getFlagsFromEnvironment();

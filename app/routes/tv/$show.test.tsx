@@ -19,23 +19,23 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("~/components/episode-list", async () => {
+  vi.mock("../../components/episode-list", async () => {
     return {
       default: () => <p>EpisodeList</p>,
     };
   });
-  vi.mock("~/components/show-header", async () => {
+  vi.mock("../../components/show-header", async () => {
     return {
       default: () => <p>ShowHeader</p>,
     };
   });
-  vi.mock("~/models/show.server", () => {
+  vi.mock("../../models/show.server", () => {
     return {
       getShowById: vi.fn(),
       removeShowFromUser: vi.fn(),
     };
   });
-  vi.mock("~/session.server", async () => {
+  vi.mock("../../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
     };

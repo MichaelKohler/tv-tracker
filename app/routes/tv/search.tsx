@@ -8,9 +8,9 @@ import {
   Form,
 } from "@remix-run/react";
 
-import ShowResults from "~/components/show-results";
-import { addShow, searchShows } from "~/models/show.server";
-import { requireUserId } from "~/session.server";
+import ShowResults from "../../components/show-results";
+import { addShow, searchShows } from "../../models/show.server";
+import { requireUserId } from "../../session.server";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);

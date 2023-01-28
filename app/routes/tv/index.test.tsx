@@ -3,7 +3,7 @@ import { useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getShowsByUserId } from "~/models/show.server";
+import { getShowsByUserId } from "../../models/show.server";
 import Index, { loader } from "./index";
 
 beforeEach(() => {
@@ -16,19 +16,19 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("~/session.server", async () => {
+  vi.mock("../../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });
 
-  vi.mock("~/components/show-tiles", async () => {
+  vi.mock("../../components/show-tiles", async () => {
     return {
       default: () => <p>ShowTiles</p>,
     };
   });
 
-  vi.mock("~/models/show.server", async () => {
+  vi.mock("../../models/show.server", async () => {
     return {
       getShowsByUserId: vi.fn().mockResolvedValue([]),
     };

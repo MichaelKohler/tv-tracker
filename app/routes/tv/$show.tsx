@@ -3,16 +3,16 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData, useCatch, useLoaderData } from "@remix-run/react";
 
-import ErrorAlert from "~/components/error-alert";
-import EpisodeList from "~/components/episode-list";
-import ShowHeader from "~/components/show-header";
+import ErrorAlert from "../../components/error-alert";
+import EpisodeList from "../../components/episode-list";
+import ShowHeader from "../../components/show-header";
 import {
   markEpisodeAsWatched,
   markAllEpisodesAsWatched,
   markEpisodeAsUnwatched,
-} from "~/models/episode.server";
-import { getShowById, removeShowFromUser } from "~/models/show.server";
-import { requireUserId } from "~/session.server";
+} from "../../models/episode.server";
+import { getShowById, removeShowFromUser } from "../../models/show.server";
+import { requireUserId } from "../../session.server";
 
 export async function loader({ request, params }: LoaderArgs) {
   const userId = await requireUserId(request);
