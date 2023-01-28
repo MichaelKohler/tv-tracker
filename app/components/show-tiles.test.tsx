@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { FrontendShow } from "~/utils";
+import type { FrontendShow } from "../utils";
 import ShowTiles from "./show-tiles";
 
 const shows: FrontendShow[] = [

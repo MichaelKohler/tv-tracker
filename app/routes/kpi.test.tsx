@@ -1,26 +1,26 @@
-import { requireUserId } from "~/session.server";
+import { requireUserId } from "../session.server";
 
 import { loader } from "./kpi";
 
 beforeEach(() => {
-  vi.mock("~/models/show.server", async () => {
+  vi.mock("../models/show.server", async () => {
     return {
       getShowCount: vi.fn().mockResolvedValue(55),
       getConnectedShowCount: vi.fn().mockResolvedValue(53),
     };
   });
-  vi.mock("~/models/episode.server", async () => {
+  vi.mock("../models/episode.server", async () => {
     return {
       getEpisodeCount: vi.fn().mockResolvedValue(2000),
       getConnectedEpisodeCount: vi.fn().mockResolvedValue(1500),
     };
   });
-  vi.mock("~/models/user.server", async () => {
+  vi.mock("../models/user.server", async () => {
     return {
       getUserCount: vi.fn().mockResolvedValue(5),
     };
   });
-  vi.mock("~/session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue(true),
     };

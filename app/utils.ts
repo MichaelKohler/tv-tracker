@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { Episode, Show } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
 
-import type { User } from "~/models/user.server";
+import type { User } from "./models/user.server";
 
 const DEFAULT_REDIRECT = "/";
 

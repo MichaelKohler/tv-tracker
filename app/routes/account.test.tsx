@@ -2,8 +2,8 @@ import * as React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { requireUserId } from "../session.server";
 import Account, { loader } from "./account";
-import { requireUserId } from "~/session.server";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -14,8 +14,8 @@ beforeEach(() => {
     };
   });
 
-  vi.mock("~/session.server", async () => {
-    const actual = await vi.importActual("~/session.server");
+  vi.mock("../session.server", async () => {
+    const actual = await vi.importActual("../session.server");
     return {
       ...(actual as Object),
       requireUserId: vi.fn().mockResolvedValue("123"),

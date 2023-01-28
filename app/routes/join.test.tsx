@@ -4,12 +4,12 @@ import { useActionData, useLoaderData, useTransition } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import * as config from "~/models/config.server";
-import * as invite from "~/models/invite.server";
-import { createUser, getUserByEmail } from "~/models/user.server";
+import * as config from "../models/config.server";
+import * as invite from "../models/invite.server";
+import { createUser, getUserByEmail } from "../models/user.server";
+import { getUserId } from "../session.server";
+import { validateEmail } from "../utils";
 import Join, { action, loader, meta } from "./join";
-import { getUserId } from "~/session.server";
-import { validateEmail } from "~/utils";
 
 const MOCK_ENV = {
   SIGNUP_DISABLED: false,
@@ -35,20 +35,20 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("~/session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       getUserId: vi.fn(),
       createUserSession: vi.fn().mockImplementation((arg) => arg),
     };
   });
-  vi.mock("~/utils", async () => {
-    const actual = await vi.importActual("~/utils");
+  vi.mock("../utils", async () => {
+    const actual = await vi.importActual("../utils");
     return {
       ...(actual as Object),
       validateEmail: vi.fn(),
     };
   });
-  vi.mock("~/models/user.server", () => {
+  vi.mock("../models/user.server", () => {
     return {
       createUser: vi.fn(),
       getUserByEmail: vi.fn(),

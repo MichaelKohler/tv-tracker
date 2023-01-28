@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Link, useMatches } from "@remix-run/react";
-import { useOptionalUser } from "~/utils";
+
+import { useOptionalUser } from "../utils";
 
 export default function Header({
   renderLoginButtons = true,

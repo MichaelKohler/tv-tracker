@@ -3,8 +3,8 @@ import { useTransition } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { FrontendEpisode } from "../utils";
 import EpisodeList from "./episode-list";
-import type { FrontendEpisode } from "~/utils";
 
 const DEFAULT_EPISODES: FrontendEpisode[] = [
   {

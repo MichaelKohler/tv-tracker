@@ -1,10 +1,9 @@
-import type { FrontendEpisode, FrontendShow } from "~/utils";
-
 import { Form, useTransition } from "@remix-run/react";
 
-import { EPISODE_FALLBACK_IMG_PATH } from "~/constants";
-import Spinner from "~/components/spinner";
-import { padNumber } from "~/utils";
+import { EPISODE_FALLBACK_IMG_PATH } from "../constants";
+import type { FrontendEpisode, FrontendShow } from "../utils";
+import { padNumber } from "../utils";
+import Spinner from "./spinner";
 
 interface Props {
   episodes: FrontendEpisode[];

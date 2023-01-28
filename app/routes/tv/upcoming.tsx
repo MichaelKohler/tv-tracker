@@ -2,9 +2,9 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-import UpcomingEpisodesList from "~/components/upcoming-episodes-list";
-import { getUpcomingEpisodes } from "~/models/episode.server";
-import { requireUserId } from "~/session.server";
+import UpcomingEpisodesList from "../../components/upcoming-episodes-list";
+import { getUpcomingEpisodes } from "../../models/episode.server";
+import { requireUserId } from "../../session.server";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);

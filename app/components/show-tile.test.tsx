@@ -3,8 +3,8 @@ import { useTransition } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { FrontendShow } from "../utils";
 import ShowTile from "./show-tile";
-import type { FrontendShow } from "~/utils";
 
 const show: FrontendShow = {
   createdAt: new Date().toISOString(),

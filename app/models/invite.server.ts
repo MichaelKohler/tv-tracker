@@ -1,6 +1,6 @@
 import type { Invite } from "@prisma/client";
 
-import { prisma } from "~/db.server";
+import { prisma } from "../db.server";
 
 export async function redeemInviteCode(inviteCode: Invite["id"]) {
   const existingInvite = await prisma.invite.findUnique({

@@ -1,12 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { useOptionalUser } from "~/utils";
-
+import { useOptionalUser } from "../utils";
 import Header from "./header";
 
 beforeEach(() => {
-  vi.mock("~/utils", async () => {
+  vi.mock("../utils", async () => {
     return {
       useOptionalUser: vi.fn(),
     };

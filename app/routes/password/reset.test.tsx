@@ -4,7 +4,7 @@ import { useActionData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getUserId } from "~/session.server";
+import { getUserId } from "../../session.server";
 import Reset, { action, loader, meta } from "./reset";
 
 beforeEach(() => {
@@ -19,7 +19,7 @@ beforeEach(() => {
     };
   });
 
-  vi.mock("~/session.server", async () => {
+  vi.mock("../../session.server", async () => {
     return {
       getUserId: vi.fn(),
     };

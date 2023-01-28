@@ -2,7 +2,7 @@ import * as React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { FrontendEpisode, FrontendShow } from "~/utils";
+import type { FrontendEpisode, FrontendShow } from "../utils";
 
 import UpcomingEpisodesList from "./upcoming-episodes-list";
 

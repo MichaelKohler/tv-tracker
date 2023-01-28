@@ -4,10 +4,10 @@ import { useActionData, useTransition } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { verifyLogin } from "~/models/user.server";
+import { verifyLogin } from "../models/user.server";
+import { getUserId } from "../session.server";
+import { validateEmail } from "../utils";
 import Login, { action, loader, meta } from "./login";
-import { getUserId } from "~/session.server";
-import { validateEmail } from "~/utils";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -27,20 +27,20 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("~/session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       getUserId: vi.fn(),
       createUserSession: vi.fn().mockImplementation((arg) => arg),
     };
   });
-  vi.mock("~/utils", async () => {
-    const actual = await vi.importActual("~/utils");
+  vi.mock("../utils", async () => {
+    const actual = await vi.importActual("../utils");
     return {
       ...(actual as Object),
       validateEmail: vi.fn(),
     };
   });
-  vi.mock("~/models/user.server", () => {
+  vi.mock("../models/user.server", () => {
     return {
       verifyLogin: vi.fn(),
     };

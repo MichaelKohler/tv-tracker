@@ -3,8 +3,8 @@ import { useActionData, useSearchParams } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { changePassword, verifyLogin } from "~/models/user.server";
-import { requireUser } from "~/session.server";
+import { changePassword, verifyLogin } from "../../models/user.server";
+import { requireUser } from "../../session.server";
 import Change, { action, meta } from "./change";
 
 beforeEach(() => {
@@ -19,12 +19,12 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("~/session.server", async () => {
+  vi.mock("../../session.server", async () => {
     return {
       requireUser: vi.fn(),
     };
   });
-  vi.mock("~/models/user.server", () => {
+  vi.mock("../../models/user.server", () => {
     return {
       changePassword: vi.fn(),
       verifyLogin: vi.fn(),
