@@ -12,6 +12,7 @@ export default defineConfig({
       provider: "c8",
     },
     environment: "jsdom",
+    include: ["**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     globals: true,
     setupFiles: ["./test/setup-test-env.ts"],
   },

@@ -72,8 +72,8 @@ jobs:
       - name: ⚡ Run vitest
         run: npm run test -- --coverage
 
-  cypress:
-    name: ⚫️ Cypress
+  playwright:
+    name: ⚫️ Playwright
     runs-on: ubuntu-latest
     steps:
       - name: 🛑 Cancel Previous Runs
@@ -108,10 +108,16 @@ jobs:
       - name: ⚙️ Build
         run: npm run build
 
-      - name: 🌳 Cypress run
-        uses: cypress-io/github-action@v5
+      - name: 🧰 Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: 🌳 Run Playwright tests
+        run: npm run test:e2e:run
+
+      - name: ⬆️ Upload artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
         with:
-          start: npm run start:mocks
-          wait-on: "http://localhost:8811"
-        env:
-          PORT: "8811"
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
