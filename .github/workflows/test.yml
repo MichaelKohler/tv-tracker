@@ -25,7 +25,7 @@ jobs:
           node-version: 16
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: npm ci
 
       - name: 🔬 Lint
         run: npm run lint
@@ -46,7 +46,7 @@ jobs:
           node-version: 16
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: npm ci
 
       - name: 🔎 Type check
         run: npm run typecheck --if-present
@@ -67,7 +67,7 @@ jobs:
           node-version: 16
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: npm ci
 
       - name: ⚡ Run vitest
         run: npm run test -- --coverage
@@ -91,7 +91,7 @@ jobs:
           node-version: 16
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: npm ci
 
       - name: 🛢 Setup MySQL
         run: |

@@ -21,7 +21,7 @@ jobs:
           node-version: 16
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: npm ci
 
       - name: ✨ Update Episodes
         run: npm run update:episodes
@@ -40,7 +40,7 @@ jobs:
           node-version: 16
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: npm ci
 
       - name: ✨ Update Episode Images
         run: npm run update:episodes:images
