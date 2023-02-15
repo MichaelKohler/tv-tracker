@@ -38,7 +38,7 @@
     "@node-rs/bcrypt": "^1.6.2",
     "@prisma/client": "^4.10.1",
     "@remix-run/node": "^1.12.0",
-    "@remix-run/react": "^1.12.0",
+    "@remix-run/react": "^1.13.0",
     "@remix-run/serve": "^1.12.0",
     "@remix-run/vercel": "^1.12.0",
     "@vitest/coverage-c8": "^0.28.5",
