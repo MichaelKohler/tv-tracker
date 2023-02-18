@@ -19,7 +19,7 @@ export default function ShowTile({ show }: Props) {
           <img
             src={show.imageUrl}
             alt=""
-            className={`rounded-t-lg ${
+            className={`min-h-[350px] rounded-t-lg ${
               !show.unwatchedEpisodesCount ? "grayscale-80" : ""
             }`}
           />
