@@ -1,4 +1,4 @@
-name: Delete Episode
+name: ❌ Delete Episode
 
 on:
   workflow_dispatch:

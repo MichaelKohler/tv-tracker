@@ -1,4 +1,4 @@
-name: Force Episode Update
+name: 🔄 Force Episode Update
 
 on:
   workflow_dispatch:
