@@ -1,0 +1,41 @@
+name: Force Episode Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      showName:
+        description: "Show Name"
+        required: true
+        default: ""
+      season:
+        description: "Season"
+        required: true
+        default: ""
+      number:
+        description: "Episode Number"
+        required: true
+        default: ""
+
+jobs:
+  update:
+    name: ⬣ Force Update Episode
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v3
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: ✨Force Update Episode
+        run: npm run update:episode:force
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TV_SHOW_NAME: ${{ github.event.inputs.showName }}
+          TV_EPISODE_SEASON: ${{ github.event.inputs.season }}
+          TV_EPISODE_NUMBER: ${{ github.event.inputs.number }}
