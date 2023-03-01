@@ -107,6 +107,28 @@ test("does not render mark all button if all watched", async () => {
   expect(screen.queryByText("Mark all aired episodes as watched")).toBeNull();
 });
 
+test("renders archive button if not archived", async () => {
+  const notArchivedShow = {
+    ...show,
+    archived: false,
+  };
+
+  render(<ShowHeader show={notArchivedShow} watchedEpisodes={[]} />);
+
+  expect(screen.queryByText("Ignore unwatched on overview")).toBeDefined();
+});
+
+test("renders unarchive button if not archived", async () => {
+  const archivedShow = {
+    ...show,
+    archived: true,
+  };
+
+  render(<ShowHeader show={archivedShow} watchedEpisodes={[]} />);
+
+  expect(screen.queryByText("Unignore unwatched on overview")).toBeDefined();
+});
+
 test("renders spinner on mark all watched", async () => {
   vi.mocked(useTransition).mockReturnValue({
     submission: {
@@ -151,4 +173,48 @@ test("renders spinner on remove show", async () => {
   expect(screen.queryByTestId("spinner")).toBeDefined();
   expect(screen.getByText(/Mark all aired episodes as watched/)).toBeDefined();
   expect(screen.queryByText(/Remove show/)).toBeNull();
+});
+
+test("renders spinner on archiving", async () => {
+  vi.mocked(useTransition).mockReturnValue({
+    submission: {
+      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+      formData: {
+        get(key: string) {
+          if (key === "intent") {
+            return "ARCHIVE";
+          }
+
+          return "";
+        },
+      },
+    },
+  });
+
+  render(<ShowHeader show={show} watchedEpisodes={[]} />);
+
+  expect(screen.queryByTestId("spinner")).toBeDefined();
+  expect(screen.queryByText(/Ignore unwatched on overview/)).toBeNull();
+});
+
+test("renders spinner on unarchiving", async () => {
+  vi.mocked(useTransition).mockReturnValue({
+    submission: {
+      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+      formData: {
+        get(key: string) {
+          if (key === "intent") {
+            return "UNARCHIVE";
+          }
+
+          return "";
+        },
+      },
+    },
+  });
+
+  render(<ShowHeader show={show} watchedEpisodes={[]} />);
+
+  expect(screen.queryByTestId("spinner")).toBeDefined();
+  expect(screen.queryByText(/Unignore unwatched on overview/)).toBeNull();
 });

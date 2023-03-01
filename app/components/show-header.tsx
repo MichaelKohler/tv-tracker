@@ -74,6 +74,39 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
                 </button>
               </Form>
             )}
+          {submissionIntent &&
+            (submissionIntent === "ARCHIVE" ||
+              submissionIntent === "UNARCHIVE") && (
+              <div className="mt-4">
+                <Spinner />
+              </div>
+            )}
+          {!show.archived && submissionIntent !== "ARCHIVE" && (
+            <Form method="post">
+              <input type="hidden" name="intent" value="ARCHIVE" />
+              <input type="hidden" name="showId" value={show.id} />
+              <button
+                type="submit"
+                disabled={!!transition.submission}
+                className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
+              >
+                Ignore unwatched on overview
+              </button>
+            </Form>
+          )}
+          {show.archived && submissionIntent !== "UNARCHIVE" && (
+            <Form method="post">
+              <input type="hidden" name="intent" value="UNARCHIVE" />
+              <input type="hidden" name="showId" value={show.id} />
+              <button
+                type="submit"
+                disabled={!!transition.submission}
+                className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
+              >
+                Unignore unwatched on overview
+              </button>
+            </Form>
+          )}
           {submissionIntent !== "DELETE_SHOW" && (
             <Form method="post">
               <input type="hidden" name="intent" value="DELETE_SHOW" />
