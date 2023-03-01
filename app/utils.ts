@@ -87,6 +87,7 @@ export interface FrontendShow
   updatedAt: string;
   episodes?: FrontendEpisode[];
   unwatchedEpisodesCount?: number;
+  archived?: boolean;
 }
 
 export interface FrontendEpisode

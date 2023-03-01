@@ -6,6 +6,7 @@ import {
 } from "./maze.server";
 import {
   addShow,
+  archiveShowOnUser,
   getAllRunningShowIds,
   getConnectedShowCount,
   getShowById,
@@ -13,6 +14,7 @@ import {
   getShowsByUserId,
   removeShowFromUser,
   searchShows,
+  unarchiveShowOnUser,
 } from "./show.server";
 
 vi.mock("../db.server");
@@ -118,7 +120,18 @@ test("getAllRunningShowIds should return ids", async () => {
 });
 
 test("getShowsByUserId should return ids and unwatched count", async () => {
-  prisma.show.findMany.mockResolvedValue([SHOW, SHOW2]);
+  prisma.showOnUser.findMany.mockResolvedValue([
+    {
+      archived: false,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW,
+    },
+    {
+      archived: false,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW2,
+    },
+  ]);
   prisma.episodeOnUser.findMany.mockResolvedValue([
     {
       id: "1",
@@ -143,11 +156,34 @@ test("getShowsByUserId should return ids and unwatched count", async () => {
       ...SHOW,
       episodes: undefined,
       unwatchedEpisodesCount: 1,
+      archived: false,
     },
     {
       ...SHOW2,
       episodes: undefined,
       unwatchedEpisodesCount: 0,
+      archived: false,
+    },
+  ]);
+});
+
+test("getShowsByUserId should return 0 unwatched episodes for archived shows", async () => {
+  prisma.showOnUser.findMany.mockResolvedValue([
+    {
+      archived: true,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW,
+    },
+  ]);
+  // In theory we have 3 unwatched episodes here
+  prisma.episodeOnUser.findMany.mockResolvedValue([]);
+  const shows = await getShowsByUserId("userId");
+  expect(shows).toStrictEqual([
+    {
+      ...SHOW,
+      episodes: undefined,
+      unwatchedEpisodesCount: 0,
+      archived: true,
     },
   ]);
 });
@@ -159,7 +195,11 @@ test("getShowsByUserId should return empty array if not found", async () => {
 });
 
 test("getShowById should return users show with watched episodes", async () => {
-  prisma.show.findFirst.mockResolvedValue(SHOW2);
+  prisma.showOnUser.findFirst.mockResolvedValue({
+    archived: false,
+    // @ts-expect-error TS does not know about the include..
+    show: SHOW2,
+  });
   prisma.episodeOnUser.findMany.mockResolvedValue([
     {
       id: "3",
@@ -172,7 +212,10 @@ test("getShowById should return users show with watched episodes", async () => {
   ]);
   const shows = await getShowById("2", "userId");
   expect(shows).toStrictEqual({
-    show: SHOW2,
+    show: {
+      ...SHOW2,
+      archived: false,
+    },
     watchedEpisodes: ["4"],
   });
 });
@@ -207,6 +250,7 @@ test("getConnectedShowCount should return count", async () => {
       updatedAt: new Date(),
       userId: "userId",
       showId: "1",
+      archived: false,
     },
     {
       id: "3",
@@ -214,6 +258,7 @@ test("getConnectedShowCount should return count", async () => {
       updatedAt: new Date(),
       userId: "userId",
       showId: "2",
+      archived: false,
     },
   ]);
   const count = await getConnectedShowCount();
@@ -405,8 +450,45 @@ test("addShow should not do anything if already connected", async () => {
     updatedAt: new Date(),
     showId: SHOW.id,
     userId: "userId",
+    archived: false,
   });
 
   await addShow("userId", SHOW.mazeId);
   expect(prisma.showOnUser.create).not.toBeCalled();
+});
+
+test("archiveShowOnUser should archive show", async () => {
+  prisma.showOnUser.updateMany.mockResolvedValue({ count: 1 });
+
+  await archiveShowOnUser({
+    userId: "userId",
+    showId: SHOW.id,
+  });
+  expect(prisma.showOnUser.updateMany).toBeCalledWith({
+    data: {
+      archived: true,
+    },
+    where: {
+      showId: SHOW.id,
+      userId: "userId",
+    },
+  });
+});
+
+test("unarchiveShowOnUser should unarchive show", async () => {
+  prisma.showOnUser.updateMany.mockResolvedValue({ count: 1 });
+
+  await unarchiveShowOnUser({
+    userId: "userId",
+    showId: SHOW.id,
+  });
+  expect(prisma.showOnUser.updateMany).toBeCalledWith({
+    data: {
+      archived: false,
+    },
+    where: {
+      showId: SHOW.id,
+      userId: "userId",
+    },
+  });
 });

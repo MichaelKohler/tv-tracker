@@ -54,6 +54,7 @@ beforeEach(() => {
       createdAt: "2022-01-01",
       updatedAt: "2022-01-01",
       episodes: [],
+      archived: false,
     },
     watchedEpisodes: [],
   });
@@ -94,6 +95,32 @@ test("renders error if removing show failed", () => {
   expect(screen.getByText("Removing show failed")).toBeDefined();
   expect(
     screen.getByText(/There was an error while removing the show/)
+  ).toBeDefined();
+});
+
+test("renders error if archiving show failed", () => {
+  vi.mocked(useActionData<typeof action>).mockReturnValue({
+    error: "ARCHIVE_SHOW_FAILED",
+  });
+
+  render(<TVShow />);
+
+  expect(screen.getByText("Archiving show failed")).toBeDefined();
+  expect(
+    screen.getByText(/There was an error while archiving the show/)
+  ).toBeDefined();
+});
+
+test("renders error if unarchiving show failed", () => {
+  vi.mocked(useActionData<typeof action>).mockReturnValue({
+    error: "UNARCHIVE_SHOW_FAILED",
+  });
+
+  render(<TVShow />);
+
+  expect(screen.getByText("Unarchiving show failed")).toBeDefined();
+  expect(
+    screen.getByText(/There was an error while unarchiving the show/)
   ).toBeDefined();
 });
 

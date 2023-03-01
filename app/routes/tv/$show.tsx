@@ -11,7 +11,12 @@ import {
   markAllEpisodesAsWatched,
   markEpisodeAsUnwatched,
 } from "../../models/episode.server";
-import { getShowById, removeShowFromUser } from "../../models/show.server";
+import {
+  archiveShowOnUser,
+  getShowById,
+  removeShowFromUser,
+  unarchiveShowOnUser,
+} from "../../models/show.server";
 import { requireUserId } from "../../session.server";
 
 export async function loader({ request, params }: LoaderArgs) {
@@ -85,6 +90,28 @@ export async function action({ request }: ActionArgs) {
     }
   }
 
+  if (intent === "ARCHIVE") {
+    try {
+      await archiveShowOnUser({ userId, showId });
+      return redirect("/tv");
+    } catch (error) {
+      console.error(error);
+
+      return json({ error: "ARCHIVE_SHOW_FAILED" }, { status: 500 });
+    }
+  }
+
+  if (intent === "UNARCHIVE") {
+    try {
+      await unarchiveShowOnUser({ userId, showId });
+      return redirect("/tv");
+    } catch (error) {
+      console.error(error);
+
+      return json({ error: "UNARCHIVE_SHOW_FAILED" }, { status: 500 });
+    }
+  }
+
   return json({ error: "" });
 }
 
@@ -115,6 +142,24 @@ export default function TVShow() {
           <ErrorAlert
             title="Removing show failed"
             message="There was an error while removing the show. Please try again. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
+
+      {error && error === "ARCHIVE_SHOW_FAILED" && (
+        <div className="mt-2 mb-8">
+          <ErrorAlert
+            title="Archiving show failed"
+            message="There was an error while archiving the show. Please try again. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
+
+      {error && error === "UNARCHIVE_SHOW_FAILED" && (
+        <div className="mt-2 mb-8">
+          <ErrorAlert
+            title="Unarchiving show failed"
+            message="There was an error while unarchiving the show. Please try again. Sorry for the inconvenience!"
           />
         </div>
       )}

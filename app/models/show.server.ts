@@ -27,18 +27,30 @@ export async function getAllRunningShowIds() {
 }
 
 export async function getShowsByUserId(userId: User["id"]) {
-  const shows = await prisma.show.findMany({
+  // We are querying showOnUser so that we can easier get the
+  // attributes off of this table, such as "archived". We then
+  // later on map it to get an easier data structure.
+  const showsOnUser = await prisma.showOnUser.findMany({
     where: {
-      users: {
-        some: {
-          userId,
+      userId,
+    },
+    include: {
+      show: {
+        include: {
+          episodes: true,
         },
       },
     },
-    include: {
-      episodes: true,
-    },
   });
+
+  if (!showsOnUser) {
+    return [];
+  }
+
+  const shows = showsOnUser.map((showOnUser) => ({
+    ...showOnUser.show,
+    archived: showOnUser.archived,
+  }));
 
   if (!shows) {
     return [];
@@ -57,8 +69,9 @@ export async function getShowsByUserId(userId: User["id"]) {
     const pastEpisodes = show.episodes.filter(
       (episode) => episode.airDate < new Date()
     );
-    const unwatchedEpisodesCount =
-      pastEpisodes.length - watchedEpisodeForShow.length;
+    const unwatchedEpisodesCount = show.archived
+      ? 0
+      : pastEpisodes.length - watchedEpisodeForShow.length;
 
     return {
       ...show,
@@ -90,21 +103,26 @@ async function getAddedShowsMazeIds(userId: User["id"]) {
 }
 
 export async function getShowById(showId: Show["id"], userId: User["id"]) {
-  const [show, watchedEpisodes] = await Promise.all([
-    prisma.show.findFirst({
+  const [showOnUser, watchedEpisodes] = await Promise.all([
+    prisma.showOnUser.findFirst({
       where: {
-        id: showId,
+        showId,
+        userId,
       },
       include: {
-        episodes: {
-          orderBy: [
-            {
-              season: "desc",
+        show: {
+          include: {
+            episodes: {
+              orderBy: [
+                {
+                  season: "desc",
+                },
+                {
+                  number: "desc",
+                },
+              ],
             },
-            {
-              number: "desc",
-            },
-          ],
+          },
         },
       },
     }),
@@ -115,6 +133,15 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
       },
     }),
   ]);
+
+  if (!showOnUser) {
+    return {};
+  }
+
+  const show = {
+    ...showOnUser?.show,
+    archived: showOnUser?.archived,
+  };
 
   return {
     show,
@@ -293,4 +320,40 @@ export async function getConnectedShowCount() {
   });
 
   return distinctShows.length;
+}
+
+export async function archiveShowOnUser({
+  userId,
+  showId,
+}: {
+  userId: User["id"];
+  showId: Show["id"];
+}) {
+  await prisma.showOnUser.updateMany({
+    data: {
+      archived: true,
+    },
+    where: {
+      showId,
+      userId,
+    },
+  });
+}
+
+export async function unarchiveShowOnUser({
+  userId,
+  showId,
+}: {
+  userId: User["id"];
+  showId: Show["id"];
+}) {
+  await prisma.showOnUser.updateMany({
+    data: {
+      archived: false,
+    },
+    where: {
+      showId,
+      userId,
+    },
+  });
 }
