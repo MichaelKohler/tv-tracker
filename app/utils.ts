@@ -71,7 +71,7 @@ export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
 
-export function padNumber(number: Number) {
+export function padNumber(number: number) {
   if (number < 10) {
     return `0${number}`;
   }
