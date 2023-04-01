@@ -1,4 +1,4 @@
-import { Link, useTransition } from "@remix-run/react";
+import { Link, useNavigation } from "@remix-run/react";
 
 import type { FrontendShow } from "../utils";
 import Spinner from "./spinner";
@@ -7,10 +7,10 @@ interface Props {
 }
 
 export default function ShowTile({ show }: Props) {
-  const transition = useTransition();
+  const navigation = useNavigation();
   const navigatingToDetail =
-    transition.state === "loading" &&
-    transition.location.pathname === `/tv/${show.id}`;
+    navigation.state === "loading" &&
+    navigation.location.pathname === `/tv/${show.id}`;
 
   return (
     <Link to={`/tv/${show.id}`}>
@@ -25,12 +25,12 @@ export default function ShowTile({ show }: Props) {
           />
         )}
         {navigatingToDetail && (
-          <div className="absolute top-32 left-[103px] mt-4">
+          <div className="absolute left-[103px] top-32 mt-4">
             <Spinner />
           </div>
         )}
         {(show.unwatchedEpisodesCount ?? 0) > 0 && (
-          <div className="absolute top-0 left-0 rounded-tl-lg bg-orange-400 py-2 px-2 text-xl">
+          <div className="absolute left-0 top-0 rounded-tl-lg bg-orange-400 px-2 py-2 text-xl">
             {show.unwatchedEpisodesCount}
           </div>
         )}

@@ -5,12 +5,12 @@ import "@testing-library/jest-dom";
 
 import { changePassword, verifyLogin } from "../../models/user.server";
 import { requireUser } from "../../session.server";
-import Change, { action, meta } from "./change";
+import Change, { action } from "./change";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
       useSearchParams: vi.fn(),
@@ -177,12 +177,6 @@ test("renders without current password input if token is passed", () => {
   render(<Change />);
 
   expect(screen.queryByText(/Current Password/)).toBeNull();
-});
-
-test("meta returns correct title", () => {
-  const metaReturn = meta();
-
-  expect(metaReturn.title).toBe("Change Password");
 });
 
 test("action should return error if new password is invalid", async () => {

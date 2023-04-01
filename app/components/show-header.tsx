@@ -1,4 +1,4 @@
-import { Form, useTransition } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 
 import type { FrontendEpisode, FrontendShow } from "../utils";
 import Spinner from "./spinner";
@@ -9,8 +9,8 @@ interface Props {
 }
 
 export default function ShowHeader({ show, watchedEpisodes }: Props) {
-  const transition = useTransition();
-  const submissionIntent = transition?.submission?.formData.get("intent");
+  const navigation = useNavigation();
+  const submissionIntent = navigation?.formData?.get("intent");
   const pastEpisodes = show.episodes?.filter(
     (episode) => new Date(episode.airDate) < new Date()
   );
@@ -67,8 +67,8 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
                 <input type="hidden" name="showId" value={show.id} />
                 <button
                   type="submit"
-                  disabled={!!transition.submission}
-                  className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
+                  disabled={!!navigation.formData}
+                  className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
                 >
                   Mark all aired episodes as watched
                 </button>
@@ -87,8 +87,8 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
               <input type="hidden" name="showId" value={show.id} />
               <button
                 type="submit"
-                disabled={!!transition.submission}
-                className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
+                disabled={!!navigation.formData}
+                className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
               >
                 Ignore unwatched on overview
               </button>
@@ -100,8 +100,8 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
               <input type="hidden" name="showId" value={show.id} />
               <button
                 type="submit"
-                disabled={!!transition.submission}
-                className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
+                disabled={!!navigation.formData}
+                className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
               >
                 Unignore unwatched on overview
               </button>
@@ -113,8 +113,8 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
               <input type="hidden" name="showId" value={show.id} />
               <button
                 type="submit"
-                disabled={!!transition.submission}
-                className="mt-4 rounded bg-red-300 py-2 px-4 text-black hover:bg-red-200 active:bg-red-200"
+                disabled={!!navigation.formData}
+                className="mt-4 rounded bg-red-300 px-4 py-2 text-black hover:bg-red-200 active:bg-red-200"
               >
                 Remove show
               </button>

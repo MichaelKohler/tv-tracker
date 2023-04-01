@@ -1,12 +1,12 @@
 import * as React from "react";
-import type { ActionArgs, LoaderArgs, MetaFunction } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
   Link,
   useActionData,
   useSearchParams,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 
 import { verifyLogin } from "../models/user.server";
@@ -62,15 +62,17 @@ export async function action({ request }: ActionArgs) {
   });
 }
 
-export function meta(): ReturnType<MetaFunction> {
-  return {
-    title: "Login",
-  };
+export function meta(): ReturnType<V2_MetaFunction> {
+  return [
+    {
+      title: "Login",
+    },
+  ];
 }
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const redirectTo = searchParams.get("redirectTo") || "/tv";
   const actionData = useActionData<typeof action>();
   const emailRef = React.useRef<HTMLInputElement>(null);
@@ -85,7 +87,7 @@ export default function LoginPage() {
   }, [actionData]);
 
   return (
-    <main className="my-12 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
+    <main className="mx-auto my-12 flex min-h-full w-full max-w-md flex-col px-8">
       <Form method="post" className="space-y-6">
         <div>
           <label
@@ -144,10 +146,10 @@ export default function LoginPage() {
         <input type="hidden" name="redirectTo" value={redirectTo} />
         <button
           type="submit"
-          className="w-full rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 focus:bg-slate-500"
-          disabled={!!transition.submission}
+          className="w-full rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 focus:bg-slate-500"
+          disabled={!!navigation.formData}
         >
-          {transition.submission ? "Logging in..." : "Log in"}
+          {navigation.formData ? "Logging in..." : "Log in"}
         </button>
         <div className="flex items-center justify-between">
           <div className="flex items-center">

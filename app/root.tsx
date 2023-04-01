@@ -1,5 +1,9 @@
 import { redirect } from "@remix-run/node";
-import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
+import type {
+  LinksFunction,
+  LoaderArgs,
+  V2_MetaFunction,
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -8,7 +12,8 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useCatch,
+  isRouteErrorResponse,
+  useRouteError,
 } from "@remix-run/react";
 import React from "react";
 
@@ -22,12 +27,12 @@ export function links(): ReturnType<LinksFunction> {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
 }
 
-export function meta(): ReturnType<MetaFunction> {
-  return {
-    charset: "utf-8",
-    title: "tv-tracker",
-    viewport: "width=device-width,initial-scale=1",
-  };
+export function meta(): ReturnType<V2_MetaFunction> {
+  return [
+    {
+      title: "tv-tracker",
+    },
+  ];
 }
 
 export async function loader({ request }: LoaderArgs) {
@@ -64,6 +69,8 @@ function App({
           href="https://fonts.googleapis.com/css2?family=Dosis:wght@700&family=Raleway&display=swap"
           rel="stylesheet"
         />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
       </head>
@@ -84,10 +91,10 @@ export default function DefaultApp() {
   return <App />;
 }
 
-export function CatchBoundary() {
-  const caught = useCatch();
+export function ErrorBoundary() {
+  const error = useRouteError();
 
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return (
       <App>
         <main className="flex h-full min-h-screen justify-center bg-white">
@@ -97,10 +104,6 @@ export function CatchBoundary() {
     );
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
-}
-
-export function ErrorBoundary() {
   return (
     <App renderLoginButtons={false}>
       <main className="flex h-full min-h-screen justify-center bg-white">

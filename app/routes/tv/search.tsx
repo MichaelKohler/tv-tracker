@@ -4,7 +4,7 @@ import {
   useActionData,
   useLoaderData,
   useSearchParams,
-  useTransition,
+  useNavigation,
   Form,
 } from "@remix-run/react";
 
@@ -45,9 +45,8 @@ export default function TVSearch({ error }: { error: string }) {
   const actionData = useActionData<typeof action>();
   const [params] = useSearchParams();
   const searchParam = params.get("query") || "";
-  const transition = useTransition();
-  const loadingResults =
-    transition?.submission?.formData.get("intent") === "search";
+  const navigation = useNavigation();
+  const loadingResults = navigation.formData?.get("intent") === "search";
 
   return (
     <>

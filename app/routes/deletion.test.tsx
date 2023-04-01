@@ -10,7 +10,7 @@ import Deletion, { action, loader } from "./deletion";
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (
         <form>{children}</form>

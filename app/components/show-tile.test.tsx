@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useTransition } from "@remix-run/react";
+import { useNavigation } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -23,7 +23,7 @@ const show: FrontendShow = {
 beforeEach(() => {
   vi.mock("@remix-run/react", async () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       Form: ({ children }: { children: React.ReactNode }) => (
         <form>{children}</form>
       ),
@@ -42,7 +42,7 @@ test("renders show tile", async () => {
 });
 
 test("renders navigation spinner on tile", async () => {
-  vi.mocked(useTransition).mockReturnValue({
+  vi.mocked(useNavigation).mockReturnValue({
     state: "loading",
     // @ts-ignore-next-line (we don't need to specify all properties)
     location: { pathname: `/tv/${show.id}` },
@@ -54,7 +54,7 @@ test("renders navigation spinner on tile", async () => {
 });
 
 test("does not render navigation spinner on different tile", async () => {
-  vi.mocked(useTransition).mockReturnValue({
+  vi.mocked(useNavigation).mockReturnValue({
     state: "loading",
     // @ts-ignore-next-line (we don't need to specify all properties)
     location: { pathname: `/tv/not-this-show` },

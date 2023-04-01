@@ -9,7 +9,7 @@ import Search, { action, loader } from "./search";
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
       useSearchParams: vi.fn(),

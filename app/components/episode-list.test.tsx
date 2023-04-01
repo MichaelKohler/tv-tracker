@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useTransition } from "@remix-run/react";
+import { useNavigation } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -40,7 +40,7 @@ const DEFAULT_EPISODES: FrontendEpisode[] = [
 beforeEach(() => {
   vi.mock("@remix-run/react", async () => {
     return {
-      useTransition: vi.fn(),
+      useNavigation: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (
         <form>{children}</form>
       ),
@@ -77,17 +77,15 @@ test("renders unwatched button if watched", async () => {
 });
 
 test("renders spinner while submitting mark as read", async () => {
-  vi.mocked(useTransition).mockReturnValue({
-    submission: {
-      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "episodeId") {
-            return "1";
-          }
+  vi.mocked(useNavigation).mockReturnValue({
+    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    formData: {
+      get(key: string) {
+        if (key === "episodeId") {
+          return "1";
+        }
 
-          return "";
-        },
+        return "";
       },
     },
   });
@@ -105,17 +103,15 @@ test("renders spinner while submitting mark as read", async () => {
 });
 
 test("does not render spinner while submitting mark as read for another episode", async () => {
-  vi.mocked(useTransition).mockReturnValue({
-    submission: {
-      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "episodeId") {
-            return "2";
-          }
+  vi.mocked(useNavigation).mockReturnValue({
+    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    formData: {
+      get(key: string) {
+        if (key === "episodeId") {
+          return "2";
+        }
 
-          return "";
-        },
+        return "";
       },
     },
   });

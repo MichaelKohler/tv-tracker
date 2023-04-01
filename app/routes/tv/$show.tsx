@@ -1,7 +1,12 @@
 import { redirect } from "@remix-run/node";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useActionData, useCatch, useLoaderData } from "@remix-run/react";
+import {
+  isRouteErrorResponse,
+  useActionData,
+  useRouteError,
+  useLoaderData,
+} from "@remix-run/react";
 
 import ErrorAlert from "../../components/error-alert";
 import EpisodeList from "../../components/episode-list";
@@ -129,7 +134,7 @@ export default function TVShow() {
       <ShowHeader show={show} watchedEpisodes={watchedEpisodes} />
 
       {error && error === "MARKING_ALL_EPISODES_FAILED" && (
-        <div className="mt-2 mb-8">
+        <div className="mb-8 mt-2">
           <ErrorAlert
             title="Marking all as watched failed"
             message="There was an error while marking all episodes as watched. Please try again as required. Sorry for the inconvenience!"
@@ -138,7 +143,7 @@ export default function TVShow() {
       )}
 
       {error && error === "REMOVE_SHOW_FAILED" && (
-        <div className="mt-2 mb-8">
+        <div className="mb-8 mt-2">
           <ErrorAlert
             title="Removing show failed"
             message="There was an error while removing the show. Please try again. Sorry for the inconvenience!"
@@ -147,7 +152,7 @@ export default function TVShow() {
       )}
 
       {error && error === "ARCHIVE_SHOW_FAILED" && (
-        <div className="mt-2 mb-8">
+        <div className="mb-8 mt-2">
           <ErrorAlert
             title="Archiving show failed"
             message="There was an error while archiving the show. Please try again. Sorry for the inconvenience!"
@@ -156,7 +161,7 @@ export default function TVShow() {
       )}
 
       {error && error === "UNARCHIVE_SHOW_FAILED" && (
-        <div className="mt-2 mb-8">
+        <div className="mb-8 mt-2">
           <ErrorAlert
             title="Unarchiving show failed"
             message="There was an error while unarchiving the show. Please try again. Sorry for the inconvenience!"
@@ -174,10 +179,10 @@ export default function TVShow() {
   );
 }
 
-export function CatchBoundary() {
-  const caught = useCatch();
+export function ErrorBoundary() {
+  const error = useRouteError();
 
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return (
       <>
         <h1 className="mt-4 font-title text-3xl">Not found</h1>
@@ -186,5 +191,5 @@ export function CatchBoundary() {
     );
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
+  throw error;
 }

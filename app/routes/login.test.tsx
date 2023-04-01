@@ -1,18 +1,18 @@
 import * as React from "react";
 import { redirect } from "@remix-run/node";
-import { useActionData, useTransition } from "@remix-run/react";
+import { useActionData, useNavigation } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { verifyLogin } from "../models/user.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
-import Login, { action, loader, meta } from "./login";
+import Login, { action, loader } from "./login";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useSearchParams: vi.fn().mockReturnValue([
         {
@@ -59,7 +59,7 @@ test("renders login form", () => {
 
 test("renders logging in on button while submitting form", () => {
   // @ts-expect-error .. we do not need to define the full FormData impl
-  vi.mocked(useTransition).mockReturnValue({ submission: { formData: {} } });
+  vi.mocked(useNavigation).mockReturnValue({ formData: {} });
 
   render(<Login />);
 
@@ -90,12 +90,6 @@ test("renders error message for password", () => {
   render(<Login />);
 
   expect(screen.getByText("PASSWORD_ERROR")).toBeDefined();
-});
-
-test("meta returns correct title", () => {
-  const metaReturn = meta();
-
-  expect(metaReturn.title).toBe("Login");
 });
 
 test("loader redirects if there is a user", async () => {

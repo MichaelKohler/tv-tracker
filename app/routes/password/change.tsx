@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { ActionArgs, MetaFunction } from "@remix-run/node";
+import type { ActionArgs, V2_MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useSearchParams } from "@remix-run/react";
 
@@ -116,10 +116,12 @@ export async function action({ request }: ActionArgs) {
   return json({ done: true, errors }, { status: 200 });
 }
 
-export function meta(): ReturnType<MetaFunction> {
-  return {
-    title: "Change Password",
-  };
+export function meta(): ReturnType<V2_MetaFunction> {
+  return [
+    {
+      title: "Change Password",
+    },
+  ];
 }
 
 export default function ChangePassword() {
@@ -152,7 +154,7 @@ export default function ChangePassword() {
   }, [actionData]);
 
   return (
-    <main className="my-12 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
+    <main className="mx-auto my-12 flex min-h-full w-full max-w-md flex-col px-8">
       <Form method="post" className="space-y-6">
         <input type="hidden" name="token" value={resetToken} />
         {actionData?.errors.token && (
@@ -253,7 +255,7 @@ export default function ChangePassword() {
 
         <button
           type="submit"
-          className="w-full rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 focus:bg-slate-500"
+          className="w-full rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 focus:bg-slate-500"
         >
           Change password
         </button>
