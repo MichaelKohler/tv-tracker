@@ -8,7 +8,8 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useCatch,
+  isRouteErrorResponse,
+  useRouteError,
 } from "@remix-run/react";
 import React from "react";
 
@@ -84,10 +85,10 @@ export default function DefaultApp() {
   return <App />;
 }
 
-export function CatchBoundary() {
-  const caught = useCatch();
+export function ErrorBoundary() {
+  const error = useRouteError();
 
-  if (caught.status === 404) {
+  if (isRouteErrorResponse(error) && error.status === 404) {
     return (
       <App>
         <main className="flex h-full min-h-screen justify-center bg-white">
@@ -97,10 +98,6 @@ export function CatchBoundary() {
     );
   }
 
-  throw new Error(`Unexpected caught response with status: ${caught.status}`);
-}
-
-export function ErrorBoundary() {
   return (
     <App renderLoginButtons={false}>
       <main className="flex h-full min-h-screen justify-center bg-white">
