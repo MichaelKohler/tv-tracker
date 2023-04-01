@@ -3,14 +3,14 @@ import { useActionData, useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import TVShow, { CatchBoundary } from "./$show";
+import TVShow from "./$show";
 import type { action, loader } from "./$show";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
     return {
       useCatch: vi.fn().mockReturnValue({ status: 404 }),
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn().mockReturnValue({}),
       useSearchParams: vi.fn(),
@@ -121,14 +121,5 @@ test("renders error if unarchiving show failed", () => {
   expect(screen.getByText("Unarchiving show failed")).toBeDefined();
   expect(
     screen.getByText(/There was an error while unarchiving the show/)
-  ).toBeDefined();
-});
-
-test("renders catch boundary", () => {
-  render(<CatchBoundary />);
-
-  expect(screen.getByText("Not found")).toBeDefined();
-  expect(
-    screen.getByText(/The requested show could not be found./)
   ).toBeDefined();
 });

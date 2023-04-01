@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useTransition } from "@remix-run/react";
+import { useNavigation } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -67,7 +67,7 @@ const showWithoutEpisodes: FrontendShow = {
 beforeEach(() => {
   vi.mock("@remix-run/react", async () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       Form: ({ children }: { children: React.ReactNode }) => (
         <form>{children}</form>
       ),
@@ -130,17 +130,15 @@ test("renders unarchive button if not archived", async () => {
 });
 
 test("renders spinner on mark all watched", async () => {
-  vi.mocked(useTransition).mockReturnValue({
-    submission: {
-      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "MARK_ALL_WATCHED";
-          }
+  vi.mocked(useNavigation).mockReturnValue({
+    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    formData: {
+      get(key: string) {
+        if (key === "intent") {
+          return "MARK_ALL_WATCHED";
+        }
 
-          return "";
-        },
+        return "";
       },
     },
   });
@@ -153,17 +151,15 @@ test("renders spinner on mark all watched", async () => {
 });
 
 test("renders spinner on remove show", async () => {
-  vi.mocked(useTransition).mockReturnValue({
-    submission: {
-      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "DELETE_SHOW";
-          }
+  vi.mocked(useNavigation).mockReturnValue({
+    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    formData: {
+      get(key: string) {
+        if (key === "intent") {
+          return "DELETE_SHOW";
+        }
 
-          return "";
-        },
+        return "";
       },
     },
   });
@@ -176,17 +172,15 @@ test("renders spinner on remove show", async () => {
 });
 
 test("renders spinner on archiving", async () => {
-  vi.mocked(useTransition).mockReturnValue({
-    submission: {
-      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "ARCHIVE";
-          }
+  vi.mocked(useNavigation).mockReturnValue({
+    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    formData: {
+      get(key: string) {
+        if (key === "intent") {
+          return "ARCHIVE";
+        }
 
-          return "";
-        },
+        return "";
       },
     },
   });
@@ -198,17 +192,15 @@ test("renders spinner on archiving", async () => {
 });
 
 test("renders spinner on unarchiving", async () => {
-  vi.mocked(useTransition).mockReturnValue({
-    submission: {
-      // @ts-ignore-next-line (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "UNARCHIVE";
-          }
+  vi.mocked(useNavigation).mockReturnValue({
+    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    formData: {
+      get(key: string) {
+        if (key === "intent") {
+          return "UNARCHIVE";
+        }
 
-          return "";
-        },
+        return "";
       },
     },
   });

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { redirect } from "@remix-run/node";
-import { useActionData, useLoaderData, useTransition } from "@remix-run/react";
+import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -19,7 +19,7 @@ const MOCK_ENV = {
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
       useSearchParams: vi.fn().mockReturnValue([
@@ -85,7 +85,7 @@ test("renders disabled join form with invite code input", () => {
 
 test("renders creating account on button while submitting form", () => {
   // @ts-expect-error .. we do not need to define the full FormData impl
-  vi.mocked(useTransition).mockReturnValue({ submission: { formData: {} } });
+  vi.mocked(useNavigation).mockReturnValue({ formData: {} });
 
   render(<Join />);
 
@@ -138,12 +138,6 @@ test("renders error message for invite code", () => {
   render(<Join />);
 
   expect(screen.getByText("INVALID_INVITE_ERROR")).toBeDefined();
-});
-
-test("meta returns correct title", () => {
-  const metaReturn = meta();
-
-  expect(metaReturn.title).toBe("Sign Up");
 });
 
 test("loader redirects if there is a user", async () => {

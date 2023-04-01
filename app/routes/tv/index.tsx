@@ -1,6 +1,6 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useTransition, Form } from "@remix-run/react";
+import { useLoaderData, useNavigation, Form } from "@remix-run/react";
 
 import ShowTiles from "../../components/show-tiles";
 import Spinner from "../../components/spinner";
@@ -36,8 +36,8 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function TVIndex() {
   const shows = useLoaderData<typeof loader>();
-  const transition = useTransition();
-  const isLoading = !!transition.submission;
+  const navigation = useNavigation();
+  const isLoading = !!navigation.formData;
   const stats = {
     shows: shows.length,
     unwatchedEpisodes: shows.reduce((unwatchedEpisodes, show) => {

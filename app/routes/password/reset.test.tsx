@@ -10,7 +10,7 @@ import Reset, { action, loader, meta } from "./reset";
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
     return {
-      useTransition: vi.fn().mockReturnValue({}),
+      useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (

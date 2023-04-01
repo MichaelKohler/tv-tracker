@@ -1,4 +1,4 @@
-import { Form, useTransition } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 
 import { EPISODE_FALLBACK_IMG_PATH } from "../constants";
 import type { FrontendEpisode, FrontendShow } from "../utils";
@@ -16,8 +16,8 @@ export default function EpisodeList({
   watchedEpisodes,
   showId,
 }: Props) {
-  const transition = useTransition();
-  const submissionEpisodeId = transition?.submission?.formData.get("episodeId");
+  const navigation = useNavigation();
+  const submissionEpisodeId = navigation?.formData?.get("episodeId");
 
   return (
     <div className="my-3 flex flex-col py-5">
@@ -59,7 +59,7 @@ export default function EpisodeList({
                     <input type="hidden" name="episodeId" value={episode.id} />
                     <button
                       type="submit"
-                      className="mt-4 rounded bg-slate-600 py-2 px-4 text-white hover:bg-slate-500 active:bg-slate-500"
+                      className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
                     >
                       Mark as watched
                     </button>
@@ -74,7 +74,7 @@ export default function EpisodeList({
                     <input type="hidden" name="episodeId" value={episode.id} />
                     <button
                       type="submit"
-                      className="mt-4 rounded bg-red-300 py-2 px-4 text-black hover:bg-red-200 active:bg-red-200"
+                      className="mt-4 rounded bg-red-300 px-4 py-2 text-black hover:bg-red-200 active:bg-red-200"
                     >
                       Mark as not watched
                     </button>

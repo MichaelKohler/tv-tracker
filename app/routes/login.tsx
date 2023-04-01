@@ -6,7 +6,7 @@ import {
   Link,
   useActionData,
   useSearchParams,
-  useTransition,
+  useNavigation,
 } from "@remix-run/react";
 
 import { verifyLogin } from "../models/user.server";
@@ -72,7 +72,7 @@ export function meta(): ReturnType<V2_MetaFunction> {
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const transition = useTransition();
+  const navigation = useNavigation();
   const redirectTo = searchParams.get("redirectTo") || "/tv";
   const actionData = useActionData<typeof action>();
   const emailRef = React.useRef<HTMLInputElement>(null);
@@ -147,9 +147,9 @@ export default function LoginPage() {
         <button
           type="submit"
           className="w-full rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 focus:bg-slate-500"
-          disabled={!!transition.submission}
+          disabled={!!navigation.formData}
         >
-          {transition.submission ? "Logging in..." : "Log in"}
+          {navigation.formData ? "Logging in..." : "Log in"}
         </button>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
