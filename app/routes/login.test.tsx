@@ -7,7 +7,7 @@ import "@testing-library/jest-dom";
 import { verifyLogin } from "../models/user.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
-import Login, { action, loader, meta } from "./login";
+import Login, { action, loader } from "./login";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -90,12 +90,6 @@ test("renders error message for password", () => {
   render(<Login />);
 
   expect(screen.getByText("PASSWORD_ERROR")).toBeDefined();
-});
-
-test("meta returns correct title", () => {
-  const metaReturn = meta();
-
-  expect(metaReturn.title).toBe("Login");
 });
 
 test("loader redirects if there is a user", async () => {

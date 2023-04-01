@@ -9,7 +9,7 @@ import * as invite from "../models/invite.server";
 import { createUser, getUserByEmail } from "../models/user.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
-import Join, { action, loader, meta } from "./join";
+import Join, { action, loader } from "./join";
 
 const MOCK_ENV = {
   SIGNUP_DISABLED: false,

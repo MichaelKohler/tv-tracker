@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { getUserId } from "../../session.server";
-import Reset, { action, loader, meta } from "./reset";
+import Reset, { action, loader } from "./reset";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -61,12 +61,6 @@ test("renders success message", () => {
   expect(
     screen.getByText(/An email to reset your password has been sent/)
   ).toBeDefined();
-});
-
-test("meta returns correct title", () => {
-  const metaReturn = meta();
-
-  expect(metaReturn.title).toBe("Password Reset");
 });
 
 test("loader redirects if there is a user", async () => {
