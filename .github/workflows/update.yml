@@ -42,7 +42,7 @@ jobs:
       - name: 📥 Download deps
         run: npm ci
 
-      - name: ✨ Update Episode Images
-        run: npm run update:episodes:images
+      - name: ✨ Update Episode Info
+        run: npm run update:episodes:info
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

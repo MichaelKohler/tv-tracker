@@ -146,7 +146,7 @@ export async function getConnectedEpisodeCount() {
   return distinctEpisodes.length;
 }
 
-export async function getEpisodesWithoutImage() {
+export async function getEpisodesWithMissingInfo() {
   const episode = await prisma.episode.findMany({
     where: {
       OR: [
@@ -155,6 +155,24 @@ export async function getEpisodesWithoutImage() {
         },
         {
           imageUrl: "",
+        },
+        {
+          name: "",
+        },
+        {
+          name: "TBA",
+        },
+        {
+          summary: undefined,
+        },
+        {
+          summary: "",
+        },
+        {
+          airDate: undefined,
+        },
+        {
+          airDate: "1970-01-01 00:00:00.000",
         },
       ],
     },

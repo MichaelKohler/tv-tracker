@@ -1,16 +1,19 @@
 import type { Episode } from "@prisma/client";
 import axios from "axios";
+import striptags from "striptags";
 
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
-import { getEpisodesWithoutImage } from "../app/models/episode.server";
+import { getEpisodesWithMissingInfo } from "../app/models/episode.server";
 
 async function update() {
   console.log("Starting update..");
 
   console.log("Fetching episodes to update..");
-  const episodesToUpdate = await getEpisodesWithoutImage();
-  console.log(`Found ${episodesToUpdate.length} episodes to update`);
+  const episodesToUpdate = await getEpisodesWithMissingInfo();
+  console.log(
+    `Found ${episodesToUpdate.length} episodes to potentially update`
+  );
 
   for (const episode of episodesToUpdate) {
     console.log("-----------------------");
@@ -32,14 +35,12 @@ async function updateEpisode(episode: Episode) {
     throw new Error("EPISODE_NOT_FOUND");
   }
 
-  if (!episodeResult.image || !episodeResult.image.medium) {
-    console.log("No image found, continuing..");
-    return;
-  }
-
   await prisma.episode.update({
     data: {
-      imageUrl: episodeResult.image.medium,
+      name: episodeResult.name,
+      airDate: new Date(episodeResult.airstamp),
+      imageUrl: episodeResult.image?.medium,
+      summary: striptags(episode.summary),
     },
     where: {
       id: episode.id,
