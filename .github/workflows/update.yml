@@ -27,8 +27,8 @@ jobs:
         run: npm run update:episodes
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  update-images:
-    name: ⬣ Update Episode Images
+  update-info:
+    name: ⬣ Update Episode Info
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
