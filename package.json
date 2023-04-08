@@ -27,7 +27,7 @@
     "typecheck": "tsc -b",
     "update:episode:force": "ts-node scripts/force-episode-update.ts",
     "update:episodes": "ts-node scripts/get-new-episodes.ts",
-    "update:episodes:info": "ts-node scripts/update-episode.ts",
+    "update:episodes:info": "ts-node scripts/update-episodes.ts",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
   },
   "prettier": {},
