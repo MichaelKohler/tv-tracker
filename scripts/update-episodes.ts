@@ -40,7 +40,7 @@ async function updateEpisode(episode: Episode) {
       name: episodeResult.name,
       airDate: new Date(episodeResult.airstamp),
       imageUrl: episodeResult.image?.medium,
-      summary: striptags(episode.summary),
+      summary: striptags(episodeResult.summary),
     },
     where: {
       id: episode.id,
