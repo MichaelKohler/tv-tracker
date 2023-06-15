@@ -3,6 +3,7 @@ import type { Show, User } from "@prisma/client";
 import striptags from "striptags";
 
 import { prisma } from "../db.server";
+import type { FrontendShow } from "../utils";
 import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
@@ -179,7 +180,7 @@ export async function searchShows(query: String | null, userId: User["id"]) {
   const addedShowsPromise = getAddedShowsMazeIds(userId);
 
   const showsResult = await fetchSearchResults(query);
-  const shows = showsResult.map((showResult: any) => ({
+  const shows: FrontendShow[] = showsResult.map((showResult: any) => ({
     mazeId: showResult.show.id,
     name: showResult.show.name,
     premiered: new Date(showResult.show.premiered),
@@ -191,7 +192,7 @@ export async function searchShows(query: String | null, userId: User["id"]) {
 
   const addedShowIds = await addedShowsPromise;
   const filteredShows = shows.filter(
-    (show: Show) => !addedShowIds.includes(show.mazeId.toString())
+    (show: FrontendShow) => !addedShowIds.includes(show.mazeId.toString())
   );
 
   return filteredShows;

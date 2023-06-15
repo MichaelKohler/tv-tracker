@@ -1,11 +1,11 @@
-import type { Show } from "@prisma/client";
+import type { FrontendShow } from "../utils";
 
 import ErrorAlert from "./error-alert";
 import ShowResult from "./show-result";
 import Spinner from "./spinner";
 
 interface Props {
-  shows: Show[];
+  shows: FrontendShow[];
   isLoading?: boolean;
   error?: string;
 }

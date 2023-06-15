@@ -40,7 +40,7 @@ export async function action({ request }: ActionArgs) {
   return redirect("/tv");
 }
 
-export default function TVSearch({ error }: { error: string }) {
+export default function TVSearch() {
   const shows = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const [params] = useSearchParams();

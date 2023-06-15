@@ -1,31 +1,31 @@
-import type { Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { FrontendShow } from "../utils";
 import ShowResults from "./show-results";
 
-const shows: Show[] = [
+const shows: FrontendShow[] = [
   {
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: "2022-01-01T00:00:00Z",
+    updatedAt: "2022-01-01T00:00:00Z",
     id: "1",
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Show 1",
     summary: "Test Summary",
-    premiered: new Date(),
+    premiered: "2022-01-01T00:00:00Z",
     ended: null,
     rating: 5,
   },
   {
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: "2022-01-01T00:00:00Z",
+    updatedAt: "2022-01-01T00:00:00Z",
     id: "2",
     imageUrl: "https://example.com/image.png",
     mazeId: "2",
     name: "Test Show 2",
     summary: "Test Summary",
-    premiered: new Date(),
+    premiered: "2022-01-01T00:00:00Z",
     ended: null,
     rating: 5,
   },

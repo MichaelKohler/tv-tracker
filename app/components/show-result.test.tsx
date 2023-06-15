@@ -1,20 +1,20 @@
 import * as React from "react";
-import type { Show } from "@prisma/client";
 import { useNavigation } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { FrontendShow } from "../utils";
 import ShowResult from "./show-result";
 
-const show: Show = {
-  createdAt: new Date(),
-  updatedAt: new Date(),
+const show: FrontendShow = {
+  createdAt: "2022-01-01T00:00:00Z",
+  updatedAt: "2022-01-01T00:00:00Z",
   id: "1",
   imageUrl: "https://example.com/image.png",
   mazeId: "1",
   name: "Test Show 1",
   summary: "Test Summary",
-  premiered: new Date(),
+  premiered: "2022-01-01T00:00:00Z",
   ended: null,
   rating: 5,
 };

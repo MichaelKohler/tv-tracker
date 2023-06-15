@@ -44,13 +44,22 @@ beforeEach(() => {
 
   vi.mocked(searchShows).mockResolvedValue([
     {
+      createdAt: "2022-01-01T00:00:00Z",
+      updatedAt: "2022-01-01T00:00:00Z",
+      id: "1",
+      imageUrl: "https://example.com/image.png",
+      mazeId: "1",
       name: "TVShow1",
+      summary: "Test Summary",
+      premiered: "2022-01-01T00:00:00Z",
+      ended: null,
+      rating: 5,
     },
   ]);
 });
 
 test("renders search form", () => {
-  render(<Search error="" />);
+  render(<Search />);
 
   expect(screen.getByText("Search")).toBeDefined();
   expect(screen.getByTestId("search-input")).toBeDefined();
@@ -64,7 +73,7 @@ test("renders passed search query", () => {
     },
   ]);
 
-  render(<Search error="" />);
+  render(<Search />);
 
   expect(screen.getByTestId("search-input")).toBeDefined();
   expect(screen.getByDisplayValue("fooQuery")).toBeDefined();
