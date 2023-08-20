@@ -66,13 +66,13 @@ const DEFAULT_EPISODES: (FrontendEpisode & {
 test("renders list", async () => {
   render(<UpcomingEpisodesList episodes={DEFAULT_EPISODES} />);
 
-  expect(screen.getByText(/Test Episode 1/)).toBeDefined();
-  expect(screen.getByText(/S01E01/)).toBeDefined();
-  expect(screen.getByText(DEFAULT_EPISODES[0].summary)).toBeDefined();
-  expect(screen.getByText(DEFAULT_EPISODES[0].show.name)).toBeDefined();
+  expect(screen.getByText(/Test Episode 1/)).toBeInTheDocument();
+  expect(screen.getByText(/S01E01/)).toBeInTheDocument();
+  expect(screen.getByText(DEFAULT_EPISODES[0].summary)).toBeInTheDocument();
+  expect(screen.getByText(DEFAULT_EPISODES[0].show.name)).toBeInTheDocument();
 
-  expect(screen.getByText(/Test Episode 2/)).toBeDefined();
-  expect(screen.getByText(/S01E02/)).toBeDefined();
-  expect(screen.getByText(DEFAULT_EPISODES[1].summary)).toBeDefined();
-  expect(screen.getByText(DEFAULT_EPISODES[1].show.name)).toBeDefined();
+  expect(screen.getByText(/Test Episode 2/)).toBeInTheDocument();
+  expect(screen.getByText(/S01E02/)).toBeInTheDocument();
+  expect(screen.getByText(DEFAULT_EPISODES[1].summary)).toBeInTheDocument();
+  expect(screen.getByText(DEFAULT_EPISODES[1].show.name)).toBeInTheDocument();
 });

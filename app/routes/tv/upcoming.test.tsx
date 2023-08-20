@@ -90,8 +90,8 @@ beforeEach(() => {
 test("renders upcoming page", () => {
   render(<TVUpcoming />);
 
-  expect(screen.getByText("Upcoming")).toBeDefined();
-  expect(screen.getByText("UpcomingEpisodesList")).toBeDefined();
+  expect(screen.getByText("Upcoming")).toBeInTheDocument();
+  expect(screen.getByText("UpcomingEpisodesList")).toBeInTheDocument();
 });
 
 test("renders no upcoming episodes paragraph", () => {
@@ -99,7 +99,7 @@ test("renders no upcoming episodes paragraph", () => {
 
   render(<TVUpcoming />);
 
-  expect(screen.getByText("There are no upcoming episodes.")).toBeDefined();
+  expect(screen.getByText("There are no upcoming episodes.")).toBeInTheDocument();
 });
 
 test("loader should return upcoming episodes", async () => {

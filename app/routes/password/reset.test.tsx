@@ -31,8 +31,8 @@ beforeEach(() => {
 test("renders reset form", () => {
   render(<Reset />);
 
-  expect(screen.getByText("Email address")).toBeDefined();
-  expect(screen.getByText("Send password reset email")).toBeDefined();
+  expect(screen.getByText("Email address")).toBeInTheDocument();
+  expect(screen.getByText("Send password reset email")).toBeInTheDocument();
 });
 
 test("renders error message for email", () => {
@@ -45,7 +45,7 @@ test("renders error message for email", () => {
 
   render(<Reset />);
 
-  expect(screen.getByText("EMAIL_ERROR")).toBeDefined();
+  expect(screen.getByText("EMAIL_ERROR")).toBeInTheDocument();
 });
 
 test("renders success message", () => {
@@ -60,7 +60,7 @@ test("renders success message", () => {
 
   expect(
     screen.getByText(/An email to reset your password has been sent/)
-  ).toBeDefined();
+  ).toBeInTheDocument();
 });
 
 test("loader redirects if there is a user", async () => {

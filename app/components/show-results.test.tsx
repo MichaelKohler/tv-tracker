@@ -42,20 +42,20 @@ beforeEach(() => {
 test("renders show results", async () => {
   render(<ShowResults shows={shows} isLoading={false} error={undefined} />);
 
-  expect(screen.getByText("tvmaze")).toBeDefined();
+  expect(screen.getByText("tvmaze")).toBeInTheDocument();
   expect(screen.getAllByText("ShowResult").length).toBe(2);
 });
 
 test("renders spinner while loading results", async () => {
   render(<ShowResults shows={[]} isLoading={true} error={undefined} />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
 });
 
 test("renders no shows found message", async () => {
   render(<ShowResults shows={[]} isLoading={false} error={undefined} />);
 
-  expect(screen.getByText(/No shows found/)).toBeDefined();
+  expect(screen.getByText(/No shows found/)).toBeInTheDocument();
 });
 
 test("renders error message", async () => {
@@ -63,8 +63,8 @@ test("renders error message", async () => {
     <ShowResults shows={[]} isLoading={false} error="ADDING_SHOW_FAILED" />
   );
 
-  expect(screen.getByText(/Adding show failed/)).toBeDefined();
+  expect(screen.getByText(/Adding show failed/)).toBeInTheDocument();
   expect(
     screen.getByText(/There was an error while adding the show/)
-  ).toBeDefined();
+  ).toBeInTheDocument();
 });

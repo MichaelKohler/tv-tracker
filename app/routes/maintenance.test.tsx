@@ -7,5 +7,5 @@ import Maintenance from "./maintenance";
 test("renders maintenance", () => {
   render(<Maintenance />);
 
-  expect(screen.getByText("Maintenance mode")).toBeDefined();
+  expect(screen.getByText("Maintenance mode")).toBeInTheDocument();
 });

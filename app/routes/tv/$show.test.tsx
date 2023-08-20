@@ -67,9 +67,9 @@ beforeEach(() => {
 test("renders detail page", () => {
   render(<TVShow />);
 
-  expect(screen.getByText("ShowHeader")).toBeDefined();
-  expect(screen.getByText("Episodes")).toBeDefined();
-  expect(screen.getByText("EpisodeList")).toBeDefined();
+  expect(screen.getByText("ShowHeader")).toBeInTheDocument();
+  expect(screen.getByText("Episodes")).toBeInTheDocument();
+  expect(screen.getByText("EpisodeList")).toBeInTheDocument();
 });
 
 test("renders error if marking all episodes failed", () => {
@@ -79,10 +79,10 @@ test("renders error if marking all episodes failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Marking all as watched failed")).toBeDefined();
+  expect(screen.getByText("Marking all as watched failed")).toBeInTheDocument();
   expect(
     screen.getByText(/There was an error while marking all episodes as watched/)
-  ).toBeDefined();
+  ).toBeInTheDocument();
 });
 
 test("renders error if removing show failed", () => {
@@ -92,10 +92,10 @@ test("renders error if removing show failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Removing show failed")).toBeDefined();
+  expect(screen.getByText("Removing show failed")).toBeInTheDocument();
   expect(
     screen.getByText(/There was an error while removing the show/)
-  ).toBeDefined();
+  ).toBeInTheDocument();
 });
 
 test("renders error if archiving show failed", () => {
@@ -105,10 +105,10 @@ test("renders error if archiving show failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Archiving show failed")).toBeDefined();
+  expect(screen.getByText("Archiving show failed")).toBeInTheDocument();
   expect(
     screen.getByText(/There was an error while archiving the show/)
-  ).toBeDefined();
+  ).toBeInTheDocument();
 });
 
 test("renders error if unarchiving show failed", () => {
@@ -118,8 +118,8 @@ test("renders error if unarchiving show failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Unarchiving show failed")).toBeDefined();
+  expect(screen.getByText("Unarchiving show failed")).toBeInTheDocument();
   expect(
     screen.getByText(/There was an error while unarchiving the show/)
-  ).toBeDefined();
+  ).toBeInTheDocument();
 });

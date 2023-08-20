@@ -26,11 +26,11 @@ beforeEach(() => {
 test("renders page", () => {
   render(<Account />);
 
-  expect(screen.getByText(/Go to change password form/)).toBeDefined();
+  expect(screen.getByText(/Go to change password form/)).toBeInTheDocument();
   expect(
     screen.getByText(/Deleting your account will also delete/)
-  ).toBeDefined();
-  expect(screen.getByText(/Delete my account and all data/)).toBeDefined();
+  ).toBeInTheDocument();
+  expect(screen.getByText(/Delete my account and all data/)).toBeInTheDocument();
 });
 
 test("loader throws if there is no user", async () => {

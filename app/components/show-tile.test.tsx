@@ -37,8 +37,8 @@ beforeEach(() => {
 test("renders show tile", async () => {
   render(<ShowTile show={show} />);
 
-  expect(screen.getByText("1")).toBeDefined();
-  expect(screen.getByText(show.name)).toBeDefined();
+  expect(screen.getByText("1")).toBeInTheDocument();
+  expect(screen.getByText(show.name)).toBeInTheDocument();
 });
 
 test("renders navigation spinner on tile", async () => {
@@ -50,7 +50,7 @@ test("renders navigation spinner on tile", async () => {
 
   render(<ShowTile show={show} />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
 });
 
 test("does not render navigation spinner on different tile", async () => {
@@ -62,5 +62,5 @@ test("does not render navigation spinner on different tile", async () => {
 
   render(<ShowTile show={show} />);
 
-  expect(screen.queryByTestId("spinner")).toBeNull();
+  expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
 });

@@ -53,13 +53,13 @@ test("renders episodes", async () => {
     <EpisodeList episodes={DEFAULT_EPISODES} watchedEpisodes={[]} showId="1" />
   );
 
-  expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeDefined();
-  expect(screen.getByText(/S01E01/)).toBeDefined();
-  expect(screen.getByText(DEFAULT_EPISODES[0].summary)).toBeDefined();
+  expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
+  expect(screen.getByText(/S01E01/)).toBeInTheDocument();
+  expect(screen.getByText(DEFAULT_EPISODES[0].summary)).toBeInTheDocument();
 
-  expect(screen.getByText(DEFAULT_EPISODES[1].name)).toBeDefined();
-  expect(screen.getByText(/S01E02/)).toBeDefined();
-  expect(screen.getByText(DEFAULT_EPISODES[1].summary)).toBeDefined();
+  expect(screen.getByText(DEFAULT_EPISODES[1].name)).toBeInTheDocument();
+  expect(screen.getByText(/S01E02/)).toBeInTheDocument();
+  expect(screen.getByText(DEFAULT_EPISODES[1].summary)).toBeInTheDocument();
 
   expect(screen.queryAllByText("Mark as watched").length).toBe(2);
 });
@@ -73,7 +73,7 @@ test("renders unwatched button if watched", async () => {
     />
   );
 
-  expect(screen.getByText("Mark as not watched")).toBeDefined();
+  expect(screen.getByText("Mark as not watched")).toBeInTheDocument();
 });
 
 test("renders spinner while submitting mark as read", async () => {
@@ -97,9 +97,9 @@ test("renders spinner while submitting mark as read", async () => {
     />
   );
 
-  expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeDefined();
-  expect(screen.queryByTestId("spinner")).toBeDefined();
-  expect(screen.queryByText("Mark as watched")).toBeNull();
+  expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(screen.queryByText("Mark as watched")).not.toBeInTheDocument();
 });
 
 test("does not render spinner while submitting mark as read for another episode", async () => {
@@ -123,6 +123,6 @@ test("does not render spinner while submitting mark as read for another episode"
     />
   );
 
-  expect(screen.queryByTestId("spinner")).toBeNull();
-  expect(screen.getByText("Mark as watched")).toBeDefined();
+  expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
+  expect(screen.getByText("Mark as watched")).toBeInTheDocument();
 });

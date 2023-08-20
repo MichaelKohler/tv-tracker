@@ -6,6 +6,6 @@ import Footer from "./footer";
 test("renders footer", async () => {
   render(<Footer />);
 
-  expect(screen.getByText("Open Source")).toBeDefined();
-  expect(screen.getByText(/Michael Kohler/)).toBeDefined();
+  expect(screen.getByText("Open Source")).toBeInTheDocument();
+  expect(screen.getByText(/Michael Kohler/)).toBeInTheDocument();
 });

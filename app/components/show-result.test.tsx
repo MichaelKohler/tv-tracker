@@ -33,13 +33,13 @@ beforeEach(() => {
 test("renders show result", async () => {
   render(<ShowResult show={show} />);
 
-  expect(screen.getByText(show.name)).toBeDefined();
-  expect(screen.getByText(show.summary)).toBeDefined();
+  expect(screen.getByText(show.name)).toBeInTheDocument();
+  expect(screen.getByText(show.summary)).toBeInTheDocument();
   expect(
     screen.getByText(new Date(show.premiered).toLocaleDateString())
-  ).toBeDefined();
-  expect(screen.getByText("5")).toBeDefined();
-  expect(screen.getByText("Add Show")).toBeDefined();
+  ).toBeInTheDocument();
+  expect(screen.getByText("5")).toBeInTheDocument();
+  expect(screen.getByText("Add Show")).toBeInTheDocument();
 });
 
 test("renders spinner on adding show", async () => {
@@ -62,8 +62,8 @@ test("renders spinner on adding show", async () => {
 
   render(<ShowResult show={show} />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
-  expect(screen.queryByText(/Add Show/)).toBeNull();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(screen.queryByText(/Add Show/)).not.toBeInTheDocument();
 });
 
 test("does not render spinner or button on adding another show", async () => {
@@ -86,8 +86,8 @@ test("does not render spinner or button on adding another show", async () => {
 
   render(<ShowResult show={show} />);
 
-  expect(screen.queryByTestId("spinner")).toBeNull();
-  expect(screen.queryByText(/Add Show/)).toBeNull();
+  expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
+  expect(screen.queryByText(/Add Show/)).not.toBeInTheDocument();
 });
 
 test("does not render spinner on other action", async () => {
@@ -110,6 +110,6 @@ test("does not render spinner on other action", async () => {
 
   render(<ShowResult show={show} />);
 
-  expect(screen.queryByTestId("spinner")).toBeNull();
-  expect(screen.getByText(/Add Show/)).toBeDefined();
+  expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
+  expect(screen.getByText(/Add Show/)).toBeInTheDocument();
 });
