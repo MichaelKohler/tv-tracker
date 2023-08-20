@@ -31,7 +31,9 @@
     "update:episodes:info": "ts-node scripts/update-episodes.ts",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
   },
-  "prettier": {},
+  "prettier": {
+    "trailingComma": "es5"
+  },
   "eslintIgnore": [
     "/node_modules",
     "/build",

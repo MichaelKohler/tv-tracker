@@ -6,7 +6,7 @@ import "@testing-library/jest-dom";
 import { getFlagsFromEnvironment } from "../models/config.server";
 import { useOptionalUser } from "../utils";
 
-import Index, { loader } from "./index";
+import Index, { loader } from "./_index";
 
 beforeEach(() => {
   vi.mock("@remix-run/node", () => {

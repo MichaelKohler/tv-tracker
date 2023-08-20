@@ -4,8 +4,8 @@ import { useActionData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getUserId } from "../../session.server";
-import Reset, { action, loader } from "./reset";
+import { getUserId } from "../session.server";
+import Reset, { action, loader } from "./password.reset";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {

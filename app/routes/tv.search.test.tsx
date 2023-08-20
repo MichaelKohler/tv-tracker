@@ -3,8 +3,8 @@ import { useSearchParams } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { addShow, searchShows } from "../../models/show.server";
-import Search, { action, loader } from "./search";
+import { addShow, searchShows } from "../models/show.server";
+import Search, { action, loader } from "./tv.search";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {

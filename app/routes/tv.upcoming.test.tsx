@@ -3,8 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getUpcomingEpisodes } from "../../models/episode.server";
-import TVUpcoming, { loader } from "./upcoming";
+import { getUpcomingEpisodes } from "../models/episode.server";
+import TVUpcoming, { loader } from "./tv.upcoming";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -99,7 +99,9 @@ test("renders no upcoming episodes paragraph", () => {
 
   render(<TVUpcoming />);
 
-  expect(screen.getByText("There are no upcoming episodes.")).toBeInTheDocument();
+  expect(
+    screen.getByText("There are no upcoming episodes.")
+  ).toBeInTheDocument();
 });
 
 test("loader should return upcoming episodes", async () => {

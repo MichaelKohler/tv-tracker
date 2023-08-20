@@ -3,8 +3,8 @@ import { useActionData, useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import TVShow from "./$show";
-import type { action, loader } from "./$show";
+import TVShow from "./tv.$show";
+import type { action, loader } from "./tv.$show";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {

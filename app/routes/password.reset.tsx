@@ -3,9 +3,9 @@ import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
-import { triggerPasswordReset } from "../../models/password.server";
-import { getUserId } from "../../session.server";
-import { validateEmail } from "../../utils";
+import { triggerPasswordReset } from "../models/password.server";
+import { getUserId } from "../session.server";
+import { validateEmail } from "../utils";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await getUserId(request);
