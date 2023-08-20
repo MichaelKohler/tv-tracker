@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     coverage: {
-      provider: "c8",
+      provider: "v8",
     },
     environment: "jsdom",
     include: ["**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
