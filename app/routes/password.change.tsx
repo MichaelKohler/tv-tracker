@@ -3,8 +3,8 @@ import type { ActionArgs, V2_MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useSearchParams } from "@remix-run/react";
 
-import { changePassword, verifyLogin } from "../../models/user.server";
-import { requireUser } from "../../session.server";
+import { changePassword, verifyLogin } from "../models/user.server";
+import { requireUser } from "../session.server";
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();

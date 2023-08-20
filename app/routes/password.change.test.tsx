@@ -3,9 +3,9 @@ import { useActionData, useSearchParams } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { changePassword, verifyLogin } from "../../models/user.server";
-import { requireUser } from "../../session.server";
-import Change, { action } from "./change";
+import { changePassword, verifyLogin } from "../models/user.server";
+import { requireUser } from "../session.server";
+import Change, { action } from "./password.change";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -19,12 +19,12 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("../../session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       requireUser: vi.fn(),
     };
   });
-  vi.mock("../../models/user.server", () => {
+  vi.mock("../models/user.server", () => {
     return {
       changePassword: vi.fn(),
       verifyLogin: vi.fn(),
@@ -163,7 +163,9 @@ test("renders success message", () => {
 
   render(<Change />);
 
-  expect(screen.getByText(/Your password has been changed/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Your password has been changed/)
+  ).toBeInTheDocument();
 });
 
 test("renders without current password input if token is passed", () => {

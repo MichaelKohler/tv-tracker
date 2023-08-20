@@ -3,8 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getShowsByUserId } from "../../models/show.server";
-import Index, { loader } from "./index";
+import { getShowsByUserId } from "../models/show.server";
+import Index, { loader } from "./tv._index";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -16,19 +16,19 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("../../session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });
 
-  vi.mock("../../components/show-tiles", async () => {
+  vi.mock("../components/show-tiles", async () => {
     return {
       default: () => <p>ShowTiles</p>,
     };
   });
 
-  vi.mock("../../models/show.server", async () => {
+  vi.mock("../models/show.server", async () => {
     return {
       getShowsByUserId: vi.fn().mockResolvedValue([]),
     };
@@ -46,7 +46,9 @@ test("renders page without shows", () => {
       /You are currently tracking 0 shows with 0 unwatched episodes/
     )
   ).toBeInTheDocument();
-  expect(screen.getByText(/You have not added any shows yet./)).toBeInTheDocument();
+  expect(
+    screen.getByText(/You have not added any shows yet./)
+  ).toBeInTheDocument();
 });
 
 test("renders page with shows", () => {
@@ -69,7 +71,9 @@ test("renders page with shows", () => {
       /You are currently tracking 2 shows with 7 unwatched episodes/
     )
   ).toBeInTheDocument();
-  expect(screen.queryByText(/You have not added any shows yet./)).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/You have not added any shows yet./)
+  ).not.toBeInTheDocument();
 });
 
 test("loader should sort shows", async () => {

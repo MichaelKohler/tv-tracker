@@ -3,8 +3,8 @@ import { useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getUpcomingEpisodes } from "../../models/episode.server";
-import TVUpcoming, { loader } from "./upcoming";
+import { getUpcomingEpisodes } from "../models/episode.server";
+import TVUpcoming, { loader } from "./tv.upcoming";
 
 beforeEach(() => {
   vi.mock("@remix-run/react", () => {
@@ -12,17 +12,17 @@ beforeEach(() => {
       useLoaderData: vi.fn(),
     };
   });
-  vi.mock("../../components/upcoming-episodes-list", async () => {
+  vi.mock("../components/upcoming-episodes-list", async () => {
     return {
       default: () => <p>UpcomingEpisodesList</p>,
     };
   });
-  vi.mock("../../models/episode.server", () => {
+  vi.mock("../models/episode.server", () => {
     return {
       getUpcomingEpisodes: vi.fn(),
     };
   });
-  vi.mock("../../session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
@@ -99,7 +99,9 @@ test("renders no upcoming episodes paragraph", () => {
 
   render(<TVUpcoming />);
 
-  expect(screen.getByText("There are no upcoming episodes.")).toBeInTheDocument();
+  expect(
+    screen.getByText("There are no upcoming episodes.")
+  ).toBeInTheDocument();
 });
 
 test("loader should return upcoming episodes", async () => {
