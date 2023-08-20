@@ -145,7 +145,7 @@ test("renders spinner on mark all watched", async () => {
 
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
-  expect(screen.getByText("spinner")).toBeInTheDocument();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
   expect(screen.queryByText(/Mark all aired episodes as watched/)).not.toBeInTheDocument();
   expect(screen.getByText(/Remove show/)).toBeInTheDocument();
 });
