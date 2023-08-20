@@ -19,12 +19,12 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("../../session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       requireUser: vi.fn(),
     };
   });
-  vi.mock("../../models/user.server", () => {
+  vi.mock("../models/user.server", () => {
     return {
       changePassword: vi.fn(),
       verifyLogin: vi.fn(),

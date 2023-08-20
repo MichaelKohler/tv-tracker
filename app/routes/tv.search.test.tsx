@@ -18,18 +18,18 @@ beforeEach(() => {
       ),
     };
   });
-  vi.mock("../../components/show-results", async () => {
+  vi.mock("../components/show-results", async () => {
     return {
       default: () => <p>ShowResults</p>,
     };
   });
-  vi.mock("../../models/show.server", () => {
+  vi.mock("../models/show.server", () => {
     return {
       addShow: vi.fn(),
       searchShows: vi.fn(),
     };
   });
-  vi.mock("../../session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
     };

@@ -19,7 +19,7 @@ beforeEach(() => {
     };
   });
 
-  vi.mock("../../session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       getUserId: vi.fn(),
     };

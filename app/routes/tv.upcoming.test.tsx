@@ -12,17 +12,17 @@ beforeEach(() => {
       useLoaderData: vi.fn(),
     };
   });
-  vi.mock("../../components/upcoming-episodes-list", async () => {
+  vi.mock("../components/upcoming-episodes-list", async () => {
     return {
       default: () => <p>UpcomingEpisodesList</p>,
     };
   });
-  vi.mock("../../models/episode.server", () => {
+  vi.mock("../models/episode.server", () => {
     return {
       getUpcomingEpisodes: vi.fn(),
     };
   });
-  vi.mock("../../session.server", async () => {
+  vi.mock("../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
