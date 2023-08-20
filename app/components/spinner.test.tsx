@@ -6,5 +6,5 @@ import Spinner from "./spinner";
 test("renders spinner", async () => {
   render(<Spinner />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
 });

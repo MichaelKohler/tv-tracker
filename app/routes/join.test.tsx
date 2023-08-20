@@ -64,9 +64,9 @@ beforeEach(() => {
 test("renders join form", () => {
   render(<Join />);
 
-  expect(screen.getByText("Email address")).toBeDefined();
-  expect(screen.getByText("Password")).toBeDefined();
-  expect(screen.getByText("Create Account")).toBeDefined();
+  expect(screen.getByText("Email address")).toBeInTheDocument();
+  expect(screen.getByText("Password")).toBeInTheDocument();
+  expect(screen.getByText("Create Account")).toBeInTheDocument();
 });
 
 test("renders disabled join form with invite code input", () => {
@@ -79,8 +79,8 @@ test("renders disabled join form with invite code input", () => {
 
   render(<Join />);
 
-  expect(screen.getByText(/Signup is currently disabled/)).toBeDefined();
-  expect(screen.getByText("Invite code")).toBeDefined();
+  expect(screen.getByText(/Signup is currently disabled/)).toBeInTheDocument();
+  expect(screen.getByText("Invite code")).toBeInTheDocument();
 });
 
 test("renders creating account on button while submitting form", () => {
@@ -89,7 +89,7 @@ test("renders creating account on button while submitting form", () => {
 
   render(<Join />);
 
-  expect(screen.getByText("Creating Account...")).toBeDefined();
+  expect(screen.getByText("Creating Account...")).toBeInTheDocument();
 });
 
 test("renders error message for email", () => {
@@ -103,7 +103,7 @@ test("renders error message for email", () => {
 
   render(<Join />);
 
-  expect(screen.getByText("EMAIL_ERROR")).toBeDefined();
+  expect(screen.getByText("EMAIL_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for password", () => {
@@ -117,7 +117,7 @@ test("renders error message for password", () => {
 
   render(<Join />);
 
-  expect(screen.getByText("PASSWORD_ERROR")).toBeDefined();
+  expect(screen.getByText("PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for invite code", () => {
@@ -137,7 +137,7 @@ test("renders error message for invite code", () => {
 
   render(<Join />);
 
-  expect(screen.getByText("INVALID_INVITE_ERROR")).toBeDefined();
+  expect(screen.getByText("INVALID_INVITE_ERROR")).toBeInTheDocument();
 });
 
 test("loader redirects if there is a user", async () => {

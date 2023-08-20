@@ -1,7 +1,7 @@
-import { expect, afterEach } from 'vitest';
+import { expect, afterEach } from "vitest";
 import { installGlobals } from "@remix-run/node";
-import matchers from '@testing-library/jest-dom/matchers';
-import { cleanup } from '@testing-library/react';
+import matchers from "@testing-library/jest-dom/matchers";
+import { cleanup } from "@testing-library/react";
 
 installGlobals();
 

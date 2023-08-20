@@ -38,8 +38,8 @@ test("renders deletion form", () => {
 
   expect(
     screen.getByText(/Are you sure you want to delete your account/)
-  ).toBeDefined();
-  expect(screen.getByText(/Delete my account and all data/)).toBeDefined();
+  ).toBeInTheDocument();
+  expect(screen.getByText(/Delete my account and all data/)).toBeInTheDocument();
 });
 
 test("renders error message for deletion", () => {
@@ -51,7 +51,7 @@ test("renders error message for deletion", () => {
 
   render(<Deletion />);
 
-  expect(screen.getByText("DELETION_ERROR")).toBeDefined();
+  expect(screen.getByText("DELETION_ERROR")).toBeInTheDocument();
 });
 
 test("loader throws if there is no user", async () => {

@@ -61,8 +61,8 @@ beforeEach(() => {
 test("renders search form", () => {
   render(<Search />);
 
-  expect(screen.getByText("Search")).toBeDefined();
-  expect(screen.getByTestId("search-input")).toBeDefined();
+  expect(screen.getByText("Search")).toBeInTheDocument();
+  expect(screen.getByTestId("search-input")).toBeInTheDocument();
 });
 
 test("renders passed search query", () => {
@@ -75,8 +75,8 @@ test("renders passed search query", () => {
 
   render(<Search />);
 
-  expect(screen.getByTestId("search-input")).toBeDefined();
-  expect(screen.getByDisplayValue("fooQuery")).toBeDefined();
+  expect(screen.getByTestId("search-input")).toBeInTheDocument();
+  expect(screen.getByDisplayValue("fooQuery")).toBeInTheDocument();
 });
 
 test("loader should search and return shows", async () => {

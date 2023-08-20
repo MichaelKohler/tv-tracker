@@ -9,6 +9,6 @@ test("renders error alert", async () => {
 
   render(<ErrorAlert title={title} message={message} />);
 
-  expect(screen.getByText(title)).toBeDefined();
-  expect(screen.getByText(message)).toBeDefined();
+  expect(screen.getByText(title)).toBeInTheDocument();
+  expect(screen.getByText(message)).toBeInTheDocument();
 });

@@ -40,13 +40,13 @@ beforeEach(() => {
 test("renders page without shows", () => {
   render(<Index />);
 
-  expect(screen.getByTestId("search-input")).toBeDefined();
+  expect(screen.getByTestId("search-input")).toBeInTheDocument();
   expect(
     screen.getByText(
       /You are currently tracking 0 shows with 0 unwatched episodes/
     )
-  ).toBeDefined();
-  expect(screen.getByText(/You have not added any shows yet./)).toBeDefined();
+  ).toBeInTheDocument();
+  expect(screen.getByText(/You have not added any shows yet./)).toBeInTheDocument();
 });
 
 test("renders page with shows", () => {
@@ -63,13 +63,13 @@ test("renders page with shows", () => {
 
   render(<Index />);
 
-  expect(screen.getByTestId("search-input")).toBeDefined();
+  expect(screen.getByTestId("search-input")).toBeInTheDocument();
   expect(
     screen.getByText(
       /You are currently tracking 2 shows with 7 unwatched episodes/
     )
-  ).toBeDefined();
-  expect(screen.queryByText(/You have not added any shows yet./)).toBeNull();
+  ).toBeInTheDocument();
+  expect(screen.queryByText(/You have not added any shows yet./)).not.toBeInTheDocument();
 });
 
 test("loader should sort shows", async () => {

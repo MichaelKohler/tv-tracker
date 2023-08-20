@@ -78,33 +78,33 @@ beforeEach(() => {
 test("renders show header", async () => {
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
-  expect(screen.getByText(/Watched 0 of 2 aired episodes/)).toBeDefined();
-  expect(screen.getByText(show.name)).toBeDefined();
-  expect(screen.getByText(show.summary)).toBeDefined();
+  expect(screen.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
+  expect(screen.getByText(show.name)).toBeInTheDocument();
+  expect(screen.getByText(show.summary)).toBeInTheDocument();
   expect(
     screen.getByText(new Date(show.premiered).toLocaleDateString())
-  ).toBeDefined();
-  expect(screen.getByText("5")).toBeDefined();
-  expect(screen.getByText("Mark all aired episodes as watched")).toBeDefined();
-  expect(screen.getByText("Remove show")).toBeDefined();
+  ).toBeInTheDocument();
+  expect(screen.getByText("5")).toBeInTheDocument();
+  expect(screen.getByText("Mark all aired episodes as watched")).toBeInTheDocument();
+  expect(screen.getByText("Remove show")).toBeInTheDocument();
 });
 
 test("renders watch count correctly", async () => {
   render(<ShowHeader show={show} watchedEpisodes={["1"]} />);
 
-  expect(screen.getByText(/Watched 1 of 2 aired episodes/)).toBeDefined();
+  expect(screen.getByText(/Watched 1 of 2 aired episodes/)).toBeInTheDocument();
 });
 
 test("does not render mark all button if no episodes", async () => {
   render(<ShowHeader show={showWithoutEpisodes} watchedEpisodes={[]} />);
 
-  expect(screen.queryByText("Mark all aired episodes as watched")).toBeNull();
+  expect(screen.queryByText("Mark all aired episodes as watched")).not.toBeInTheDocument();
 });
 
 test("does not render mark all button if all watched", async () => {
   render(<ShowHeader show={show} watchedEpisodes={["1", "2"]} />);
 
-  expect(screen.queryByText("Mark all aired episodes as watched")).toBeNull();
+  expect(screen.queryByText("Mark all aired episodes as watched")).not.toBeInTheDocument();
 });
 
 test("renders archive button if not archived", async () => {
@@ -115,7 +115,7 @@ test("renders archive button if not archived", async () => {
 
   render(<ShowHeader show={notArchivedShow} watchedEpisodes={[]} />);
 
-  expect(screen.queryByText("Ignore unwatched on overview")).toBeDefined();
+  expect(screen.getByText("Ignore unwatched on overview")).toBeInTheDocument();
 });
 
 test("renders unarchive button if not archived", async () => {
@@ -126,7 +126,7 @@ test("renders unarchive button if not archived", async () => {
 
   render(<ShowHeader show={archivedShow} watchedEpisodes={[]} />);
 
-  expect(screen.queryByText("Unignore unwatched on overview")).toBeDefined();
+  expect(screen.getByText("Unignore unwatched on overview")).toBeInTheDocument();
 });
 
 test("renders spinner on mark all watched", async () => {
@@ -145,9 +145,9 @@ test("renders spinner on mark all watched", async () => {
 
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
-  expect(screen.queryByText(/Mark all aired episodes as watched/)).toBeNull();
-  expect(screen.getByText(/Remove show/)).toBeDefined();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(screen.queryByText(/Mark all aired episodes as watched/)).not.toBeInTheDocument();
+  expect(screen.getByText(/Remove show/)).toBeInTheDocument();
 });
 
 test("renders spinner on remove show", async () => {
@@ -166,9 +166,9 @@ test("renders spinner on remove show", async () => {
 
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
-  expect(screen.getByText(/Mark all aired episodes as watched/)).toBeDefined();
-  expect(screen.queryByText(/Remove show/)).toBeNull();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(screen.getByText(/Mark all aired episodes as watched/)).toBeInTheDocument();
+  expect(screen.queryByText(/Remove show/)).not.toBeInTheDocument();
 });
 
 test("renders spinner on archiving", async () => {
@@ -187,8 +187,8 @@ test("renders spinner on archiving", async () => {
 
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
-  expect(screen.queryByText(/Ignore unwatched on overview/)).toBeNull();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(screen.queryByText(/Ignore unwatched on overview/)).not.toBeInTheDocument();
 });
 
 test("renders spinner on unarchiving", async () => {
@@ -207,6 +207,6 @@ test("renders spinner on unarchiving", async () => {
 
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
-  expect(screen.queryByTestId("spinner")).toBeDefined();
-  expect(screen.queryByText(/Unignore unwatched on overview/)).toBeNull();
+  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(screen.queryByText(/Unignore unwatched on overview/)).not.toBeInTheDocument();
 });

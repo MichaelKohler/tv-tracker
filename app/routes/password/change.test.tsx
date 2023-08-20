@@ -58,10 +58,10 @@ beforeEach(() => {
 test("renders change form", () => {
   render(<Change />);
 
-  expect(screen.getByText("Current Password")).toBeDefined();
-  expect(screen.getByText("New Password")).toBeDefined();
-  expect(screen.getByText("Confirm Password")).toBeDefined();
-  expect(screen.getByText("Change password")).toBeDefined();
+  expect(screen.getByText("Current Password")).toBeInTheDocument();
+  expect(screen.getByText("New Password")).toBeInTheDocument();
+  expect(screen.getByText("Confirm Password")).toBeInTheDocument();
+  expect(screen.getByText("Change password")).toBeInTheDocument();
 });
 
 test("renders error message for generic", () => {
@@ -78,7 +78,7 @@ test("renders error message for generic", () => {
 
   render(<Change />);
 
-  expect(screen.getByText("GENERIC_ERROR")).toBeDefined();
+  expect(screen.getByText("GENERIC_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for token", () => {
@@ -95,7 +95,7 @@ test("renders error message for token", () => {
 
   render(<Change />);
 
-  expect(screen.getByText("TOKEN_ERROR")).toBeDefined();
+  expect(screen.getByText("TOKEN_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for current password", () => {
@@ -112,7 +112,7 @@ test("renders error message for current password", () => {
 
   render(<Change />);
 
-  expect(screen.getByText("PASSWORD_ERROR")).toBeDefined();
+  expect(screen.getByText("PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for new password", () => {
@@ -129,7 +129,7 @@ test("renders error message for new password", () => {
 
   render(<Change />);
 
-  expect(screen.getByText("NEW_PASSWORD_ERROR")).toBeDefined();
+  expect(screen.getByText("NEW_PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for confirm password", () => {
@@ -146,7 +146,7 @@ test("renders error message for confirm password", () => {
 
   render(<Change />);
 
-  expect(screen.getByText("CONFIRM_PASSWORD_ERROR")).toBeDefined();
+  expect(screen.getByText("CONFIRM_PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("renders success message", () => {
@@ -163,7 +163,7 @@ test("renders success message", () => {
 
   render(<Change />);
 
-  expect(screen.getByText(/Your password has been changed/)).toBeDefined();
+  expect(screen.getByText(/Your password has been changed/)).toBeInTheDocument();
 });
 
 test("renders without current password input if token is passed", () => {
@@ -176,7 +176,7 @@ test("renders without current password input if token is passed", () => {
 
   render(<Change />);
 
-  expect(screen.queryByText(/Current Password/)).toBeNull();
+  expect(screen.queryByText(/Current Password/)).not.toBeInTheDocument();
 });
 
 test("action should return error if new password is invalid", async () => {

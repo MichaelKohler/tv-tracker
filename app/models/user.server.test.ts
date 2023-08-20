@@ -23,11 +23,13 @@ vi.mock("@node-rs/bcrypt", async () => {
 });
 vi.mock("crypto", async () => {
   return {
-    createHash: vi.fn().mockReturnValue({
-      update: vi.fn().mockReturnValue({
-        digest: vi.fn().mockReturnValue("testHashedToken"),
+    default: {
+      createHash: vi.fn().mockReturnValue({
+        update: vi.fn().mockReturnValue({
+          digest: vi.fn().mockReturnValue("testHashedToken"),
+        }),
       }),
-    }),
+    },
   };
 });
 
