@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   useActionData,
@@ -12,7 +12,7 @@ import ShowResults from "../components/show-results";
 import { addShow, searchShows } from "../models/show.server";
 import { requireUserId } from "../session.server";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
 
   const url = new URL(request.url);
@@ -24,7 +24,7 @@ export async function loader({ request }: LoaderArgs) {
   return json(shows);
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
   const showId = (formData.get("showId") as string) || "";

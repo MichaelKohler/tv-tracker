@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 
 import { getShowCount, getConnectedShowCount } from "../models/show.server";
@@ -9,7 +9,7 @@ import {
 import { getUserCount } from "../models/user.server";
 import { requireUserId } from "../session.server";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   await requireUserId(request);
 
   const [

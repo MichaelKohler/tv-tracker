@@ -1,4 +1,4 @@
-import type { LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigation, Form } from "@remix-run/react";
 
@@ -7,7 +7,7 @@ import Spinner from "../components/spinner";
 import { getShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const shows = await getShowsByUserId(userId);
 

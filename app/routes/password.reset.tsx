@@ -1,5 +1,9 @@
 import * as React from "react";
-import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
@@ -7,7 +11,7 @@ import { triggerPasswordReset } from "../models/password.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
   // Instead of using the password reset request form for logged in
   // users, use the change password form directly
@@ -15,7 +19,7 @@ export async function loader({ request }: LoaderArgs) {
   return json({});
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = formData.get("email");
 
@@ -35,7 +39,7 @@ export async function action({ request }: ActionArgs) {
   return json({ done: true, errors }, { status: 200 });
 }
 
-export function meta(): ReturnType<V2_MetaFunction> {
+export function meta(): ReturnType<MetaFunction> {
   return [
     {
       title: "Password Reset",
