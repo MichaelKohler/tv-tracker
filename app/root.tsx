@@ -1,8 +1,8 @@
 import { json, redirect } from "@remix-run/node";
 import type {
   LinksFunction,
-  LoaderArgs,
-  V2_MetaFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
 } from "@remix-run/node";
 import {
   Links,
@@ -26,7 +26,7 @@ export function links(): ReturnType<LinksFunction> {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
 }
 
-export function meta(): ReturnType<V2_MetaFunction> {
+export function meta(): ReturnType<MetaFunction> {
   return [
     {
       title: "tv-tracker",
@@ -34,7 +34,7 @@ export function meta(): ReturnType<V2_MetaFunction> {
   ];
 }
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const pathname = new URL(request.url).pathname;
   if (pathname !== "/maintenance") {
     const { MAINTENANCE_MODE_ENABLED } = getFlagsFromEnvironment();

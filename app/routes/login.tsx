@@ -1,5 +1,9 @@
 import * as React from "react";
-import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -13,13 +17,13 @@ import { verifyLogin } from "../models/user.server";
 import { createUserSession, getUserId } from "../session.server";
 import { safeRedirect, validateEmail } from "../utils";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
   if (userId) return redirect("/");
   return json({});
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
@@ -62,7 +66,7 @@ export async function action({ request }: ActionArgs) {
   });
 }
 
-export function meta(): ReturnType<V2_MetaFunction> {
+export function meta(): ReturnType<MetaFunction> {
   return [
     {
       title: "Login",

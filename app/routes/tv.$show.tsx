@@ -1,5 +1,5 @@
 import { json, redirect } from "@remix-run/node";
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   useActionData,
@@ -23,7 +23,7 @@ import {
 } from "../models/show.server";
 import { requireUserId } from "../session.server";
 
-export async function loader({ request, params }: LoaderArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
 
   if (!params.show) {
@@ -43,7 +43,7 @@ export async function loader({ request, params }: LoaderArgs) {
   return json(showResult);
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
   const intent = (formData.get("intent") as string) || "";

@@ -1,5 +1,9 @@
 import * as React from "react";
-import type { ActionArgs, LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -16,7 +20,7 @@ import { createUser, getUserByEmail } from "../models/user.server";
 import { getUserId, createUserSession } from "../session.server";
 import { safeRedirect, validateEmail } from "../utils";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
 
   if (userId) {
@@ -27,7 +31,7 @@ export async function loader({ request }: LoaderArgs) {
   return json({ environment });
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const { SIGNUP_DISABLED } = getFlagsFromEnvironment();
   const formData = await request.formData();
   const email = formData.get("email");
@@ -97,7 +101,7 @@ export async function action({ request }: ActionArgs) {
   });
 }
 
-export function meta(): ReturnType<V2_MetaFunction> {
+export function meta(): ReturnType<MetaFunction> {
   return [
     {
       title: "Sign Up",
