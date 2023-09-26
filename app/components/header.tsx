@@ -45,24 +45,24 @@ export default function Header({
               <Link
                 to="/tv"
                 className={`text-white-700 flex ${
-                  menuOpen ? "border-b py-8" : "px-8 py-2"
-                } text-base font-semibold hover:text-blue-300 hover:transition-colors hover:duration-300 focus:text-blue-300`}
+                  menuOpen ? "border-b py-12" : "px-8 py-2"
+                } text-3xl lg:text-base font-semibold hover:text-blue-300 hover:transition-colors hover:duration-300 focus:text-blue-300`}
               >
                 TV
               </Link>
               <Link
                 to="/tv/upcoming"
                 className={`text-white-700 flex ${
-                  menuOpen ? "border-b py-8" : "px-8 py-2"
-                } text-base font-semibold hover:text-blue-300 hover:transition-colors hover:duration-300 focus:text-blue-300`}
+                  menuOpen ? "border-b py-12" : "px-8 py-2"
+                } text-3xl lg:text-base font-semibold hover:text-blue-300 hover:transition-colors hover:duration-300 focus:text-blue-300`}
               >
                 Upcoming
               </Link>
               <Link
                 to="/account"
                 className={`text-white-700 flex ${
-                  menuOpen ? "border-b py-8" : "px-8 py-2"
-                } text-base font-semibold hover:text-blue-300 hover:transition-colors hover:duration-300 focus:text-blue-300`}
+                  menuOpen ? "border-b py-12" : "px-8 py-2"
+                } text-3xl lg:text-base font-semibold hover:text-blue-300 hover:transition-colors hover:duration-300 focus:text-blue-300`}
               >
                 Account
               </Link>
