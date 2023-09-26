@@ -25,7 +25,7 @@ export default function Header({
       }`}
     >
       <h1 className="text-3xl font-bold">
-        <Link to="/">
+        <Link to={user ? "/tv" : "/"}>
           tv<span className="text-sky-200">.tracker</span>
         </Link>
       </h1>
