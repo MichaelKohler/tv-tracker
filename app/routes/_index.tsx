@@ -15,7 +15,7 @@ export default function Index() {
 
   return (
     <main className="flex w-full flex-col bg-white">
-      <div className="flex min-h-screen w-full flex-col justify-center bg-gradient-to-b from-slate-800 to-slate-500 px-8 text-center text-white">
+      <div className="flex min-h-screen w-full flex-col justify-center bg-gradient-to-b from-slate-800 px-8 text-center text-white">
         <h1 className="bg-gradient-to-r from-cyan-100 to-blue-500 bg-clip-text font-title text-6xl text-transparent">
           What have you watched?
         </h1>
