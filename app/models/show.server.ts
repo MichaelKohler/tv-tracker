@@ -84,6 +84,32 @@ export async function getShowsByUserId(userId: User["id"]) {
   return showsToReturn;
 }
 
+export async function getSortedShowsByUserId(userId: User["id"]) {
+  const shows = await getShowsByUserId(userId);
+
+  shows.sort((showA, showB) => {
+    if (showB.unwatchedEpisodesCount > showA.unwatchedEpisodesCount) {
+      return 1;
+    }
+
+    if (showB.unwatchedEpisodesCount < showA.unwatchedEpisodesCount) {
+      return -1;
+    }
+
+    if (showB.name > showA.name) {
+      return -1;
+    }
+
+    if (showB.name < showA.name) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return shows;
+}
+
 async function getAddedShowsMazeIds(userId: User["id"]) {
   const addedShowsIds = (
     await prisma.show.findMany({

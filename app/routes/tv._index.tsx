@@ -1,50 +1,42 @@
+import { Suspense } from "react";
+
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData, useNavigation, Form } from "@remix-run/react";
+import { defer } from "@remix-run/node";
+import { Await, useLoaderData, useNavigation, Form } from "@remix-run/react";
 
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
-import { getShowsByUserId } from "../models/show.server";
+import { getSortedShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
-  const shows = await getShowsByUserId(userId);
+  const shows = getSortedShowsByUserId(userId);
 
-  shows.sort((showA, showB) => {
-    if (showB.unwatchedEpisodesCount > showA.unwatchedEpisodesCount) {
-      return 1;
-    }
-
-    if (showB.unwatchedEpisodesCount < showA.unwatchedEpisodesCount) {
-      return -1;
-    }
-
-    if (showB.name > showA.name) {
-      return -1;
-    }
-
-    if (showB.name < showA.name) {
-      return 1;
-    }
-
-    return 0;
-  });
-
-  return json(shows);
+  return defer({ shows });
 }
 
-export default function TVIndex() {
-  const shows = useLoaderData<typeof loader>();
+function Loader() {
+  return (
+    <div className="mt-4">
+      <Spinner />
+    </div>
+  );
+}
+
+function Content({ shows }: any) {
   const navigation = useNavigation();
   const isLoading = !!navigation.formData;
   const stats = {
     shows: shows.length,
-    unwatchedEpisodes: shows.reduce((unwatchedEpisodes, show) => {
-      unwatchedEpisodes = (unwatchedEpisodes +
-        show.unwatchedEpisodesCount) as number;
-      return unwatchedEpisodes;
-    }, 0),
+    unwatchedEpisodes: shows?.reduce(
+      (unwatchedEpisodes: number, show: { unwatchedEpisodesCount: number }) => {
+        unwatchedEpisodes = (unwatchedEpisodes +
+          show.unwatchedEpisodesCount) as number;
+        return unwatchedEpisodes;
+      },
+      0
+    ),
   };
 
   return (
@@ -63,11 +55,7 @@ export default function TVIndex() {
           />
         </label>
       </Form>
-      {isLoading && (
-        <div className="mt-4">
-          <Spinner />
-        </div>
-      )}
+      {isLoading && <Loader />}
 
       <h1 className="mt-9 font-title text-5xl">Your shows</h1>
       {shows.length === 0 && (
@@ -77,6 +65,20 @@ export default function TVIndex() {
         </p>
       )}
       {shows.length > 0 && <ShowTiles shows={shows} />}
+    </>
+  );
+}
+
+export default function TVIndex() {
+  const data = useLoaderData<typeof loader>();
+
+  return (
+    <>
+      <Suspense fallback={<Loader />}>
+        <Await resolve={data.shows}>
+          {(shows) => <Content shows={shows}></Content>}
+        </Await>
+      </Suspense>
     </>
   );
 }

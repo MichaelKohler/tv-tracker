@@ -12,6 +12,7 @@ import {
   getShowById,
   getShowCount,
   getShowsByUserId,
+  getSortedShowsByUserId,
   removeShowFromUser,
   searchShows,
   unarchiveShowOnUser,
@@ -218,6 +219,57 @@ test("getShowById should return users show with watched episodes", async () => {
     },
     watchedEpisodes: ["4"],
   });
+});
+
+test("getSortedShowsByUserId should sort shows", async () => {
+  prisma.showOnUser.findMany.mockResolvedValue([
+    {
+      archived: false,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW,
+    },
+    {
+      archived: false,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW2,
+    },
+  ]);
+
+  prisma.episodeOnUser.findMany.mockResolvedValue([
+    {
+      id: "1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: "userId",
+      showId: "1",
+      episodeId: "1",
+    },
+    {
+      id: "3",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: "userId",
+      showId: "2",
+      episodeId: "4",
+    },
+  ]);
+
+  const shows = await getShowsByUserId("userId");
+
+  expect(shows).toStrictEqual([
+    {
+      ...SHOW,
+      episodes: undefined,
+      unwatchedEpisodesCount: 1,
+      archived: false,
+    },
+    {
+      ...SHOW2,
+      episodes: undefined,
+      unwatchedEpisodesCount: 0,
+      archived: false,
+    },
+  ]);
 });
 
 test("removeShowFromUser should remove show and episodes", async () => {
