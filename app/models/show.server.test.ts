@@ -254,7 +254,7 @@ test("getSortedShowsByUserId should sort shows", async () => {
     },
   ]);
 
-  const shows = await getShowsByUserId("userId");
+  const shows = await getSortedShowsByUserId("userId");
 
   expect(shows).toStrictEqual([
     {
