@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="flex flex-col items-center justify-center bg-slate-800 p-4 text-white">
+    <footer className="flex flex-col items-center justify-center bg-mk p-4 text-white">
       <nav className="flex flex-row">
         <a
           href="https://github.com/MichaelKohler/tv-tracker/"

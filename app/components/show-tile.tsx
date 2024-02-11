@@ -14,7 +14,7 @@ export default function ShowTile({ show }: Props) {
 
   return (
     <Link to={`/tv/${show.id}`}>
-      <div className="relative my-3 mr-3 flex min-w-[250px] max-w-[250px] flex-col rounded-lg border-2 border-slate-100 hover:bg-slate-100">
+      <div className="relative my-3 mr-3 flex min-w-[250px] max-w-[250px] flex-col rounded-lg border-2 border-mklight-100 hover:bg-mklight-100">
         {show.imageUrl && (
           <img
             src={show.imageUrl}

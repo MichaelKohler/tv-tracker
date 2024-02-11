@@ -18,7 +18,7 @@ export default function ShowResults({
   return (
     <>
       <h2 className="mt-9 font-title text-3xl">Results</h2>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-mk-text">
         All TV series data is provided by{" "}
         <a href="https://www.tvmaze.com/" target="_blank" rel="noreferrer">
           tvmaze

@@ -63,11 +63,11 @@ export default function PasswordResetPage() {
   }, [actionData]);
 
   return (
-    <main className="mx-auto my-12 flex min-h-full w-full max-w-md flex-col px-8">
+    <main className="mx-auto my-8 flex min-h-full w-full max-w-md flex-col px-8">
       <Form method="post" className="space-y-6">
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-700"
+          className="block text-sm font-medium text-mk-text"
         >
           Email address
         </label>
@@ -82,17 +82,17 @@ export default function PasswordResetPage() {
             autoComplete="email"
             aria-invalid={actionData?.errors.email ? true : undefined}
             aria-describedby="email-error"
-            className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+            className="w-full rounded border border-mk-text px-2 py-1 text-lg"
           />
           {actionData?.errors.email && (
-            <div className="pt-1 text-red-700" id="email-error">
+            <div className="pt-1 text-mkerror" id="email-error">
               {actionData.errors.email}
             </div>
           )}
         </div>
         <button
           type="submit"
-          className="w-full rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 focus:bg-slate-500"
+          className="w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
           disabled={buttonDisabled}
         >
           Send password reset email

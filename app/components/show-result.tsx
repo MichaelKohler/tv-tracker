@@ -13,7 +13,7 @@ export default function ShowResult({ show }: Props) {
   const addingShowId = navigation?.formData?.get("showId");
 
   return (
-    <div className="my-3 flex flex-row rounded-lg border-2 border-slate-300 bg-slate-50 px-5 py-5">
+    <div className="my-3 flex flex-row rounded-lg border-2 border-mklight-300 bg-mklight-100 px-5 py-5">
       <div className="flex flex-none flex-col">
         {show.imageUrl && <img src={show.imageUrl} alt="" />}
       </div>
@@ -52,7 +52,7 @@ export default function ShowResult({ show }: Props) {
               <input type="hidden" name="intent" value="add-show" />
               <button
                 type="submit"
-                className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
+                className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
               >
                 Add Show
               </button>

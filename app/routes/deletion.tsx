@@ -32,7 +32,7 @@ export default function DeletionPage() {
   const navigation = useNavigation();
 
   return (
-    <main className="mx-auto my-12 flex min-h-full w-full max-w-md flex-col px-8">
+    <main className="mx-auto my-8 flex min-h-full w-full max-w-md flex-col px-8">
       <Form
         method="post"
         style={{
@@ -43,7 +43,7 @@ export default function DeletionPage() {
         }}
       >
         {actionData?.errors.deletion && (
-          <div className="pt-1 text-red-700" id="deletion=error">
+          <div className="pt-1 text-mkerror" id="deletion=error">
             {actionData.errors.deletion}
           </div>
         )}
@@ -55,7 +55,7 @@ export default function DeletionPage() {
 
         <button
           type="submit"
-          className="rounded bg-red-700 px-4 py-2 text-center text-white hover:bg-red-500 active:bg-red-500"
+          className="rounded bg-mkerror px-4 py-2 text-center text-white hover:bg-mkerror-muted active:bg-mkerror-muted"
           disabled={!!navigation.formData}
         >
           {navigation.formData ? (

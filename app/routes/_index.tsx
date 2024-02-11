@@ -15,8 +15,8 @@ export default function Index() {
 
   return (
     <main className="flex w-full flex-col bg-white">
-      <div className="flex min-h-screen w-full flex-col justify-center bg-slate-800 px-8 text-center text-white">
-        <h1 className="bg-gradient-to-r from-cyan-100 to-blue-500 bg-clip-text font-title text-6xl text-transparent">
+      <div className="flex min-h-screen w-full flex-col justify-center bg-mk px-8 text-center text-white">
+        <h1 className="bg-gradient-to-r from-mklight-100 to-mklight-300 bg-clip-text font-title text-6xl text-transparent">
           What have you watched?
         </h1>
         {data.environment.SIGNUP_DISABLED && (
@@ -28,14 +28,14 @@ export default function Index() {
             {!data.environment.SIGNUP_DISABLED && (
               <Link
                 to="/join"
-                className="text-white-100 flex items-center justify-center rounded bg-slate-600 py-2 px-4 font-medium hover:bg-slate-500 active:bg-yellow-500"
+                className="text-white-100 flex items-center justify-center rounded bg-mk-tertiary py-2 px-4 font-medium hover:bg-mk active:bg-mk"
               >
                 Sign up
               </Link>
             )}
             <Link
               to="/login"
-              className="flex items-center justify-center rounded bg-slate-600 px-4 py-2 font-medium text-white hover:bg-slate-500 active:bg-slate-500"
+              className="flex items-center justify-center rounded bg-mk-tertiary px-4 py-2 font-medium text-white hover:bg-mk active:bg-mk"
             >
               Log In
             </Link>

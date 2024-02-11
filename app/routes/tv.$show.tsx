@@ -168,7 +168,7 @@ export default function TVShow() {
         </div>
       )}
 
-      <h2 className="font-title text-3xl">Episodes</h2>
+      <h2 className="font-title text-3xl mt-8">Episodes</h2>
       <EpisodeList
         episodes={show.episodes}
         watchedEpisodes={watchedEpisodes}

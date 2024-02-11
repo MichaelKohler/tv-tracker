@@ -56,7 +56,7 @@ export default function TVSearch() {
         <label className="mt-10 flex w-full flex-col gap-1">
           <input
             name="query"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            className="flex-1 rounded-md border-2 border-mk px-3 text-lg leading-loose"
             data-testid="search-input"
             placeholder="Search..."
             defaultValue={searchParam}

@@ -15,7 +15,7 @@ export default function UpcomingEpisodesList({ episodes }: Props) {
         {episodes.map((episode) => (
           <li
             key={episode.id}
-            className="mt-4 flex flex-col border-b-2 border-slate-200 pb-4 last:border-b-0 sm:flex-row"
+            className="mt-4 flex flex-col border-b-2 border-mklight-100 pb-4 last:border-b-0 sm:flex-row"
           >
             <div className="min-h-[140px] min-w-[250px] flex-none">
               <img src={episode.show.imageUrl || ""} alt="" loading="lazy" />

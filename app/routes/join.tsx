@@ -130,7 +130,7 @@ export default function Join() {
   }, [actionData]);
 
   return (
-    <main className="mx-auto my-12 flex min-h-full w-full max-w-md flex-col px-8">
+    <main className="mx-auto my-8 flex min-h-full w-full max-w-md flex-col px-8">
       {data.environment.SIGNUP_DISABLED && (
         <p className="mb-4">
           Signup is currently disabled. However, if you have an invite code, go
@@ -143,7 +143,7 @@ export default function Join() {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-mk-text"
           >
             Email address
           </label>
@@ -158,10 +158,10 @@ export default function Join() {
               autoComplete="email"
               aria-invalid={actionData?.errors.email ? true : undefined}
               aria-describedby="email-error"
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+              className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
             {actionData?.errors.email && (
-              <div className="pt-1 text-red-700" id="email-error">
+              <div className="pt-1 text-mkerror" id="email-error">
                 {actionData.errors.email}
               </div>
             )}
@@ -171,7 +171,7 @@ export default function Join() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-mk-text"
           >
             Password
           </label>
@@ -184,10 +184,10 @@ export default function Join() {
               autoComplete="new-password"
               aria-invalid={actionData?.errors.password ? true : undefined}
               aria-describedby="password-error"
-              className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+              className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
             {actionData?.errors.password && (
-              <div className="pt-1 text-red-700" id="password-error">
+              <div className="pt-1 text-mkerror" id="password-error">
                 {actionData.errors.password}
               </div>
             )}
@@ -198,7 +198,7 @@ export default function Join() {
           <div>
             <label
               htmlFor="invite"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-mk-text"
             >
               Invite code
             </label>
@@ -211,10 +211,10 @@ export default function Join() {
                 type="text"
                 aria-invalid={actionData?.errors.invite ? true : undefined}
                 aria-describedby="invite-error"
-                className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
+                className="w-full rounded border border-mk-text px-2 py-1 text-lg"
               />
               {actionData?.errors.invite && (
-                <div className="pt-1 text-red-700" id="invite-error">
+                <div className="pt-1 text-mkerror" id="invite-error">
                   {actionData.errors.invite}
                 </div>
               )}
@@ -225,16 +225,16 @@ export default function Join() {
         <input type="hidden" name="redirectTo" value={redirectTo} />
         <button
           type="submit"
-          className="w-full rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 focus:bg-slate-500"
+          className="w-full rounded bg-mk px-4 py-2 text-white hover:mk-tertiary focus:mk-tertiary"
           disabled={!!navigation.formData}
         >
           {navigation.formData ? "Creating Account..." : "Create Account"}
         </button>
         <div className="flex items-center justify-center">
-          <div className="text-center text-sm text-gray-500">
+          <div className="text-center text-sm text-mk-text">
             Already have an account?{" "}
             <Link
-              className="text-blue-500 underline"
+              className="text-mk-text underline"
               to={{
                 pathname: "/login",
                 search: searchParams.toString(),

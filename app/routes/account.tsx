@@ -10,10 +10,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function AccountPage() {
   return (
-    <main className="my-12 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
+    <main className="my-8 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
       <Link
         to="/password/change"
-        className="rounded bg-slate-600 py-2 px-4 text-center text-white hover:bg-slate-500 active:bg-slate-500"
+        className="rounded bg-mk py-2 px-4 text-center text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
       >
         Go to change password form
       </Link>
@@ -26,7 +26,7 @@ export default function AccountPage() {
       </p>
       <Link
         to="/deletion"
-        className="rounded bg-red-700 py-2 px-4 text-center text-white hover:bg-red-500 active:bg-red-500"
+        className="rounded bg-mkerror py-2 px-4 text-center text-white hover:bg-mkerror-muted active:bg-mkerror-muted"
       >
         Delete my account and all data
       </Link>

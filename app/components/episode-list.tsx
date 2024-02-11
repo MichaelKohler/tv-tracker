@@ -25,7 +25,7 @@ export default function EpisodeList({
         {episodes.map((episode) => (
           <li
             key={episode.id}
-            className="mt-4 flex flex-col border-b-2 border-slate-200 pb-4 last:border-b-0 sm:flex-row"
+            className="mt-4 flex flex-col border-b-2 border-mklight-100 pb-4 last:border-b-0 sm:flex-row"
           >
             <div className="min-h-[140px] min-w-[250px] flex-none">
               <img
@@ -59,7 +59,7 @@ export default function EpisodeList({
                     <input type="hidden" name="episodeId" value={episode.id} />
                     <button
                       type="submit"
-                      className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
+                      className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
                     >
                       Mark as watched
                     </button>
@@ -74,7 +74,7 @@ export default function EpisodeList({
                     <input type="hidden" name="episodeId" value={episode.id} />
                     <button
                       type="submit"
-                      className="mt-4 rounded bg-red-300 px-4 py-2 text-black hover:bg-red-200 active:bg-red-200"
+                      className="mt-4 rounded bg-mkerror px-4 py-2 text-black hover:bg-mkerror-muted active:bg-mkerror-muted"
                     >
                       Mark as not watched
                     </button>

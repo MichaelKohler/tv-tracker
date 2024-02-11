@@ -68,7 +68,7 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
                 <button
                   type="submit"
                   disabled={!!navigation.formData}
-                  className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
+                  className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
                 >
                   Mark all aired episodes as watched
                 </button>
@@ -88,7 +88,7 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
               <button
                 type="submit"
                 disabled={!!navigation.formData}
-                className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
+                className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
               >
                 Ignore unwatched on overview
               </button>
@@ -101,7 +101,7 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
               <button
                 type="submit"
                 disabled={!!navigation.formData}
-                className="mt-4 rounded bg-slate-600 px-4 py-2 text-white hover:bg-slate-500 active:bg-slate-500"
+                className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
               >
                 Unignore unwatched on overview
               </button>
@@ -114,7 +114,7 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
               <button
                 type="submit"
                 disabled={!!navigation.formData}
-                className="mt-4 rounded bg-red-300 px-4 py-2 text-black hover:bg-red-200 active:bg-red-200"
+                className="mt-4 rounded bg-mkerror px-4 py-2 text-black hover:bg-mkerror-muted active:bg-mkerror-muted"
               >
                 Remove show
               </button>
