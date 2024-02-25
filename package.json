@@ -7,6 +7,7 @@
     "build": "run-s build:*",
     "build:remix": "remix build",
     "delete:episode": "ts-node scripts/delete-episode.ts",
+    "delete:episode-link": "ts-node scripts/remove-inexistent-episode-links.ts",
     "dev": "run-p dev:*",
     "dev:remix": "remix dev",
     "format": "prettier --write .",

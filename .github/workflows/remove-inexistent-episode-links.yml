@@ -1,0 +1,27 @@
+name: ❌ Remove inexisting episode links
+
+on:
+  schedule:
+    - cron: "15 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  delete:
+    name: ❌ Delete inexisting episode links
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: ❌ Delete links if needed
+        run: npm run delete:episode-link
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
