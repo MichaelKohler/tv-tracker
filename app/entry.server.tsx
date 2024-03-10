@@ -1,7 +1,7 @@
 /* eslint-disable import/first */
 // We first want to initialize instrumentation before importing
 // anything else. This is on purpose. Do not move the other imports
-// here.
+// here. There are no other changes in the entry file.
 import { init } from "./instrumentation";
 init();
 
