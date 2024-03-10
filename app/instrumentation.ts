@@ -1,9 +1,7 @@
-const { NodeSDK } = require("@opentelemetry/sdk-node");
-const {
-  getNodeAutoInstrumentations,
-} = require("@opentelemetry/auto-instrumentations-node");
-const { PrismaInstrumentation } = require("@prisma/instrumentation");
-const { RemixInstrumentation } = require("opentelemetry-instrumentation-remix");
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { PrismaInstrumentation } from "@prisma/instrumentation";
+import { RemixInstrumentation } from "opentelemetry-instrumentation-remix";
 
 // This is needed because this file gets loaded through
 // the NODE_OPTIONS, not remix itself.
@@ -29,4 +27,4 @@ const sdk = new NodeSDK({
   ],
 });
 
-sdk.start();
+export const init = () => sdk.start();
