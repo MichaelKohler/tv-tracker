@@ -1,5 +1,7 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
+import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { PrismaInstrumentation } from "@prisma/instrumentation";
 import { RemixInstrumentation } from "opentelemetry-instrumentation-remix";
 
@@ -16,6 +18,9 @@ require("dotenv").config();
 //   - OTEL_RESOURCE_ATTRIBUTES
 
 const sdk = new NodeSDK({
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: new OTLPMetricExporter(),
+  }),
   instrumentations: [
     getNodeAutoInstrumentations({
       "@opentelemetry/instrumentation-fs": {
