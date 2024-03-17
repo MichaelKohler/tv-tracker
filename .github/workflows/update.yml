@@ -46,16 +46,3 @@ jobs:
         run: npm run update:episodes:info
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-  otel-export-trace:
-    if: always()
-    name: OpenTelemetry Export Trace
-    runs-on: ubuntu-latest
-    needs: [update-episodes, update-info]
-    steps:
-      - name: Export Workflow Trace
-        uses: inception-health/otel-export-trace-action@b70e5a1e4cc4764bbbaeb963f8952b8d3d1529ba
-        with:
-          otlpEndpoint: ${{ secrets.OTLP_ENDPOINT }}
-          otlpHeaders: ${{ secrets.OTLP_HEADERS }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
