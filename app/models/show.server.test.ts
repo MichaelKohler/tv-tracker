@@ -471,13 +471,11 @@ test("addShow should add show and episodes", async () => {
       },
     },
   });
-  expect(prisma.episode.createMany).toBeCalledWith({
-    data: [
-      {
-        ...episode,
-        showId: recordId,
-      },
-    ],
+  expect(prisma.episode.create).toBeCalledWith({
+    data: {
+      ...episode,
+      showId: recordId,
+    },
   });
 });
 

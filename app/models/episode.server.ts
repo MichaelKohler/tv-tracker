@@ -122,13 +122,15 @@ export async function markAllEpisodesAsWatched({
     .filter((episode) => !watchedEpisodesIds.includes(episode.id))
     .map((episode) => episode.id);
 
-  await prisma.episodeOnUser.createMany({
-    data: episodesToMarkWatched.map((episodeId) => ({
-      showId,
-      episodeId,
-      userId,
-    })),
-  });
+  for (let episodeId of episodesToMarkWatched) {
+    await prisma.episodeOnUser.create({
+      data: {
+        showId,
+        episodeId,
+        userId,
+      },
+    });
+  }
 }
 
 export async function getEpisodeCount() {

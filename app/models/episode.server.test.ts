@@ -182,13 +182,11 @@ test("markAllEpisodesAsWatched should add entry for not yet watched episodes", a
       showId: "showId",
     },
   });
-  expect(prisma.episodeOnUser.createMany).toBeCalledWith({
-    data: [
-      {
-        showId: "showId",
-        userId: "userId",
-        episodeId: "2",
-      },
-    ],
+  expect(prisma.episodeOnUser.create).toBeCalledWith({
+    data: {
+      showId: "showId",
+      userId: "userId",
+      episodeId: "2",
+    },
   });
 });
