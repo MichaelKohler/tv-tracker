@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { createClient } from "@libsql/client";
 
-let prisma;
+let prisma: PrismaClient;
 
 if (process.env.NODE_ENV === "test") {
   prisma = new PrismaClient();
