@@ -15,6 +15,7 @@ import {
   isRouteErrorResponse,
   useRouteError,
 } from "@remix-run/react";
+import { Analytics } from "@vercel/analytics/react";
 import React from "react";
 
 import Footer from "./components/footer";
@@ -91,6 +92,7 @@ function App({
         <Footer />
         <ScrollRestoration />
         <Scripts />
+        <Analytics />
         <LiveReload />
       </body>
     </html>
