@@ -78,10 +78,10 @@ async function updateEpisodes(showId: Show["mazeId"]) {
   }
 }
 
-const { DATABASE_URL } = process.env;
+const { TURSO_DATABASE_URL } = process.env;
 
-if (!DATABASE_URL) {
-  console.error("DATABASE_URL not provided");
+if (!TURSO_DATABASE_URL) {
+  console.error("TURSO_DATABASE_URL not provided");
   process.exit(1);
 }
 

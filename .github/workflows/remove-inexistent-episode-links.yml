@@ -24,4 +24,5 @@ jobs:
       - name: ❌ Delete links if needed
         run: npm run delete:episode-link
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}

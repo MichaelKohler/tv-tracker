@@ -26,7 +26,8 @@ jobs:
       - name: ✨ Update Episodes
         run: npm run update:episodes
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
   update-info:
     name: ⬣ Update Episode Info
     runs-on: ubuntu-latest
@@ -45,4 +46,5 @@ jobs:
       - name: ✨ Update Episode Info
         run: npm run update:episodes:info
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
