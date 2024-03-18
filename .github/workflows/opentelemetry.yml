@@ -23,5 +23,6 @@ jobs:
         with:
           otlpEndpoint: ${{ vars.OTLP_ENDPOINT }}
           otlpHeaders: ${{ secrets.OTLP_HEADERS }}
+          otelServiceName: tv-tracker-actions
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           runId: ${{ github.event.workflow_run.id }}
