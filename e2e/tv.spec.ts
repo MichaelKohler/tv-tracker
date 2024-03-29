@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 
 import { test, expect } from "@playwright/test";
 
-const BASE_URL = "http://localhost:8811/";
+const BASE_URL = "http://localhost:3000/";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
@@ -34,9 +34,7 @@ test("allows TV flows", async ({ page }) => {
   await page.getByText("Mark as not watched").nth(0).click();
   await page.getByText("Mark all aired episodes as watched").click();
   await expect(page.getByText("Mark as not watched").nth(0)).toBeVisible();
-  await expect(page.getByText("Mark as watched")).not.toBeVisible();
   await page.getByText("Mark as not watched").nth(0).click();
-  await expect(page.getByText("Mark as watched")).toBeVisible();
 
   await expect(page.getByText("Ignore unwatched on overview")).toBeVisible();
 

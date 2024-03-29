@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 
 import { test, expect } from "@playwright/test";
 
-const BASE_URL = "http://localhost:8811/";
+const BASE_URL = "http://localhost:3000/";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);
