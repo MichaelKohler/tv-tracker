@@ -4,7 +4,7 @@ import { createClient } from "@libsql/client";
 
 let prisma: PrismaClient;
 
-if (process.env.NODE_ENV === "test") {
+if (process.env.NODE_ENV !== "production") {
   prisma = new PrismaClient();
 } else {
   const libsql = createClient({
