@@ -15,18 +15,16 @@ async function update() {
   for (const id of showsToUpdate) {
     console.log("-----------------------");
     console.log(`Triggering update of ${id}`);
+
     await updateEpisodes(id);
+
     console.log(`Finished update of ${id}`);
-    console.log("-----------------------");
-    console.log("");
   }
 }
 
 async function updateEpisodes(showId: Show["mazeId"]) {
   console.log(`Fetching mazeId ${showId}`);
-  const { data: showResult } = await axios.get(
-    `${TV_GET_API_PREFIX}${showId}?&embed=episodes`
-  );
+  const showResult = await fetch(showId);
 
   if (!showResult) {
     throw new Error("SHOW_NOT_FOUND");
@@ -78,10 +76,31 @@ async function updateEpisodes(showId: Show["mazeId"]) {
   }
 }
 
-const { TURSO_DATABASE_URL } = process.env;
+async function fetch(showId: string) {
+  try {
+    const { data } = await axios.get(
+      `${TV_GET_API_PREFIX}${showId}?&embed=episodes`
+    );
 
-if (!TURSO_DATABASE_URL) {
-  console.error("TURSO_DATABASE_URL not provided");
+    return data;
+  } catch (error: any) {
+    console.error("Failed to fetch show with episodes", {
+      message: error.message,
+    });
+
+    if (error.response && error.response.status === 429) {
+      console.error("Rate limited, waiting 5 seconds..");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+
+    await fetch(showId);
+  }
+}
+
+const { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL } = process.env;
+
+if (!TURSO_DATABASE_URL || !TURSO_AUTH_TOKEN) {
+  console.error("TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set");
   process.exit(1);
 }
 
