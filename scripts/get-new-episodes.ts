@@ -91,9 +91,10 @@ async function fetch(showId: string) {
     if (error.response && error.response.status === 429) {
       console.error("Rate limited, waiting 5 seconds..");
       await new Promise((resolve) => setTimeout(resolve, 5000));
+      return await fetch(showId);
     }
 
-    return await fetch(showId);
+    throw error;
   }
 }
 
