@@ -59,7 +59,7 @@ async function fetch(mazeId: string) {
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
-    await fetch(mazeId);
+    return await fetch(mazeId);
   }
 }
 

@@ -93,7 +93,7 @@ async function fetch(showId: string) {
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
 
-    await fetch(showId);
+    return await fetch(showId);
   }
 }
 
