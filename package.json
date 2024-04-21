@@ -11,7 +11,7 @@
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "postinstall": "prisma generate",
-    "setup": "prisma generate && prisma db seed",
+    "setup": "prisma generate && prisma db push && prisma db seed",
     "start": "remix-serve ./build/index.js",
     "test": "SESSION_SECRET=secret vitest",
     "test:e2e:report": "playwright show-report",
