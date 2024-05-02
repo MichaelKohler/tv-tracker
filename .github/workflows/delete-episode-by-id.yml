@@ -1,0 +1,33 @@
+name: ❌ Delete Episode by ID
+
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: "Episode ID"
+        required: true
+        default: ""
+
+jobs:
+  delete:
+    name: ❌ Delete Episode
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: ❌ Delete Episode
+        run: npm run delete:episode:id
+        env:
+          NODE_ENV: production
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          EPISODE_ID: ${{ github.event.inputs.id }}

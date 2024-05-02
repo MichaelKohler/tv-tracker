@@ -6,6 +6,7 @@
   "scripts": {
     "build": "remix build",
     "delete:episode": "ts-node scripts/delete-episode.ts",
+    "delete:episode:id": "ts-node scripts/delete-episode-by-id.ts",
     "delete:episode-link": "ts-node scripts/remove-inexistent-episode-links.ts",
     "dev": "remix dev",
     "format": "prettier --write .",
