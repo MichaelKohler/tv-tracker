@@ -1,15 +1,13 @@
 import { test, expect } from "@playwright/test";
 
-const BASE_URL = "http://localhost:3000/";
-
 test("has correct title", async ({ page }) => {
-  await page.goto(BASE_URL);
+  await page.goto("/");
 
   await expect(page).toHaveTitle("tv-tracker");
 });
 
 test("has correct main content", async ({ page }) => {
-  await page.goto(BASE_URL);
+  await page.goto("/");
 
   await expect(page.getByText("What have you watched?")).toBeVisible();
   await expect(page.getByText("Track your watched TV shows")).toBeVisible();
