@@ -3,6 +3,7 @@
   "private": true,
   "license": "MIT",
   "sideEffects": false,
+  "type": "module",
   "scripts": {
     "build": "remix vite:build",
     "delete:episode": "ts-node scripts/delete-episode.ts",
