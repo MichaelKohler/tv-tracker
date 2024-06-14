@@ -7,7 +7,6 @@ import type {
 } from "@remix-run/node";
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
@@ -21,7 +20,7 @@ import React from "react";
 import Footer from "./components/footer";
 import Header from "./components/header";
 import { getFlagsFromEnvironment } from "./models/config.server";
-import tailwindStylesheetUrl from "./styles/tailwind.css";
+import tailwindStylesheetUrl from "./styles/tailwind.css?url";
 import { getUser } from "./session.server";
 
 export function headers(): ReturnType<HeadersFunction> {
@@ -93,7 +92,6 @@ function App({
         <ScrollRestoration />
         <Scripts />
         <Analytics />
-        <LiveReload />
       </body>
     </html>
   );

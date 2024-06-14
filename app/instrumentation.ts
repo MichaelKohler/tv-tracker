@@ -1,7 +1,9 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { PrismaInstrumentation } from "@prisma/instrumentation";
+import prismaInstrumentation from "@prisma/instrumentation";
 import { RemixInstrumentation } from "opentelemetry-instrumentation-remix";
+
+const { PrismaInstrumentation } = prismaInstrumentation;
 
 // This is needed because this file gets loaded through
 // the NODE_OPTIONS, not remix itself.
