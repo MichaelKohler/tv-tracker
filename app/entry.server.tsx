@@ -1,10 +1,3 @@
-/* eslint-disable import/first */
-// We first want to initialize instrumentation before importing
-// anything else. This is on purpose. Do not move the other imports
-// here. There are no other changes in the entry file.
-import { init } from "./instrumentation";
-init();
-
 import { PassThrough } from "node:stream";
 import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
