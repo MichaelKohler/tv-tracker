@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "delete:episode": "ts-node scripts/delete-episode.ts",
-    "delete:episode:id": "ts-node scripts/delete-episode-by-id.ts",
-    "delete:episode-link": "ts-node scripts/remove-inexistent-episode-links.ts",
+    "delete:episode": "tsx scripts/delete-episode.ts",
+    "delete:episode:id": "tsx scripts/delete-episode-by-id.ts",
+    "delete:episode-link": "tsx scripts/remove-inexistent-episode-links.ts",
     "dev": "remix vite:dev",
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
