@@ -12,3 +12,7 @@ coverage
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Sentry
+.sentryclirc
+.env.sentry-build-plugin
