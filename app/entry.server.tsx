@@ -1,9 +1,21 @@
+import * as Sentry from "@sentry/remix";
 import { PassThrough } from "node:stream";
 import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import * as isbotModule from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
+
+export function handleError(error: Error, { request }: { request: Request }) {
+  Sentry.captureRemixServerException(error, "remix.server", request, true);
+}
+
+Sentry.init({
+  dsn: "https://98ad87a579a9e49c9c38b1207b520ff2@o4507469276512256.ingest.de.sentry.io/4507469276905552",
+  environment: process.env.SENTRY_ENVIRONMENT,
+  tracesSampleRate: 1,
+  integrations: [Sentry.prismaIntegration()],
+});
 
 const ABORT_DELAY = 5_000;
 

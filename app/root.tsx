@@ -1,3 +1,4 @@
+import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
 import { json, redirect } from "@remix-run/node";
 import type {
   HeadersFunction,
@@ -97,9 +98,11 @@ function App({
   );
 }
 
-export default function DefaultApp() {
+function DefaultApp() {
   return <App />;
 }
+
+export default withSentry(DefaultApp);
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -113,6 +116,8 @@ export function ErrorBoundary() {
       </App>
     );
   }
+
+  captureRemixErrorBoundaryError(error);
 
   return (
     <App renderLoginButtons={false}>
