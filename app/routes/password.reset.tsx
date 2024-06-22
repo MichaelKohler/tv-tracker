@@ -6,6 +6,7 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 
 import { triggerPasswordReset } from "../models/password.server";
 import { getUserId } from "../session.server";
@@ -35,6 +36,8 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   triggerPasswordReset(email);
+
+  Sentry.metrics.increment("password_reset_triggered", 1, {});
 
   return json({ done: true, errors }, { status: 200 });
 }

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { defer } from "@remix-run/node";
 import { Await, useLoaderData, useNavigation, Form } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
@@ -12,6 +13,10 @@ import { requireUserId } from "../session.server";
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const shows = getSortedShowsByUserId(userId);
+
+  shows.then((shows) => {
+    Sentry.metrics.distribution("overview_returned_shows", shows.length, {});
+  });
 
   return defer({ shows });
 }

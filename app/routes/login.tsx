@@ -12,6 +12,7 @@ import {
   useSearchParams,
   useNavigation,
 } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 
 import { verifyLogin } from "../models/user.server";
 import { createUserSession, getUserId } from "../session.server";
@@ -36,6 +37,8 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (!validateEmail(email)) {
+    Sentry.metrics.increment("login_email_failure", 1, {});
+
     return json(
       { errors: { ...errors, email: "Email is invalid" } },
       { status: 400 }
@@ -43,6 +46,8 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (typeof password !== "string" || password.length === 0) {
+    Sentry.metrics.increment("login_password_failure", 1, {});
+
     return json(
       { errors: { ...errors, password: "Password is required" } },
       { status: 400 }
@@ -52,11 +57,15 @@ export async function action({ request }: ActionFunctionArgs) {
   const user = await verifyLogin(email, password);
 
   if (!user) {
+    Sentry.metrics.increment("login_incorrect_failure", 1, {});
+
     return json(
       { errors: { ...errors, email: "Invalid email or password" } },
       { status: 400 }
     );
   }
+
+  Sentry.metrics.increment("login", 1, {});
 
   return createUserSession({
     request,

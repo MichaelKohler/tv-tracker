@@ -2,6 +2,7 @@ import * as React from "react";
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useSearchParams } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
@@ -86,8 +87,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     await changePassword(user.email, newPassword, token.toString());
+
+    Sentry.metrics.increment("password_changed", 1, {});
   } catch (error) {
     console.error("CHANGE_PASSWORD_ERROR", error);
+    Sentry.metrics.increment("password_change_failed", 1, {});
+
     if (error instanceof Error && error.message === "PASSWORD_RESET_EXPIRED") {
       return json(
         {

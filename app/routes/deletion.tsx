@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
+import * as Sentry from "@sentry/remix";
 
 import { deleteUserByUserId } from "../models/user.server";
 import { requireUserId, logout } from "../session.server";
@@ -15,8 +16,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     await deleteUserByUserId(userId);
+
+    Sentry.metrics.increment("user_deleted", 1, {});
   } catch (error) {
     console.error("DELETE_USER_ERROR", error);
+    Sentry.metrics.increment("user_delete_failed", 1, {});
 
     return json(
       { errors: { deletion: "Could not delete user. Please try again." } },
