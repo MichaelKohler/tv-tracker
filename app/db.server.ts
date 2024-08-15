@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSQL } from "@prisma/adapter-libsql";
-import { createClient } from "@libsql/client";
+import { createClient } from "@libsql/client/web";
 
 let prisma: PrismaClient;
 const forceTurso = process.env.TURSO_FORCE === "true";
