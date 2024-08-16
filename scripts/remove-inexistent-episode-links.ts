@@ -33,10 +33,10 @@ async function check() {
   }
 }
 
-const { TURSO_DATABASE_URL } = process.env;
+const { DATABASE_URL } = process.env;
 
-if (!TURSO_DATABASE_URL) {
-  console.error("TURSO_DATABASE_URL not provided");
+if (!DATABASE_URL) {
+  console.error("DATABASE_URL not provided");
   process.exit(1);
 }
 

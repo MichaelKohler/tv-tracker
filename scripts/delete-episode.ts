@@ -41,15 +41,11 @@ async function updateEpisode(
   console.log("Done!");
 }
 
-const {
-  TURSO_DATABASE_URL,
-  TV_SHOW_NAME,
-  TV_EPISODE_SEASON,
-  TV_EPISODE_NUMBER,
-} = process.env;
+const { DATABASE_URL, TV_SHOW_NAME, TV_EPISODE_SEASON, TV_EPISODE_NUMBER } =
+  process.env;
 
-if (!TURSO_DATABASE_URL) {
-  console.error("TURSO_DATABASE_URL not provided");
+if (!DATABASE_URL) {
+  console.error("DATABASE_URL not provided");
   process.exit(1);
 }
 

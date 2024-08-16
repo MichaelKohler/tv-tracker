@@ -64,10 +64,10 @@ async function fetch(mazeId: string) {
   }
 }
 
-const { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL } = process.env;
+const { DATABASE_URL } = process.env;
 
-if (!TURSO_DATABASE_URL || !TURSO_AUTH_TOKEN) {
-  console.error("TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set");
+if (!DATABASE_URL) {
+  console.error("DATABASE_URL must be set");
   process.exit(1);
 }
 

@@ -43,8 +43,7 @@ jobs:
         run: npm run update:episode:force
         env:
           NODE_ENV: production
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           TV_SHOW_NAME: ${{ github.event.inputs.showName }}
           TV_EPISODE_SEASON: ${{ github.event.inputs.season }}
           TV_EPISODE_NUMBER: ${{ github.event.inputs.number }}

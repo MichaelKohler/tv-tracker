@@ -35,6 +35,5 @@ jobs:
         run: npm run delete:episode:id
         env:
           NODE_ENV: production
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           EPISODE_ID: ${{ github.event.inputs.id }}
