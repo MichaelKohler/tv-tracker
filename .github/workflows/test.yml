@@ -85,6 +85,8 @@ jobs:
 
       - name: 🛠 Setup Database
         run: npx prisma db push
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: 🌱 Seed the Database
         run: npx prisma db seed
