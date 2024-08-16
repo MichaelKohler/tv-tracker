@@ -14,10 +14,10 @@ async function deleteEpisode(id: Episode["id"]) {
   console.log("Done!");
 }
 
-const { TURSO_DATABASE_URL, EPISODE_ID } = process.env;
+const { DATABASE_URL, EPISODE_ID } = process.env;
 
-if (!TURSO_DATABASE_URL) {
-  console.error("TURSO_DATABASE_URL not provided");
+if (!DATABASE_URL) {
+  console.error("DATABASE_URL not provided");
   process.exit(1);
 }
 

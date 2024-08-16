@@ -34,8 +34,7 @@ jobs:
         run: npm run update:episodes
         env:
           NODE_ENV: production
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
   update-info:
     name: ⬣ Update Episode Info
     runs-on: ubuntu-latest
@@ -62,5 +61,4 @@ jobs:
         run: npm run update:episodes:info
         env:
           NODE_ENV: production
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

@@ -36,8 +36,6 @@ which will run all available tests.
 
 ## Database
 
-I am using [Turso](https://turso.tech/) to run this project in production. Therefore we are using `libsql` here. Prisma has an adaptor for it and in development we just use a normal sqlite database.
-
 Shows are stored in the `Show` table the first time a user adds a given show. Subsequent additions do not result in shows being added multiple times. At the same time episodes are fetched and stored in the `Episode` table.
 
 Adding a show results in a link in `ShowsOnUser` to keep track which user has added which shows. This table also stores whether a user has archived a given show.
