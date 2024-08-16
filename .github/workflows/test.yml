@@ -83,6 +83,9 @@ jobs:
       - name: 📥 Download deps
         run: npm ci
 
+      - name: 🛠 Setup Database
+        run: npx prisma db push
+
       - name: 🌱 Seed the Database
         run: npx prisma db seed
         env:
