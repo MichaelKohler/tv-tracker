@@ -24,13 +24,6 @@ jobs:
       - name: 📥 Download deps
         run: npm ci
 
-      # We need to manually bump libsql here as otherwise
-      # the script will hang in the Github Action. The normal
-      # queries from the website work. We can't update generally
-      # as otherwise this breaks the deployment on Vercel.
-      - name: 📥 Temp - Fix libsql deps
-        run: npm install @libsql/client@0.6.2 @prisma/adapter-libsql@5.16.1
-
       - name: ❌ Delete Episode
         run: npm run delete:episode:id
         env:
