@@ -86,12 +86,12 @@ jobs:
       - name: 🛠 Setup Database
         run: npx prisma db push
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
 
       - name: 🌱 Seed the Database
         run: npx prisma db seed
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
 
       - name: ⚙️ Build
         run: npm run build
@@ -102,7 +102,7 @@ jobs:
       - name: 🌳 Run Playwright tests
         run: npm run test:e2e:run
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
 
       - name: ⬆️ Upload artifacts
         uses: actions/upload-artifact@v4
