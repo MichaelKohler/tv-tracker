@@ -63,7 +63,7 @@ jobs:
       - name: ⚡ Run vitest
         run: npm run test
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
 
   playwright:
     name: ⚫️ Playwright
