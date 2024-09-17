@@ -1,4 +1,4 @@
-name: ❌ Remove inexisting episode links
+name: 🗑️ Remove inexisting episode links
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   delete:
-    name: ❌ Delete inexisting episode links
+    name: 🗑️ Delete inexisting episode links
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
@@ -21,7 +21,7 @@ jobs:
       - name: 📥 Download deps
         run: npm ci
 
-      - name: ❌ Delete links if needed
+      - name: 🗑️ Delete links if needed
         run: npm run delete:episode-link
         env:
           NODE_ENV: production
