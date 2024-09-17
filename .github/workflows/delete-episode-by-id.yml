@@ -1,4 +1,4 @@
-name: ❌ Delete Episode by ID
+name: 🗑️ Delete Episode by ID
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   delete:
-    name: ❌ Delete Episode
+    name: 🗑️ Delete Episode
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
@@ -24,7 +24,7 @@ jobs:
       - name: 📥 Download deps
         run: npm ci
 
-      - name: ❌ Delete Episode
+      - name: 🗑️ Delete Episode
         run: npm run delete:episode:id
         env:
           NODE_ENV: production
