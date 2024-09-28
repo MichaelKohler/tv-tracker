@@ -81,15 +81,22 @@ jobs:
       - name: 📥 Download deps
         run: npm ci
 
+      - name: Start a single CockroachDB instance
+        run: |
+          docker pull cockroachdb/cockroach:latest-v24.2
+          docker run -d --name roach --hostname roach -p 26257:26257 -p 8080:8080 cockroachdb/cockroach:latest-v24.2 start-single-node --insecure
+          sudo apt update && sudo apt install wait-for-it -y
+          wait-for-it -h localhost -p 26257
+
       - name: 🛠 Setup Database
         run: npx prisma db push
         env:
-          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+          DATABASE_URL: postgresql://root@localhost:26257/defaultdb?sslmode=disable
 
       - name: 🌱 Seed the Database
         run: npx prisma db seed
         env:
-          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+          DATABASE_URL: postgresql://root@localhost:26257/defaultdb?sslmode=disable
 
       - name: ⚙️ Build
         run: npm run build
@@ -100,7 +107,7 @@ jobs:
       - name: 🌳 Run Playwright tests
         run: npm run test:e2e:run
         env:
-          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
+          DATABASE_URL: postgresql://root@localhost:26257/defaultdb?sslmode=disable
 
       - name: ⬆️ Upload artifacts
         uses: actions/upload-artifact@v4
