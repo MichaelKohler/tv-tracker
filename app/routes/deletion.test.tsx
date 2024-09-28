@@ -18,6 +18,8 @@ beforeEach(() => {
     };
   });
 
+  vi.mock("../db.server");
+
   vi.mock("../session.server", async () => {
     const actual = await vi.importActual("../session.server");
     return {
@@ -39,7 +41,9 @@ test("renders deletion form", () => {
   expect(
     screen.getByText(/Are you sure you want to delete your account/)
   ).toBeInTheDocument();
-  expect(screen.getByText(/Delete my account and all data/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Delete my account and all data/)
+  ).toBeInTheDocument();
 });
 
 test("renders error message for deletion", () => {
