@@ -43,7 +43,7 @@ jobs:
         run: npm ci
 
       - name: 🔎 Type check
-        run: npm run typecheck --if-present
+        run: npm run typecheck
 
   vitest:
     name: ⚡ Vitest
@@ -62,8 +62,6 @@ jobs:
 
       - name: ⚡ Run vitest
         run: npm run test
-        env:
-          DATABASE_URL: ${{ secrets.DEV_DATABASE_URL }}
 
   playwright:
     name: ⚫️ Playwright

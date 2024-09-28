@@ -35,12 +35,16 @@ beforeEach(() => {
       ),
     };
   });
+
+  vi.mock("../db.server");
+
   vi.mock("../session.server", async () => {
     return {
       getUserId: vi.fn(),
       createUserSession: vi.fn().mockImplementation((arg) => arg),
     };
   });
+
   vi.mock("../utils", async () => {
     const actual = await vi.importActual("../utils");
     return {
@@ -48,6 +52,7 @@ beforeEach(() => {
       validateEmail: vi.fn(),
     };
   });
+
   vi.mock("../models/user.server", () => {
     return {
       createUser: vi.fn(),

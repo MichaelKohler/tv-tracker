@@ -14,6 +14,8 @@ beforeEach(() => {
     };
   });
 
+  vi.mock("../db.server");
+
   vi.mock("../session.server", async () => {
     const actual = await vi.importActual("../session.server");
     return {
@@ -30,7 +32,9 @@ test("renders page", () => {
   expect(
     screen.getByText(/Deleting your account will also delete/)
   ).toBeInTheDocument();
-  expect(screen.getByText(/Delete my account and all data/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Delete my account and all data/)
+  ).toBeInTheDocument();
 });
 
 test("loader throws if there is no user", async () => {

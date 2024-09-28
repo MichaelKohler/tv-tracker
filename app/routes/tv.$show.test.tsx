@@ -19,22 +19,28 @@ beforeEach(() => {
       ),
     };
   });
+
   vi.mock("../components/episode-list", async () => {
     return {
       default: () => <p>EpisodeList</p>,
     };
   });
+
   vi.mock("../components/show-header", async () => {
     return {
       default: () => <p>ShowHeader</p>,
     };
   });
+
   vi.mock("../models/show.server", () => {
     return {
       getShowById: vi.fn(),
       removeShowFromUser: vi.fn(),
     };
   });
+
+  vi.mock("../db.server");
+
   vi.mock("../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
