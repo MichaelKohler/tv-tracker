@@ -18,12 +18,13 @@ export default function ShowResult({ show }: Props) {
         {show.imageUrl && <img src={show.imageUrl} alt="" />}
       </div>
       <div className="flex flex-col">
-        <div className={`flex flex-col ${show.imageUrl ? "pl-10" : ""} pr-10`}>
-          <h2 className="font-title text-lg">{show.name}</h2>
-          <p>{show.summary}</p>
-        </div>
+        <h2
+          className={`${show.imageUrl ? "pl-10" : ""} pr-10 font-title text-lg`}
+        >
+          {show.name}
+        </h2>
         <div
-          className={`flex flex-col ${show.imageUrl ? "pl-10" : ""} py-5 pr-10`}
+          className={`flex flex-col ${show.imageUrl ? "pl-10" : ""} py-3 pr-10`}
         >
           <p>
             <strong>Started:</strong>{" "}
@@ -40,6 +41,8 @@ export default function ShowResult({ show }: Props) {
               <strong>Rating:</strong> {show.rating}
             </p>
           )}
+
+          <p className="pt-4">{show.summary}</p>
 
           {isAddingShow && addingShowId === show.mazeId.toString() && (
             <div className="mt-4">

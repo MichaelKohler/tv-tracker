@@ -25,7 +25,7 @@ export default function TVUpcoming() {
 
   return (
     <>
-      <h1 className="mt-9 font-title text-5xl">Upcoming</h1>
+      <h1 className="font-title text-5xl">Upcoming</h1>
       {episodes.length === 0 && (
         <p className="mt-9">There are no upcoming episodes.</p>
       )}
