@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { defer } from "@remix-run/node";
 import { Await, useLoaderData, useNavigation, Form } from "@remix-run/react";
 import * as Sentry from "@sentry/remix";
 
@@ -18,7 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     Sentry.metrics.distribution("overview_returned_shows", shows.length, {});
   });
 
-  return defer({ shows });
+  return { shows };
 }
 
 function Loader() {
