@@ -45,8 +45,9 @@ export function useMatchesData(
   return route?.data as Record<string, unknown>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isUser(user: any): user is User {
-  return user && typeof user === "object" && typeof user.email === "string";
+  return !!user && typeof user === "object" && typeof user.email === "string";
 }
 
 export function useOptionalUser(): User | undefined {

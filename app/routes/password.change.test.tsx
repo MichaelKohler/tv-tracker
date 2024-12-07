@@ -32,7 +32,7 @@ beforeEach(() => {
   });
 
   vi.mocked(useSearchParams).mockReturnValue([
-    // @ts-expect-error
+    // @ts-expect-error we do not want to specify all methods of URLSearchParams
     {
       get: () => null,
     },
@@ -170,7 +170,7 @@ test("renders success message", () => {
 
 test("renders without current password input if token is passed", () => {
   vi.mocked(useSearchParams).mockReturnValue([
-    // @ts-expect-error
+    // @ts-expect-error we do not want to specify all methods of URLSearchParams
     {
       get: () => "someToken",
     },

@@ -122,7 +122,7 @@ export async function markAllEpisodesAsWatched({
     .filter((episode) => !watchedEpisodesIds.includes(episode.id))
     .map((episode) => episode.id);
 
-  for (let episodeId of episodesToMarkWatched) {
+  for (const episodeId of episodesToMarkWatched) {
     await prisma.episodeOnUser.create({
       data: {
         showId,

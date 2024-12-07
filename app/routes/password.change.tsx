@@ -188,7 +188,6 @@ export default function ChangePassword() {
                 required
                 name="password"
                 type="password"
-                autoComplete="password"
                 aria-invalid={actionData?.errors.password ? true : undefined}
                 aria-describedby="password-error"
                 className="w-full rounded border border-mk-text px-2 py-1 text-lg"

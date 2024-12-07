@@ -8,6 +8,7 @@ import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
 import { getSortedShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
+import type { FrontendShow } from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -28,19 +29,16 @@ function Loader() {
   );
 }
 
-function Content({ shows }: any) {
+function Content({ shows }: { shows: FrontendShow[] }) {
   const navigation = useNavigation();
   const isLoading = !!navigation.formData;
   const stats = {
     shows: shows.length,
-    unwatchedEpisodes: shows?.reduce(
-      (unwatchedEpisodes: number, show: { unwatchedEpisodesCount: number }) => {
-        unwatchedEpisodes = (unwatchedEpisodes +
-          show.unwatchedEpisodesCount) as number;
-        return unwatchedEpisodes;
-      },
-      0
-    ),
+    unwatchedEpisodes: shows?.reduce((unwatchedEpisodes: number, show) => {
+      unwatchedEpisodes =
+        unwatchedEpisodes + (show.unwatchedEpisodesCount || 0);
+      return unwatchedEpisodes;
+    }, 0),
   };
 
   return (
@@ -56,6 +54,7 @@ function Content({ shows }: any) {
             className="flex-1 rounded-md border-2 border-mk px-3 text-lg leading-loose"
             data-testid="search-input"
             placeholder="Search..."
+            aria-label="Search"
           />
         </label>
       </Form>
@@ -80,6 +79,7 @@ export default function TVIndex() {
     <>
       <Suspense fallback={<Loader />}>
         <Await resolve={data.shows}>
+          {/* @ts-expect-error .. the type is not detected correctly here because we do not await the promise in the loader and use Suspense */}
           {(shows) => <Content shows={shows}></Content>}
         </Await>
       </Suspense>

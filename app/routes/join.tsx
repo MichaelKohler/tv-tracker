@@ -155,7 +155,6 @@ export default function Join() {
               ref={emailRef}
               id="email"
               required
-              autoFocus={true}
               name="email"
               type="email"
               autoComplete="email"
@@ -234,8 +233,8 @@ export default function Join() {
           as timing information. This also includes information about your
           browser. Additionally, page visits are submitted to{" "}
           <a href="https://vercel.com/docs/analytics">Vercel</a> for analytic
-          purposes. There is no way to opt out of this. Don't use this website
-          if you disagree with this.
+          purposes. There is no way to opt out of this. Don&apos;t use this
+          website if you disagree with this.
         </p>
         <button
           type="submit"

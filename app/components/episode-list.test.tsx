@@ -78,7 +78,7 @@ test("renders unwatched button if watched", async () => {
 
 test("renders spinner while submitting mark as read", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "episodeId") {
@@ -104,7 +104,7 @@ test("renders spinner while submitting mark as read", async () => {
 
 test("does not render spinner while submitting mark as read for another episode", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "episodeId") {

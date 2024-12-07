@@ -16,7 +16,7 @@ export async function sendPasswordResetMail({
   }
 
   const transporter = nodemailer.createTransport({
-    // @ts-ignore
+    // @ts-expect-error .. for some reason host does not exist on the type
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: false,

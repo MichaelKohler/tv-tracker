@@ -1,4 +1,3 @@
-// eslint-disable-next-line jest/no-mocks-import
 import { prisma } from "../__mocks__/db.server";
 import { redeemInviteCode } from "./invite.server";
 

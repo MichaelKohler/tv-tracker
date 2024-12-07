@@ -198,7 +198,7 @@ export async function removeShowFromUser({
   });
 }
 
-export async function searchShows(query: String | null, userId: User["id"]) {
+export async function searchShows(query: string | null, userId: User["id"]) {
   if (!query) {
     return [];
   }
@@ -206,6 +206,7 @@ export async function searchShows(query: String | null, userId: User["id"]) {
   const addedShowsPromise = getAddedShowsMazeIds(userId);
 
   const showsResult = await fetchSearchResults(query);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const shows: FrontendShow[] = showsResult.map((showResult: any) => ({
     mazeId: showResult.show.id,
     name: showResult.show.name,
@@ -324,7 +325,7 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
     },
   });
 
-  for (let episode of episodes) {
+  for (const episode of episodes) {
     await prisma.episode.create({
       data: {
         ...episode,

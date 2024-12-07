@@ -1,5 +1,4 @@
 import bcrypt from "@node-rs/bcrypt";
-// eslint-disable-next-line jest/no-mocks-import
 import { prisma } from "../__mocks__/db.server";
 import {
   changePassword,

@@ -85,7 +85,9 @@ test("renders show header", async () => {
     screen.getByText(new Date(show.premiered).toLocaleDateString())
   ).toBeInTheDocument();
   expect(screen.getByText("5")).toBeInTheDocument();
-  expect(screen.getByText("Mark all aired episodes as watched")).toBeInTheDocument();
+  expect(
+    screen.getByText("Mark all aired episodes as watched")
+  ).toBeInTheDocument();
   expect(screen.getByText("Remove show")).toBeInTheDocument();
 });
 
@@ -98,13 +100,17 @@ test("renders watch count correctly", async () => {
 test("does not render mark all button if no episodes", async () => {
   render(<ShowHeader show={showWithoutEpisodes} watchedEpisodes={[]} />);
 
-  expect(screen.queryByText("Mark all aired episodes as watched")).not.toBeInTheDocument();
+  expect(
+    screen.queryByText("Mark all aired episodes as watched")
+  ).not.toBeInTheDocument();
 });
 
 test("does not render mark all button if all watched", async () => {
   render(<ShowHeader show={show} watchedEpisodes={["1", "2"]} />);
 
-  expect(screen.queryByText("Mark all aired episodes as watched")).not.toBeInTheDocument();
+  expect(
+    screen.queryByText("Mark all aired episodes as watched")
+  ).not.toBeInTheDocument();
 });
 
 test("renders archive button if not archived", async () => {
@@ -126,12 +132,14 @@ test("renders unarchive button if not archived", async () => {
 
   render(<ShowHeader show={archivedShow} watchedEpisodes={[]} />);
 
-  expect(screen.getByText("Unignore unwatched on overview")).toBeInTheDocument();
+  expect(
+    screen.getByText("Unignore unwatched on overview")
+  ).toBeInTheDocument();
 });
 
 test("renders spinner on mark all watched", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "intent") {
@@ -146,13 +154,15 @@ test("renders spinner on mark all watched", async () => {
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
-  expect(screen.queryByText(/Mark all aired episodes as watched/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/Mark all aired episodes as watched/)
+  ).not.toBeInTheDocument();
   expect(screen.getByText(/Remove show/)).toBeInTheDocument();
 });
 
 test("renders spinner on remove show", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "intent") {
@@ -167,13 +177,15 @@ test("renders spinner on remove show", async () => {
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
-  expect(screen.getByText(/Mark all aired episodes as watched/)).toBeInTheDocument();
+  expect(
+    screen.getByText(/Mark all aired episodes as watched/)
+  ).toBeInTheDocument();
   expect(screen.queryByText(/Remove show/)).not.toBeInTheDocument();
 });
 
 test("renders spinner on archiving", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "intent") {
@@ -188,12 +200,14 @@ test("renders spinner on archiving", async () => {
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
-  expect(screen.queryByText(/Ignore unwatched on overview/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/Ignore unwatched on overview/)
+  ).not.toBeInTheDocument();
 });
 
 test("renders spinner on unarchiving", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "intent") {
@@ -208,5 +222,7 @@ test("renders spinner on unarchiving", async () => {
   render(<ShowHeader show={show} watchedEpisodes={[]} />);
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
-  expect(screen.queryByText(/Unignore unwatched on overview/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/Unignore unwatched on overview/)
+  ).not.toBeInTheDocument();
 });

@@ -66,7 +66,7 @@ async function updateEpisodes(showId: Show["mazeId"]) {
 
   console.log(`Adding ${episodesToCreate.length} episodes..`);
 
-  for (let episode of episodesToCreate) {
+  for (const episode of episodesToCreate) {
     await prisma.episode.create({
       data: {
         ...episode,
@@ -83,6 +83,7 @@ async function fetch(showId: string) {
     );
 
     return data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Failed to fetch show with episodes", {
       message: error.message,

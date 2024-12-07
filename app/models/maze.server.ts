@@ -8,7 +8,7 @@ export async function fetchShowWithEmbededEpisodes(showId: Show["mazeId"]) {
   return result;
 }
 
-export async function fetchSearchResults(query: String) {
+export async function fetchSearchResults(query: string) {
   const response = await fetch(`${TV_SEARCH_API_PREFIX}${query}`);
   const result = await response.json();
   return result;

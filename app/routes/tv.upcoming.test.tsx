@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useLoaderData } from "@remix-run/react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";

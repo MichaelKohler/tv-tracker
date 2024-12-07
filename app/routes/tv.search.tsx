@@ -67,6 +67,7 @@ export default function TVSearch() {
             data-testid="search-input"
             placeholder="Search..."
             defaultValue={searchParam}
+            aria-label="Search"
           />
         </label>
       </Form>

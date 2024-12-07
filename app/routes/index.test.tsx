@@ -79,8 +79,7 @@ test("loaders returns signup flag", async () => {
     MAINTENANCE_MODE_ENABLED: true,
   });
 
-  // TODO: fix type, for some reason environment does not exist as property.. wrongly mocked?
-  // @ts-expect-error
+  // @ts-expect-error .. fix type, for some reason environment does not exist as property.. wrongly mocked?
   const { environment } = await loader();
 
   expect(environment.SIGNUP_DISABLED).toBe(true);

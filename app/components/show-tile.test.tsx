@@ -44,7 +44,7 @@ test("renders show tile", async () => {
 test("renders navigation spinner on tile", async () => {
   vi.mocked(useNavigation).mockReturnValue({
     state: "loading",
-    // @ts-ignore-next-line (we don't need to specify all properties)
+    // @ts-expect-error (we don't need to specify all properties)
     location: { pathname: `/tv/${show.id}` },
   });
 
@@ -56,7 +56,7 @@ test("renders navigation spinner on tile", async () => {
 test("does not render navigation spinner on different tile", async () => {
   vi.mocked(useNavigation).mockReturnValue({
     state: "loading",
-    // @ts-ignore-next-line (we don't need to specify all properties)
+    // @ts-expect-error (we don't need to specify all properties)
     location: { pathname: `/tv/not-this-show` },
   });
 

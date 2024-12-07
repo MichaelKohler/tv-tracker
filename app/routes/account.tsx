@@ -22,7 +22,7 @@ export default function AccountPage() {
 
       <p className="mb-4">
         Deleting your account will also delete all your saved data. Once
-        deleted, this data can't be restored.
+        deleted, this data can&apos;t be restored.
       </p>
       <Link
         to="/deletion"

@@ -48,7 +48,7 @@ beforeEach(() => {
   vi.mock("../utils", async () => {
     const actual = await vi.importActual("../utils");
     return {
-      ...(actual as Object),
+      ...(actual as object),
       validateEmail: vi.fn(),
     };
   });

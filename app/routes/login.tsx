@@ -114,7 +114,6 @@ export default function LoginPage() {
               ref={emailRef}
               id="email"
               required
-              autoFocus={true}
               name="email"
               type="email"
               autoComplete="email"
@@ -180,7 +179,7 @@ export default function LoginPage() {
             </label>
           </div>
           <div className="text-center text-sm text-mk-text">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
               className="text-mk-text underline"
               to={{

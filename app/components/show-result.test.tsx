@@ -44,7 +44,7 @@ test("renders show result", async () => {
 
 test("renders spinner on adding show", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "intent") {
@@ -68,7 +68,7 @@ test("renders spinner on adding show", async () => {
 
 test("does not render spinner or button on adding another show", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "intent") {
@@ -92,7 +92,7 @@ test("does not render spinner or button on adding another show", async () => {
 
 test("does not render spinner on other action", async () => {
   vi.mocked(useNavigation).mockReturnValue({
-    // @ts-ignore-next-line (we don't need to specify all methods of FormData)
+    // @ts-expect-error (we don't need to specify all methods of FormData)
     formData: {
       get(key: string) {
         if (key === "intent") {

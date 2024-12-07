@@ -54,7 +54,7 @@ export default function DeletionPage() {
 
         <p>
           Are you sure you want to delete your account? This will also delete
-          all your saved data. Once deleted, this data can't be restored.
+          all your saved data. Once deleted, this data can&apos;t be restored.
         </p>
 
         <button

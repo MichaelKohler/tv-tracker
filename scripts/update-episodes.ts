@@ -51,6 +51,7 @@ async function fetch(mazeId: string) {
     const { data } = await axios.get(`${TV_EPISODE_API_PREFIX}${mazeId}`);
 
     return data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Failed to update episode", { message: error.message });
 

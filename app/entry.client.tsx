@@ -16,7 +16,9 @@ Sentry.init({
       useLocation,
       useMatches,
     }),
+    // eslint-disable-next-line import/namespace
     Sentry.httpClientIntegration(),
+    // eslint-disable-next-line import/namespace
     Sentry.replayIntegration(),
   ],
 });

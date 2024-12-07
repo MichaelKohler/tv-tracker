@@ -23,7 +23,7 @@ beforeEach(() => {
   vi.mock("../session.server", async () => {
     const actual = await vi.importActual("../session.server");
     return {
-      ...(actual as Object),
+      ...(actual as object),
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });
