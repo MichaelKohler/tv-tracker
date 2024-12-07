@@ -35,6 +35,7 @@ beforeEach(() => {
   });
 
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
+    // @ts-expect-error .. this is due to the wrong typing with Suspend
     shows: Promise.resolve([]),
   });
 });
