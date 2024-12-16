@@ -4,6 +4,8 @@ import striptags from "striptags";
 
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
+import { type EmbeddedEpisode } from "../app/models/show.server";
+import { fetchShowWithEmbededEpisodes } from "../app/models/maze.server";
 
 async function updateEpisode(
   showName: Show["name"],
@@ -31,7 +33,34 @@ async function updateEpisode(
   });
 
   if (!episode) {
-    throw new Error("EXISTING_EPISODE_NOT_FOUND");
+    console.log(`Episode not found, fetching info from TVMaze..`);
+    const showWithEpisodes = await fetchShowWithEmbededEpisodes(show.mazeId);
+    const fetchedEpisode = showWithEpisodes._embedded.episodes.find(
+      (episode: EmbeddedEpisode) => {
+        return episode.season === season && episode.number === number;
+      }
+    );
+
+    const newRecord = {
+      mazeId: `${fetchedEpisode.id}`,
+      name: fetchedEpisode.name,
+      season: fetchedEpisode.season,
+      number: fetchedEpisode.number,
+      airDate: new Date(fetchedEpisode.airstamp),
+      runtime: fetchedEpisode.runtime || 0,
+      imageUrl: fetchedEpisode.image?.medium,
+      summary: striptags(fetchedEpisode.summary),
+    };
+
+    console.log(`Creating new episode in DB (${season}, ${number})..`);
+    await prisma.episode.create({
+      data: {
+        ...newRecord,
+        showId: show.id,
+      },
+    });
+
+    return;
   }
 
   console.log(`Fetching latest episode info from maze ${episode.mazeId}`);
