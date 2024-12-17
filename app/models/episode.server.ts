@@ -175,6 +175,9 @@ export async function getEpisodesWithMissingInfo() {
         },
       ],
     },
+    include: {
+      show: true,
+    },
   });
 
   return episode;

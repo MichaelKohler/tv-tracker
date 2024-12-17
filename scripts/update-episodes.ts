@@ -17,7 +17,9 @@ async function update() {
 
   for (const episode of episodesToUpdate) {
     console.log("-----------------------");
-    console.log(`Triggering update of ${episode.id}, mazeId ${episode.mazeId}`);
+    console.log(
+      `Triggering update of ${episode.id}, mazeId ${episode.mazeId}, ${episode.show.name} S${episode.season}E${episode.number}`
+    );
 
     await updateEpisode(episode);
 
