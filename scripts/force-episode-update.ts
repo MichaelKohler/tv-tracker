@@ -41,6 +41,8 @@ async function updateEpisode(
       }
     );
 
+    console.log("Fetched episode", fetchedEpisode);
+
     const newRecord = {
       mazeId: `${fetchedEpisode.id}`,
       name: fetchedEpisode.name,
