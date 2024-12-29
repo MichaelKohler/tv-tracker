@@ -10,6 +10,7 @@
     "delete:episode:id": "tsx scripts/delete-episode-by-id.ts",
     "delete:episode-link": "tsx scripts/remove-inexistent-episode-links.ts",
     "dev": "remix vite:dev",
+    "dev:host": "remix vite:dev --host",
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "postinstall": "prisma generate",
