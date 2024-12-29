@@ -13,13 +13,13 @@ export default function ShowTile({ show }: Props) {
     navigation.location.pathname === `/tv/${show.id}`;
 
   return (
-    <Link to={`/tv/${show.id}`}>
-      <div className="relative my-3 mr-3 flex min-w-[300px] max-w-[300px] flex-col rounded-lg border-2 border-mklight-100 hover:bg-mklight-100">
+    <Link to={`/tv/${show.id}`} className="grow">
+      <div className="relative flex mb-3 flex-col rounded-lg border-2 border-mklight-100 hover:bg-mklight-100">
         {show.imageUrl && (
           <img
             src={show.imageUrl}
             alt=""
-            className={`min-h-[350px] rounded-t-lg ${
+            className={`min-h-[250px] rounded-t-lg ${
               !show.unwatchedEpisodesCount ? "grayscale-80" : ""
             }`}
           />
