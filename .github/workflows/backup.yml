@@ -25,6 +25,7 @@ jobs:
           sudo apt install postgresql-17 postgresql-client-17
           dpkg-query -L postgresql-17
           dpkg-query -L postgresql-client-17
+          which pg_dump
 
       - name: 🕓 Set Timestamp
         run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
