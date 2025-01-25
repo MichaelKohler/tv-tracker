@@ -41,4 +41,4 @@ jobs:
 
       - name: 🆙 Upload backup to S3
         run: |
-          aws s3 cp "tv-tracker-${TIMESTAMP}.sql.gz.gpg" s3://mk-cloud-backups/databases/
+          aws s3 cp "tv-tracker-${TIMESTAMP}.sql.gz.gpg" s3://mk-cloud-backups/databases/tv-tracker/
