@@ -17,9 +17,9 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      - name: 📥 Enable Postgres
+      - name: 📥 Install Postgres
         run: |
-          sudo systemctl start postgresql.service
+          sudo apt-get install postgresql
 
       - name: 🕓 Set Timestamp
         run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
