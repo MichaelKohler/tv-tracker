@@ -19,7 +19,10 @@ jobs:
 
       - name: 📥 Install Postgres
         run: |
-          sudo apt-get install postgresql
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+          sudo apt update
+          sudo apt install postgresql-17
 
       - name: 🕓 Set Timestamp
         run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
