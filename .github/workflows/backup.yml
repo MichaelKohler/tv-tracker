@@ -30,18 +30,7 @@ jobs:
       - name: ✨ Create backup
         run: |
           /usr/lib/postgresql/17/bin/pg_dump ${{ secrets.DATABASE_URL }} | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
-          cat tv-tracker-${TIMESTAMP}.sql.gz | gpg --passphrase "${{ secrets.ENCRYPTION_STRING }}" --batch --yes --no-use-agent -c -o tv-tracker-${TIMESTAMP}.sql.gz.gpg
-
-      - name: Checkout actions-oidc-debugger
-        uses: actions/checkout@v4
-        with:
-          repository: github/actions-oidc-debugger
-          ref: main
-          path: ./.github/actions/actions-oidc-debugger
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: "${{ github.server_url }}/${{ github.repository_owner }}"
+          cat tv-tracker-${TIMESTAMP}.sql.gz | gpg --passphrase "${{ secrets.ENCRYPTION_STRING }}" --batch --yes -c -o tv-tracker-${TIMESTAMP}.sql.gz.gpg
 
       - name: ⌨️ Configure AWS credentials from Action OIDC
         uses: aws-actions/configure-aws-credentials@v4
