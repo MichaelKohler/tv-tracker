@@ -104,11 +104,8 @@ jobs:
       - name: ⚙️ Build
         run: npm run build
 
-      - name: 🧰 Install Playwright Browsers
-        run: npx playwright install --with-deps
-
       - name: 🌳 Run Playwright tests
-        run: npm run test:e2e:run
+        run: npx playwright install --with-deps && npm run test:e2e:run
         env:
           HOME: /root
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
