@@ -110,6 +110,7 @@ jobs:
       - name: 🌳 Run Playwright tests
         run: npm run test:e2e:run
         env:
+          HOME: /root
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
       - name: ⬆️ Upload artifacts
