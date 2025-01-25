@@ -17,16 +17,16 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      - name: 📥 Install PostgreSQL client
+      - name: 📥 Enable Postgres
         run: |
-          sudo apt install -y postgresql-common postgresql-client-17
+          sudo systemctl start postgresql.service
 
       - name: 🕓 Set Timestamp
         run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
 
       - name: ✨ Create backup
         run: |
-          /usr/lib/postgresql/17/bin/pg_dump ${{ secrets.DATABASE_URL }} | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
+          pg_dump ${{ secrets.DATABASE_URL }} | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
           cat tv-tracker-${TIMESTAMP}.sql.gz | gpg --passphrase "${{ secrets.ENCRYPTION_STRING }}" --batch --yes --no-use-agent -c -o tv-tracker-${TIMESTAMP}.sql.gz.gpg
 
       - name: ⌨️ Configure AWS credentials from Action OIDC
