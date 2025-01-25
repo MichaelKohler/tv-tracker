@@ -1,0 +1,41 @@
+name: 💾 Backup
+on:
+  pull_request: {}
+  schedule:
+    - cron: "39 14 * * *"
+  workflow_dispatch:
+permissions:
+  actions: write
+  contents: read
+  id-token: write
+
+jobs:
+  backup:
+    name: ⎔ Backup
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 📥 Install PostgreSQL client
+        run: |
+          sudo apt install -y postgresql-common postgresql-client-17
+
+      - name: 🕓 Set Timestamp
+        run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+
+      - name: ✨ Create backup
+        run: |
+          /usr/lib/postgresql/17/bin/pg_dump ${{ secrets.DATABASE_URL }} | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
+          cat tv-tracker-${TIMESTAMP}.sql.gz | gpg --passphrase "${{ secrets.ENCRYPTION_STRING }}" --batch --yes --no-use-agent -c -o tv-tracker-${TIMESTAMP}.sql.gz.gpg
+
+      - name: ⌨️ Configure AWS credentials from Action OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-central-1
+          role-to-assume: arn:aws:iam::143576928876:role/mk-s3-cloud-backup-tv-tracker-github-role
+          role-session-name: GitHubActionSession
+
+      - name: 🆙 Upload backup to S3
+        run: |
+          aws s3 cp "tv-tracker-${TIMESTAMP}.sql.gz.gpg" s3://mk-cloud-backups/databases/
