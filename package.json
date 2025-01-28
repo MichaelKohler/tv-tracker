@@ -39,7 +39,7 @@
     "@remix-run/node": "^2.15.0",
     "@remix-run/react": "^2.15.0",
     "@remix-run/serve": "^2.15.0",
-    "@sentry/remix": "^8.42.0",
+    "@sentry/remix": "^8.52.0",
     "@sentry/vite-plugin": "^2.22.7",
     "@vercel/analytics": "^1.4.1",
     "@vitest/coverage-v8": "^2.1.8",
