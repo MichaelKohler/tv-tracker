@@ -1,6 +1,5 @@
 name: 💾 Backup
 on:
-  pull_request: {}
   schedule:
     - cron: "39 14 * * *"
   workflow_dispatch:
