@@ -1,11 +1,10 @@
-import { captureRemixErrorBoundaryError, withSentry } from "@sentry/remix";
-import { json, redirect } from "@remix-run/node";
+import * as Sentry from "@sentry/react";
 import type {
   HeadersFunction,
   LinksFunction,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
+} from "react-router";
 import {
   Links,
   Meta,
@@ -13,8 +12,9 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
+  redirect,
   useRouteError,
-} from "@remix-run/react";
+} from "react-router";
 import React from "react";
 
 import Footer from "./components/footer";
@@ -54,9 +54,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   }
 
-  return json({
+  return {
     user: await getUser(request),
-  });
+  };
 }
 
 function App({
@@ -100,7 +100,7 @@ function DefaultApp() {
   return <App />;
 }
 
-export default withSentry(DefaultApp);
+export default DefaultApp;
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -115,7 +115,7 @@ export function ErrorBoundary() {
     );
   }
 
-  captureRemixErrorBoundaryError(error);
+  Sentry.captureException(error);
 
   return (
     <App renderLoginButtons={false}>

@@ -1,11 +1,12 @@
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, useNavigation } from "react-router";
 
-import type { FrontendEpisode, FrontendShow } from "../utils";
+import type { Episode, Show } from "@prisma/client";
+
 import Spinner from "./spinner";
 
 interface Props {
-  show: FrontendShow;
-  watchedEpisodes: FrontendEpisode["id"][];
+  show: Show & { archived: boolean; episodes: Episode[] };
+  watchedEpisodes: Episode["id"][];
 }
 
 export default function ShowHeader({ show, watchedEpisodes }: Props) {

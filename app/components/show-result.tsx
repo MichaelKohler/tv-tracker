@@ -1,10 +1,11 @@
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, useNavigation } from "react-router";
 
-import type { FrontendShow } from "../utils";
+import type { Show } from "@prisma/client";
+
 import Spinner from "./spinner";
 
 interface Props {
-  show: FrontendShow;
+  show: Show;
 }
 
 export default function ShowResult({ show }: Props) {

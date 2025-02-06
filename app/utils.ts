@@ -1,6 +1,5 @@
 import { useMemo } from "react";
-import type { Episode, Show } from "@prisma/client";
-import { useMatches } from "@remix-run/react";
+import { useMatches } from "react-router";
 
 import type { User } from "./models/user.server";
 
@@ -78,22 +77,4 @@ export function padNumber(number: number) {
   }
 
   return `${number}`;
-}
-
-export interface FrontendShow
-  extends Omit<Show, "premiered" | "ended" | "createdAt" | "updatedAt"> {
-  premiered: string;
-  ended: string | null;
-  createdAt: string;
-  updatedAt: string;
-  episodes?: FrontendEpisode[];
-  unwatchedEpisodesCount?: number;
-  archived?: boolean;
-}
-
-export interface FrontendEpisode
-  extends Omit<Episode, "airDate" | "createdAt" | "updatedAt"> {
-  airDate: string;
-  createdAt: string;
-  updatedAt: string;
 }

@@ -28,12 +28,11 @@ beforeEach(() => {
 });
 
 test("loader returns stats", async () => {
-  const response = await loader({
+  const result = await loader({
     request: new Request("http://localhost:8080/kpi"),
     context: {},
     params: {},
   });
-  const result = await response.json();
 
   expect(result).toStrictEqual({
     showCount: 55,

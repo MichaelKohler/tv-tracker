@@ -6,8 +6,10 @@ import { requireUserId } from "../session.server";
 import Account, { loader } from "./account";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = importOriginal();
     return {
+      ...actual,
       Link: ({ children }: { children: React.ReactNode }) => (
         <span>{children}</span>
       ),
@@ -16,10 +18,10 @@ beforeEach(() => {
 
   vi.mock("../db.server");
 
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
+  vi.mock("../session.server", async (importOriginal) => {
+    const actual = importOriginal();
     return {
-      ...(actual as object),
+      ...actual,
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });

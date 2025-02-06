@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useSearchParams } from "@remix-run/react";
+import { useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -7,8 +7,11 @@ import { addShow, searchShows } from "../models/show.server";
 import Search, { action, loader } from "./tv.search";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
     return {
+      ...(actual as object),
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
@@ -44,14 +47,14 @@ beforeEach(() => {
 
   vi.mocked(searchShows).mockResolvedValue([
     {
-      createdAt: "2022-01-01T00:00:00Z",
-      updatedAt: "2022-01-01T00:00:00Z",
+      createdAt: new Date("2022-01-01T00:00:00Z"),
+      updatedAt: new Date("2022-01-01T00:00:00Z"),
       id: "1",
       imageUrl: "https://example.com/image.png",
       mazeId: "1",
       name: "TVShow1",
       summary: "Test Summary",
-      premiered: "2022-01-01T00:00:00Z",
+      premiered: new Date("2022-01-01T00:00:00Z"),
       ended: null,
       rating: 5,
     },
@@ -80,13 +83,12 @@ test("renders passed search query", () => {
 });
 
 test("loader should search and return shows", async () => {
-  const response = await loader({
+  const result = await loader({
     request: new Request("http://localhost:8080/tv/search"),
     context: {},
     params: {},
   });
 
-  const result = await response.json();
   expect(searchShows).toBeCalledWith(null, "123");
   expect(result.length).toBe(1);
   expect(result[0].name).toBe("TVShow1");
@@ -105,13 +107,12 @@ test("loader should search shows with query", async () => {
 test("loader should search and return if no found show", async () => {
   vi.mocked(searchShows).mockResolvedValue([]);
 
-  const response = await loader({
+  const result = await loader({
     request: new Request("http://localhost:8080/tv/search"),
     context: {},
     params: {},
   });
 
-  const result = await response.json();
   expect(searchShows).toBeCalledWith(null, "123");
   expect(result.length).toBe(0);
 });
@@ -140,17 +141,20 @@ test("action should return error if adding failed", async () => {
   const formData = new FormData();
   formData.append("showId", "1");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/tv/search", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-
-  expect(response.status).toBe(500);
-
-  const result = await response.json();
-  expect(result.error).toBe("ADDING_SHOW_FAILED");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/tv/search", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        error: "ADDING_SHOW_FAILED",
+      }),
+    })
+  );
 });

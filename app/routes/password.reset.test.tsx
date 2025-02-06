@@ -1,6 +1,5 @@
 import * as React from "react";
-import { redirect } from "@remix-run/node";
-import { useActionData } from "@remix-run/react";
+import { redirect, useActionData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -8,8 +7,11 @@ import { getUserId } from "../session.server";
 import Reset, { action, loader } from "./password.reset";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
     return {
+      ...(actual as object),
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
@@ -38,7 +40,7 @@ test("renders reset form", () => {
 });
 
 test("renders error message for email", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       email: "EMAIL_ERROR",
     },
@@ -51,7 +53,7 @@ test("renders error message for email", () => {
 });
 
 test("renders success message", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       email: null,
     },
@@ -81,16 +83,22 @@ test("action should return error if email is invalid", async () => {
   const formData = new FormData();
   formData.append("email", "");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/reset", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.email).toBe("Email is invalid");
-  expect(result.done).toBe(false);
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/reset", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          email: "Email is invalid",
+        }),
+      }),
+    })
+  );
 });

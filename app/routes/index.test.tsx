@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -9,12 +9,12 @@ import { useOptionalUser } from "../utils";
 import Index, { loader } from "./_index";
 
 beforeEach(() => {
-  vi.mock("@remix-run/node", () => {
+  vi.mock("@react-router/node", () => {
     return {
       json: vi.fn().mockImplementation((arg) => arg),
     };
   });
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", () => {
     return {
       useLoaderData: vi
         .fn()
@@ -79,7 +79,6 @@ test("loaders returns signup flag", async () => {
     MAINTENANCE_MODE_ENABLED: true,
   });
 
-  // @ts-expect-error .. fix type, for some reason environment does not exist as property.. wrongly mocked?
   const { environment } = await loader();
 
   expect(environment.SIGNUP_DISABLED).toBe(true);

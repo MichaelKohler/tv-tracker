@@ -3,17 +3,18 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+} from "react-router";
 import {
+  data,
   Form,
   Link,
+  redirect,
   useActionData,
   useLoaderData,
   useSearchParams,
   useNavigation,
-} from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+} from "react-router";
+import * as Sentry from "@sentry/node";
 
 import { getFlagsFromEnvironment } from "../models/config.server";
 import { redeemInviteCode } from "../models/invite.server";
@@ -29,7 +30,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const environment = getFlagsFromEnvironment();
-  return json({ environment });
+  return { environment };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -47,21 +48,21 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (!validateEmail(email)) {
-    return json(
+    throw data(
       { errors: { ...errors, email: "Email is invalid" } },
       { status: 400 }
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
-    return json(
+    throw data(
       { errors: { ...errors, password: "Password is required" } },
       { status: 400 }
     );
   }
 
   if (password.length < 8) {
-    return json(
+    throw data(
       { errors: { ...errors, password: "Password is too short" } },
       { status: 400 }
     );
@@ -69,7 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
-    return json(
+    throw data(
       { errors: { ...errors, email: "A user already exists with this email" } },
       { status: 400 }
     );
@@ -77,7 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (SIGNUP_DISABLED) {
     if (typeof invite !== "string" || invite.length === 0) {
-      return json(
+      throw data(
         { errors: { ...errors, invite: "Invite code is required" } },
         { status: 400 }
       );
@@ -85,7 +86,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const validInvite = await redeemInviteCode(invite);
     if (!validInvite) {
-      return json(
+      throw data(
         { errors: { ...errors, invite: "Invite code is invalid" } },
         { status: 400 }
       );
@@ -117,7 +118,7 @@ export default function Join() {
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData();
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
   const inviteRef = React.useRef<HTMLInputElement>(null);

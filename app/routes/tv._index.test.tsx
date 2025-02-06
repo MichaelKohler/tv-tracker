@@ -1,14 +1,14 @@
 import * as React from "react";
-import { useLoaderData } from "@remix-run/react";
-import { render, screen } from "@testing-library/react";
+import { useLoaderData } from "react-router";
+import { act, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import Index, { type loader } from "./tv._index";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", async () => {
+  vi.mock("react-router", async () => {
     return {
-      ...(await vi.importActual("@remix-run/react")),
+      ...(await vi.importActual("react-router")),
       useNavigation: vi.fn().mockReturnValue({}),
       useLoaderData: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (
@@ -35,13 +35,12 @@ beforeEach(() => {
   });
 
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    // @ts-expect-error .. this is due to the wrong typing with Suspend
     shows: Promise.resolve([]),
   });
 });
 
 test("renders page without shows", async () => {
-  render(<Index />);
+  act(() => render(<Index />));
 
   await vi.waitFor(() =>
     expect(screen.getByTestId("search-input")).toBeInTheDocument()
@@ -69,7 +68,7 @@ test("renders page with shows", async () => {
     ]),
   });
 
-  render(<Index />);
+  act(() => render(<Index />));
 
   await vi.waitFor(() =>
     expect(screen.getByTestId("search-input")).toBeInTheDocument()

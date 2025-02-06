@@ -1,4 +1,4 @@
-import { redirect } from "@remix-run/node";
+import { redirect } from "react-router";
 
 import { logout } from "../session.server";
 import { action, loader } from "./logout";

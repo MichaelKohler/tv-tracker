@@ -1,17 +1,17 @@
 import * as React from "react";
-import { useNavigation } from "@remix-run/react";
+import { useNavigation } from "react-router";
+import type { Episode } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { FrontendEpisode } from "../utils";
 import EpisodeList from "./episode-list";
 
-const DEFAULT_EPISODES: FrontendEpisode[] = [
+const DEFAULT_EPISODES: Episode[] = [
   {
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     id: "1",
-    airDate: new Date().toISOString(),
+    airDate: new Date(),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 1",
@@ -22,10 +22,10 @@ const DEFAULT_EPISODES: FrontendEpisode[] = [
     summary: "Test Summary",
   },
   {
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     id: "2",
-    airDate: new Date().toISOString(),
+    airDate: new Date(),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 2",
@@ -38,7 +38,7 @@ const DEFAULT_EPISODES: FrontendEpisode[] = [
 ];
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", async () => {
+  vi.mock("react-router", async () => {
     return {
       useNavigation: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (

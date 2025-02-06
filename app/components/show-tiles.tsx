@@ -1,8 +1,9 @@
-import type { FrontendShow } from "../utils";
+import type { Show } from "@prisma/client";
+
 import ShowTile from "./show-tile";
 
 interface Props {
-  shows: FrontendShow[];
+  shows: (Show & { archived: boolean })[];
 }
 
 export default function ShowTiles({ shows }: Props) {

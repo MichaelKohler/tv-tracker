@@ -1,16 +1,10 @@
 {
-  "include": [
-    "remix.env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "vite.config.mts",
-    "vitest.config.mts",
-    "postcss.config.mjs"
-  ],
+  "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
     "types": [
-      "@remix-run/node",
+      "@react-router/node",
+      "node",
       "vite/client",
       "vitest/globals",
       "@testing-library/jest-dom"
@@ -18,8 +12,8 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "target": "ES2020",
     "strict": true,
@@ -27,8 +21,6 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "skipLibCheck": true,
-
-    // Remix takes care of building everything in `remix build`.
     "noEmit": true
   }
 }

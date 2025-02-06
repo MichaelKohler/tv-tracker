@@ -1,13 +1,14 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  data,
+  redirect,
   useActionData,
   useLoaderData,
   useSearchParams,
   useNavigation,
   Form,
-} from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+} from "react-router";
+import * as Sentry from "@sentry/node";
 
 import ShowResults from "../components/show-results";
 import { addShow, searchShows } from "../models/show.server";
@@ -25,7 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const shows = await searchShows(query, userId);
   Sentry.metrics.distribution("search_returned_shows", shows.length, {});
 
-  return json(shows);
+  return shows;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -41,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
     console.error(error);
     Sentry.metrics.increment("show_add_failed", 1, {});
 
-    return json({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
+    throw data({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
   }
 
   return redirect("/tv");
@@ -49,7 +50,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function TVSearch() {
   const shows = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData();
   const [params] = useSearchParams();
   const searchParam = params.get("query") || "";
   const navigation = useNavigation();

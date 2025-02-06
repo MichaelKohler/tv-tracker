@@ -1,12 +1,11 @@
-import { json } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "react-router";
 
 import { getFlagsFromEnvironment } from "../models/config.server";
 import { useOptionalUser } from "../utils";
 
 export async function loader() {
   const { SIGNUP_DISABLED } = getFlagsFromEnvironment();
-  return json({ environment: { SIGNUP_DISABLED } });
+  return { environment: { SIGNUP_DISABLED } };
 }
 
 export default function Index() {
