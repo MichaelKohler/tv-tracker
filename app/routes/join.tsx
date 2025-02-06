@@ -231,9 +231,7 @@ export default function Join() {
           forwarded to <a href="https://sentry.io">Sentry</a> which includes
           information about errors you encounter and profiling information such
           as timing information. This also includes information about your
-          browser. Additionally, page visits are submitted to{" "}
-          <a href="https://vercel.com/docs/analytics">Vercel</a> for analytic
-          purposes. There is no way to opt out of this. Don&apos;t use this
+          browser. There is no way to opt out of this. Don&apos;t use this
           website if you disagree with this.
         </p>
         <button
