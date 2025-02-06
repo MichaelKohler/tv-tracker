@@ -1,4 +1,4 @@
-import bcrypt from "@node-rs/bcrypt";
+import { compare } from "@node-rs/bcrypt";
 import { prisma } from "../__mocks__/db.server";
 import {
   changePassword,
@@ -14,10 +14,8 @@ import {
 vi.mock("../db.server");
 vi.mock("@node-rs/bcrypt", async () => {
   return {
-    default: {
-      compare: vi.fn(),
-      hash: vi.fn().mockResolvedValue("testHash"),
-    },
+    compare: vi.fn(),
+    hash: vi.fn().mockResolvedValue("testHash"),
   };
 });
 vi.mock("crypto", async () => {
@@ -110,7 +108,7 @@ test("verifyLogin should return user without password if correct", async () => {
       hash: "foo",
     },
   });
-  vi.mocked(bcrypt.compare).mockResolvedValue(true);
+  vi.mocked(compare).mockResolvedValue(true);
 
   const user = await verifyLogin("foo@example.com", "foo");
   expect(user).toStrictEqual({
@@ -153,7 +151,7 @@ test("verifyLogin should return null if password is invalid", async () => {
       hash: "foo",
     },
   });
-  vi.mocked(bcrypt.compare).mockResolvedValue(false);
+  vi.mocked(compare).mockResolvedValue(false);
 
   const user = await verifyLogin("foo@example.com", "foo");
   expect(user).toBeNull();
