@@ -1,7 +1,6 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
+import * as Sentry from "@sentry/node";
 
 import UpcomingEpisodesList from "../components/upcoming-episodes-list";
 import { getUpcomingEpisodes } from "../models/episode.server";
@@ -17,7 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {}
   );
 
-  return json(episodes);
+  return episodes;
 }
 
 export default function TVUpcoming() {

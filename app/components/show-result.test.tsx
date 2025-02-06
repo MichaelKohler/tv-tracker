@@ -1,26 +1,26 @@
 import * as React from "react";
-import { useNavigation } from "@remix-run/react";
+import { useNavigation } from "react-router";
+import type { Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { FrontendShow } from "../utils";
 import ShowResult from "./show-result";
 
-const show: FrontendShow = {
-  createdAt: "2022-01-01T00:00:00Z",
-  updatedAt: "2022-01-01T00:00:00Z",
+const show: Show = {
+  createdAt: new Date("2022-01-01T00:00:00Z"),
+  updatedAt: new Date("2022-01-01T00:00:00Z"),
   id: "1",
   imageUrl: "https://example.com/image.png",
   mazeId: "1",
   name: "Test Show 1",
   summary: "Test Summary",
-  premiered: "2022-01-01T00:00:00Z",
+  premiered: new Date("2022-01-01T00:00:00Z"),
   ended: null,
   rating: 5,
 };
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", async () => {
+  vi.mock("react-router", async () => {
     return {
       useNavigation: vi.fn().mockReturnValue({}),
       Form: ({ children }: { children: React.ReactNode }) => (

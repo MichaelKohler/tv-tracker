@@ -1,4 +1,4 @@
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -6,7 +6,7 @@ import { getUpcomingEpisodes } from "../models/episode.server";
 import TVUpcoming, { loader } from "./tv.upcoming";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", () => {
     return {
       useLoaderData: vi.fn(),
     };
@@ -58,10 +58,10 @@ beforeEach(() => {
 
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue([
     {
-      createdAt: "2022-01-01",
-      updatedAt: "2022-01-01",
+      createdAt: new Date("2022-01-01"),
+      updatedAt: new Date("2022-01-01"),
       id: "1",
-      airDate: "2022-01-01",
+      airDate: new Date("2022-01-01"),
       imageUrl: "https://example.com/image.png",
       mazeId: "1",
       name: "Test Episode 1",
@@ -71,10 +71,10 @@ beforeEach(() => {
       showId: "1",
       summary: "Test Summary",
       show: {
-        createdAt: "2022-01-01",
-        updatedAt: "2022-01-01",
+        createdAt: new Date("2022-01-01"),
+        updatedAt: new Date("2022-01-01"),
         id: "1",
-        premiered: "2022-01-01",
+        premiered: new Date("2022-01-01"),
         imageUrl: "https://example.com/image.png",
         mazeId: "maze1",
         name: "Test Show 1",
@@ -104,13 +104,12 @@ test("renders no upcoming episodes paragraph", () => {
 });
 
 test("loader should return upcoming episodes", async () => {
-  const response = await loader({
+  const result = await loader({
     request: new Request("http://localhost:8080/tv/upcoming"),
     context: {},
     params: {},
   });
 
-  const result = await response.json();
   expect(result.length).toBe(1);
   expect(result[0].name).toBe("Test Episode 1");
   expect(result.length).toBe(1);

@@ -1,17 +1,17 @@
 import * as React from "react";
-import { useNavigation } from "@remix-run/react";
+import { useNavigation } from "react-router";
+import type { Episode, Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { FrontendEpisode, FrontendShow } from "../utils";
 import ShowHeader from "./show-header";
 
-const DEFAULT_EPISODES: FrontendEpisode[] = [
+const DEFAULT_EPISODES: Episode[] = [
   {
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     id: "1",
-    airDate: new Date("2000-01-01").toISOString(),
+    airDate: new Date("2000-01-01"),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 1",
@@ -22,10 +22,10 @@ const DEFAULT_EPISODES: FrontendEpisode[] = [
     summary: "Test Summary",
   },
   {
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     id: "2",
-    airDate: new Date("2000-01-01").toISOString(),
+    airDate: new Date("2000-01-01"),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 2",
@@ -37,35 +37,38 @@ const DEFAULT_EPISODES: FrontendEpisode[] = [
   },
 ];
 
-const show: FrontendShow = {
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+const show: Show & { archived: boolean; episodes: Episode[] } = {
+  archived: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   id: "1",
   imageUrl: "https://example.com/image.png",
   mazeId: "1",
   name: "Test Show 1",
   summary: "Test Summary",
-  premiered: new Date().toISOString(),
+  premiered: new Date(),
   ended: null,
   rating: 5,
   episodes: DEFAULT_EPISODES,
 };
 
-const showWithoutEpisodes: FrontendShow = {
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+const showWithoutEpisodes: Show & { archived: boolean; episodes: Episode[] } = {
+  archived: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   id: "1",
   imageUrl: "https://example.com/image.png",
   mazeId: "1",
   name: "Test Show 1",
   summary: "Test Summary",
-  premiered: new Date().toISOString(),
+  premiered: new Date(),
   ended: null,
   rating: 5,
+  episodes: [],
 };
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", async () => {
+  vi.mock("react-router", async () => {
     return {
       useNavigation: vi.fn().mockReturnValue({}),
       Form: ({ children }: { children: React.ReactNode }) => (

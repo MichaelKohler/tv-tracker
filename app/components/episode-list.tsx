@@ -1,14 +1,15 @@
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, useNavigation } from "react-router";
+
+import type { Episode, Show } from "@prisma/client";
 
 import { EPISODE_FALLBACK_IMG_PATH } from "../constants";
-import type { FrontendEpisode, FrontendShow } from "../utils";
 import { padNumber } from "../utils";
 import Spinner from "./spinner";
 
 interface Props {
-  episodes: FrontendEpisode[];
-  watchedEpisodes: FrontendEpisode["id"][];
-  showId: FrontendShow["id"];
+  episodes: Episode[];
+  watchedEpisodes: Episode["id"][];
+  showId: Show["id"];
 }
 
 export default function EpisodeList({

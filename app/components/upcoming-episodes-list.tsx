@@ -1,10 +1,10 @@
-import type { FrontendEpisode, FrontendShow } from "../utils";
+import type { Episode, Show } from "@prisma/client";
 
 import { padNumber } from "../utils";
 
 interface Props {
-  episodes: (FrontendEpisode & {
-    show: FrontendShow;
+  episodes: (Episode & {
+    show: Show;
   })[];
 }
 

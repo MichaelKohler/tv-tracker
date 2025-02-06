@@ -1,27 +1,28 @@
 import * as React from "react";
-import { useNavigation } from "@remix-run/react";
+import { useNavigation } from "react-router";
+
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { FrontendShow } from "../utils";
-import ShowTile from "./show-tile";
+import ShowTile, { type Props } from "./show-tile";
 
-const show: FrontendShow = {
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+const show: Props["show"] = {
+  archived: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   id: "1",
   imageUrl: "https://example.com/image.png",
   mazeId: "1",
   name: "Test Show 1",
   summary: "Test Summary",
-  premiered: new Date().toISOString(),
+  premiered: new Date(),
   ended: null,
   rating: 5,
   unwatchedEpisodesCount: 1,
 };
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", async () => {
+  vi.mock("react-router", async () => {
     return {
       useNavigation: vi.fn().mockReturnValue({}),
       Form: ({ children }: { children: React.ReactNode }) => (

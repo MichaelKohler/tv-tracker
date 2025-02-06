@@ -11,7 +11,7 @@ beforeEach(() => {
     };
   });
 
-  vi.mock("@remix-run/react", async () => {
+  vi.mock("react-router", async () => {
     return {
       useMatches: vi.fn().mockReturnValue([{ id: "foo" }]),
       Form: ({ children }: { children: React.ReactNode }) => (

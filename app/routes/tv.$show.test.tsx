@@ -1,13 +1,13 @@
 import * as React from "react";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import TVShow from "./tv.$show";
-import type { action, loader } from "./tv.$show";
+import type { loader } from "./tv.$show";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", () => {
     return {
       useCatch: vi.fn().mockReturnValue({ status: 404 }),
       useNavigation: vi.fn().mockReturnValue({}),
@@ -52,20 +52,20 @@ beforeEach(() => {
       id: "1",
       name: "ShowName",
       mazeId: "1",
-      premiered: "2022-01-01",
+      premiered: new Date("2022-01-01"),
       ended: null,
       rating: 1,
       imageUrl: "",
       summary: "Summary",
-      createdAt: "2022-01-01",
-      updatedAt: "2022-01-01",
+      createdAt: new Date("2022-01-01"),
+      updatedAt: new Date("2022-01-01"),
       episodes: [],
       archived: false,
     },
     watchedEpisodes: [],
   });
 
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     error: "",
   });
 });
@@ -79,7 +79,7 @@ test("renders detail page", () => {
 });
 
 test("renders error if marking all episodes failed", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     error: "MARKING_ALL_EPISODES_FAILED",
   });
 
@@ -92,7 +92,7 @@ test("renders error if marking all episodes failed", () => {
 });
 
 test("renders error if removing show failed", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     error: "REMOVE_SHOW_FAILED",
   });
 
@@ -105,7 +105,7 @@ test("renders error if removing show failed", () => {
 });
 
 test("renders error if archiving show failed", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     error: "ARCHIVE_SHOW_FAILED",
   });
 
@@ -118,7 +118,7 @@ test("renders error if archiving show failed", () => {
 });
 
 test("renders error if unarchiving show failed", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     error: "UNARCHIVE_SHOW_FAILED",
   });
 
