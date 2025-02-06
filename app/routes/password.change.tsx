@@ -1,8 +1,7 @@
 import * as React from "react";
-import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, useActionData, useSearchParams } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+import type { ActionFunctionArgs, MetaFunction } from "react-router";
+import { data, Form, useActionData, useSearchParams } from "react-router";
+import * as Sentry from "@sentry/node";
 
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
@@ -23,7 +22,7 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (typeof newPassword !== "string" || newPassword === "") {
-    return json(
+    throw data(
       {
         errors: { ...errors, newPassword: "New password is required" },
         done: false,
@@ -33,7 +32,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (typeof confirmPassword !== "string" || confirmPassword === "") {
-    return json(
+    throw data(
       {
         errors: {
           ...errors,
@@ -46,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (confirmPassword !== newPassword) {
-    return json(
+    throw data(
       {
         errors: { ...errors, confirmPassword: "Passwords do not match" },
         done: false,
@@ -64,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
     user = await requireUser(request);
 
     if (typeof currentPassword !== "string" || currentPassword === "") {
-      return json(
+      throw data(
         {
           errors: { ...errors, password: "Current password is required." },
           done: false,
@@ -75,7 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const isValid = await verifyLogin(user.email, currentPassword);
     if (!isValid) {
-      return json(
+      throw data(
         {
           errors: { ...errors, password: "Current password is wrong." },
           done: false,
@@ -94,7 +93,7 @@ export async function action({ request }: ActionFunctionArgs) {
     Sentry.metrics.increment("password_change_failed", 1, {});
 
     if (error instanceof Error && error.message === "PASSWORD_RESET_EXPIRED") {
-      return json(
+      throw data(
         {
           errors: {
             ...errors,
@@ -106,7 +105,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    return json(
+    throw data(
       {
         errors: {
           ...errors,
@@ -118,7 +117,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return json({ done: true, errors }, { status: 200 });
+  return { done: true, errors };
 }
 
 export function meta(): ReturnType<MetaFunction> {
@@ -130,7 +129,7 @@ export function meta(): ReturnType<MetaFunction> {
 }
 
 export default function ChangePassword() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData();
   const currentPasswordRef = React.useRef<HTMLInputElement>(null);
   const newPasswordRef = React.useRef<HTMLInputElement>(null);
   const passwordConfirmRef = React.useRef<HTMLInputElement>(null);

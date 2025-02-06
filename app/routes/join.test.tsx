@@ -1,6 +1,10 @@
 import * as React from "react";
-import { redirect } from "@remix-run/node";
-import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
+import {
+  redirect,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -17,8 +21,11 @@ const MOCK_ENV = {
 };
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
     return {
+      ...(actual as object),
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
@@ -98,7 +105,7 @@ test("renders creating account on button while submitting form", () => {
 });
 
 test("renders error message for email", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       email: "EMAIL_ERROR",
       password: null,
@@ -112,7 +119,7 @@ test("renders error message for email", () => {
 });
 
 test("renders error message for password", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       email: null,
       password: "PASSWORD_ERROR",
@@ -132,7 +139,7 @@ test("renders error message for invite code", () => {
       SIGNUP_DISABLED: true,
     },
   });
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       email: null,
       password: null,
@@ -160,12 +167,11 @@ test("loader redirects if there is a user", async () => {
 test("loader returns environment if there is no user", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
 
-  const response = await loader({
+  const result = await loader({
     request: new Request("http://localhost:8080/join"),
     context: {},
     params: {},
   });
-  const result = await response.json();
 
   expect(result).toStrictEqual({ environment: MOCK_ENV });
 });
@@ -237,17 +243,24 @@ test("action should return error if email is invalid", async () => {
   formData.append("email", "invalid");
   formData.append("password", "foofoofoo");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/join", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.email).toBe("Email is invalid");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/join", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          email: "Email is invalid",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if no password", async () => {
@@ -258,17 +271,24 @@ test("action should return error if no password", async () => {
   formData.append("email", "foo@example.com");
   formData.append("password", "");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/join", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.password).toBe("Password is required");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/join", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          password: "Password is required",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if password is too short", async () => {
@@ -279,17 +299,24 @@ test("action should return error if password is too short", async () => {
   formData.append("email", "foo@example.com");
   formData.append("password", "short");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/join", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.password).toBe("Password is too short");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/join", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          password: "Password is too short",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if user exists", async () => {
@@ -306,17 +333,24 @@ test("action should return error if user exists", async () => {
   formData.append("email", "already-existing@example.com");
   formData.append("password", "foofoofoo");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/join", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.email).toBe("A user already exists with this email");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/join", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          email: "A user already exists with this email",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if invite code is missing for disabled signup", async () => {
@@ -332,17 +366,24 @@ test("action should return error if invite code is missing for disabled signup",
   formData.append("email", "foo@example.com");
   formData.append("password", "foofoofoo");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/join", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.invite).toBe("Invite code is required");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/join", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          invite: "Invite code is required",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if invite code is invalid for disabled signup", async () => {
@@ -361,15 +402,22 @@ test("action should return error if invite code is invalid for disabled signup",
   formData.append("password", "foofoofoo");
   formData.append("invite", "someInviteCode");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/join", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.invite).toBe("Invite code is invalid");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/join", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          invite: "Invite code is invalid",
+        }),
+      }),
+    })
+  );
 });

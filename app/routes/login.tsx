@@ -3,16 +3,17 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+} from "react-router";
 import {
+  data,
   Form,
   Link,
+  redirect,
   useActionData,
   useSearchParams,
   useNavigation,
-} from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+} from "react-router";
+import * as Sentry from "@sentry/node";
 
 import { verifyLogin } from "../models/user.server";
 import { createUserSession, getUserId } from "../session.server";
@@ -21,7 +22,7 @@ import { safeRedirect, validateEmail } from "../utils";
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
   if (userId) return redirect("/");
-  return json({});
+  return {};
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -39,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!validateEmail(email)) {
     Sentry.metrics.increment("login_email_failure", 1, {});
 
-    return json(
+    throw data(
       { errors: { ...errors, email: "Email is invalid" } },
       { status: 400 }
     );
@@ -48,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (typeof password !== "string" || password.length === 0) {
     Sentry.metrics.increment("login_password_failure", 1, {});
 
-    return json(
+    throw data(
       { errors: { ...errors, password: "Password is required" } },
       { status: 400 }
     );
@@ -59,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!user) {
     Sentry.metrics.increment("login_incorrect_failure", 1, {});
 
-    return json(
+    throw data(
       { errors: { ...errors, email: "Invalid email or password" } },
       { status: 400 }
     );
@@ -87,7 +88,7 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const redirectTo = searchParams.get("redirectTo") || "/tv";
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData();
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
 

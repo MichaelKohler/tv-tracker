@@ -1,6 +1,5 @@
 import * as React from "react";
-import { redirect } from "@remix-run/node";
-import { useActionData, useNavigation } from "@remix-run/react";
+import { redirect, useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -10,8 +9,11 @@ import { validateEmail } from "../utils";
 import Login, { action, loader } from "./login";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
     return {
+      ...(actual as object),
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useSearchParams: vi.fn().mockReturnValue([
@@ -67,7 +69,7 @@ test("renders logging in on button while submitting form", () => {
 });
 
 test("renders error message for email", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       email: "EMAIL_ERROR",
       password: null,
@@ -80,7 +82,7 @@ test("renders error message for email", () => {
 });
 
 test("renders error message for password", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       email: null,
       password: "PASSWORD_ERROR",
@@ -107,12 +109,11 @@ test("loader redirects if there is a user", async () => {
 test("loader returns nothing if there is no user", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
 
-  const response = await loader({
+  const result = await loader({
     request: new Request("http://localhost:8080/login"),
     context: {},
     params: {},
   });
-  const result = await response.json();
 
   expect(result).toStrictEqual({});
 });
@@ -213,17 +214,24 @@ test("action should return error if email is invalid", async () => {
   formData.append("password", "foo");
   formData.append("remember", "off");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/login", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.email).toBe("Email is invalid");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          email: "Email is invalid",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if no password", async () => {
@@ -235,17 +243,24 @@ test("action should return error if no password", async () => {
   formData.append("password", "");
   formData.append("remember", "off");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/login", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.password).toBe("Password is required");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          password: "Password is required",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if verifyLogin fails", async () => {
@@ -258,15 +273,22 @@ test("action should return error if verifyLogin fails", async () => {
   formData.append("password", "foo");
   formData.append("remember", "off");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/login", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.email).toBe("Invalid email or password");
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          email: "Invalid email or password",
+        }),
+      }),
+    })
+  );
 });

@@ -1,18 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import type { FrontendEpisode, FrontendShow } from "../utils";
+import type { Episode, Show } from "@prisma/client";
 
 import UpcomingEpisodesList from "./upcoming-episodes-list";
 
-const DEFAULT_EPISODES: (FrontendEpisode & {
-  show: FrontendShow;
+const DEFAULT_EPISODES: (Episode & {
+  show: Show;
 })[] = [
   {
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     id: "1",
-    airDate: new Date().toISOString(),
+    airDate: new Date(),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 1",
@@ -22,10 +22,10 @@ const DEFAULT_EPISODES: (FrontendEpisode & {
     showId: "1",
     summary: "Test Summary",
     show: {
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       id: "1",
-      premiered: new Date().toISOString(),
+      premiered: new Date(),
       imageUrl: "https://example.com/image.png",
       mazeId: "maze1",
       name: "Test Show 1",
@@ -35,10 +35,10 @@ const DEFAULT_EPISODES: (FrontendEpisode & {
     },
   },
   {
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
     id: "2",
-    airDate: new Date().toISOString(),
+    airDate: new Date(),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 2",
@@ -48,10 +48,10 @@ const DEFAULT_EPISODES: (FrontendEpisode & {
     showId: "1",
     summary: "Test Summary 2",
     show: {
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       id: "1",
-      premiered: new Date().toISOString(),
+      premiered: new Date(),
       imageUrl: "https://example.com/image.png",
       mazeId: "maze1",
       name: "Test Show 2",

@@ -1,14 +1,14 @@
 import { Suspense } from "react";
 
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Await, useLoaderData, useNavigation, Form } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+import type { Show } from "@prisma/client";
+import type { LoaderFunctionArgs } from "react-router";
+import { Await, useLoaderData, useNavigation, Form } from "react-router";
+import * as Sentry from "@sentry/node";
 
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
 import { getSortedShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import type { FrontendShow } from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -29,7 +29,11 @@ function Loader() {
   );
 }
 
-function Content({ shows }: { shows: FrontendShow[] }) {
+function Content({
+  shows,
+}: {
+  shows: (Show & { archived: boolean; unwatchedEpisodesCount: number })[];
+}) {
   const navigation = useNavigation();
   const isLoading = !!navigation.formData;
   const stats = {
@@ -79,7 +83,6 @@ export default function TVIndex() {
     <>
       <Suspense fallback={<Loader />}>
         <Await resolve={data.shows}>
-          {/* @ts-expect-error .. the type is not detected correctly here because we do not await the promise in the loader and use Suspense */}
           {(shows) => <Content shows={shows}></Content>}
         </Await>
       </Suspense>

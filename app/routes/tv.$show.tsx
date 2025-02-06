@@ -1,12 +1,13 @@
-import { json, redirect } from "@remix-run/node";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  data,
   isRouteErrorResponse,
+  redirect,
   useActionData,
   useRouteError,
   useLoaderData,
-} from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+} from "react-router";
+import * as Sentry from "@sentry/node";
 
 import ErrorAlert from "../components/error-alert";
 import EpisodeList from "../components/episode-list";
@@ -41,7 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
-  return json(showResult);
+  return showResult;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -60,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
       console.error(error);
       Sentry.metrics.increment("mark_watched_failed", 1, {});
 
-      return json({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
+      throw data({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
     }
   }
 
@@ -73,7 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
       console.error(error);
       Sentry.metrics.increment("mark_unwatched_failed", 1, {});
 
-      return json(
+      throw data(
         { error: "MARKING_EPISODE_UNWATCHED_FAILED" },
         { status: 500 }
       );
@@ -89,7 +90,7 @@ export async function action({ request }: ActionFunctionArgs) {
       console.error(error);
       Sentry.metrics.increment("mark_all_watched_failed", 1, {});
 
-      return json({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
+      throw data({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
     }
   }
 
@@ -104,7 +105,7 @@ export async function action({ request }: ActionFunctionArgs) {
       console.error(error);
       Sentry.metrics.increment("delete_show_failed", 1, {});
 
-      return json({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
+      throw data({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
     }
   }
 
@@ -119,7 +120,7 @@ export async function action({ request }: ActionFunctionArgs) {
       console.error(error);
       Sentry.metrics.increment("archive_failed", 1, {});
 
-      return json({ error: "ARCHIVE_SHOW_FAILED" }, { status: 500 });
+      throw data({ error: "ARCHIVE_SHOW_FAILED" }, { status: 500 });
     }
   }
 
@@ -134,16 +135,16 @@ export async function action({ request }: ActionFunctionArgs) {
       console.error(error);
       Sentry.metrics.increment("unarchive_failed", 1, {});
 
-      return json({ error: "UNARCHIVE_SHOW_FAILED" }, { status: 500 });
+      throw data({ error: "UNARCHIVE_SHOW_FAILED" }, { status: 500 });
     }
   }
 
-  return json({ error: "" });
+  return { error: "" };
 }
 
 export default function TVShow() {
   const { show, watchedEpisodes } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData();
   const error = actionData?.error;
 
   if (!show) {

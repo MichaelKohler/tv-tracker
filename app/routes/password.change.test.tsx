@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useActionData, useSearchParams } from "@remix-run/react";
+import { useActionData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -8,8 +8,11 @@ import { requireUser } from "../session.server";
 import Change, { action } from "./password.change";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
     return {
+      ...(actual as object),
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
@@ -65,7 +68,7 @@ test("renders change form", () => {
 });
 
 test("renders error message for generic", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       generic: "GENERIC_ERROR",
       token: null,
@@ -82,7 +85,7 @@ test("renders error message for generic", () => {
 });
 
 test("renders error message for token", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       generic: null,
       token: "TOKEN_ERROR",
@@ -99,7 +102,7 @@ test("renders error message for token", () => {
 });
 
 test("renders error message for current password", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       generic: null,
       token: null,
@@ -116,7 +119,7 @@ test("renders error message for current password", () => {
 });
 
 test("renders error message for new password", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       generic: null,
       token: null,
@@ -133,7 +136,7 @@ test("renders error message for new password", () => {
 });
 
 test("renders error message for confirm password", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       generic: null,
       token: null,
@@ -150,7 +153,7 @@ test("renders error message for confirm password", () => {
 });
 
 test("renders success message", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       generic: null,
       token: null,
@@ -187,18 +190,24 @@ test("action should return error if new password is invalid", async () => {
   formData.append("newPassword", "");
   formData.append("confirmPassword", "newnewPassword");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/change", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.newPassword).toBe("New password is required");
-  expect(result.done).toBe(false);
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/change", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          newPassword: "New password is required",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if confirm password is invalid", async () => {
@@ -207,20 +216,24 @@ test("action should return error if confirm password is invalid", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/change", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.confirmPassword).toBe(
-    "Password confirmation is required"
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/change", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          confirmPassword: "Password confirmation is required",
+        }),
+      }),
+    })
   );
-  expect(result.done).toBe(false);
 });
 
 test("action should return error if passwords do not match", async () => {
@@ -229,18 +242,24 @@ test("action should return error if passwords do not match", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword2");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/change", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.confirmPassword).toBe("Passwords do not match");
-  expect(result.done).toBe(false);
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/change", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          confirmPassword: "Passwords do not match",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if current password is invalid", async () => {
@@ -249,18 +268,24 @@ test("action should return error if current password is invalid", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/change", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.password).toBe("Current password is required.");
-  expect(result.done).toBe(false);
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/change", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          password: "Current password is required.",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if current password is wrong", async () => {
@@ -271,18 +296,24 @@ test("action should return error if current password is wrong", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/change", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.password).toBe("Current password is wrong.");
-  expect(result.done).toBe(false);
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/change", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          password: "Current password is wrong.",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if change password fails", async () => {
@@ -293,18 +324,24 @@ test("action should return error if change password fails", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/change", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.generic).toBe("Something went wrong. Please try again.");
-  expect(result.done).toBe(false);
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/change", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          generic: "Something went wrong. Please try again.",
+        }),
+      }),
+    })
+  );
 });
 
 test("action should return error if change password fails with expired reset", async () => {
@@ -317,20 +354,24 @@ test("action should return error if change password fails with expired reset", a
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/change", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.token).toBe(
-    "Password reset link expired. Please try again."
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/password/change", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          token: "Password reset link expired. Please try again.",
+        }),
+      }),
+    })
   );
-  expect(result.done).toBe(false);
 });
 
 test("action should throw redirect if no logged in user", async () => {
@@ -359,7 +400,7 @@ test("action should change password if everything ok", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  const response = await action({
+  const result = await action({
     request: new Request("http://localhost:8080/password/change", {
       method: "POST",
       body: formData,
@@ -367,8 +408,6 @@ test("action should change password if everything ok", async () => {
     context: {},
     params: {},
   });
-
-  const result = await response.json();
 
   expect(changePassword).toBeCalledWith(
     "foo@example.com",
@@ -388,7 +427,7 @@ test("action should change password with token", async () => {
   formData.append("confirmPassword", "newnewPassword");
   formData.append("token", "someToken");
 
-  const response = await action({
+  const result = await action({
     request: new Request("http://localhost:8080/password/change", {
       method: "POST",
       body: formData,
@@ -396,8 +435,6 @@ test("action should change password with token", async () => {
     context: {},
     params: {},
   });
-
-  const result = await response.json();
 
   expect(changePassword).toBeCalledWith("", "newnewPassword", "someToken");
   expect(result.done).toBe(true);

@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Link } from "react-router";
 
 import { requireUserId } from "../session.server";
 

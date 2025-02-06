@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useActionData } from "@remix-run/react";
+import { useActionData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -8,8 +8,11 @@ import { requireUserId } from "../session.server";
 import Deletion, { action, loader } from "./deletion";
 
 beforeEach(() => {
-  vi.mock("@remix-run/react", () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
     return {
+      ...(actual as object),
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (
@@ -47,7 +50,7 @@ test("renders deletion form", () => {
 });
 
 test("renders error message for deletion", () => {
-  vi.mocked(useActionData<typeof action>).mockReturnValue({
+  vi.mocked(useActionData).mockReturnValue({
     errors: {
       deletion: "DELETION_ERROR",
     },
@@ -91,16 +94,21 @@ test("action should return error if user can not be deleted", async () => {
     new Error("OH_NO_DELETION_ERROR")
   );
 
-  const response = await action({
-    request: new Request("http://localhost:8080/deletion", {
-      method: "POST",
-    }),
-    context: {},
-    params: {},
-  });
-  const result = await response.json();
-
-  expect(result.errors.deletion).toBe(
-    "Could not delete user. Please try again."
+  await expect(() =>
+    action({
+      request: new Request("http://localhost:8080/deletion", {
+        method: "POST",
+      }),
+      context: {},
+      params: {},
+    })
+  ).rejects.toThrow(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        errors: expect.objectContaining({
+          deletion: "Could not delete user. Please try again.",
+        }),
+      }),
+    })
   );
 });

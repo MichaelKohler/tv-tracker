@@ -1,6 +1,6 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import * as Sentry from "@sentry/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import * as Sentry from "@sentry/node";
 
 import { logout } from "../session.server";
 

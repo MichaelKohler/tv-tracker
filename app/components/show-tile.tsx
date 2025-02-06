@@ -1,9 +1,10 @@
-import { Link, useNavigation } from "@remix-run/react";
+import { Link, useNavigation } from "react-router";
 
-import type { FrontendShow } from "../utils";
+import type { Show } from "@prisma/client";
+
 import Spinner from "./spinner";
-interface Props {
-  show: FrontendShow;
+export interface Props {
+  show: Show & { archived: boolean; unwatchedEpisodesCount?: number };
 }
 
 export default function ShowTile({ show }: Props) {

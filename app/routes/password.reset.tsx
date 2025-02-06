@@ -3,10 +3,9 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import * as Sentry from "@sentry/remix";
+} from "react-router";
+import { data, Form, redirect, useActionData } from "react-router";
+import * as Sentry from "@sentry/node";
 
 import { triggerPasswordReset } from "../models/password.server";
 import { getUserId } from "../session.server";
@@ -17,7 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // Instead of using the password reset request form for logged in
   // users, use the change password form directly
   if (userId) return redirect("/password/change");
-  return json({});
+  return {};
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -29,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (!validateEmail(email)) {
-    return json(
+    throw data(
       { errors: { email: "Email is invalid" }, done: false },
       { status: 400 }
     );
@@ -39,7 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   Sentry.metrics.increment("password_reset_triggered", 1, {});
 
-  return json({ done: true, errors }, { status: 200 });
+  return { done: true, errors };
 }
 
 export function meta(): ReturnType<MetaFunction> {
@@ -51,7 +50,7 @@ export function meta(): ReturnType<MetaFunction> {
 }
 
 export default function PasswordResetPage() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData();
   const emailRef = React.useRef<HTMLInputElement>(null);
   const [buttonDisabled, setButtonDisabled] = React.useState(false);
 
