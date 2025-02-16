@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Form, Link, useMatches } from "react-router";
 
 import { useOptionalUser } from "../utils";
@@ -11,9 +11,9 @@ export default function Header({
   const user = useOptionalUser();
   const matches = useMatches();
   const latestRoute = matches[matches.length - 1].id;
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setMenuOpen(false);
     if (typeof window !== "undefined") {
       window.scrollTo(0, 0);

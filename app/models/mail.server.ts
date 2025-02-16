@@ -1,5 +1,5 @@
 import type { User, PasswordReset } from "@prisma/client";
-import nodemailer from "nodemailer";
+import { createTransport } from "nodemailer";
 
 export async function sendPasswordResetMail({
   email,
@@ -15,7 +15,7 @@ export async function sendPasswordResetMail({
     return;
   }
 
-  const transporter = nodemailer.createTransport({
+  const transporter = createTransport({
     // @ts-expect-error .. for some reason host does not exist on the type
     host: SMTP_HOST,
     port: SMTP_PORT,
