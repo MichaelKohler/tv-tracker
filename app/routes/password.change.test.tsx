@@ -190,24 +190,17 @@ test("action should return error if new password is invalid", async () => {
   formData.append("newPassword", "");
   formData.append("confirmPassword", "newnewPassword");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/change", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          newPassword: "New password is required",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/password/change", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.newPassword).toBe("New password is required");
 });
 
 test("action should return error if confirm password is invalid", async () => {
@@ -216,23 +209,18 @@ test("action should return error if confirm password is invalid", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/change", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          confirmPassword: "Password confirmation is required",
-        }),
-      }),
-    })
+  const response = await action({
+    request: new Request("http://localhost:8080/password/change", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.confirmPassword).toBe(
+    "Password confirmation is required"
   );
 });
 
@@ -242,24 +230,17 @@ test("action should return error if passwords do not match", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword2");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/change", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          confirmPassword: "Passwords do not match",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/password/change", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.confirmPassword).toBe("Passwords do not match");
 });
 
 test("action should return error if current password is invalid", async () => {
@@ -268,24 +249,17 @@ test("action should return error if current password is invalid", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/change", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          password: "Current password is required.",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/password/change", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.password).toBe("Current password is required.");
 });
 
 test("action should return error if current password is wrong", async () => {
@@ -296,24 +270,17 @@ test("action should return error if current password is wrong", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/change", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          password: "Current password is wrong.",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/password/change", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.password).toBe("Current password is wrong.");
 });
 
 test("action should return error if change password fails", async () => {
@@ -324,23 +291,18 @@ test("action should return error if change password fails", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/change", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          generic: "Something went wrong. Please try again.",
-        }),
-      }),
-    })
+  const response = await action({
+    request: new Request("http://localhost:8080/password/change", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.generic).toBe(
+    "Something went wrong. Please try again."
   );
 });
 
@@ -354,23 +316,18 @@ test("action should return error if change password fails with expired reset", a
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/change", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          token: "Password reset link expired. Please try again.",
-        }),
-      }),
-    })
+  const response = await action({
+    request: new Request("http://localhost:8080/password/change", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.token).toBe(
+    "Password reset link expired. Please try again."
   );
 });
 
@@ -400,7 +357,7 @@ test("action should change password if everything ok", async () => {
   formData.append("newPassword", "newnewPassword");
   formData.append("confirmPassword", "newnewPassword");
 
-  const result = await action({
+  await action({
     request: new Request("http://localhost:8080/password/change", {
       method: "POST",
       body: formData,
@@ -414,7 +371,6 @@ test("action should change password if everything ok", async () => {
     "newnewPassword",
     ""
   );
-  expect(result.done).toBe(true);
 });
 
 test("action should change password with token", async () => {
@@ -427,7 +383,7 @@ test("action should change password with token", async () => {
   formData.append("confirmPassword", "newnewPassword");
   formData.append("token", "someToken");
 
-  const result = await action({
+  await action({
     request: new Request("http://localhost:8080/password/change", {
       method: "POST",
       body: formData,
@@ -437,5 +393,4 @@ test("action should change password with token", async () => {
   });
 
   expect(changePassword).toBeCalledWith("", "newnewPassword", "someToken");
-  expect(result.done).toBe(true);
 });

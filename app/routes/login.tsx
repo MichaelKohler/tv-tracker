@@ -37,14 +37,14 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (!validateEmail(email)) {
-    throw data(
+    return data(
       { errors: { ...errors, email: "Email is invalid" } },
       { status: 400 }
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
-    throw data(
+    return data(
       { errors: { ...errors, password: "Password is required" } },
       { status: 400 }
     );
@@ -53,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const user = await verifyLogin(email, password);
 
   if (!user) {
-    throw data(
+    return data(
       { errors: { ...errors, email: "Invalid email or password" } },
       { status: 400 }
     );

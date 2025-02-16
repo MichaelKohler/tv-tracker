@@ -214,24 +214,17 @@ test("action should return error if email is invalid", async () => {
   formData.append("password", "foo");
   formData.append("remember", "off");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/login", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          email: "Email is invalid",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/login", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.email).toBe("Email is invalid");
 });
 
 test("action should return error if no password", async () => {
@@ -243,24 +236,17 @@ test("action should return error if no password", async () => {
   formData.append("password", "");
   formData.append("remember", "off");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/login", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          password: "Password is required",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/login", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.password).toBe("Password is required");
 });
 
 test("action should return error if verifyLogin fails", async () => {
@@ -273,22 +259,15 @@ test("action should return error if verifyLogin fails", async () => {
   formData.append("password", "foo");
   formData.append("remember", "off");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/login", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          email: "Invalid email or password",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/login", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.email).toBe("Invalid email or password");
 });

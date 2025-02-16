@@ -21,7 +21,7 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (typeof newPassword !== "string" || newPassword === "") {
-    throw data(
+    return data(
       {
         errors: { ...errors, newPassword: "New password is required" },
         done: false,
@@ -31,7 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (typeof confirmPassword !== "string" || confirmPassword === "") {
-    throw data(
+    return data(
       {
         errors: {
           ...errors,
@@ -44,7 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (confirmPassword !== newPassword) {
-    throw data(
+    return data(
       {
         errors: { ...errors, confirmPassword: "Passwords do not match" },
         done: false,
@@ -62,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
     user = await requireUser(request);
 
     if (typeof currentPassword !== "string" || currentPassword === "") {
-      throw data(
+      return data(
         {
           errors: { ...errors, password: "Current password is required." },
           done: false,
@@ -73,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const isValid = await verifyLogin(user.email, currentPassword);
     if (!isValid) {
-      throw data(
+      return data(
         {
           errors: { ...errors, password: "Current password is wrong." },
           done: false,
@@ -89,7 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
     console.error("CHANGE_PASSWORD_ERROR", error);
 
     if (error instanceof Error && error.message === "PASSWORD_RESET_EXPIRED") {
-      throw data(
+      return data(
         {
           errors: {
             ...errors,
@@ -101,7 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    throw data(
+    return data(
       {
         errors: {
           ...errors,
