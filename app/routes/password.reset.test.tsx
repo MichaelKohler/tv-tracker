@@ -83,22 +83,15 @@ test("action should return error if email is invalid", async () => {
   const formData = new FormData();
   formData.append("email", "");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/password/reset", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          email: "Email is invalid",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/password/reset", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.email).toBe("Email is invalid");
 });

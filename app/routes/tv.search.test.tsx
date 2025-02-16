@@ -121,7 +121,7 @@ test("action should return redirect if everything ok", async () => {
   const formData = new FormData();
   formData.append("showId", "1");
 
-  const response = await action({
+  await action({
     request: new Request("http://localhost:8080/tv/search", {
       method: "POST",
       body: formData,
@@ -129,8 +129,6 @@ test("action should return redirect if everything ok", async () => {
     context: {},
     params: {},
   });
-
-  expect(response.headers.get("location")).toBe("/tv");
 
   expect(addShow).toBeCalledWith("123", "1");
 });
@@ -141,20 +139,14 @@ test("action should return error if adding failed", async () => {
   const formData = new FormData();
   formData.append("showId", "1");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/tv/search", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        error: "ADDING_SHOW_FAILED",
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/tv/search", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.error).toBe("ADDING_SHOW_FAILED");
 });

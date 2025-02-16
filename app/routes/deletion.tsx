@@ -17,7 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
   } catch (error) {
     console.error("DELETE_USER_ERROR", error);
 
-    throw data(
+    return data(
       { errors: { deletion: "Could not delete user. Please try again." } },
       { status: 500 }
     );

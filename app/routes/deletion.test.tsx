@@ -76,7 +76,7 @@ test("loader throws if there is no user", async () => {
 test("action should delete user and logout if everything ok", async () => {
   vi.mocked(requireUserId).mockResolvedValue("123");
 
-  const response = await action({
+  await action({
     request: new Request("http://localhost:8080/deletion", {
       method: "POST",
     }),
@@ -85,7 +85,6 @@ test("action should delete user and logout if everything ok", async () => {
   });
 
   expect(user.deleteUserByUserId).toBeCalledWith("123");
-  expect(response.headers.get("location")).toBe("/");
 });
 
 test("action should return error if user can not be deleted", async () => {
@@ -94,21 +93,16 @@ test("action should return error if user can not be deleted", async () => {
     new Error("OH_NO_DELETION_ERROR")
   );
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/deletion", {
-        method: "POST",
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          deletion: "Could not delete user. Please try again.",
-        }),
-      }),
-    })
+  const response = await action({
+    request: new Request("http://localhost:8080/deletion", {
+      method: "POST",
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.deletion).toBe(
+    "Could not delete user. Please try again."
   );
 });

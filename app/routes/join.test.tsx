@@ -243,24 +243,17 @@ test("action should return error if email is invalid", async () => {
   formData.append("email", "invalid");
   formData.append("password", "foofoofoo");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/join", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          email: "Email is invalid",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/join", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.email).toBe("Email is invalid");
 });
 
 test("action should return error if no password", async () => {
@@ -271,24 +264,17 @@ test("action should return error if no password", async () => {
   formData.append("email", "foo@example.com");
   formData.append("password", "");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/join", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          password: "Password is required",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/join", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.password).toBe("Password is required");
 });
 
 test("action should return error if password is too short", async () => {
@@ -299,24 +285,17 @@ test("action should return error if password is too short", async () => {
   formData.append("email", "foo@example.com");
   formData.append("password", "short");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/join", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          password: "Password is too short",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/join", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.password).toBe("Password is too short");
 });
 
 test("action should return error if user exists", async () => {
@@ -333,23 +312,18 @@ test("action should return error if user exists", async () => {
   formData.append("email", "already-existing@example.com");
   formData.append("password", "foofoofoo");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/join", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          email: "A user already exists with this email",
-        }),
-      }),
-    })
+  const response = await action({
+    request: new Request("http://localhost:8080/join", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.email).toBe(
+    "A user already exists with this email"
   );
 });
 
@@ -366,24 +340,17 @@ test("action should return error if invite code is missing for disabled signup",
   formData.append("email", "foo@example.com");
   formData.append("password", "foofoofoo");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/join", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          invite: "Invite code is required",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/join", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.invite).toBe("Invite code is required");
 });
 
 test("action should return error if invite code is invalid for disabled signup", async () => {
@@ -402,22 +369,15 @@ test("action should return error if invite code is invalid for disabled signup",
   formData.append("password", "foofoofoo");
   formData.append("invite", "someInviteCode");
 
-  await expect(() =>
-    action({
-      request: new Request("http://localhost:8080/join", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow(
-    expect.objectContaining({
-      data: expect.objectContaining({
-        errors: expect.objectContaining({
-          invite: "Invite code is invalid",
-        }),
-      }),
-    })
-  );
+  const response = await action({
+    request: new Request("http://localhost:8080/join", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  // @ts-expect-error : we do not actually have a real response here..
+  expect(response.data.errors.invite).toBe("Invite code is invalid");
 });

@@ -47,21 +47,21 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (!validateEmail(email)) {
-    throw data(
+    return data(
       { errors: { ...errors, email: "Email is invalid" } },
       { status: 400 }
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
-    throw data(
+    return data(
       { errors: { ...errors, password: "Password is required" } },
       { status: 400 }
     );
   }
 
   if (password.length < 8) {
-    throw data(
+    return data(
       { errors: { ...errors, password: "Password is too short" } },
       { status: 400 }
     );
@@ -69,7 +69,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
-    throw data(
+    return data(
       { errors: { ...errors, email: "A user already exists with this email" } },
       { status: 400 }
     );
@@ -77,7 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (SIGNUP_DISABLED) {
     if (typeof invite !== "string" || invite.length === 0) {
-      throw data(
+      return data(
         { errors: { ...errors, invite: "Invite code is required" } },
         { status: 400 }
       );
@@ -85,7 +85,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const validInvite = await redeemInviteCode(invite);
     if (!validInvite) {
-      throw data(
+      return data(
         { errors: { ...errors, invite: "Invite code is invalid" } },
         { status: 400 }
       );

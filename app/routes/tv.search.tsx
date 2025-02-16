@@ -35,7 +35,7 @@ export async function action({ request }: ActionFunctionArgs) {
   } catch (error) {
     console.error(error);
 
-    throw data({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
+    return data({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
   }
 
   return redirect("/tv");

@@ -57,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
       console.error(error);
 
-      throw data({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
+      return data({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
     }
   }
 
@@ -67,7 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
       console.error(error);
 
-      throw data(
+      return data(
         { error: "MARKING_EPISODE_UNWATCHED_FAILED" },
         { status: 500 }
       );
@@ -80,7 +80,7 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
       console.error(error);
 
-      throw data({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
+      return data({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
     }
   }
 
@@ -92,7 +92,7 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
       console.error(error);
 
-      throw data({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
+      return data({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
     }
   }
 
@@ -104,7 +104,7 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
       console.error(error);
 
-      throw data({ error: "ARCHIVE_SHOW_FAILED" }, { status: 500 });
+      return data({ error: "ARCHIVE_SHOW_FAILED" }, { status: 500 });
     }
   }
 
@@ -116,7 +116,7 @@ export async function action({ request }: ActionFunctionArgs) {
     } catch (error) {
       console.error(error);
 
-      throw data({ error: "UNARCHIVE_SHOW_FAILED" }, { status: 500 });
+      return data({ error: "UNARCHIVE_SHOW_FAILED" }, { status: 500 });
     }
   }
 

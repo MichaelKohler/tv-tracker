@@ -27,7 +27,7 @@ export async function action({ request }: ActionFunctionArgs) {
   };
 
   if (!validateEmail(email)) {
-    throw data(
+    return data(
       { errors: { email: "Email is invalid" }, done: false },
       { status: 400 }
     );
