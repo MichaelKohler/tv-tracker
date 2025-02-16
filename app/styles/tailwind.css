@@ -1,3 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-mk: #1f3352;
+  --color-mk-secondary: #23395b;
+  --color-mk-tertiary: #3a4d6a;
+  --color-mk-text: #2f2f2f;
+  --color-mklight-100: #f2faff;
+  --color-mklight-300: #9ad6f5;
+  --color-mkerror: #ff7575;
+  --color-mkerror-muted: #ffb2b2;
+  --color-mkwarning: #ffdd00;
+  --color-mkwarning-muted: #ffea00;
+
+  --font-sans: "Raleway", "sans-serif";
+  --font-title: "Dosis", "sans-serif";
+}
