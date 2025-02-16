@@ -1,7 +1,6 @@
 import * as React from "react";
 import type { ActionFunctionArgs, MetaFunction } from "react-router";
 import { data, Form, useActionData, useSearchParams } from "react-router";
-import * as Sentry from "@sentry/node";
 
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
@@ -86,11 +85,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     await changePassword(user.email, newPassword, token.toString());
-
-    Sentry.metrics.increment("password_changed", 1, {});
   } catch (error) {
     console.error("CHANGE_PASSWORD_ERROR", error);
-    Sentry.metrics.increment("password_change_failed", 1, {});
 
     if (error instanceof Error && error.message === "PASSWORD_RESET_EXPIRED") {
       throw data(

@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/react";
 import type {
   HeadersFunction,
   LinksFunction,
@@ -114,8 +113,6 @@ export function ErrorBoundary() {
       </App>
     );
   }
-
-  Sentry.captureException(error);
 
   return (
     <App renderLoginButtons={false}>

@@ -4,7 +4,7 @@ Track TV shows you've watched. Note that this is mostly for myself, however feel
 
 ## Development
 
-This project is based on React Router. It's integrated with Sentry, so please change the DSN in `app/entry.client.tsx` and `app/entry.server.tsx` to reflect your own Sentry project.
+This project is based on React Router.
 
 ```sh
 npm ci

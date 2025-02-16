@@ -1,6 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
-import * as Sentry from "@sentry/node";
 
 import UpcomingEpisodesList from "../components/upcoming-episodes-list";
 import { getUpcomingEpisodes } from "../models/episode.server";
@@ -9,12 +8,6 @@ import { requireUserId } from "../session.server";
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const episodes = await getUpcomingEpisodes(userId);
-
-  Sentry.metrics.distribution(
-    "upcoming_episodes_returned",
-    episodes.length,
-    {}
-  );
 
   return episodes;
 }

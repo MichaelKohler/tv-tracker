@@ -13,9 +13,5 @@ coverage
 /playwright-report/
 /playwright/.cache/
 
-# Sentry
-.sentryclirc
-.env.sentry-build-plugin
-
 .react-router/
 tsconfig.tsbuildinfo
