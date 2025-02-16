@@ -5,7 +5,6 @@ import type {
   MetaFunction,
 } from "react-router";
 import { data, Form, redirect, useActionData } from "react-router";
-import * as Sentry from "@sentry/node";
 
 import { triggerPasswordReset } from "../models/password.server";
 import { getUserId } from "../session.server";
@@ -35,8 +34,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   triggerPasswordReset(email);
-
-  Sentry.metrics.increment("password_reset_triggered", 1, {});
 
   return { done: true, errors };
 }

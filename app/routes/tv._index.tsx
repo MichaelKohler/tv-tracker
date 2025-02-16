@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import type { Show } from "@prisma/client";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, useLoaderData, useNavigation, Form } from "react-router";
-import * as Sentry from "@sentry/node";
 
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
@@ -13,10 +12,6 @@ import { requireUserId } from "../session.server";
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const shows = getSortedShowsByUserId(userId);
-
-  shows.then((shows) => {
-    Sentry.metrics.distribution("overview_returned_shows", shows.length, {});
-  });
 
   return { shows };
 }

@@ -7,7 +7,6 @@ import {
   useRouteError,
   useLoaderData,
 } from "react-router";
-import * as Sentry from "@sentry/node";
 
 import ErrorAlert from "../components/error-alert";
 import EpisodeList from "../components/episode-list";
@@ -55,11 +54,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === "MARK_WATCHED") {
     try {
       await markEpisodeAsWatched({ userId, showId, episodeId });
-
-      Sentry.metrics.increment("mark_watched", 1, {});
     } catch (error) {
       console.error(error);
-      Sentry.metrics.increment("mark_watched_failed", 1, {});
 
       throw data({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
     }
@@ -68,11 +64,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === "MARK_UNWATCHED") {
     try {
       await markEpisodeAsUnwatched({ userId, showId, episodeId });
-
-      Sentry.metrics.increment("mark_unwatched", 1, {});
     } catch (error) {
       console.error(error);
-      Sentry.metrics.increment("mark_unwatched_failed", 1, {});
 
       throw data(
         { error: "MARKING_EPISODE_UNWATCHED_FAILED" },
@@ -84,11 +77,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (intent === "MARK_ALL_WATCHED") {
     try {
       await markAllEpisodesAsWatched({ userId, showId });
-
-      Sentry.metrics.increment("mark_all_watched", 1, {});
     } catch (error) {
       console.error(error);
-      Sentry.metrics.increment("mark_all_watched_failed", 1, {});
 
       throw data({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
     }
@@ -98,12 +88,9 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       await removeShowFromUser({ userId, showId });
 
-      Sentry.metrics.increment("delete_show", 1, {});
-
       return redirect("/tv");
     } catch (error) {
       console.error(error);
-      Sentry.metrics.increment("delete_show_failed", 1, {});
 
       throw data({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
     }
@@ -113,12 +100,9 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       await archiveShowOnUser({ userId, showId });
 
-      Sentry.metrics.increment("archive", 1, {});
-
       return redirect("/tv");
     } catch (error) {
       console.error(error);
-      Sentry.metrics.increment("archive_failed", 1, {});
 
       throw data({ error: "ARCHIVE_SHOW_FAILED" }, { status: 500 });
     }
@@ -128,12 +112,9 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       await unarchiveShowOnUser({ userId, showId });
 
-      Sentry.metrics.increment("unarchive", 1, {});
-
       return redirect("/tv");
     } catch (error) {
       console.error(error);
-      Sentry.metrics.increment("unarchive_failed", 1, {});
 
       throw data({ error: "UNARCHIVE_SHOW_FAILED" }, { status: 500 });
     }
