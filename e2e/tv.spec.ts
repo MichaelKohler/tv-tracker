@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("allows TV flows", async ({ page }) => {
-  const username = faker.internet.userName();
+  const username = faker.internet.username();
 
   // Signup
   await page.getByRole("link", { name: "Sign up" }).click();

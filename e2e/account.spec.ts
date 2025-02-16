@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("allows signup and login", async ({ page }) => {
-  const username = faker.internet.userName();
+  const username = faker.internet.username();
 
   await page.getByRole("link", { name: "Sign up" }).click();
 
@@ -38,7 +38,7 @@ test("allows going from signup to login", async ({ page }) => {
 });
 
 test("allows to delete account", async ({ page }) => {
-  const username = faker.internet.userName();
+  const username = faker.internet.username();
 
   // Signup
   await page.getByRole("link", { name: "Sign up" }).click();
@@ -65,7 +65,7 @@ test("allows to delete account", async ({ page }) => {
 });
 
 test("allows to change password", async ({ page }) => {
-  const username = faker.internet.userName();
+  const username = faker.internet.username();
 
   // Signup
   await page.getByRole("link", { name: "Sign up" }).click();
@@ -97,7 +97,7 @@ test("allows to change password", async ({ page }) => {
 });
 
 test("recognizes not matching password", async ({ page }) => {
-  const username = faker.internet.userName();
+  const username = faker.internet.username();
 
   // Signup
   await page.getByRole("link", { name: "Sign up" }).click();
