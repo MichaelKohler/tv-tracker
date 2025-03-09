@@ -48,6 +48,7 @@ export async function getUpcomingEpisodes(userId: User["id"]) {
     orderBy: {
       airDate: "asc",
     },
+    take: 50,
   });
 
   const upcomingEpisodesList = upcomingEpisodes.map((episode) => ({
@@ -79,6 +80,7 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
     orderBy: {
       createdAt: "desc",
     },
+    take: 50,
   });
 
   const recentyWatchedEpisodeList = recentlyWatchedEpisodes.map(
