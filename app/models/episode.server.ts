@@ -65,13 +65,7 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
       createdAt: {
         lt: new Date(),
       },
-      show: {
-        users: {
-          some: {
-            userId,
-          },
-        },
-      },
+      userId,
     },
     include: {
       show: true,
