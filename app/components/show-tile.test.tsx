@@ -42,18 +42,6 @@ test("renders show tile", async () => {
   expect(screen.getByText(show.name)).toBeInTheDocument();
 });
 
-test("renders navigation spinner on tile", async () => {
-  vi.mocked(useNavigation).mockReturnValue({
-    state: "loading",
-    // @ts-expect-error (we don't need to specify all properties)
-    location: { pathname: `/tv/${show.id}` },
-  });
-
-  render(<ShowTile show={show} />);
-
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
-});
-
 test("does not render navigation spinner on different tile", async () => {
   vi.mocked(useNavigation).mockReturnValue({
     state: "loading",

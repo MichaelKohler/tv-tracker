@@ -4,11 +4,12 @@ import { padNumber } from "../utils";
 
 interface Props {
   episodes: (Episode & {
+    date: Date;
     show: Show;
   })[];
 }
 
-export default function UpcomingEpisodesList({ episodes }: Props) {
+export default function FullEpisodesList({ episodes }: Props) {
   return (
     <div className="my-3 flex flex-col py-5">
       <ul>
@@ -24,7 +25,7 @@ export default function UpcomingEpisodesList({ episodes }: Props) {
               <p>
                 <strong>{episode.show.name}</strong> - {episode.name} (S
                 {padNumber(episode.season)}E{padNumber(episode.number)}) -{" "}
-                {new Date(episode.airDate).toLocaleDateString()}
+                {new Date(episode.date).toLocaleDateString()}
               </p>
               <p>{episode.summary}</p>
             </div>

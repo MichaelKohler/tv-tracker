@@ -2,8 +2,8 @@ import { useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getUpcomingEpisodes } from "../models/episode.server";
-import TVUpcoming, { loader } from "./tv.upcoming";
+import { getRecentlyWatchedEpisodes } from "../models/episode.server";
+import TVRecent, { loader } from "./tv.recent";
 
 beforeEach(() => {
   vi.mock("react-router", () => {
@@ -13,12 +13,12 @@ beforeEach(() => {
   });
   vi.mock("../components/full-episodes-list", async () => {
     return {
-      default: () => <p>UpcomingEpisodesList</p>,
+      default: () => <p>FullEpisodesList</p>,
     };
   });
   vi.mock("../models/episode.server", () => {
     return {
-      getUpcomingEpisodes: vi.fn(),
+      getRecentlyWatchedEpisodes: vi.fn(),
     };
   });
   vi.mock("../session.server", async () => {
@@ -27,7 +27,7 @@ beforeEach(() => {
     };
   });
 
-  vi.mocked(getUpcomingEpisodes).mockResolvedValue([
+  vi.mocked(getRecentlyWatchedEpisodes).mockResolvedValue([
     {
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -88,26 +88,26 @@ beforeEach(() => {
   ]);
 });
 
-test("renders upcoming page", () => {
-  render(<TVUpcoming />);
+test("renders recently watched page", () => {
+  render(<TVRecent />);
 
-  expect(screen.getByText("Upcoming")).toBeInTheDocument();
-  expect(screen.getByText("UpcomingEpisodesList")).toBeInTheDocument();
+  expect(screen.getByText("Recently watched")).toBeInTheDocument();
+  expect(screen.getByText("FullEpisodesList")).toBeInTheDocument();
 });
 
-test("renders no upcoming episodes paragraph", () => {
+test("renders no recently watched episodes paragraph", () => {
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue([]);
 
-  render(<TVUpcoming />);
+  render(<TVRecent />);
 
   expect(
-    screen.getByText("There are no upcoming episodes.")
+    screen.getByText("There are no recently watched episodes.")
   ).toBeInTheDocument();
 });
 
-test("loader should return upcoming episodes", async () => {
+test("loader should return recently watched episodes", async () => {
   const result = await loader({
-    request: new Request("http://localhost:8080/tv/upcoming"),
+    request: new Request("http://localhost:8080/tv/recent"),
     context: {},
     params: {},
   });

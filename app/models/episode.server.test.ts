@@ -5,6 +5,7 @@ import {
   getEpisodeById,
   getEpisodeCount,
   getEpisodesWithMissingInfo,
+  getRecentlyWatchedEpisodes,
   getUpcomingEpisodes,
   markEpisodeAsWatched,
   markEpisodeAsUnwatched,
@@ -58,6 +59,17 @@ const EPISODE3 = {
   summary: "Test Summary",
 };
 
+const EPISODE_ON_USER = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  id: "1",
+  userId: "1",
+  showId: "1",
+  episodeId: "1",
+  episode: EPISODE,
+  show: {},
+};
+
 // Not actually covering the query itself..
 test("getEpisodeById should return episode", async () => {
   prisma.episode.findFirst.mockResolvedValue(EPISODE);
@@ -83,7 +95,24 @@ test("getEpisodesWithMissingInfo should return episodes", async () => {
 test("getUpcomingEpisodes should return episodes", async () => {
   prisma.episode.findMany.mockResolvedValue([EPISODE]);
   const episodes = await getUpcomingEpisodes("1");
-  expect(episodes).toStrictEqual([EPISODE]);
+  expect(episodes).toStrictEqual([
+    {
+      ...EPISODE,
+      date: EPISODE.airDate,
+    },
+  ]);
+});
+
+test("getRecentlyWatchedEpisodes should return episodes", async () => {
+  prisma.episodeOnUser.findMany.mockResolvedValue([EPISODE_ON_USER]);
+  const episodes = await getRecentlyWatchedEpisodes("1");
+  expect(episodes).toStrictEqual([
+    {
+      ...EPISODE,
+      date: EPISODE_ON_USER.createdAt,
+      show: {},
+    },
+  ]);
 });
 
 test("getEpisodeCount should return count", async () => {

@@ -50,7 +50,46 @@ export async function getUpcomingEpisodes(userId: User["id"]) {
     },
   });
 
-  return upcomingEpisodes;
+  const upcomingEpisodesList = upcomingEpisodes.map((episode) => ({
+    ...episode,
+    date: episode.airDate,
+  }));
+
+  return upcomingEpisodesList;
+}
+
+export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
+  const recentlyWatchedEpisodes = await prisma.episodeOnUser.findMany({
+    where: {
+      createdAt: {
+        lt: new Date(),
+      },
+      show: {
+        users: {
+          some: {
+            userId,
+          },
+        },
+      },
+    },
+    include: {
+      show: true,
+      episode: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const recentyWatchedEpisodeList = recentlyWatchedEpisodes.map(
+    (episodeMapping) => ({
+      ...episodeMapping.episode,
+      date: episodeMapping.createdAt,
+      show: episodeMapping.show,
+    })
+  );
+
+  return recentyWatchedEpisodeList;
 }
 
 export async function markEpisodeAsWatched({

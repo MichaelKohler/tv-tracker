@@ -3,9 +3,10 @@ import "@testing-library/jest-dom";
 
 import type { Episode, Show } from "@prisma/client";
 
-import UpcomingEpisodesList from "./upcoming-episodes-list";
+import FullEpisodesList from "./full-episodes-list";
 
 const DEFAULT_EPISODES: (Episode & {
+  date: Date;
   show: Show;
 })[] = [
   {
@@ -13,6 +14,7 @@ const DEFAULT_EPISODES: (Episode & {
     updatedAt: new Date(),
     id: "1",
     airDate: new Date(),
+    date: new Date(),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 1",
@@ -39,6 +41,7 @@ const DEFAULT_EPISODES: (Episode & {
     updatedAt: new Date(),
     id: "2",
     airDate: new Date(),
+    date: new Date(),
     imageUrl: "https://example.com/image.png",
     mazeId: "1",
     name: "Test Episode 2",
@@ -63,7 +66,7 @@ const DEFAULT_EPISODES: (Episode & {
 ];
 
 test("renders list", async () => {
-  render(<UpcomingEpisodesList episodes={DEFAULT_EPISODES} />);
+  render(<FullEpisodesList episodes={DEFAULT_EPISODES} />);
 
   expect(screen.getByText(/Test Episode 1/)).toBeInTheDocument();
   expect(screen.getByText(/S01E01/)).toBeInTheDocument();
