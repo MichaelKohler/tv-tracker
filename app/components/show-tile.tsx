@@ -1,18 +1,12 @@
-import { Link, useNavigation } from "react-router";
+import { Link } from "react-router";
 
 import type { Show } from "@prisma/client";
 
-import Spinner from "./spinner";
 export interface Props {
   show: Show & { archived: boolean; unwatchedEpisodesCount?: number };
 }
 
 export default function ShowTile({ show }: Props) {
-  const navigation = useNavigation();
-  const navigatingToDetail =
-    navigation.state === "loading" &&
-    navigation.location.pathname === `/tv/${show.id}`;
-
   return (
     <Link to={`/tv/${show.id}`} className="grow">
       <div className="relative flex mb-3 flex-col rounded-lg border-2 border-mklight-100 hover:bg-mklight-100">
@@ -24,11 +18,6 @@ export default function ShowTile({ show }: Props) {
               !show.unwatchedEpisodesCount ? "grayscale-80" : ""
             }`}
           />
-        )}
-        {navigatingToDetail && (
-          <div className="absolute left-[103px] top-32 mt-4">
-            <Spinner />
-          </div>
         )}
         {!show.archived && (show.unwatchedEpisodesCount ?? 0) > 0 && (
           <div className="absolute left-0 top-0 rounded-tl-lg bg-orange-400 px-2 py-2 text-xl">
