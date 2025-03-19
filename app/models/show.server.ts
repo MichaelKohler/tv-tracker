@@ -26,6 +26,27 @@ export async function getAllRunningShowIds() {
   return showIds;
 }
 
+export async function getShowByUserIdAndName({
+  userId,
+  name,
+}: {
+  userId: User["id"];
+  name: Show["name"];
+}) {
+  const show = await prisma.show.findFirst({
+    where: {
+      name,
+      users: {
+        some: {
+          userId,
+        },
+      },
+    },
+  });
+
+  return show;
+}
+
 export async function getShowsByUserId(userId: User["id"]) {
   // We are querying showOnUser so that we can easier get the
   // attributes off of this table, such as "archived". We then

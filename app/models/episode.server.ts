@@ -15,6 +15,26 @@ export async function getEpisodeById(episodeId: Episode["id"]) {
   return episode;
 }
 
+export async function getEpisodeByShowIdAndNumbers({
+  showId,
+  season,
+  episode,
+}: {
+  showId: Show["id"];
+  season: number;
+  episode: number;
+}) {
+  const matchedEpisode = await prisma.episode.findFirst({
+    where: {
+      showId,
+      season,
+      number: episode,
+    },
+  });
+
+  return matchedEpisode;
+}
+
 export async function getAiredEpisodesByShowId(showId: Show["id"]) {
   const episodes = await prisma.episode.findMany({
     where: {

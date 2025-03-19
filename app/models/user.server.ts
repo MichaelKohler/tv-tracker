@@ -16,6 +16,14 @@ export async function getUserByEmail(email: User["email"]) {
   return prisma.user.findUnique({ where: { email } });
 }
 
+export async function getUserByPlexToken(plexToken: User["plexToken"]) {
+  if (!plexToken) {
+    return null;
+  }
+
+  return prisma.user.findUnique({ where: { plexToken } });
+}
+
 export async function createUser(email: User["email"], password: string) {
   const hashedPassword = await hash(password, 10);
 
