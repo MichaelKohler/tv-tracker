@@ -7,6 +7,7 @@ import {
 import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
 
+vi.mock("../db.server");
 vi.mock("../models/episode.server");
 vi.mock("../models/show.server");
 vi.mock("../models/user.server");
