@@ -126,6 +126,7 @@ test("action should return if everything ok", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
+    plexToken: null,
   });
 
   const formData = new FormData();
@@ -156,6 +157,7 @@ test("action should return if everything ok with remember on", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
+    plexToken: null,
   });
 
   const formData = new FormData();
@@ -184,6 +186,7 @@ test("action should return if everything ok with custom redirect", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
+    plexToken: null,
   });
 
   const formData = new FormData();

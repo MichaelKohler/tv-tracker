@@ -9,6 +9,7 @@ import {
   getAllRunningShowIds,
   getConnectedShowCount,
   getShowById,
+  getShowByUserIdAndName,
   getShowCount,
   getShowsByUserId,
   getSortedShowsByUserId,
@@ -540,4 +541,36 @@ test("unarchiveShowOnUser should unarchive show", async () => {
       userId: "userId",
     },
   });
+});
+
+test("getShowByUserIdAndName should return show by name for user", async () => {
+  prisma.show.findFirst.mockResolvedValue(SHOW);
+
+  const result = await getShowByUserIdAndName({
+    userId: "userId",
+    name: SHOW.name,
+  });
+
+  expect(prisma.show.findFirst).toBeCalledWith({
+    where: {
+      name: SHOW.name,
+      users: {
+        some: {
+          userId: "userId",
+        },
+      },
+    },
+  });
+  expect(result).toStrictEqual(SHOW);
+});
+
+test("getShowByUserIdAndName should return null when show is not found", async () => {
+  prisma.show.findFirst.mockResolvedValue(null);
+
+  const result = await getShowByUserIdAndName({
+    userId: "userId",
+    name: "Non-existent Show",
+  });
+
+  expect(result).toBeNull();
 });

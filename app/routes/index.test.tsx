@@ -64,6 +64,7 @@ test("renders index with logged in user", () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
+    plexToken: null,
   });
 
   render(<Index />);

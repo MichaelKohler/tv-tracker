@@ -12,6 +12,7 @@ generator client {
 model User {
   id        String @id @default(uuid())
   email     String @unique
+  plexToken String? @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -20,6 +21,8 @@ model User {
 
   shows     ShowOnUser[]
   episodes  EpisodeOnUser[]
+
+  @@index([plexToken])
 }
 
 model Password {

@@ -28,6 +28,7 @@ test("renders header for logged in user", async () => {
   vi.mocked(useOptionalUser).mockReturnValue({
     id: "some-id",
     email: "some-email",
+    plexToken: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -44,6 +45,7 @@ test("renders header without buttons for logged in user", async () => {
   vi.mocked(useOptionalUser).mockReturnValue({
     id: "some-id",
     email: "some-email",
+    plexToken: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
