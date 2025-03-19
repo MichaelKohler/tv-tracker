@@ -32,7 +32,8 @@ beforeEach(() => {
   });
   vi.spyOn(user, "deleteUserByUserId").mockResolvedValue({
     id: "123",
-    email: "user@example.com",
+    email: "foo@example.com",
+    plexToken: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });

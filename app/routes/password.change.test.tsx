@@ -44,6 +44,7 @@ beforeEach(() => {
   vi.mocked(requireUser).mockResolvedValue({
     id: "123",
     email: "foo@example.com",
+    plexToken: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -53,6 +54,7 @@ beforeEach(() => {
   vi.mocked(verifyLogin).mockResolvedValue({
     id: "123",
     email: "foo@example.com",
+    plexToken: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });

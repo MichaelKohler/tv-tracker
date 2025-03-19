@@ -7,6 +7,7 @@ import {
   deleteUserByUserId,
   getUserByEmail,
   getUserById,
+  getUserByPlexToken,
   getUserCount,
   verifyLogin,
 } from "./user.server";
@@ -37,6 +38,7 @@ test("getUserById should return user", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
   });
   const user = await getUserById("123");
   expect(user).toStrictEqual({
@@ -44,6 +46,7 @@ test("getUserById should return user", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
   });
 });
 
@@ -54,6 +57,7 @@ test("getUserByEmail should return user", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
   });
   const user = await getUserByEmail("foo@example.com");
   expect(user).toStrictEqual({
@@ -61,6 +65,7 @@ test("getUserByEmail should return user", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
   });
 });
 
@@ -103,6 +108,7 @@ test("verifyLogin should return user without password if correct", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
     // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
     password: {
       hash: "foo",
@@ -116,6 +122,7 @@ test("verifyLogin should return user without password if correct", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
   });
 });
 
@@ -133,6 +140,7 @@ test("verifyLogin should return null if user password found", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
   });
 
   const user = await verifyLogin("foo@example.com", "foo");
@@ -146,6 +154,7 @@ test("verifyLogin should return null if password is invalid", async () => {
     createdAt: now,
     updatedAt: now,
     email: "foo@example.com",
+    plexToken: null,
     // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
     password: {
       hash: "foo",
@@ -175,6 +184,7 @@ test("changePassword should change password if email and password", async () => 
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
+    plexToken: null,
   });
   await changePassword("foo@example.com", "foo", "");
   expect(prisma.password.update).toBeCalledWith({
@@ -219,6 +229,7 @@ test("changePassword should change password with reset token", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
+    plexToken: null,
   });
   prisma.passwordReset.findUnique.mockResolvedValue({
     id: "1",
@@ -241,4 +252,29 @@ test("changePassword should change password with reset token", async () => {
       token: "testHashedToken",
     },
   });
+});
+
+test("getUserByPlexToken should return user when valid token provided", async () => {
+  const now = new Date();
+  prisma.user.findUnique.mockResolvedValue({
+    id: "123",
+    createdAt: now,
+    updatedAt: now,
+    email: "foo@example.com",
+    plexToken: "test-plex-token",
+  });
+  const user = await getUserByPlexToken("test-plex-token");
+  expect(user).toStrictEqual({
+    id: "123",
+    createdAt: now,
+    updatedAt: now,
+    email: "foo@example.com",
+    plexToken: "test-plex-token",
+  });
+});
+
+test("getUserByPlexToken should return null when no token provided", async () => {
+  const user = await getUserByPlexToken(null);
+  expect(user).toBeNull();
+  expect(prisma.user.findUnique).not.toBeCalled();
 });

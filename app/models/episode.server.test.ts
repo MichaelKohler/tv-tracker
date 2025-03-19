@@ -3,6 +3,7 @@ import {
   getAiredEpisodesByShowId,
   getConnectedEpisodeCount,
   getEpisodeById,
+  getEpisodeByShowIdAndNumbers,
   getEpisodeCount,
   getEpisodesWithMissingInfo,
   getRecentlyWatchedEpisodes,
@@ -69,6 +70,24 @@ const EPISODE_ON_USER = {
   episode: EPISODE,
   show: {},
 };
+
+// Not actually covering the query itself..
+test("getEpisodeByShowIdAndNumbers should return episode", async () => {
+  prisma.episode.findFirst.mockResolvedValue(EPISODE);
+  const episode = await getEpisodeByShowIdAndNumbers({
+    showId: "1",
+    season: 1,
+    episode: 1,
+  });
+  expect(episode).toStrictEqual(EPISODE);
+  expect(prisma.episode.findFirst).toBeCalledWith({
+    where: {
+      showId: "1",
+      season: 1,
+      number: 1,
+    },
+  });
+});
 
 // Not actually covering the query itself..
 test("getEpisodeById should return episode", async () => {
