@@ -29,7 +29,8 @@ export default function AccountPage() {
         <>
           <hr className="my-8" />
 
-          <p className="mb-4">
+          <h2 className="text-xl font-bold">Plex Webhook</h2>
+          <p className="my-4">
             You can add a webhook to Plex, so that every time an episode is
             watched (&gt; 90% on Plex), it will also be marked as watched here.
             This link does not use authentication, so be careful with it. Others
@@ -45,7 +46,8 @@ export default function AccountPage() {
 
       <hr className="my-8" />
 
-      <p className="mb-4">
+      <h2 className="text-xl font-bold">Delete account</h2>
+      <p className="my-4">
         Deleting your account will also delete all your saved data. Once
         deleted, this data can&apos;t be restored.
       </p>
