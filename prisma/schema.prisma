@@ -12,7 +12,7 @@ generator client {
 model User {
   id        String @id @default(uuid())
   email     String @unique
-  plexToken String? @unique
+  plexToken String @unique @default(uuid())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

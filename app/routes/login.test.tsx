@@ -126,7 +126,7 @@ test("action should return if everything ok", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
-    plexToken: null,
+    plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
   });
 
   const formData = new FormData();
@@ -157,7 +157,7 @@ test("action should return if everything ok with remember on", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
-    plexToken: null,
+    plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
   });
 
   const formData = new FormData();
@@ -186,7 +186,7 @@ test("action should return if everything ok with custom redirect", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     email: "foo@example.com",
-    plexToken: null,
+    plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
   });
 
   const formData = new FormData();

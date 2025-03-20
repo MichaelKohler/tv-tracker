@@ -13,6 +13,9 @@ beforeEach(() => {
       Link: ({ children }: { children: React.ReactNode }) => (
         <span>{children}</span>
       ),
+      useLoaderData: vi
+        .fn()
+        .mockReturnValue({ webhookUrl: "http://webhook.example" }),
     };
   });
 
