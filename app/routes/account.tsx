@@ -1,14 +1,21 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 
-import { requireUserId } from "../session.server";
+import { requireUser } from "../session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requireUserId(request);
-  return null;
+  const { plexToken } = await requireUser(request);
+  const url = new URL(request.url);
+  const webhookUrl = url.origin + "/plex/" + plexToken;
+
+  return {
+    webhookUrl,
+  };
 }
 
 export default function AccountPage() {
+  const { webhookUrl } = useLoaderData<typeof loader>();
+
   return (
     <main className="my-8 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
       <Link
@@ -17,6 +24,24 @@ export default function AccountPage() {
       >
         Go to change password form
       </Link>
+
+      {webhookUrl ? (
+        <>
+          <hr className="my-8" />
+
+          <p className="mb-4">
+            You can add a webhook to Plex, so that every time an episode is
+            watched (&gt; 90% on Plex), it will also be marked as watched here.
+            This link does not use authentication, so be careful with it. Others
+            could connect their Plex account to this webhook or send random data
+            to it, creating a mess.
+          </p>
+
+          <p>
+            <a href={webhookUrl}>{webhookUrl}</a>
+          </p>
+        </>
+      ) : null}
 
       <hr className="my-8" />
 
