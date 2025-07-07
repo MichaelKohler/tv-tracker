@@ -7,9 +7,10 @@ import Account, { loader } from "./account";
 
 beforeEach(() => {
   vi.mock("react-router", async (importOriginal) => {
-    const actual = importOriginal();
+    const actual = await importOriginal();
+
     return {
-      ...actual,
+      ...(actual as object),
       Link: ({ children }: { children: React.ReactNode }) => (
         <span>{children}</span>
       ),
@@ -22,9 +23,9 @@ beforeEach(() => {
   vi.mock("../db.server");
 
   vi.mock("../session.server", async (importOriginal) => {
-    const actual = importOriginal();
+    const actual = await importOriginal();
     return {
-      ...actual,
+      ...(actual as object),
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });

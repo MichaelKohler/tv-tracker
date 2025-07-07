@@ -6,9 +6,11 @@ import "@testing-library/jest-dom";
 import Index, { type loader } from "./tv._index";
 
 beforeEach(() => {
-  vi.mock("react-router", async () => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
     return {
-      ...(await vi.importActual("react-router")),
+      ...(actual as object),
       useNavigation: vi.fn().mockReturnValue({}),
       useLoaderData: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (

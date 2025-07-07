@@ -28,6 +28,7 @@ export default [
       "public/build",
       "node_modules",
       "playwright-report",
+      "test-results",
       ".react-router",
     ],
   },
