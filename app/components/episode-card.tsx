@@ -10,7 +10,7 @@ interface Props {
 
 export default function EpisodeCard({ episode }: Props) {
   return (
-    <li className="mb-3 flex w-80 flex-col items-center rounded-lg border-2 border-mklight-100 p-4 text-center hover:bg-mklight-100 sm:flex-row sm:text-left">
+    <li className="mb-3 flex w-96 flex-col items-center rounded-lg border-2 border-mklight-100 p-4 text-center hover:bg-mklight-100 sm:w-auto sm:flex-row sm:text-left">
       <div className="min-h-[140px] min-w-[125px] flex-none">
         <img
           src={episode.show.imageUrl || ""}
