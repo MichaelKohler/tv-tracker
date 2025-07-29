@@ -76,7 +76,6 @@ test("allows to change password", async ({ page }) => {
   await expect(page.getByText("Your Shows")).toBeVisible();
 
   await page.getByRole("link", { name: "Account" }).click();
-  await page.getByRole("link", { name: "Go to change password form" }).click();
   await page.getByLabel("Current Password").fill("somePasswordIsVeryStrong123");
   await page.getByLabel("Current Password").press("Tab");
   await page.getByLabel("New Password").fill("someNewVeryStrongPassword4321");
@@ -108,7 +107,6 @@ test("recognizes not matching password", async ({ page }) => {
   await expect(page.getByText("Your Shows")).toBeVisible();
 
   await page.getByRole("link", { name: "Account" }).click();
-  await page.getByRole("link", { name: "Go to change password form" }).click();
   await page.getByLabel("Current Password").fill("somePasswordIsVeryStrong123");
   await page.getByLabel("Current Password").press("Tab");
   await page.getByLabel("New Password").fill("someNewVeryStrongPassword4321");
