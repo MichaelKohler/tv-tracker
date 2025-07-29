@@ -8,12 +8,10 @@ interface Props {
 
 export default function ShowTiles({ shows }: Props) {
   return (
-    <>
-      <div className="mt-3 flex flex-row flex-wrap items-stretch justify-between gap-3 grow">
-        {shows.map((show) => (
-          <ShowTile key={show.id} show={show} />
-        ))}
-      </div>
-    </>
+    <div className="mt-3 grid grid-cols-1 justify-items-center gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      {shows.map((show) => (
+        <ShowTile key={show.id} show={show} />
+      ))}
+    </div>
   );
 }
