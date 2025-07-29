@@ -8,8 +8,8 @@ export interface Props {
 
 export default function ShowTile({ show }: Props) {
   return (
-    <Link to={`/tv/${show.id}`} className="grow">
-      <div className="relative flex mb-3 flex-col rounded-lg border-2 border-mklight-100 hover:bg-mklight-100">
+    <Link to={`/tv/${show.id}`}>
+      <div className="relative mb-3 flex w-48 flex-col rounded-lg border-2 border-mklight-100 hover:bg-mklight-100">
         {show.imageUrl && (
           <img
             src={show.imageUrl}
