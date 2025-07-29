@@ -43,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
         errors: { ...errors, newPassword: "New password is required" },
         done: false,
       },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -56,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
         },
         done: false,
       },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -66,7 +66,7 @@ export async function action({ request }: ActionFunctionArgs) {
         errors: { ...errors, confirmPassword: "Passwords do not match" },
         done: false,
       },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -84,7 +84,7 @@ export async function action({ request }: ActionFunctionArgs) {
           errors: { ...errors, password: "Current password is required." },
           done: false,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -95,7 +95,7 @@ export async function action({ request }: ActionFunctionArgs) {
           errors: { ...errors, password: "Current password is wrong." },
           done: false,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
   }
@@ -114,7 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
           },
           done: false,
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -126,7 +126,7 @@ export async function action({ request }: ActionFunctionArgs) {
         },
         done: false,
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
@@ -166,17 +166,17 @@ export default function AccountPage() {
   return (
     <main className="my-8 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
       <h2 className="text-xl font-bold">Change password</h2>
-      <Form method="post" className="space-y-6">
+      <Form method="post" className="my-4">
         <input type="hidden" name="token" value={resetToken} />
         {actionData?.errors.token && (
-          <div className="pt-1 text-mkerror" id="password-token-error">
+          <p className="text-mkerror" id="password-token-error">
             {actionData.errors.token}
-          </div>
+          </p>
         )}
         {actionData?.errors.generic && (
-          <div className="pt-1 text-mkerror" id="password-generic-error">
+          <p className="text-mkerror" id="password-generic-error">
             {actionData.errors.generic}
-          </div>
+          </p>
         )}
 
         {!resetToken && (
@@ -199,15 +199,15 @@ export default function AccountPage() {
                 className="w-full rounded border border-mk-text px-2 py-1 text-lg"
               />
               {actionData?.errors.password && (
-                <div className="pt-1 text-mkerror" id="password-error">
+                <p className="pt-1 text-mkerror" id="password-error">
                   {actionData.errors.password}
-                </div>
+                </p>
               )}
             </div>
           </div>
         )}
 
-        <div>
+        <div className="mt-4">
           <label
             htmlFor="newPassword"
             className="block text-sm font-medium text-mk-text"
@@ -227,14 +227,14 @@ export default function AccountPage() {
               className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
             {actionData?.errors.newPassword && (
-              <div className="pt-1 text-mkerror" id="new-password-error">
+              <p className="pt-1 text-mkerror" id="new-password-error">
                 {actionData.errors.newPassword}
-              </div>
+              </p>
             )}
           </div>
         </div>
 
-        <div>
+        <div className="my-4">
           <label
             htmlFor="confirmPassword"
             className="block text-sm font-medium text-mk-text"
@@ -256,9 +256,9 @@ export default function AccountPage() {
               className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
             {actionData?.errors.confirmPassword && (
-              <div className="pt-1 text-mkerror" id="password-confirm-error">
+              <p className="pt-1 text-mkerror" id="password-confirm-error">
                 {actionData.errors.confirmPassword}
-              </div>
+              </p>
             )}
           </div>
         </div>
@@ -270,7 +270,7 @@ export default function AccountPage() {
           Change password
         </button>
 
-        <div>{actionData?.done && <p>Your password has been changed.</p>}</div>
+        {actionData?.done && <p>Your password has been changed.</p>}
       </Form>
 
       {webhookUrl ? (
