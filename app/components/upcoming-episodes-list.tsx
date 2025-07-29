@@ -15,13 +15,13 @@ export default function UpcomingEpisodesList({ episodes }: Props) {
   return (
     <div className="my-3 flex flex-col py-5">
       {Object.keys(episodes).map((month) => (
-        <div key={month}>
+        <div key={month} className="mt-8">
           <h2 className="font-title text-3xl">{month}</h2>
-          <ul>
+          <div className="mt-4 flex flex-wrap gap-4">
             {episodes[month].map((episode) => (
               <EpisodeCard key={episode.id} episode={episode} />
             ))}
-          </ul>
+          </div>
         </div>
       ))}
     </div>

@@ -10,8 +10,8 @@ interface Props {
 
 export default function EpisodeCard({ episode }: Props) {
   return (
-    <li className="mb-3 flex max-w-2xl flex-col rounded-lg border-2 border-mklight-100 p-4 hover:bg-mklight-100 sm:flex-row">
-      <div className="min-h-[140px] min-w-[250px] flex-none">
+    <li className="mb-3 flex w-96 flex-col rounded-lg border-2 border-mklight-100 p-4 hover:bg-mklight-100 sm:flex-row">
+      <div className="min-h-[140px] min-w-[125px] flex-none">
         <img
           src={episode.show.imageUrl || ""}
           alt=""
@@ -27,7 +27,9 @@ export default function EpisodeCard({ episode }: Props) {
         <p className="mt-2 text-sm text-gray-500">
           {new Date(episode.date).toLocaleDateString()}
         </p>
-        {episode.summary && <p className="mt-4">{episode.summary}</p>}
+        {episode.summary && (
+          <p className="mt-4 text-sm">{episode.summary}</p>
+        )}
       </div>
     </li>
   );
