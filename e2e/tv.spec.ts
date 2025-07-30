@@ -10,7 +10,7 @@ test("allows TV flows", async ({ page }) => {
   const username = faker.internet.username();
 
   // Signup
-  await page.getByRole("link", { name: "Sign up" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Sign up" }).click();
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
