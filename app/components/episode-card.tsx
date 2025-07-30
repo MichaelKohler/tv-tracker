@@ -27,9 +27,7 @@ export default function EpisodeCard({ episode }: Props) {
         <p className="mt-2 text-sm text-gray-500">
           {new Date(episode.date).toLocaleDateString()}
         </p>
-        {episode.summary && (
-          <p className="mt-4 text-sm">{decodeHtmlEntities(episode.summary)}</p>
-        )}
+        {episode.summary && <p className="mt-4 text-sm">{decodeHtmlEntities(episode.summary)}</p>}
       </div>
     </li>
   );
