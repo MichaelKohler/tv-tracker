@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 test("allows signup and login", async ({ page }) => {
   const username = faker.internet.username();
 
-  await page.getByRole("link", { name: "Sign up" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Sign up" }).click();
 
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
@@ -21,7 +21,7 @@ test("allows signup and login", async ({ page }) => {
 
   await page.getByRole("button", { name: "Logout" }).click();
 
-  await page.getByRole("link", { name: "Log In" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Log In" }).click();
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
 
@@ -32,7 +32,7 @@ test("allows signup and login", async ({ page }) => {
 });
 
 test("allows going from signup to login", async ({ page }) => {
-  await page.getByRole("link", { name: "Sign up" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Sign up" }).click();
 
   await page.getByRole("link", { name: "Log in", exact: true }).click();
 });
@@ -41,7 +41,7 @@ test("allows to delete account", async ({ page }) => {
   const username = faker.internet.username();
 
   // Signup
-  await page.getByRole("link", { name: "Sign up" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Sign up" }).click();
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
@@ -68,7 +68,7 @@ test("allows to change password", async ({ page }) => {
   const username = faker.internet.username();
 
   // Signup
-  await page.getByRole("link", { name: "Sign up" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Sign up" }).click();
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
@@ -87,7 +87,7 @@ test("allows to change password", async ({ page }) => {
   await expect(page.getByText("Your password has been changed.")).toBeVisible();
 
   await page.getByRole("button", { name: "Logout" }).click();
-  await page.getByRole("link", { name: "Log In" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Log In" }).click();
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("someNewVeryStrongPassword4321");
@@ -99,7 +99,7 @@ test("recognizes not matching password", async ({ page }) => {
   const username = faker.internet.username();
 
   // Signup
-  await page.getByRole("link", { name: "Sign up" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Sign up" }).click();
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");

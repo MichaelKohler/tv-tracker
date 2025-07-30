@@ -54,8 +54,8 @@ test("renders index with disabled signup", () => {
 
   expect(screen.getByText("What have you watched?")).toBeInTheDocument();
   expect(screen.queryByText("Sign up")).not.toBeInTheDocument();
+  expect(screen.queryByText("Get started")).not.toBeInTheDocument();
   expect(screen.getByText("Log In")).toBeInTheDocument();
-  expect(screen.getByText("Coming Soon!")).toBeInTheDocument();
 });
 
 test("renders index with logged in user", () => {
