@@ -1,9 +1,10 @@
 import * as React from "react";
-import { useLoaderData } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { getFlagsFromEnvironment } from "../models/config.server";
+import { getUserId } from "../session.server";
 import { useOptionalUser } from "../utils";
 
 import Index, { loader } from "./_index";
@@ -14,8 +15,11 @@ beforeEach(() => {
       json: vi.fn().mockImplementation((arg) => arg),
     };
   });
-  vi.mock("react-router", () => {
+  vi.mock("react-router", async () => {
+    const actual = await vi.importActual("react-router");
     return {
+      ...actual,
+      redirect: vi.fn(),
       useLoaderData: vi
         .fn()
         .mockReturnValue({ environment: { SIGNUP_DISABLED: false } }),
@@ -27,6 +31,11 @@ beforeEach(() => {
   vi.mock("../models/config.server", () => {
     return {
       getFlagsFromEnvironment: vi.fn(),
+    };
+  });
+  vi.mock("../session.server", () => {
+    return {
+      getUserId: vi.fn(),
     };
   });
   vi.mock("../utils", () => {
@@ -79,8 +88,20 @@ test("loaders returns signup flag", async () => {
     SIGNUP_DISABLED: true,
     MAINTENANCE_MODE_ENABLED: true,
   });
-
-  const { environment } = await loader();
+  const request = new Request("http://localhost");
+  const { environment } = await loader({
+    request,
+    context: {},
+    params: {},
+  });
 
   expect(environment.SIGNUP_DISABLED).toBe(true);
+});
+
+test("loader redirects to /tv if logged in", async () => {
+  vi.mocked(getUserId).mockResolvedValue("user-id");
+  const request = new Request("http://localhost");
+  await loader({ request, context: {}, params: {} });
+
+  expect(redirect).toHaveBeenCalledWith("/tv");
 });
