@@ -122,6 +122,7 @@ test("getUpcomingEpisodes should return episodes", async () => {
   ]);
 });
 
+// Not actually covering the query itself..
 test("getRecentlyWatchedEpisodes should return episodes", async () => {
   prisma.episodeOnUser.findMany.mockResolvedValue([EPISODE_ON_USER]);
   const episodes = await getRecentlyWatchedEpisodes("1");
@@ -132,6 +133,33 @@ test("getRecentlyWatchedEpisodes should return episodes", async () => {
       show: {},
     },
   ]);
+});
+
+test("getRecentlyWatchedEpisodes should be called with correct params", async () => {
+  const fromDate = new Date();
+  fromDate.setMonth(fromDate.getMonth() - 11);
+  fromDate.setDate(1);
+  fromDate.setHours(0, 0, 0, 0);
+
+  prisma.episodeOnUser.findMany.mockResolvedValue([]);
+  await getRecentlyWatchedEpisodes("1");
+  expect(prisma.episodeOnUser.findMany).toBeCalledWith({
+    where: {
+      createdAt: {
+        lt: expect.any(Date),
+        gte: fromDate,
+      },
+      userId: "1",
+    },
+    include: {
+      show: true,
+      episode: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 1000,
+  });
 });
 
 test("getEpisodeCount should return count", async () => {

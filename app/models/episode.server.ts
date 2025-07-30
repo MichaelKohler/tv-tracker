@@ -80,10 +80,16 @@ export async function getUpcomingEpisodes(userId: User["id"]) {
 }
 
 export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
+  const fromDate = new Date();
+  fromDate.setMonth(fromDate.getMonth() - 11);
+  fromDate.setDate(1);
+  fromDate.setHours(0, 0, 0, 0);
+
   const recentlyWatchedEpisodes = await prisma.episodeOnUser.findMany({
     where: {
       createdAt: {
         lt: new Date(),
+        gte: fromDate,
       },
       userId,
     },
@@ -94,7 +100,7 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
     orderBy: {
       createdAt: "desc",
     },
-    take: 50,
+    take: 1000,
   });
 
   const recentyWatchedEpisodeList = recentlyWatchedEpisodes.map(
