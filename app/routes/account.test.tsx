@@ -71,12 +71,14 @@ test("renders page", () => {
   expect(screen.getByText("Current Password")).toBeInTheDocument();
   expect(screen.getByText("New Password")).toBeInTheDocument();
   expect(screen.getByText("Confirm Password")).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: /Change password/i })).toBeInTheDocument();
   expect(
-    screen.getByText(/Deleting your account will also delete/),
+    screen.getByRole("button", { name: /Change password/i })
   ).toBeInTheDocument();
   expect(
-    screen.getByText(/Delete my account and all data/),
+    screen.getByText(/Deleting your account will also delete/)
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/Delete my account and all data/)
   ).toBeInTheDocument();
 });
 
@@ -180,7 +182,7 @@ test("renders success message", () => {
   render(<Account />);
 
   expect(
-    screen.getByText(/Your password has been changed/),
+    screen.getByText(/Your password has been changed/)
   ).toBeInTheDocument();
 });
 
@@ -233,7 +235,7 @@ test("action should return error if confirm password is invalid", async () => {
 
   // @ts-expect-error : we do not actually have a real response here..
   expect(response.data.errors.confirmPassword).toBe(
-    "Password confirmation is required",
+    "Password confirmation is required"
   );
 });
 
@@ -315,13 +317,13 @@ test("action should return error if change password fails", async () => {
 
   // @ts-expect-error : we do not actually have a real response here..
   expect(response.data.errors.generic).toBe(
-    "Something went wrong. Please try again.",
+    "Something went wrong. Please try again."
   );
 });
 
 test("action should return error if change password fails with expired reset", async () => {
   vi.mocked(changePassword).mockRejectedValue(
-    new Error("PASSWORD_RESET_EXPIRED"),
+    new Error("PASSWORD_RESET_EXPIRED")
   );
 
   const formData = new FormData();
@@ -340,7 +342,7 @@ test("action should return error if change password fails with expired reset", a
 
   // @ts-expect-error : we do not actually have a real response here..
   expect(response.data.errors.token).toBe(
-    "Password reset link expired. Please try again.",
+    "Password reset link expired. Please try again."
   );
 });
 
@@ -360,7 +362,7 @@ test("action should throw redirect if no logged in user", async () => {
       }),
       context: {},
       params: {},
-    }),
+    })
   ).rejects.toThrow();
 });
 
@@ -382,7 +384,7 @@ test("action should change password if everything ok", async () => {
   expect(changePassword).toBeCalledWith(
     "foo@example.com",
     "newnewPassword",
-    "",
+    ""
   );
 });
 
@@ -416,6 +418,6 @@ test("loader throws if there is no user", async () => {
       request: new Request("http://localhost:8080/account"),
       context: {},
       params: {},
-    }),
+    })
   ).rejects.toThrow();
 });
