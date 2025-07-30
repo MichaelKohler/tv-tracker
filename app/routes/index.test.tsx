@@ -89,11 +89,15 @@ test("loaders returns signup flag", async () => {
     MAINTENANCE_MODE_ENABLED: true,
   });
   const request = new Request("http://localhost");
-  const { environment } = await loader({
+  const response = await loader({
     request,
     context: {},
     params: {},
   });
+
+  const { environment } = response as {
+    environment: { SIGNUP_DISABLED: boolean };
+  };
 
   expect(environment.SIGNUP_DISABLED).toBe(true);
 });
