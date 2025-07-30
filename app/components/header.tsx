@@ -33,6 +33,7 @@ export default function Header({
       </h1>
 
       <section
+        id="basic-navbar-nav"
         className={
           menuOpen
             ? "mt-9 min-h-screen w-full justify-between"
@@ -117,6 +118,9 @@ export default function Header({
 
       <button
         onClick={() => setMenuOpen(!menuOpen)}
+        aria-controls="basic-navbar-nav"
+        aria-expanded={menuOpen}
+        aria-label="Toggle navigation"
         className="text-white-100 absolute top-3 right-3 h-10 w-10 rounded bg-mk-tertiary hover:bg-mk-secondary active:bg-mk-secondary lg:hidden"
       >
         {menuOpen ? "✕" : "☰"}
