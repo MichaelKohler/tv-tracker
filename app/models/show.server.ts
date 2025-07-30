@@ -116,15 +116,9 @@ export async function getSortedShowsByUserId(userId: User["id"]) {
       return -1;
     }
 
-    if (showB.name > showA.name) {
-      return -1;
-    }
-
-    if (showB.name < showA.name) {
-      return 1;
-    }
-
-    return 0;
+    return showA.name.localeCompare(showB.name, "en", {
+      sensitivity: "base",
+    });
   });
 
   return shows;

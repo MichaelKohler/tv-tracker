@@ -168,6 +168,63 @@ test("getShowsByUserId should return ids and unwatched count", async () => {
   ]);
 });
 
+test("getSortedShowsByUserId should sort shows case-insensitively", async () => {
+  const SHOW_A = { ...SHOW, id: "a", name: "a show" };
+  const SHOW_B = { ...SHOW, id: "b", name: "B show" };
+  const SHOW_C = { ...SHOW, id: "c", name: "c show" };
+
+  prisma.showOnUser.findMany.mockResolvedValue([
+    {
+      archived: false,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW_C,
+    },
+    {
+      archived: false,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW_A,
+    },
+    {
+      archived: false,
+      // @ts-expect-error TS does not know about the include here..
+      show: SHOW_B,
+    },
+  ]);
+
+  // All shows have 1 unwatched episode
+  prisma.episodeOnUser.findMany.mockResolvedValue([
+    {
+      id: "1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: "userId",
+      showId: "a",
+      episodeId: "1",
+    },
+    {
+      id: "2",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: "userId",
+      showId: "b",
+      episodeId: "1",
+    },
+    {
+      id: "3",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      userId: "userId",
+      showId: "c",
+      episodeId: "1",
+    },
+  ]);
+
+  const shows = await getSortedShowsByUserId("userId");
+  const showNames = shows.map((s) => s.name);
+
+  expect(showNames).toEqual(["a show", "B show", "c show"]);
+});
+
 test("getShowsByUserId should return 0 unwatched episodes for archived shows", async () => {
   prisma.showOnUser.findMany.mockResolvedValue([
     {
