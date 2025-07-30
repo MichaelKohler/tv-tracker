@@ -89,6 +89,27 @@ test("getEpisodeByShowIdAndNumbers should return episode", async () => {
   });
 });
 
+test("markEpisodeAsWatched should throw error if user not connected to show", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue(null);
+  await expect(
+    markEpisodeAsWatched({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    })
+  ).rejects.toThrow();
+});
+
+test("markAllEpisodesAsWatched should throw error if user not connected to show", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue(null);
+  await expect(
+    markAllEpisodesAsWatched({
+      userId: "userId",
+      showId: "showId",
+    })
+  ).rejects.toThrow();
+});
+
 // Not actually covering the query itself..
 test("getEpisodeById should return episode", async () => {
   prisma.episode.findFirst.mockResolvedValue(EPISODE);
@@ -185,6 +206,7 @@ test("getConnectedEpisodeCount should return count", async () => {
 });
 
 test("markEpisodeAsWatched should create entry", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue({});
   await markEpisodeAsWatched({
     userId: "userId",
     episodeId: "episodeId",
@@ -227,6 +249,7 @@ test("markEpisodeAsUnwatched should remove entry", async () => {
 });
 
 test("markAllEpisodesAsWatched should add entry for not yet watched episodes", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue({});
   prisma.episode.findMany.mockResolvedValue([EPISODE, EPISODE2, EPISODE3]);
   prisma.episodeOnUser.findMany.mockResolvedValue([
     {

@@ -1,6 +1,7 @@
 import type { Show, User } from "@prisma/client";
 
 import striptags from "striptags";
+import { decodeHtmlEntities } from "./html-entities.server";
 
 import { prisma } from "../db.server";
 import {
@@ -228,7 +229,7 @@ export async function searchShows(query: string | null, userId: User["id"]) {
     ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
     rating: showResult.show.rating.average,
     imageUrl: showResult.show.image?.medium,
-    summary: striptags(showResult.show.summary),
+    summary: decodeHtmlEntities(striptags(showResult.show.summary)),
   }));
 
   const addedShowIds = await addedShowsPromise;
@@ -275,7 +276,7 @@ export function prepareShow(showResult: {
     ended: showResult.ended ? new Date(showResult.ended) : null,
     rating: showResult.rating.average,
     imageUrl: showResult.image?.medium,
-    summary: striptags(showResult.summary),
+    summary: decodeHtmlEntities(striptags(showResult.summary)),
   };
 
   const episodes = showResult._embedded.episodes.map(
@@ -287,7 +288,7 @@ export function prepareShow(showResult: {
       airDate: new Date(episode.airstamp),
       runtime: episode.runtime || 0,
       imageUrl: episode.image?.medium,
-      summary: striptags(episode.summary),
+      summary: decodeHtmlEntities(striptags(episode.summary)),
     })
   );
 

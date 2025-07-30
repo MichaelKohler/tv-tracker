@@ -123,6 +123,19 @@ export async function markEpisodeAsWatched({
   episodeId: Episode["id"];
   showId: Show["id"];
 }) {
+  const showOnUser = await prisma.showOnUser.findFirst({
+    where: {
+      showId,
+      userId,
+    },
+  });
+
+  if (!showOnUser) {
+    throw new Response("Not Found", {
+      status: 404,
+    });
+  }
+
   await prisma.episodeOnUser.create({
     data: {
       show: {
@@ -169,6 +182,19 @@ export async function markAllEpisodesAsWatched({
   userId: User["id"];
   showId: Show["id"];
 }) {
+  const showOnUser = await prisma.showOnUser.findFirst({
+    where: {
+      showId,
+      userId,
+    },
+  });
+
+  if (!showOnUser) {
+    throw new Response("Not Found", {
+      status: 404,
+    });
+  }
+
   const showEpisodes = await getAiredEpisodesByShowId(showId);
   const watchedEpisodesIds = (
     await prisma.episodeOnUser.findMany({
