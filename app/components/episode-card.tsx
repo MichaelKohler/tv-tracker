@@ -1,5 +1,5 @@
 import type { Episode, Show } from "@prisma/client";
-import { padNumber } from "../utils";
+import { padNumber, decodeHtmlEntities } from "../utils";
 
 interface Props {
   episode: Episode & {
@@ -28,7 +28,7 @@ export default function EpisodeCard({ episode }: Props) {
           {new Date(episode.date).toLocaleDateString()}
         </p>
         {episode.summary && (
-          <p className="mt-4 text-sm">{episode.summary}</p>
+          <p className="mt-4 text-sm">{decodeHtmlEntities(episode.summary)}</p>
         )}
       </div>
     </li>

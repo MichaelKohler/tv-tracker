@@ -22,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       acc[month].push(episode);
       return acc;
     },
-    {} as Record<string, typeof episodes>,
+    {} as Record<string, typeof episodes>
   );
 
   return groupedEpisodes;

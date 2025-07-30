@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useMatches } from "react-router";
+import { decode } from "he";
 
 import type { User } from "./models/user.server";
 
@@ -77,4 +78,8 @@ export function padNumber(number: number) {
   }
 
   return `${number}`;
+}
+
+export function decodeHtmlEntities(text: string) {
+  return decode(text);
 }

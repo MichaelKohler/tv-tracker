@@ -78,3 +78,15 @@ test("renders list", async () => {
   expect(screen.getByText(DEFAULT_EPISODES[1].summary)).toBeInTheDocument();
   expect(screen.getByText(DEFAULT_EPISODES[1].show.name)).toBeInTheDocument();
 });
+
+test("decodes summary", async () => {
+  const episodes = [
+    {
+      ...DEFAULT_EPISODES[0],
+      summary: "a &lt; b",
+    },
+  ];
+  render(<FullEpisodesList episodes={episodes} />);
+
+  expect(screen.getByText("a < b")).toBeInTheDocument();
+});

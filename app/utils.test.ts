@@ -1,4 +1,11 @@
-import { padNumber, validateEmail } from "./utils";
+import { padNumber, validateEmail, decodeHtmlEntities } from "./utils";
+
+test("decodeHtmlEntities decodes HTML entities", () => {
+  expect(decodeHtmlEntities("a &lt; b")).toBe("a < b");
+  expect(decodeHtmlEntities("a &amp; b")).toBe("a & b");
+  expect(decodeHtmlEntities("a &quot; b")).toBe('a " b');
+  expect(decodeHtmlEntities("a &apos; b")).toBe("a ' b");
+});
 
 test("validateEmail returns false for non-emails", () => {
   expect(validateEmail(undefined)).equal(false);
