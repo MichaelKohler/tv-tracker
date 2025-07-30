@@ -1,6 +1,6 @@
 import type { Episode, Show } from "@prisma/client";
 
-import { padNumber, decodeHtmlEntities } from "../utils";
+import { padNumber } from "../utils";
 
 interface Props {
   episodes: (Episode & {
@@ -27,7 +27,7 @@ export default function FullEpisodesList({ episodes }: Props) {
                 {padNumber(episode.season)}E{padNumber(episode.number)}) -{" "}
                 {new Date(episode.date).toLocaleDateString()}
               </p>
-              <p>{decodeHtmlEntities(episode.summary)}</p>
+              <p>{episode.summary}</p>
             </div>
           </li>
         ))}

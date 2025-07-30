@@ -13,6 +13,7 @@ import {
   getShowCount,
   getShowsByUserId,
   getSortedShowsByUserId,
+  prepareShow,
   removeShowFromUser,
   searchShows,
   unarchiveShowOnUser,
@@ -630,4 +631,41 @@ test("getShowByUserIdAndName should return null when show is not found", async (
   });
 
   expect(result).toBeNull();
+});
+
+test("prepareShow should strip and decode HTML entities", () => {
+  const showResult = {
+    id: "maze1",
+    name: "Name",
+    premiered: "2022-01-01",
+    ended: "2022-01-01",
+    rating: {
+      average: 2,
+    },
+    image: {
+      medium: "image.png",
+    },
+    summary: "Some description <strong>with &lt;b&gt;HTML&lt;/b&gt;</strong> tags inside..",
+    _embedded: {
+      episodes: [
+        {
+          id: "1",
+          name: "EpisodeName",
+          season: 1,
+          number: 1,
+          airstamp: "2022-01-01",
+          runtime: 30,
+          image: {
+            medium: "image.png",
+          },
+          summary: "Some episode <strong>summary with &lt;b&gt;HTML&lt;/b&gt;</strong>...",
+        },
+      ],
+    },
+  };
+
+  const { show, episodes } = prepareShow(showResult);
+
+  expect(show.summary).toBe("Some description with <b>HTML</b> tags inside..");
+  expect(episodes[0].summary).toBe("Some episode summary with <b>HTML</b>...");
 });

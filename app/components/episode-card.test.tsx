@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import EpisodeCard from "./episode-card";
 
-test("renders episode card and decodes summary", () => {
+test("renders episode card and does not decode summary", () => {
   const episode = {
     id: "1",
     name: "Episode 1",
@@ -33,5 +33,5 @@ test("renders episode card and decodes summary", () => {
 
   render(<EpisodeCard episode={episode} />);
 
-  expect(screen.getByText("a < b")).toBeInTheDocument();
+  expect(screen.getByText("a &lt; b")).toBeInTheDocument();
 });
