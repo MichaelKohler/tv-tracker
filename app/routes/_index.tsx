@@ -4,12 +4,19 @@ import {
   EyeIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
-import { Link, useLoaderData } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
+import { Link, useLoaderData, redirect } from "react-router";
 
 import { getFlagsFromEnvironment } from "../models/config.server";
+import { getUserId } from "../session.server";
 import { useOptionalUser } from "../utils";
 
-export async function loader() {
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await getUserId(request);
+  if (userId) {
+    return redirect("/tv");
+  }
+
   const { SIGNUP_DISABLED } = getFlagsFromEnvironment();
   return { environment: { SIGNUP_DISABLED } };
 }
