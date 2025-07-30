@@ -3,7 +3,7 @@ import { Form, useNavigation } from "react-router";
 import type { Episode, Show } from "@prisma/client";
 
 import { EPISODE_FALLBACK_IMG_PATH } from "../constants";
-import { padNumber } from "../utils";
+import { padNumber, decodeHtmlEntities } from "../utils";
 import Spinner from "./spinner";
 
 interface Props {
@@ -44,7 +44,7 @@ export default function EpisodeList({
                 {padNumber(episode.number)}) -{" "}
                 {new Date(episode.airDate).toLocaleDateString()}
               </p>
-              <p>{episode.summary}</p>
+              <p>{decodeHtmlEntities(episode.summary)}</p>
 
               {submissionEpisodeId && submissionEpisodeId === episode.id && (
                 <div className="mt-4">
