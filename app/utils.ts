@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useMatches } from "react-router";
-import { decode } from "he";
+import { decode } from "entities";
 
 import type { User } from "./models/user.server";
 
