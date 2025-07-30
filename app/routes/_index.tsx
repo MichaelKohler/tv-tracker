@@ -44,8 +44,8 @@ export default function Index() {
         </h1>
 
         <p className="mx-auto mt-9 max-w-2xl text-2xl">
-          Never lose track of your favorite TV shows again. Search, track, and
-          get notified about new episodes.
+          Never lose track of your favorite TV shows again. Search for new
+          shows, track your progress and see what&apos;s coming up next.
         </p>
         {data.environment.SIGNUP_DISABLED && (
           <h2 className="mt-8 font-title text-3xl uppercase">Coming Soon!</h2>
