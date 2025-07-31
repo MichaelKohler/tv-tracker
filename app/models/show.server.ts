@@ -333,6 +333,11 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
       where: { userId, showId: alreadyExistingShow.id },
     });
 
+    console.log("Already existing show", {
+      alreadyExistingShow,
+      alreadyAddedConnection,
+    });
+
     if (alreadyAddedConnection) {
       return {};
     }
