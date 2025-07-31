@@ -1,4 +1,3 @@
-import type { Episode } from "@prisma/client";
 import axios from "axios";
 import striptags from "striptags";
 
@@ -27,7 +26,9 @@ async function update() {
   }
 }
 
-async function updateEpisode(episode: Episode) {
+import type { Episode, Show } from "@prisma/client";
+
+async function updateEpisode(episode: Episode & { show: Show }) {
   console.log(`Fetching mazeId ${episode.mazeId}`);
   const episodeResult = await fetch(episode.mazeId);
 

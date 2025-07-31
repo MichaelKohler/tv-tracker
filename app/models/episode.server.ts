@@ -224,9 +224,14 @@ export async function getEpisodeCount() {
 }
 
 export async function getConnectedEpisodeCount() {
-  return prisma.episodeOnUser.count({
+  const distinctEpisodes = await prisma.episodeOnUser.findMany({
     distinct: ["episodeId"],
+    select: {
+      episodeId: true,
+    },
   });
+
+  return distinctEpisodes.length;
 }
 
 export async function getEpisodesWithMissingInfo() {
@@ -235,7 +240,7 @@ export async function getEpisodesWithMissingInfo() {
       OR: [
         {
           imageUrl: {
-            in: ["", null],
+            in: ["", undefined],
           },
         },
         {
@@ -245,11 +250,11 @@ export async function getEpisodesWithMissingInfo() {
         },
         {
           summary: {
-            in: ["", null],
+            in: ["", undefined],
           },
         },
         {
-          airDate: null,
+          airDate: undefined,
         },
       ],
     },

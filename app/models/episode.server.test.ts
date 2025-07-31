@@ -132,7 +132,7 @@ test("getEpisodesWithMissingInfo should be called with correct params", async ()
       OR: [
         {
           imageUrl: {
-            in: ["", null],
+            in: ["", undefined],
           },
         },
         {
@@ -142,11 +142,11 @@ test("getEpisodesWithMissingInfo should be called with correct params", async ()
         },
         {
           summary: {
-            in: ["", null],
+            in: ["", undefined],
           },
         },
         {
-          airDate: null,
+          airDate: undefined,
         },
       ],
     },
@@ -216,11 +216,23 @@ test("getEpisodeCount should return count", async () => {
 });
 
 test("getConnectedEpisodeCount should return count", async () => {
-  prisma.episodeOnUser.count.mockResolvedValue(1);
+  prisma.episodeOnUser.findMany.mockResolvedValue([
+    {
+      id: "1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      showId: "1",
+      userId: "1",
+      episodeId: "1",
+    },
+  ]);
   const count = await getConnectedEpisodeCount();
   expect(count).toBe(1);
-  expect(prisma.episodeOnUser.count).toBeCalledWith({
+  expect(prisma.episodeOnUser.findMany).toBeCalledWith({
     distinct: ["episodeId"],
+    select: {
+      episodeId: true,
+    },
   });
 });
 
