@@ -93,7 +93,8 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
       },
       userId,
     },
-    include: {
+    select: {
+      createdAt: true,
       show: true,
       episode: true,
     },
@@ -207,17 +208,15 @@ export async function markAllEpisodesAsWatched({
 
   const episodesToMarkWatched = showEpisodes
     .filter((episode) => !watchedEpisodesIds.includes(episode.id))
-    .map((episode) => episode.id);
+    .map((episode) => ({
+      userId,
+      showId,
+      episodeId: episode.id,
+    }));
 
-  for (const episodeId of episodesToMarkWatched) {
-    await prisma.episodeOnUser.create({
-      data: {
-        showId,
-        episodeId,
-        userId,
-      },
-    });
-  }
+  await prisma.episodeOnUser.createMany({
+    data: episodesToMarkWatched,
+  });
 }
 
 export async function getEpisodeCount() {

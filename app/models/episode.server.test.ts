@@ -124,7 +124,6 @@ test("getAiredEpisodesByShowId should return episodes", async () => {
   expect(episodes).toStrictEqual([EPISODE]);
 });
 
-// Not actually covering the query itself..
 test("getEpisodesWithMissingInfo should return episodes", async () => {
   prisma.episode.findMany.mockResolvedValue([EPISODE]);
   const episodes = await getEpisodesWithMissingInfo();
@@ -172,7 +171,8 @@ test("getRecentlyWatchedEpisodes should be called with correct params", async ()
       },
       userId: "1",
     },
-    include: {
+    select: {
+      createdAt: true,
       show: true,
       episode: true,
     },
@@ -189,11 +189,10 @@ test("getEpisodeCount should return count", async () => {
   expect(count).toBe(2);
 });
 
-// Not actually covering the query itself..
 test("getConnectedEpisodeCount should return count", async () => {
   prisma.episodeOnUser.findMany.mockResolvedValue([
     {
-      id: "random-id",
+      id: "1",
       createdAt: new Date(),
       updatedAt: new Date(),
       showId: "1",
@@ -203,6 +202,12 @@ test("getConnectedEpisodeCount should return count", async () => {
   ]);
   const count = await getConnectedEpisodeCount();
   expect(count).toBe(1);
+  expect(prisma.episodeOnUser.findMany).toBeCalledWith({
+    distinct: ["episodeId"],
+    select: {
+      episodeId: true,
+    },
+  });
 });
 
 test("markEpisodeAsWatched should create entry", async () => {
@@ -294,11 +299,13 @@ test("markAllEpisodesAsWatched should add entry for not yet watched episodes", a
       showId: "showId",
     },
   });
-  expect(prisma.episodeOnUser.create).toBeCalledWith({
-    data: {
-      showId: "showId",
-      userId: "userId",
-      episodeId: "2",
-    },
+  expect(prisma.episodeOnUser.createMany).toBeCalledWith({
+    data: [
+      {
+        showId: "showId",
+        userId: "userId",
+        episodeId: "2",
+      },
+    ],
   });
 });

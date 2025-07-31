@@ -645,7 +645,8 @@ test("prepareShow should strip and decode HTML entities", () => {
     image: {
       medium: "image.png",
     },
-    summary: "Some description <strong>with &lt;b&gt;HTML&lt;/b&gt;</strong> tags inside..",
+    summary:
+      "Some description <strong>with &lt;b&gt;HTML&lt;/b&gt;</strong> tags inside..",
     _embedded: {
       episodes: [
         {
@@ -658,7 +659,8 @@ test("prepareShow should strip and decode HTML entities", () => {
           image: {
             medium: "image.png",
           },
-          summary: "Some episode <strong>summary with &lt;b&gt;HTML&lt;/b&gt;</strong>...",
+          summary:
+            "Some episode <strong>summary with &lt;b&gt;HTML&lt;/b&gt;</strong>...",
         },
       ],
     },
