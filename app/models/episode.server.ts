@@ -93,7 +93,8 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
       },
       userId,
     },
-    include: {
+    select: {
+      createdAt: true,
       show: true,
       episode: true,
     },
@@ -207,17 +208,15 @@ export async function markAllEpisodesAsWatched({
 
   const episodesToMarkWatched = showEpisodes
     .filter((episode) => !watchedEpisodesIds.includes(episode.id))
-    .map((episode) => episode.id);
+    .map((episode) => ({
+      userId,
+      showId,
+      episodeId: episode.id,
+    }));
 
-  for (const episodeId of episodesToMarkWatched) {
-    await prisma.episodeOnUser.create({
-      data: {
-        showId,
-        episodeId,
-        userId,
-      },
-    });
-  }
+  await prisma.episodeOnUser.createMany({
+    data: episodesToMarkWatched,
+  });
 }
 
 export async function getEpisodeCount() {
@@ -225,14 +224,9 @@ export async function getEpisodeCount() {
 }
 
 export async function getConnectedEpisodeCount() {
-  const distinctEpisodes = await prisma.episodeOnUser.findMany({
+  return prisma.episodeOnUser.count({
     distinct: ["episodeId"],
-    select: {
-      episodeId: true,
-    },
   });
-
-  return distinctEpisodes.length;
 }
 
 export async function getEpisodesWithMissingInfo() {
@@ -240,25 +234,22 @@ export async function getEpisodesWithMissingInfo() {
     where: {
       OR: [
         {
-          imageUrl: null,
+          imageUrl: {
+            in: ["", null],
+          },
         },
         {
-          imageUrl: "",
+          name: {
+            in: ["", "TBA"],
+          },
         },
         {
-          name: "",
+          summary: {
+            in: ["", null],
+          },
         },
         {
-          name: "TBA",
-        },
-        {
-          summary: undefined,
-        },
-        {
-          summary: "",
-        },
-        {
-          airDate: undefined,
+          airDate: null,
         },
       ],
     },
