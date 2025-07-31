@@ -251,6 +251,9 @@ export async function getEpisodesWithMissingInfo() {
           name: "TBA",
         },
         {
+          summary: undefined,
+        },
+        {
           summary: "",
         },
         {
