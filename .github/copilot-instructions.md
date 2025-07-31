@@ -164,4 +164,6 @@ export const ComponentName: React.FC<Props> = ({ prop1, prop2 }) => {
 - Mock external dependencies according to other tests
 - Aim for good test coverage but focus on most useful paths
 
+Always run "npm test" with `--run`, otherwise the tests will run in watch mode and not return.
+
 Remember: These instructions should evolve with the project. Keep them updated as the codebase grows and changes.
