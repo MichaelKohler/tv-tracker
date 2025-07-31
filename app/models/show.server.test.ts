@@ -27,51 +27,6 @@ vi.mock("./maze.server", async () => {
   };
 });
 
-const EPISODE = {
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "1",
-  airDate: new Date(),
-  imageUrl: "https://example.com/image.png",
-  mazeId: "1",
-  name: "Test Episode 1",
-  number: 1,
-  season: 1,
-  runtime: 30,
-  showId: "1",
-  summary: "Test Summary",
-};
-
-const EPISODE2 = {
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "2",
-  airDate: new Date(),
-  imageUrl: "https://example.com/image.png",
-  mazeId: "2",
-  name: "Test Episode 2",
-  number: 2,
-  season: 1,
-  runtime: 30,
-  showId: "1",
-  summary: "Test Summary",
-};
-
-const EPISODE3 = {
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "3",
-  airDate: new Date("2999-01-01"),
-  imageUrl: "https://example.com/image.png",
-  mazeId: "3",
-  name: "Test Episode 3",
-  number: 3,
-  season: 1,
-  runtime: 30,
-  showId: "1",
-  summary: "Test Summary",
-};
-
 const EPISODE4 = {
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -98,7 +53,6 @@ const SHOW = {
   summary: "Test Summary",
   ended: null,
   rating: 1,
-  episodes: [EPISODE, EPISODE2, EPISODE3],
 };
 
 const SHOW2 = {
@@ -112,7 +66,6 @@ const SHOW2 = {
   summary: "Test Summary",
   ended: null,
   rating: 2,
-  episodes: [EPISODE4],
 };
 
 test("getAllRunningShowIds should return ids", async () => {
@@ -122,47 +75,53 @@ test("getAllRunningShowIds should return ids", async () => {
 });
 
 test("getShowsByUserId should return ids and unwatched count", async () => {
+  // @ts-expect-error we are not returning the full show object here
   prisma.showOnUser.findMany.mockResolvedValue([
     {
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW,
+      showId: "1",
+      show: {
+        ...SHOW,
+        _count: {
+          episodes: 2,
+        },
+      },
     },
     {
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW2,
+      showId: "2",
+      show: {
+        ...SHOW2,
+        _count: {
+          episodes: 1,
+        },
+      },
     },
   ]);
-  prisma.episodeOnUser.findMany.mockResolvedValue([
+  // @ts-expect-error As we only select a subset of the fields, we do not need to mock everything
+  prisma.episodeOnUser.groupBy.mockResolvedValue([
     {
-      id: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
       showId: "1",
-      episodeId: "1",
+      _count: {
+        episodeId: 1,
+      },
     },
     {
-      id: "3",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
       showId: "2",
-      episodeId: "4",
+      _count: {
+        episodeId: 1,
+      },
     },
   ]);
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([
     {
       ...SHOW,
-      episodes: undefined,
       unwatchedEpisodesCount: 1,
       archived: false,
     },
     {
       ...SHOW2,
-      episodes: undefined,
       unwatchedEpisodesCount: 0,
       archived: false,
     },
@@ -174,49 +133,60 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
   const SHOW_B = { ...SHOW, id: "b", name: "B show" };
   const SHOW_C = { ...SHOW, id: "c", name: "c show" };
 
+  // @ts-expect-error we are not returning the full show object here
   prisma.showOnUser.findMany.mockResolvedValue([
     {
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW_C,
+      showId: "c",
+      show: {
+        ...SHOW_C,
+        _count: {
+          episodes: 2,
+        },
+      },
     },
     {
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW_A,
+      showId: "a",
+      show: {
+        ...SHOW_A,
+        _count: {
+          episodes: 2,
+        },
+      },
     },
     {
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW_B,
+      showId: "b",
+      show: {
+        ...SHOW_B,
+        _count: {
+          episodes: 2,
+        },
+      },
     },
   ]);
 
   // All shows have 1 unwatched episode
-  prisma.episodeOnUser.findMany.mockResolvedValue([
+  // @ts-expect-error As we only select a subset of the fields, we do not need to mock everything
+  prisma.episodeOnUser.groupBy.mockResolvedValue([
     {
-      id: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
       showId: "a",
-      episodeId: "1",
+      _count: {
+        episodeId: 1,
+      },
     },
     {
-      id: "2",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
       showId: "b",
-      episodeId: "1",
+      _count: {
+        episodeId: 1,
+      },
     },
     {
-      id: "3",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
       showId: "c",
-      episodeId: "1",
+      _count: {
+        episodeId: 1,
+      },
     },
   ]);
 
@@ -227,20 +197,26 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
 });
 
 test("getShowsByUserId should return 0 unwatched episodes for archived shows", async () => {
+  // @ts-expect-error we are not returning the full show object here
   prisma.showOnUser.findMany.mockResolvedValue([
     {
       archived: true,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW,
+      showId: "1",
+      show: {
+        ...SHOW,
+        _count: {
+          episodes: 3,
+        },
+      },
     },
   ]);
   // In theory we have 3 unwatched episodes here
-  prisma.episodeOnUser.findMany.mockResolvedValue([]);
+  // @ts-expect-error As we only select a subset of the fields, we do not need to mock everything
+  prisma.episodeOnUser.groupBy.mockResolvedValue([]);
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([
     {
       ...SHOW,
-      episodes: undefined,
       unwatchedEpisodesCount: 0,
       archived: true,
     },
@@ -248,7 +224,7 @@ test("getShowsByUserId should return 0 unwatched episodes for archived shows", a
 });
 
 test("getShowsByUserId should return empty array if not found", async () => {
-  prisma.show.findMany.mockResolvedValue([]);
+  prisma.showOnUser.findMany.mockResolvedValue([]);
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([]);
 });
@@ -257,22 +233,15 @@ test("getShowById should return users show with watched episodes", async () => {
   prisma.showOnUser.findFirst.mockResolvedValue({
     archived: false,
     // @ts-expect-error TS does not know about the include..
-    show: SHOW2,
+    show: { ...SHOW2, episodes: [EPISODE4] },
   });
-  prisma.episodeOnUser.findMany.mockResolvedValue([
-    {
-      id: "3",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
-      showId: "2",
-      episodeId: "4",
-    },
-  ]);
+  // @ts-expect-error As we only select a subset of the fields, we do not need to mock everything
+  prisma.episodeOnUser.findMany.mockResolvedValue([{ episodeId: "4" }]);
   const shows = await getShowById("2", "userId");
   expect(shows).toStrictEqual({
     show: {
       ...SHOW2,
+      episodes: [EPISODE4],
       archived: false,
     },
     watchedEpisodes: ["4"],
@@ -280,35 +249,43 @@ test("getShowById should return users show with watched episodes", async () => {
 });
 
 test("getSortedShowsByUserId should sort shows", async () => {
+  // @ts-expect-error we are not returning the full show object here
   prisma.showOnUser.findMany.mockResolvedValue([
     {
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW,
+      showId: "1",
+      show: {
+        ...SHOW,
+        _count: {
+          episodes: 2,
+        },
+      },
     },
     {
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
-      show: SHOW2,
+      showId: "2",
+      show: {
+        ...SHOW2,
+        _count: {
+          episodes: 1,
+        },
+      },
     },
   ]);
 
-  prisma.episodeOnUser.findMany.mockResolvedValue([
+  // @ts-expect-error As we only select a subset of the fields, we do not need to mock everything
+  prisma.episodeOnUser.groupBy.mockResolvedValue([
     {
-      id: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
       showId: "1",
-      episodeId: "1",
+      _count: {
+        episodeId: 1,
+      },
     },
     {
-      id: "3",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
       showId: "2",
-      episodeId: "4",
+      _count: {
+        episodeId: 1,
+      },
     },
   ]);
 
@@ -317,13 +294,11 @@ test("getSortedShowsByUserId should sort shows", async () => {
   expect(shows).toStrictEqual([
     {
       ...SHOW,
-      episodes: undefined,
       unwatchedEpisodesCount: 1,
       archived: false,
     },
     {
       ...SHOW2,
-      episodes: undefined,
       unwatchedEpisodesCount: 0,
       archived: false,
     },
@@ -529,11 +504,13 @@ test("addShow should add show and episodes", async () => {
       },
     },
   });
-  expect(prisma.episode.create).toBeCalledWith({
-    data: {
-      ...episode,
-      showId: recordId,
-    },
+  expect(prisma.episode.createMany).toBeCalledWith({
+    data: [
+      {
+        ...episode,
+        showId: recordId,
+      },
+    ],
   });
 });
 
