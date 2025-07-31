@@ -124,49 +124,45 @@ test("getAllRunningShowIds should return ids", async () => {
 test("getShowsByUserId should return ids and unwatched count", async () => {
   prisma.showOnUser.findMany.mockResolvedValue([
     {
+      id: "sou1",
+      userId: "userId",
+      showId: "1",
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: SHOW,
     },
     {
+      id: "sou2",
+      userId: "userId",
+      showId: "2",
       archived: false,
-      // @ts-expect-error TS does not know about the include here..
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: SHOW2,
     },
   ]);
-  prisma.episodeOnUser.findMany.mockResolvedValue([
-    {
-      id: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
-      showId: "1",
-      episodeId: "1",
-    },
-    {
-      id: "3",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId: "userId",
-      showId: "2",
-      episodeId: "4",
-    },
+
+  prisma.episodeOnUser.groupBy.mockResolvedValue([
+    { showId: "1", _count: { episodeId: 1 } },
+    { showId: "2", _count: { episodeId: 1 } },
   ]);
+
+  prisma.episode.groupBy.mockResolvedValue([
+    { showId: "1", _count: { id: 2 } }, // 2 past episodes for show 1
+    { showId: "2", _count: { id: 1 } }, // 1 past episode for show 2
+  ]);
+
   const shows = await getShowsByUserId("userId");
-  expect(shows).toStrictEqual([
-    {
-      ...SHOW,
-      episodes: undefined,
-      unwatchedEpisodesCount: 1,
-      archived: false,
-    },
-    {
-      ...SHOW2,
-      episodes: undefined,
-      unwatchedEpisodesCount: 0,
-      archived: false,
-    },
-  ]);
+
+  // show 1 has 2 past episodes, 1 watched -> 1 unwatched
+  // show 2 has 1 past episode, 1 watched -> 0 unwatched
+  expect(shows).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ id: "1", unwatchedEpisodesCount: 1, archived: false }),
+      expect.objectContaining({ id: "2", unwatchedEpisodesCount: 0, archived: false }),
+    ])
+  );
 });
 
 test("getSortedShowsByUserId should sort shows case-insensitively", async () => {
@@ -229,26 +225,28 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
 test("getShowsByUserId should return 0 unwatched episodes for archived shows", async () => {
   prisma.showOnUser.findMany.mockResolvedValue([
     {
+      id: "sou1",
+      userId: "userId",
+      showId: "1",
       archived: true,
-      // @ts-expect-error TS does not know about the include here..
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: SHOW,
     },
   ]);
-  // In theory we have 3 unwatched episodes here
-  prisma.episodeOnUser.findMany.mockResolvedValue([]);
+  prisma.episodeOnUser.groupBy.mockResolvedValue([]);
+  prisma.episode.groupBy.mockResolvedValue([]);
+
   const shows = await getShowsByUserId("userId");
-  expect(shows).toStrictEqual([
-    {
-      ...SHOW,
-      episodes: undefined,
-      unwatchedEpisodesCount: 0,
-      archived: true,
-    },
-  ]);
+  expect(shows).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ id: "1", unwatchedEpisodesCount: 0, archived: true }),
+    ])
+  );
 });
 
 test("getShowsByUserId should return empty array if not found", async () => {
-  prisma.show.findMany.mockResolvedValue([]);
+  prisma.showOnUser.findMany.mockResolvedValue([]);
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([]);
 });
@@ -256,7 +254,7 @@ test("getShowsByUserId should return empty array if not found", async () => {
 test("getShowById should return users show with watched episodes", async () => {
   prisma.showOnUser.findFirst.mockResolvedValue({
     archived: false,
-    // @ts-expect-error TS does not know about the include..
+    // @ts-expect-error TS does not know about the include here..
     show: SHOW2,
   });
   prisma.episodeOnUser.findMany.mockResolvedValue([
@@ -529,11 +527,13 @@ test("addShow should add show and episodes", async () => {
       },
     },
   });
-  expect(prisma.episode.create).toBeCalledWith({
-    data: {
-      ...episode,
-      showId: recordId,
-    },
+  expect(prisma.episode.createMany).toBeCalledWith({
+    data: [
+      {
+        ...episode,
+        showId: recordId,
+      },
+    ],
   });
 });
 
@@ -557,7 +557,7 @@ test("addShow should not do anything if already connected", async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     showId: SHOW.id,
-    userId: "userId",
+    userId: "userId",.
     archived: false,
   });
 

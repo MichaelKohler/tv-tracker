@@ -49,55 +49,59 @@ export async function getShowByUserIdAndName({
 }
 
 export async function getShowsByUserId(userId: User["id"]) {
-  // We are querying showOnUser so that we can easier get the
-  // attributes off of this table, such as "archived". We then
-  // later on map it to get an easier data structure.
-  const showsOnUser = await prisma.showOnUser.findMany({
-    where: {
-      userId,
+  const showsOnUserPromise = prisma.showOnUser.findMany({
+    where: { userId },
+    include: { show: true },
+  });
+
+  const watchedCountsPromise = prisma.episodeOnUser.groupBy({
+    by: ["showId"],
+    where: { userId },
+    _count: {
+      episodeId: true,
     },
-    include: {
+  });
+
+  const pastEpisodeCountsPromise = prisma.episode.groupBy({
+    by: ["showId"],
+    where: {
+      airDate: { lt: new Date() },
       show: {
-        include: {
-          episodes: true,
+        users: {
+          some: { userId },
         },
       },
     },
+    _count: {
+      id: true,
+    },
   });
+
+  const [showsOnUser, watchedCounts, pastEpisodeCounts] = await Promise.all([
+    showsOnUserPromise,
+    watchedCountsPromise,
+    pastEpisodeCountsPromise,
+  ]);
 
   if (!showsOnUser) {
     return [];
   }
 
-  const shows = showsOnUser.map((showOnUser) => ({
-    ...showOnUser.show,
-    archived: showOnUser.archived,
-  }));
+  const watchedCountsMap = new Map(
+    watchedCounts.map((c) => [c.showId, c._count.episodeId])
+  );
+  const pastEpisodeCountsMap = new Map(
+    pastEpisodeCounts.map((c) => [c.showId, c._count.id])
+  );
 
-  if (!shows) {
-    return [];
-  }
-
-  const watchedEpisodes = await prisma.episodeOnUser.findMany({
-    where: {
-      userId,
-    },
-  });
-
-  const showsToReturn = shows.map((show) => {
-    const watchedEpisodeForShow = watchedEpisodes.filter(
-      (episode) => episode.showId === show.id
-    );
-    const pastEpisodes = show.episodes.filter(
-      (episode) => episode.airDate < new Date()
-    );
-    const unwatchedEpisodesCount = show.archived
-      ? 0
-      : pastEpisodes.length - watchedEpisodeForShow.length;
+  const showsToReturn = showsOnUser.map(({ show, archived }) => {
+    const watchedCount = watchedCountsMap.get(show.id) || 0;
+    const pastEpisodeCount = pastEpisodeCountsMap.get(show.id) || 0;
+    const unwatchedEpisodesCount = archived ? 0 : pastEpisodeCount - watchedCount;
 
     return {
       ...show,
-      episodes: undefined, // we do not need the episodes here anymore, so no need to transfer it
+      archived,
       unwatchedEpisodesCount,
     };
   });
@@ -213,6 +217,22 @@ export async function removeShowFromUser({
   });
 }
 
+interface TVMazeShowResult {
+  show: {
+    id: number;
+    name: string;
+    premiered: string;
+    ended: string | null;
+    rating: {
+      average: number | null;
+    };
+    image: {
+      medium: string;
+    } | null;
+    summary: string;
+  };
+}
+
 export async function searchShows(query: string | null, userId: User["id"]) {
   if (!query) {
     return [];
@@ -221,9 +241,8 @@ export async function searchShows(query: string | null, userId: User["id"]) {
   const addedShowsPromise = getAddedShowsMazeIds(userId);
 
   const showsResult = await fetchSearchResults(query);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shows: Show[] = showsResult.map((showResult: any) => ({
-    mazeId: showResult.show.id,
+  const shows: Show[] = showsResult.map((showResult: TVMazeShowResult) => ({
+    mazeId: `${showResult.show.id}`,
     name: showResult.show.name,
     premiered: new Date(showResult.show.premiered),
     ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
