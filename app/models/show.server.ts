@@ -66,6 +66,8 @@ export async function getShowsByUserId(userId: User["id"]) {
           rating: true,
           imageUrl: true,
           summary: true,
+          createdAt: true,
+          updatedAt: true,
           _count: {
             select: {
               episodes: {
