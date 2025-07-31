@@ -239,22 +239,22 @@ export async function getEpisodesWithMissingInfo() {
     where: {
       OR: [
         {
-          imageUrl: {
-            in: ["", null],
-          },
+          imageUrl: null,
         },
         {
-          name: {
-            in: ["", "TBA"],
-          },
+          imageUrl: "",
         },
         {
-          summary: {
-            in: ["", null],
-          },
+          name: "",
         },
         {
-          airDate: null,
+          name: "TBA",
+        },
+        {
+          summary: "",
+        },
+        {
+          airDate: undefined,
         },
       ],
     },

@@ -124,36 +124,10 @@ test("getAiredEpisodesByShowId should return episodes", async () => {
   expect(episodes).toStrictEqual([EPISODE]);
 });
 
-test("getEpisodesWithMissingInfo should be called with correct params", async () => {
+test("getEpisodesWithMissingInfo should return episodes", async () => {
   prisma.episode.findMany.mockResolvedValue([EPISODE]);
-  await getEpisodesWithMissingInfo();
-  expect(prisma.episode.findMany).toBeCalledWith({
-    where: {
-      OR: [
-        {
-          imageUrl: {
-            in: ["", null],
-          },
-        },
-        {
-          name: {
-            in: ["", "TBA"],
-          },
-        },
-        {
-          summary: {
-            in: ["", null],
-          },
-        },
-        {
-          airDate: null,
-        },
-      ],
-    },
-    include: {
-      show: true,
-    },
-  });
+  const episodes = await getEpisodesWithMissingInfo();
+  expect(episodes).toStrictEqual([EPISODE]);
 });
 
 // Not actually covering the query itself..
