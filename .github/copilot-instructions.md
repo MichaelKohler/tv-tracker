@@ -18,6 +18,7 @@ This is a TV tracking application that allows users to track their favorite TV s
 - **API**: TVMaze API for show and episode data
 - **Version Control**: Git
 - **Deployment**: Vercel
+- **Environment Variables**: Node.js `--env-file` parameter (no dotenv package)
 
 ## Coding Standards
 
@@ -85,6 +86,12 @@ This is a TV tracking application that allows users to track their favorite TV s
 - Optimize images and assets
 - Minimize bundle size
 - Use proper memoization techniques
+
+### Environment Variables
+
+- Use Node.js native `--env-file` parameter instead of dotenv packages
+- For E2E tests, use `node --env-file=.env.e2e` to load environment variables
+- Avoid importing dotenv packages in code - rely on Node.js built-in support
 
 ## Documentation Maintenance Rules
 

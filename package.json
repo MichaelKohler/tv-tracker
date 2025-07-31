@@ -17,21 +17,22 @@
     "setup": "prisma generate && prisma db push && prisma db seed",
     "start": "react-router-serve ./build/server/index.js",
     "test": "SESSION_SECRET=secret vitest",
-    "test:e2e": "npm run test:e2e:setup && npx dotenv -e .env.e2e -- npm run test:e2e:run && npm run test:e2e:teardown",
+    "test:e2e": "npm run test:e2e:setup && npm run test:e2e:run && npm run test:e2e:teardown",
     "test:e2e:report": "playwright show-report",
-    "test:e2e:run": "playwright test",
-    "test:e2e:setup": "npx dotenv -e .env.e2e -- docker compose -f docker-compose.e2e.yml up -d && npx dotenv -e .env.e2e -- sh -c 'for i in {1..30}; do if npx prisma db push --accept-data-loss 2>/dev/null; then break; fi; echo \"Waiting for PostgreSQL ($i/30)...\"; sleep 2; done' && npx dotenv -e .env.e2e -- npx prisma db seed",
+    "test:e2e:run": "node --env-file=.env.e2e ./node_modules/.bin/playwright test",
+    "test:e2e:setup": "docker compose -f docker-compose.e2e.yml up -d && sh -c 'for i in {1..30}; do if node --env-file=.env.e2e ./node_modules/.bin/prisma db push --accept-data-loss 2>/dev/null; then break; fi; echo \"Waiting for PostgreSQL ($i/30)...\"; sleep 2; done' && node --env-file=.env.e2e ./node_modules/.bin/prisma db seed",
     "test:e2e:teardown": "docker compose -f docker-compose.e2e.yml down -v",
     "typecheck": "tsc -b",
     "update:episode:force": "tsx scripts/force-episode-update.ts",
     "update:episodes": "tsx scripts/get-new-episodes.ts",
     "update:episodes:info": "tsx scripts/update-episodes.ts",
-    "validate": "run-p \"test -- --run\" lint typecheck test:e2e:run"
+    "validate": "run-p \"test -- --run\" lint typecheck test:e2e"
   },
   "prettier": {
     "trailingComma": "es5"
   },
   "dependencies": {
+    "@heroicons/react": "^2.1.5",
     "@node-rs/bcrypt": "^1.10.7",
     "@prisma/client": "^6.6.0",
     "@react-router/node": "^7.5.1",
@@ -46,8 +47,7 @@
     "react-dom": "^19.1.0",
     "react-router": "^7.5.1",
     "striptags": "^3.2.0",
-    "tiny-invariant": "^1.3.3",
-    "@heroicons/react": "^2.1.5"
+    "tiny-invariant": "^1.3.3"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.8",
@@ -67,7 +67,6 @@
     "@types/react-dom": "^19.1.2",
     "@typescript-eslint/eslint-plugin": "^8.31.0",
     "axios": "^1.11.0",
-    "dotenv-cli": "^9.0.0",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-import-resolver-typescript": "^4.3.4",
