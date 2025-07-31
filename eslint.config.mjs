@@ -123,6 +123,7 @@ export default [
 
     rules: {
       "testing-library/prefer-screen-queries": "off",
+      "import/order": "error",
     },
 
     settings: {

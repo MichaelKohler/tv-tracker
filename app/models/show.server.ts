@@ -1,9 +1,9 @@
 import type { Show, User } from "@prisma/client";
 
 import striptags from "striptags";
+import { prisma } from "../db.server";
 import { decodeHtmlEntities } from "./html-entities.server";
 
-import { prisma } from "../db.server";
 import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
