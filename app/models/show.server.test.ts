@@ -1,4 +1,4 @@
-import { prisma } from "../__mocks__/db.server";
+import { prisma } from "../db.server";
 import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
@@ -18,8 +18,43 @@ import {
   searchShows,
   unarchiveShowOnUser,
 } from "./show.server";
+import type {
+  Show,
+  ShowOnUser,
+  EpisodeOnUser,
+  Episode,
+} from "@prisma/client";
 
-vi.mock("../db.server");
+vi.mock("../db.server", () => {
+  return {
+    prisma: {
+      show: {
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+        create: vi.fn(),
+        count: vi.fn(),
+        findUnique: vi.fn(),
+      },
+      showOnUser: {
+        findMany: vi.fn(),
+        deleteMany: vi.fn(),
+        create: vi.fn(),
+        findFirst: vi.fn(),
+        updateMany: vi.fn(),
+        groupBy: vi.fn(),
+      },
+      episodeOnUser: {
+        findMany: vi.fn(),
+        deleteMany: vi.fn(),
+        groupBy: vi.fn(),
+      },
+      episode: {
+        create: vi.fn(),
+        createMany: vi.fn(),
+      },
+    },
+  };
+});
 vi.mock("./maze.server", async () => {
   return {
     fetchSearchResults: vi.fn(),
@@ -27,7 +62,7 @@ vi.mock("./maze.server", async () => {
   };
 });
 
-const EPISODE4 = {
+const EPISODE4: Episode = {
   createdAt: new Date(),
   updatedAt: new Date(),
   id: "4",
@@ -42,7 +77,7 @@ const EPISODE4 = {
   summary: "Test Summary",
 };
 
-const SHOW = {
+const SHOW: Show = {
   createdAt: new Date(),
   updatedAt: new Date(),
   id: "1",
@@ -55,7 +90,7 @@ const SHOW = {
   rating: 1,
 };
 
-const SHOW2 = {
+const SHOW2: Show = {
   createdAt: new Date(),
   updatedAt: new Date(),
   id: "2",
@@ -69,20 +104,22 @@ const SHOW2 = {
 };
 
 test("getAllRunningShowIds should return ids", async () => {
-  prisma.show.findMany.mockResolvedValue([SHOW, SHOW2] as any);
+  vi.mocked(prisma.show.findMany).mockResolvedValue([SHOW, SHOW2]);
   const runningShowIds = await getAllRunningShowIds();
   expect(runningShowIds).toStrictEqual(["maze1", "maze2"]);
 });
 
 test("getShowsByUserId should return ids and unwatched count", async () => {
-  prisma.showOnUser.findMany.mockResolvedValue([
+  const showOnUserData: (ShowOnUser & { show: Show & { _count: { episodes: number } } })[] = [
     {
       archived: false,
       showId: "1",
+      id: "1",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 2,
         },
@@ -91,17 +128,19 @@ test("getShowsByUserId should return ids and unwatched count", async () => {
     {
       archived: false,
       showId: "2",
+      id: "2",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW2,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 1,
         },
       },
     },
-  ] as any);
-  (prisma.episodeOnUser.groupBy as any).mockResolvedValue([
+  ];
+  const episodeOnUserData = [
     {
       showId: "1",
       _count: {
@@ -114,7 +153,9 @@ test("getShowsByUserId should return ids and unwatched count", async () => {
         episodeId: 1,
       },
     },
-  ]);
+  ];
+  vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
+  vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(episodeOnUserData as any);
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([
     {
@@ -135,14 +176,16 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
   const SHOW_B = { ...SHOW, id: "b", name: "B show" };
   const SHOW_C = { ...SHOW, id: "c", name: "c show" };
 
-  prisma.showOnUser.findMany.mockResolvedValue([
+  const showOnUserData: (ShowOnUser & { show: Show & { _count: { episodes: number } } })[] = [
     {
       archived: false,
       showId: "c",
+      id: "c",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW_C,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 2,
         },
@@ -151,10 +194,12 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
     {
       archived: false,
       showId: "a",
+      id: "a",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW_A,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 2,
         },
@@ -163,19 +208,21 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
     {
       archived: false,
       showId: "b",
+      id: "b",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW_B,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 2,
         },
       },
     },
-  ] as any);
+  ];
 
   // All shows have 1 unwatched episode
-  (prisma.episodeOnUser.groupBy as any).mockResolvedValue([
+  const episodeOnUserData = [
     {
       showId: "a",
       _count: {
@@ -194,7 +241,9 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
         episodeId: 1,
       },
     },
-  ]);
+  ];
+  vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
+  vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(episodeOnUserData as any);
 
   const shows = await getSortedShowsByUserId("userId");
   const showNames = shows.map((s) => s.name);
@@ -203,22 +252,24 @@ test("getSortedShowsByUserId should sort shows case-insensitively", async () => 
 });
 
 test("getShowsByUserId should return 0 unwatched episodes for archived shows", async () => {
-  prisma.showOnUser.findMany.mockResolvedValue([
+  const showOnUserData: (ShowOnUser & { show: Show & { _count: { episodes: number } } })[] = [
     {
       archived: true,
       showId: "1",
+      id: "1",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 3,
         },
       },
     },
-  ] as any);
-  // In theory we have 3 unwatched episodes here
-  (prisma.episodeOnUser.groupBy as any).mockResolvedValue([]);
+  ];
+  vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
+  vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue([]);
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([
     {
@@ -230,13 +281,13 @@ test("getShowsByUserId should return 0 unwatched episodes for archived shows", a
 });
 
 test("getShowsByUserId should return empty array if not found", async () => {
-  prisma.showOnUser.findMany.mockResolvedValue([]);
+  vi.mocked(prisma.showOnUser.findMany).mockResolvedValue([]);
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([]);
 });
 
 test("getShowById should return users show with watched episodes", async () => {
-  const showOnUser = {
+  const showOnUser: ShowOnUser & { show: Show & { episodes: Episode[] } } = {
     id: "1",
     showId: "2",
     userId: "userId",
@@ -245,8 +296,8 @@ test("getShowById should return users show with watched episodes", async () => {
     archived: false,
     show: { ...SHOW2, episodes: [EPISODE4] },
   };
-  prisma.showOnUser.findFirst.mockResolvedValue(showOnUser as any);
-  prisma.episodeOnUser.findMany.mockResolvedValue([{ episodeId: "4" }] as any);
+  vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue(showOnUser);
+  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue([{ episodeId: "4" } as any]);
   const shows = await getShowById("2", "userId");
   expect(shows).toStrictEqual({
     show: {
@@ -259,14 +310,16 @@ test("getShowById should return users show with watched episodes", async () => {
 });
 
 test("getSortedShowsByUserId should sort shows", async () => {
-  prisma.showOnUser.findMany.mockResolvedValue([
+  const showOnUserData: (ShowOnUser & { show: Show & { _count: { episodes: number } } })[] = [
     {
       archived: false,
       showId: "1",
+      id: "1",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 2,
         },
@@ -275,18 +328,19 @@ test("getSortedShowsByUserId should sort shows", async () => {
     {
       archived: false,
       showId: "2",
+      id: "2",
+      userId: "userId",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       show: {
         ...SHOW2,
-        createdAt: new Date(),
-        updatedAt: new Date(),
         _count: {
           episodes: 1,
         },
       },
     },
-  ] as any);
-
-  (prisma.episodeOnUser.groupBy as any).mockResolvedValue([
+  ];
+  const episodeOnUserData = [
     {
       showId: "1",
       _count: {
@@ -299,7 +353,9 @@ test("getSortedShowsByUserId should sort shows", async () => {
         episodeId: 1,
       },
     },
-  ]);
+  ];
+  vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
+  vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(episodeOnUserData as any);
 
   const shows = await getSortedShowsByUserId("userId");
 
@@ -334,13 +390,13 @@ test("removeShowFromUser should remove show and episodes", async () => {
 });
 
 test("getShowCount should return count", async () => {
-  prisma.show.count.mockResolvedValue(2);
+  vi.mocked(prisma.show.count).mockResolvedValue(2);
   const count = await getShowCount();
   expect(count).toBe(2);
 });
 
 test("getConnectedShowCount should return count", async () => {
-  prisma.showOnUser.findMany.mockResolvedValue([
+  const showOnUserData: ShowOnUser[] = [
     {
       id: "1",
       createdAt: new Date(),
@@ -357,7 +413,8 @@ test("getConnectedShowCount should return count", async () => {
       showId: "2",
       archived: false,
     },
-  ] as any);
+  ];
+  vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
   const count = await getConnectedShowCount();
   expect(count).toBe(2);
 });
@@ -389,7 +446,7 @@ test("searchShows should return fetched shows", async () => {
       },
     },
   ]);
-  prisma.show.findMany.mockResolvedValue([]);
+  vi.mocked(prisma.show.findMany).mockResolvedValue([]);
 
   const searchResults = await searchShows("foo", "userId");
   expect(searchResults).toStrictEqual([show]);
@@ -442,7 +499,7 @@ test("searchShows should return fetched shows excluding already added shows", as
       },
     },
   ]);
-  prisma.show.findMany.mockResolvedValue([SHOW] as any);
+  vi.mocked(prisma.show.findMany).mockResolvedValue([SHOW]);
 
   const searchResults = await searchShows("foo", "userId");
   expect(searchResults).toStrictEqual([show]);
@@ -497,15 +554,15 @@ test("addShow should add show and episodes", async () => {
       ],
     },
   });
-  prisma.show.findFirst.mockResolvedValue(null);
+  vi.mocked(prisma.show.findFirst).mockResolvedValue(null);
 
   const recordId = "database-record-id";
-  prisma.show.create.mockResolvedValue({
+  vi.mocked(prisma.show.create).mockResolvedValue({
     ...show,
     createdAt: new Date(),
     updatedAt: new Date(),
     id: recordId,
-  } as any);
+  });
 
   await addShow("userId", "maze1");
   expect(prisma.show.create).toBeCalledWith({
@@ -527,8 +584,8 @@ test("addShow should add show and episodes", async () => {
 });
 
 test("addShow should only connect show to user if already in database", async () => {
-  prisma.show.findFirst.mockResolvedValue(SHOW as any);
-  prisma.showOnUser.findFirst.mockResolvedValue(null);
+  vi.mocked(prisma.show.findFirst).mockResolvedValue(SHOW);
+  vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue(null);
 
   await addShow("userId", SHOW.mazeId);
   expect(prisma.showOnUser.create).toBeCalledWith({
@@ -540,8 +597,8 @@ test("addShow should only connect show to user if already in database", async ()
 });
 
 test("addShow should not do anything if already connected", async () => {
-  prisma.show.findFirst.mockResolvedValue(SHOW as any);
-  prisma.showOnUser.findFirst.mockResolvedValue({
+  vi.mocked(prisma.show.findFirst).mockResolvedValue(SHOW);
+  vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue({
     id: "1",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -555,7 +612,7 @@ test("addShow should not do anything if already connected", async () => {
 });
 
 test("archiveShowOnUser should archive show", async () => {
-  prisma.showOnUser.updateMany.mockResolvedValue({ count: 1 });
+  vi.mocked(prisma.showOnUser.updateMany).mockResolvedValue({ count: 1 });
 
   await archiveShowOnUser({
     userId: "userId",
@@ -573,7 +630,7 @@ test("archiveShowOnUser should archive show", async () => {
 });
 
 test("unarchiveShowOnUser should unarchive show", async () => {
-  prisma.showOnUser.updateMany.mockResolvedValue({ count: 1 });
+  vi.mocked(prisma.showOnUser.updateMany).mockResolvedValue({ count: 1 });
 
   await unarchiveShowOnUser({
     userId: "userId",
@@ -591,7 +648,7 @@ test("unarchiveShowOnUser should unarchive show", async () => {
 });
 
 test("getShowByUserIdAndName should return show by name for user", async () => {
-  prisma.show.findFirst.mockResolvedValue(SHOW as any);
+  vi.mocked(prisma.show.findFirst).mockResolvedValue(SHOW);
 
   const result = await getShowByUserIdAndName({
     userId: "userId",
@@ -612,7 +669,7 @@ test("getShowByUserIdAndName should return show by name for user", async () => {
 });
 
 test("getShowByUserIdAndName should return null when show is not found", async () => {
-  prisma.show.findFirst.mockResolvedValue(null);
+  vi.mocked(prisma.show.findFirst).mockResolvedValue(null);
 
   const result = await getShowByUserIdAndName({
     userId: "userId",
