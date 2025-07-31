@@ -240,7 +240,7 @@ export async function getEpisodesWithMissingInfo() {
       OR: [
         {
           imageUrl: {
-            in: ["", undefined],
+            in: ["", null],
           },
         },
         {
@@ -250,11 +250,11 @@ export async function getEpisodesWithMissingInfo() {
         },
         {
           summary: {
-            in: ["", undefined],
+            in: ["", null],
           },
         },
         {
-          airDate: undefined,
+          airDate: null,
         },
       ],
     },

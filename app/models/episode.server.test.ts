@@ -132,7 +132,7 @@ test("getEpisodesWithMissingInfo should be called with correct params", async ()
       OR: [
         {
           imageUrl: {
-            in: ["", undefined],
+            in: ["", null],
           },
         },
         {
@@ -142,11 +142,11 @@ test("getEpisodesWithMissingInfo should be called with correct params", async ()
         },
         {
           summary: {
-            in: ["", undefined],
+            in: ["", null],
           },
         },
         {
-          airDate: undefined,
+          airDate: null,
         },
       ],
     },
