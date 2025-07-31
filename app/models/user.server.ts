@@ -1,6 +1,6 @@
+import { createHash } from "crypto";
 import type { Password, User } from "@prisma/client";
 import { compare, hash } from "@node-rs/bcrypt";
-import { createHash } from "crypto";
 
 import { prisma } from "../db.server";
 

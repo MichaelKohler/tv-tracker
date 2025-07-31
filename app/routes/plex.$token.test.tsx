@@ -1,11 +1,11 @@
 import type { ActionFunctionArgs } from "react-router";
-import { action } from "./plex.$token";
 import {
   getEpisodeByShowIdAndNumbers,
   markEpisodeAsWatched,
 } from "../models/episode.server";
 import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
+import { action } from "./plex.$token";
 
 vi.mock("../db.server");
 vi.mock("../models/episode.server");
