@@ -11,6 +11,9 @@ beforeEach(() => {
   vi.mock("react-router", () => {
     return {
       useLoaderData: vi.fn(),
+      Link: ({ children }: { children: React.ReactNode }) => (
+        <span>{children}</span>
+      ),
     };
   });
   vi.unmock("../components/upcoming-episodes-list");
