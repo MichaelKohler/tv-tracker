@@ -24,8 +24,6 @@ import { getUser } from "./session.server";
 
 export function headers(): ReturnType<HeadersFunction> {
   return {
-    "Content-Security-Policy":
-      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'",
     "Permissions-Policy":
       "accelerometer=(), ambient-light-sensor=(), battery=(), camera=(), microphone=(), geolocation=(), gyroscope=()",
     "Referrer-Policy": "no-referrer",
