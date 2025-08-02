@@ -16,7 +16,7 @@ import {
 
 import { verifyLogin } from "../models/user.server";
 import { createUserSession, getUserId } from "../session.server";
-import { safeRedirect, validateEmail } from "../utils";
+import { safeRedirect, validateAndSanitizeEmail } from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
@@ -26,8 +26,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
+  const emailInput = formData.get("email");
+  const passwordInput = formData.get("password");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
   const remember = formData.get("remember");
 
@@ -36,21 +36,22 @@ export async function action({ request }: ActionFunctionArgs) {
     password: null,
   };
 
-  if (!validateEmail(email)) {
+  const email = validateAndSanitizeEmail(emailInput);
+  if (!email) {
     return data(
       { errors: { ...errors, email: "Email is invalid" } },
       { status: 400 }
     );
   }
 
-  if (typeof password !== "string" || password.length === 0) {
+  if (typeof passwordInput !== "string" || passwordInput.length === 0) {
     return data(
       { errors: { ...errors, password: "Password is required" } },
       { status: 400 }
     );
   }
 
-  const user = await verifyLogin(email, password);
+  const user = await verifyLogin(email, passwordInput);
 
   if (!user) {
     return data(

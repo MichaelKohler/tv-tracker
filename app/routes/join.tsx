@@ -19,7 +19,11 @@ import { getFlagsFromEnvironment } from "../models/config.server";
 import { redeemInviteCode } from "../models/invite.server";
 import { createUser, getUserByEmail } from "../models/user.server";
 import { getUserId, createUserSession } from "../session.server";
-import { safeRedirect, validateEmail } from "../utils";
+import {
+  safeRedirect,
+  validateAndSanitizeEmail,
+  getPasswordValidationError,
+} from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
@@ -35,8 +39,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const { SIGNUP_DISABLED } = getFlagsFromEnvironment();
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
+  const emailInput = formData.get("email");
+  const passwordInput = formData.get("password");
   const invite = formData.get("invite");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
 
@@ -46,23 +50,25 @@ export async function action({ request }: ActionFunctionArgs) {
     invite: null,
   };
 
-  if (!validateEmail(email)) {
+  const email = validateAndSanitizeEmail(emailInput);
+  if (!email) {
     return data(
       { errors: { ...errors, email: "Email is invalid" } },
       { status: 400 }
     );
   }
 
-  if (typeof password !== "string" || password.length === 0) {
+  if (typeof passwordInput !== "string") {
     return data(
       { errors: { ...errors, password: "Password is required" } },
       { status: 400 }
     );
   }
 
-  if (password.length < 8) {
+  const passwordError = getPasswordValidationError(passwordInput);
+  if (passwordError) {
     return data(
-      { errors: { ...errors, password: "Password is too short" } },
+      { errors: { ...errors, password: passwordError } },
       { status: 400 }
     );
   }
@@ -92,7 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const user = await createUser(email, password);
+  const user = await createUser(email, passwordInput);
 
   return createUserSession({
     request,

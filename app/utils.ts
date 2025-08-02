@@ -71,10 +71,64 @@ export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
 }
 
+export function validatePassword(password: unknown): password is string {
+  if (typeof password !== "string") {
+    return false;
+  }
+
+  // Password must be at least 8 characters long
+  if (password.length < 8) {
+    return false;
+  }
+
+  return true;
+}
+
+export function getPasswordValidationError(password: unknown): string | null {
+  if (typeof password !== "string") {
+    return "Password is required";
+  }
+
+  if (password.length === 0) {
+    return "Password is required";
+  }
+
+  if (password.length < 8) {
+    return "Password must be at least 8 characters long";
+  }
+
+  return null;
+}
+
 export function padNumber(number: number) {
   if (number < 10) {
     return `0${number}`;
   }
 
   return `${number}`;
+}
+
+/**
+ * Sanitize string input to prevent injection attacks
+ * @param input The input string to sanitize
+ * @returns Sanitized string
+ */
+export function sanitizeInput(input: unknown): string {
+  if (typeof input !== "string") {
+    return "";
+  }
+
+  // Remove null bytes and control characters
+  // eslint-disable-next-line no-control-regex
+  return input.replace(/[\x00-\x1F\x7F]/g, "").trim();
+}
+
+/**
+ * Validate and sanitize email input
+ * @param email The email to validate and sanitize
+ * @returns Sanitized email or null if invalid
+ */
+export function validateAndSanitizeEmail(email: unknown): string | null {
+  const sanitized = sanitizeInput(email);
+  return validateEmail(sanitized) ? sanitized.toLowerCase() : null;
 }

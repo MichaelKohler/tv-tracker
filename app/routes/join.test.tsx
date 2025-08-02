@@ -297,7 +297,9 @@ test("action should return error if password is too short", async () => {
   });
 
   // @ts-expect-error : we do not actually have a real response here..
-  expect(response.data.errors.password).toBe("Password is too short");
+  expect(response.data.errors.password).toBe(
+    "Password must be at least 8 characters long"
+  );
 });
 
 test("action should return error if user exists", async () => {

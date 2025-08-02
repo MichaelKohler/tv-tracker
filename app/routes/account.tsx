@@ -11,6 +11,7 @@ import {
 
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
+import { getPasswordValidationError } from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { plexToken } = await requireUser(request);
@@ -37,10 +38,11 @@ export async function action({ request }: ActionFunctionArgs) {
     generic: null,
   };
 
-  if (typeof newPassword !== "string" || newPassword === "") {
+  const passwordError = getPasswordValidationError(newPassword);
+  if (passwordError) {
     return data(
       {
-        errors: { ...errors, newPassword: "New password is required" },
+        errors: { ...errors, newPassword: passwordError },
         done: false,
       },
       { status: 400 }

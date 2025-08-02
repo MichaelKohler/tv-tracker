@@ -12,7 +12,10 @@ interface Props {
 export default function EpisodeCard({ episode }: Props) {
   return (
     <li className="mb-3 flex w-full flex-col items-center rounded-lg border-2 border-mklight-100 p-4 text-center hover:bg-mklight-100 sm:w-180 sm:flex-row sm:text-left">
-      <Link to={`/tv/${episode.show.id}`} className="flex w-full flex-col items-center text-center sm:flex-row sm:text-left">
+      <Link
+        to={`/tv/${episode.show.id}`}
+        className="flex w-full flex-col items-center text-center sm:flex-row sm:text-left"
+      >
         <div className="min-h-[140px] min-w-[125px] flex-none">
           <img
             src={episode.show.imageUrl || ""}
