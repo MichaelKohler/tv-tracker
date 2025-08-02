@@ -11,7 +11,7 @@ This is a TV tracking application that allows users to track their favorite TV s
 - **State Management**: React Router loaders
 - **Routing**: React Router v7 (migrated from Remix v2)
 - **Build Tool**: Vite
-- **Testing**: Jest + React Testing Library as well as E2E testing with Playwright
+- **Testing**: Vitest + React Testing Library as well as E2E testing with Playwright
 - **Linting**: ESLint + Prettier
 - **Package Manager**: npm
 - **Database**: Prisma with PostgreSQL
