@@ -38,6 +38,16 @@ export async function action({ request }: ActionFunctionArgs) {
     generic: null,
   };
 
+  if (typeof newPassword !== "string" || newPassword === "") {
+    return data(
+      {
+        errors: { ...errors, newPassword: "New password is required" },
+        done: false,
+      },
+      { status: 400 }
+    );
+  }
+
   const passwordError = getPasswordValidationError(newPassword);
   if (passwordError) {
     return data(
