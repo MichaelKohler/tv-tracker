@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 
 import StatCard from "../components/stat-card";
+import MonthlyEpisodesChart from "../components/monthly-episodes-chart";
 import {
   getTotalWatchTimeForUser,
   getWatchedEpisodesCountForUser,
@@ -129,6 +130,13 @@ export default function TVStats() {
       {/* Last 12 Months */}
       <div className="mt-12">
         <h2 className="mb-4 font-title text-3xl">Last 12 Months</h2>
+
+        {/* Chart */}
+        {last12MonthsStats.length > 0 && (
+          <div className="mb-8">
+            <MonthlyEpisodesChart data={last12MonthsStats} />
+          </div>
+        )}
 
         {/* Monthly Stats */}
         {last12MonthsStats.length > 0 && (

@@ -96,6 +96,7 @@ test("renders monthly stats when available", () => {
 
   render(<TVStats />);
 
+  expect(screen.getByText("Episodes Watched Per Month")).toBeInTheDocument();
   expect(screen.getByText("Monthly Breakdown")).toBeInTheDocument();
   expect(screen.getByText("June 2023")).toBeInTheDocument();
   expect(screen.getByText("12")).toBeInTheDocument();
@@ -117,7 +118,12 @@ test("shows message when no activity data", () => {
 
   render(<TVStats />);
 
-  expect(screen.getByText("No viewing activity in the last 12 months.")).toBeInTheDocument();
+  expect(
+    screen.getByText("No viewing activity in the last 12 months.")
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText("Episodes Watched Per Month")
+  ).not.toBeInTheDocument();
 });
 
 test("handles zero archived percentage correctly", () => {
