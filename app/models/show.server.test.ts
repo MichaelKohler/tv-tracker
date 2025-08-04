@@ -18,6 +18,8 @@ import {
   removeShowFromUser,
   searchShows,
   unarchiveShowOnUser,
+  getShowsTrackedByUser,
+  getArchivedShowsCountForUser,
 } from "./show.server";
 
 vi.mock("../db.server");
@@ -697,4 +699,24 @@ test("prepareShow should strip and decode HTML entities", () => {
 
   expect(show.summary).toBe("Some description with <b>HTML</b> tags inside..");
   expect(episodes[0].summary).toBe("Some episode summary with <b>HTML</b>...");
+});
+
+test("getShowsTrackedByUser should return count", async () => {
+  vi.mocked(prisma.showOnUser.count).mockResolvedValue(5);
+
+  const count = await getShowsTrackedByUser("userId");
+  expect(count).toBe(5);
+});
+
+test("getArchivedShowsCountForUser should return archived count", async () => {
+  vi.mocked(prisma.showOnUser.count).mockResolvedValue(3);
+
+  const count = await getArchivedShowsCountForUser("userId");
+  expect(count).toBe(3);
+  expect(prisma.showOnUser.count).toBeCalledWith({
+    where: {
+      userId: "userId",
+      archived: true,
+    },
+  });
 });

@@ -11,6 +11,10 @@ import {
   markEpisodeAsWatched,
   markEpisodeAsUnwatched,
   markAllEpisodesAsWatched,
+  getTotalWatchTimeForUser,
+  getWatchedEpisodesCountForUser,
+  getUnwatchedEpisodesCountForUser,
+  getLast12MonthsStats,
 } from "./episode.server";
 
 vi.mock("../db.server");
@@ -308,4 +312,92 @@ test("markAllEpisodesAsWatched should add entry for not yet watched episodes", a
       },
     ],
   });
+});
+
+test("getTotalWatchTimeForUser should return total runtime", async () => {
+  const mockEpisodesOnUser = [
+    {
+      id: "1",
+      userId: "userId",
+      showId: "showId",
+      episodeId: "episode1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      episode: { runtime: 30 },
+    },
+    {
+      id: "2",
+      userId: "userId",
+      showId: "showId",
+      episodeId: "episode2",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      episode: { runtime: 45 },
+    },
+  ];
+  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(mockEpisodesOnUser);
+
+  const totalTime = await getTotalWatchTimeForUser("userId");
+  expect(totalTime).toBe(75);
+});
+
+test("getWatchedEpisodesCountForUser should return count", async () => {
+  vi.mocked(prisma.episodeOnUser.count).mockResolvedValue(42);
+
+  const count = await getWatchedEpisodesCountForUser("userId");
+  expect(count).toBe(42);
+});
+
+test("getUnwatchedEpisodesCountForUser should return difference", async () => {
+  // Mock total aired episodes
+  vi.mocked(prisma.episode.count).mockResolvedValue(100);
+  // Mock watched episodes count
+  vi.mocked(prisma.episodeOnUser.count).mockResolvedValue(30);
+
+  const unwatchedCount = await getUnwatchedEpisodesCountForUser("userId");
+  expect(unwatchedCount).toBe(70);
+});
+
+test("getLast12MonthsStats should return monthly stats", async () => {
+  // Mock the current date to be within 12 months of our test data
+  const mockCurrentDate = new Date("2023-12-15"); // 6 months after our test episode
+  vi.useFakeTimers();
+  vi.setSystemTime(mockCurrentDate);
+
+  const mockDate = new Date("2023-06-15");
+  const mockEpisodesOnUser = [
+    {
+      id: "1",
+      userId: "userId",
+      showId: "showId1",
+      episodeId: "episode1",
+      createdAt: mockDate,
+      updatedAt: mockDate,
+      episode: { runtime: 30, showId: "showId1" },
+      show: { id: "showId1", name: "Show 1" },
+    },
+    {
+      id: "2",
+      userId: "userId",
+      showId: "showId2",
+      episodeId: "episode2",
+      createdAt: mockDate,
+      updatedAt: mockDate,
+      episode: { runtime: 45, showId: "showId2" },
+      show: { id: "showId2", name: "Show 2" },
+    },
+  ];
+  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(mockEpisodesOnUser);
+
+  const stats = await getLast12MonthsStats("userId");
+  expect(stats).toHaveLength(1);
+  expect(stats[0]).toEqual({
+    month: "June 2023",
+    episodes: 2,
+    runtime: 75,
+    showCount: 2,
+  });
+
+  // Cleanup
+  vi.useRealTimers();
 });
