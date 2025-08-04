@@ -359,6 +359,11 @@ test("getUnwatchedEpisodesCountForUser should return difference", async () => {
 });
 
 test("getLast12MonthsStats should return monthly stats", async () => {
+  // Mock the current date to be within 12 months of our test data
+  const mockCurrentDate = new Date("2023-12-15"); // 6 months after our test episode
+  vi.useFakeTimers();
+  vi.setSystemTime(mockCurrentDate);
+
   const mockDate = new Date("2023-06-15");
   const mockEpisodesOnUser = [
     {
@@ -392,4 +397,7 @@ test("getLast12MonthsStats should return monthly stats", async () => {
     runtime: 75,
     showCount: 2,
   });
+
+  // Cleanup
+  vi.useRealTimers();
 });
