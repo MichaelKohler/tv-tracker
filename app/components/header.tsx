@@ -70,6 +70,14 @@ export default function Header({
                 Recently watched
               </Link>
               <Link
+                to="/tv/stats"
+                className={`text-white-700 flex ${
+                  menuOpen ? "border-b py-12" : "px-8 py-2"
+                } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
+              >
+                Stats
+              </Link>
+              <Link
                 to="/account"
                 className={`text-white-700 flex ${
                   menuOpen ? "border-b py-12" : "px-8 py-2"

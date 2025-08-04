@@ -429,3 +429,24 @@ export async function unarchiveShowOnUser({
     },
   });
 }
+
+export async function getShowsTrackedByUser(userId: User["id"]) {
+  const count = await prisma.showOnUser.count({
+    where: {
+      userId,
+    },
+  });
+
+  return count;
+}
+
+export async function getArchivedShowsCountForUser(userId: User["id"]) {
+  const count = await prisma.showOnUser.count({
+    where: {
+      userId,
+      archived: true,
+    },
+  });
+
+  return count;
+}

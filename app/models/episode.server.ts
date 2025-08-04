@@ -268,3 +268,125 @@ export async function getEpisodesWithMissingInfo() {
 
   return episode;
 }
+
+export async function getTotalWatchTimeForUser(userId: User["id"]) {
+  const watchedEpisodes = await prisma.episodeOnUser.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      episode: {
+        select: {
+          runtime: true,
+        },
+      },
+    },
+  });
+
+  return watchedEpisodes.reduce((total, episodeOnUser) => {
+    return total + (episodeOnUser.episode.runtime || 0);
+  }, 0);
+}
+
+export async function getWatchedEpisodesCountForUser(userId: User["id"]) {
+  const count = await prisma.episodeOnUser.count({
+    where: {
+      userId,
+    },
+  });
+
+  return count;
+}
+
+export async function getUnwatchedEpisodesCountForUser(userId: User["id"]) {
+  // Get total aired episodes for shows the user is tracking
+  const totalAiredEpisodes = await prisma.episode.count({
+    where: {
+      airDate: {
+        lte: new Date(),
+      },
+      show: {
+        users: {
+          some: {
+            userId,
+          },
+        },
+      },
+    },
+  });
+
+  // Get watched episodes count
+  const watchedCount = await getWatchedEpisodesCountForUser(userId);
+
+  return totalAiredEpisodes - watchedCount;
+}
+
+export async function getLast12MonthsStats(userId: User["id"]) {
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+  twelveMonthsAgo.setDate(1);
+  twelveMonthsAgo.setHours(0, 0, 0, 0);
+
+  const watchedEpisodes = await prisma.episodeOnUser.findMany({
+    where: {
+      userId,
+      createdAt: {
+        gte: twelveMonthsAgo,
+      },
+    },
+    include: {
+      episode: {
+        select: {
+          runtime: true,
+          showId: true,
+        },
+      },
+      show: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // Group by month
+  const monthlyStats = new Map<
+    string,
+    { episodes: number; runtime: number; shows: Set<string> }
+  >();
+
+  watchedEpisodes.forEach((episodeOnUser) => {
+    const monthKey = episodeOnUser.createdAt.toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
+
+    const existing = monthlyStats.get(monthKey) || {
+      episodes: 0,
+      runtime: 0,
+      shows: new Set<string>(),
+    };
+
+    existing.episodes += 1;
+    existing.runtime += episodeOnUser.episode.runtime || 0;
+    existing.shows.add(episodeOnUser.episode.showId);
+
+    monthlyStats.set(monthKey, existing);
+  });
+
+  // Convert to array and format
+  const monthlyStatsArray = Array.from(monthlyStats.entries()).map(
+    ([month, stats]) => ({
+      month,
+      episodes: stats.episodes,
+      runtime: stats.runtime,
+      showCount: stats.shows.size,
+    })
+  );
+
+  return monthlyStatsArray;
+}
