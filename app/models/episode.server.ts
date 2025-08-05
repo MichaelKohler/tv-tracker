@@ -349,7 +349,7 @@ export async function getLast12MonthsStats(userId: User["id"]) {
       },
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: "asc",
     },
   });
 
