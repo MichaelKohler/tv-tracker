@@ -12,6 +12,8 @@ This is a personal TV show tracking web application built with React Router v7, 
 - **Testing**: Vitest (unit), Playwright (E2E), Testing Library
 - **Runtime**: Node.js 22+
 
+Use context7 for framework/library documentation.
+
 ## Development Setup & Build Process
 
 ### Initial Setup (Required Order)
