@@ -145,13 +145,7 @@ test("getUpcomingEpisodes should return episodes", async () => {
 test("getRecentlyWatchedEpisodes should return episodes", async () => {
   prisma.episodeOnUser.findMany.mockResolvedValue([EPISODE_ON_USER]);
   const episodes = await getRecentlyWatchedEpisodes("1");
-  expect(episodes).toStrictEqual([
-    {
-      ...EPISODE,
-      date: EPISODE_ON_USER.createdAt,
-      show: {},
-    },
-  ]);
+  expect(episodes).toStrictEqual([EPISODE_ON_USER]);
 });
 
 test("getRecentlyWatchedEpisodes should be called with correct params", async () => {

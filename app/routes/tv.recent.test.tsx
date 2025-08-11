@@ -7,6 +7,40 @@ import TVRecent, { loader } from "./tv.recent";
 
 const MOCK_DATE = new Date("2024-01-01");
 
+const SHOW = {
+  createdAt: MOCK_DATE,
+  updatedAt: MOCK_DATE,
+  id: "1",
+  premiered: MOCK_DATE,
+  imageUrl: "https://example.com/image.png",
+  mazeId: "maze1",
+  name: "Test Show 1",
+  summary: "Test Summary",
+  ended: null,
+  rating: 1,
+};
+
+const EPISODE = {
+  createdAt: MOCK_DATE,
+  updatedAt: MOCK_DATE,
+  id: "1",
+  airDate: MOCK_DATE,
+  imageUrl: "https://example.com/image.png",
+  mazeId: "1",
+  name: "Test Episode 1",
+  number: 1,
+  season: 1,
+  runtime: 90,
+  showId: "1",
+  summary: "Test Summary",
+};
+
+const MAPPED_EPISODE = {
+  ...EPISODE,
+  show: SHOW,
+  date: MOCK_DATE,
+};
+
 beforeEach(() => {
   vi.mock("react-router", () => {
     return {
@@ -31,30 +65,8 @@ beforeEach(() => {
   vi.mocked(getRecentlyWatchedEpisodes).mockResolvedValue([
     {
       createdAt: MOCK_DATE,
-      updatedAt: MOCK_DATE,
-      id: "1",
-      airDate: MOCK_DATE,
-      date: MOCK_DATE,
-      imageUrl: "https://example.com/image.png",
-      mazeId: "1",
-      name: "Test Episode 1",
-      number: 1,
-      season: 1,
-      runtime: 90,
-      showId: "1",
-      summary: "Test Summary",
-      show: {
-        createdAt: MOCK_DATE,
-        updatedAt: MOCK_DATE,
-        id: "1",
-        premiered: MOCK_DATE,
-        imageUrl: "https://example.com/image.png",
-        mazeId: "maze1",
-        name: "Test Show 1",
-        summary: "Test Summary",
-        ended: null,
-        rating: 1,
-      },
+      show: SHOW,
+      episode: EPISODE,
     },
   ]);
 
@@ -65,35 +77,7 @@ beforeEach(() => {
 
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
     [month]: {
-      episodes: [
-        {
-          createdAt: MOCK_DATE,
-          updatedAt: MOCK_DATE,
-          id: "1",
-          airDate: MOCK_DATE,
-          date: MOCK_DATE,
-          imageUrl: "https://example.com/image.png",
-          mazeId: "1",
-          name: "Test Episode 1",
-          number: 1,
-          season: 1,
-          runtime: 90,
-          showId: "1",
-          summary: "Test Summary",
-          show: {
-            createdAt: MOCK_DATE,
-            updatedAt: MOCK_DATE,
-            id: "1",
-            premiered: MOCK_DATE,
-            imageUrl: "https://example.com/image.png",
-            mazeId: "maze1",
-            name: "Test Show 1",
-            summary: "Test Summary",
-            ended: null,
-            rating: 1,
-          },
-        },
-      ],
+      episodes: [MAPPED_EPISODE],
       totalRuntime: 90,
       episodeCount: 1,
       showCount: 1,
