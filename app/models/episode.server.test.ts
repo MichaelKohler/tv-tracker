@@ -138,12 +138,7 @@ test("getEpisodesWithMissingInfo should return episodes", async () => {
 test("getUpcomingEpisodes should return episodes", async () => {
   prisma.episode.findMany.mockResolvedValue([EPISODE]);
   const episodes = await getUpcomingEpisodes("1");
-  expect(episodes).toStrictEqual([
-    {
-      ...EPISODE,
-      date: EPISODE.airDate,
-    },
-  ]);
+  expect(episodes).toStrictEqual([EPISODE]);
 });
 
 // Not actually covering the query itself..

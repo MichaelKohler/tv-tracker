@@ -11,7 +11,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const groupedEpisodes = episodes.reduce(
     (acc, episode) => {
-      const month = new Date(episode.date).toLocaleString("default", {
+      const month = new Date(episode.airDate).toLocaleString("default", {
         month: "long",
         year: "numeric",
       });
