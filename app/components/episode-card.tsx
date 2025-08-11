@@ -4,6 +4,7 @@ import { padNumber } from "../utils";
 
 interface Props {
   episode: Episode & {
+    date: Date;
     show: Show;
   };
 }
@@ -29,7 +30,7 @@ export default function EpisodeCard({ episode }: Props) {
             {padNumber(episode.number)})
           </h3>
           <p className="mt-2 text-sm text-gray-500">
-            {new Date(episode.airDate).toLocaleDateString()}
+            {new Date(episode.date).toLocaleDateString()}
           </p>
           {episode.summary && <p className="mt-4 text-sm">{episode.summary}</p>}
         </div>

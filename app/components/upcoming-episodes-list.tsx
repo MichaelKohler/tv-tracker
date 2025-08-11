@@ -2,6 +2,7 @@ import type { Episode, Show } from "@prisma/client";
 import EpisodeCard from "./episode-card";
 
 type EpisodeWithShow = Episode & {
+  date: Date;
   show: Show;
 };
 
