@@ -71,12 +71,7 @@ export async function getUpcomingEpisodes(userId: User["id"]) {
     take: 50,
   });
 
-  const upcomingEpisodesList = upcomingEpisodes.map((episode) => ({
-    ...episode,
-    date: episode.airDate,
-  }));
-
-  return upcomingEpisodesList;
+  return upcomingEpisodes;
 }
 
 export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
