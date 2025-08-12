@@ -1,13 +1,17 @@
 import type { LoaderFunctionArgs } from "react-router";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useFetcher } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
 
 import UpcomingEpisodesList from "../components/upcoming-episodes-list";
 import { getRecentlyWatchedEpisodes } from "../models/episode.server";
 import { requireUserId } from "../session.server";
+import Spinner from "../components/spinner";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
-  const episodes = await getRecentlyWatchedEpisodes(userId);
+  const url = new URL(request.url);
+  const months = parseInt(url.searchParams.get("months") || "2");
+  const episodes = await getRecentlyWatchedEpisodes(userId, months);
 
   const groupedEpisodes = episodes.reduce(
     (acc, episode) => {
@@ -50,17 +54,53 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function TVUpcoming() {
-  const episodes = useLoaderData<typeof loader>();
+  const initialData = useLoaderData<typeof loader>();
+  const fetcher = useFetcher<typeof loader>();
+  const [months, setMonths] = useState(2);
+  const [data, setData] = useState(initialData);
+  const loaderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setData(fetcher.data);
+    }
+  }, [fetcher.data]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && fetcher.state === "idle") {
+          const newMonths = months + 1;
+          setMonths(newMonths);
+          fetcher.load(`/tv/recent?months=${newMonths}`);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [months, fetcher]);
 
   return (
     <>
       <h1 className="font-title text-5xl">Recently watched</h1>
-      {Object.keys(episodes).length === 0 && (
+      {Object.keys(data).length === 0 && (
         <p className="mt-9">There are no recently watched episodes.</p>
       )}
-      {Object.keys(episodes).length > 0 && (
-        <UpcomingEpisodesList episodes={episodes} showStats />
+      {Object.keys(data).length > 0 && (
+        <UpcomingEpisodesList episodes={data} showStats />
       )}
+      <div ref={loaderRef} className="flex justify-center p-4">
+        {fetcher.state !== "idle" && <Spinner />}
+      </div>
     </>
   );
 }

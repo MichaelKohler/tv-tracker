@@ -61,9 +61,12 @@ export async function getUpcomingEpisodes(userId: User["id"]) {
   return upcomingEpisodes;
 }
 
-export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
+export async function getRecentlyWatchedEpisodes(
+  userId: User["id"],
+  months: number
+) {
   const fromDate = new Date();
-  fromDate.setMonth(fromDate.getMonth() - 11);
+  fromDate.setMonth(fromDate.getMonth() - months);
   fromDate.setDate(1);
   fromDate.setHours(0, 0, 0, 0);
 
@@ -83,7 +86,6 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
     orderBy: {
       createdAt: "desc",
     },
-    take: 1000,
   });
 
   const recentlyWatchedEpisodeList = recentlyWatchedEpisodes.map(
