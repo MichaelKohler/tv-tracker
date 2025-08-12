@@ -268,36 +268,30 @@ test("markAllEpisodesAsWatched should add entry for not yet watched episodes", a
     userId: "userId",
     archived: false,
   });
-  prisma.episode.findMany.mockResolvedValue([EPISODE, EPISODE2, EPISODE3]);
-  prisma.episodeOnUser.findMany.mockResolvedValue([
-    {
-      id: "1-1",
-      episodeId: "1",
-      showId: "showId",
-      userId: "userId",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "1-3",
-      episodeId: "3",
-      showId: "showId",
-      userId: "userId",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]);
+  prisma.episode.findMany.mockResolvedValue([EPISODE2]);
 
   await markAllEpisodesAsWatched({
     userId: "userId",
     showId: "showId",
   });
-  expect(prisma.episodeOnUser.findMany).toBeCalledWith({
+
+  expect(prisma.episode.findMany).toBeCalledWith({
     where: {
-      userId: "userId",
       showId: "showId",
+      airDate: {
+        lte: expect.any(Date),
+      },
+      users: {
+        none: {
+          userId: "userId",
+        },
+      },
+    },
+    select: {
+      id: true,
     },
   });
+
   expect(prisma.episodeOnUser.createMany).toBeCalledWith({
     data: [
       {
