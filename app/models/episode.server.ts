@@ -35,19 +35,6 @@ export async function getEpisodeByShowIdAndNumbers({
   return matchedEpisode;
 }
 
-export async function getAiredEpisodesByShowId(showId: Show["id"]) {
-  const episodes = await prisma.episode.findMany({
-    where: {
-      showId: showId,
-      airDate: {
-        lte: new Date(),
-      },
-    },
-  });
-
-  return episodes;
-}
-
 export async function getUpcomingEpisodes(userId: User["id"]) {
   const upcomingEpisodes = await prisma.episode.findMany({
     where: {
