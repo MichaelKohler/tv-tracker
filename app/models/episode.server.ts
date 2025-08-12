@@ -35,19 +35,6 @@ export async function getEpisodeByShowIdAndNumbers({
   return matchedEpisode;
 }
 
-export async function getAiredEpisodesByShowId(showId: Show["id"]) {
-  const episodes = await prisma.episode.findMany({
-    where: {
-      showId: showId,
-      airDate: {
-        lte: new Date(),
-      },
-    },
-  });
-
-  return episodes;
-}
-
 export async function getUpcomingEpisodes(userId: User["id"]) {
   const upcomingEpisodes = await prisma.episode.findMany({
     where: {
@@ -191,26 +178,29 @@ export async function markAllEpisodesAsWatched({
     });
   }
 
-  const showEpisodes = await getAiredEpisodesByShowId(showId);
-  const watchedEpisodesIds = (
-    await prisma.episodeOnUser.findMany({
-      where: {
-        userId,
-        showId,
+  const episodesToMarkAsWatched = await prisma.episode.findMany({
+    where: {
+      showId,
+      airDate: {
+        lte: new Date(),
       },
-    })
-  ).map((episodeMapping) => episodeMapping.episodeId);
+      users: {
+        none: {
+          userId,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
 
-  const episodesToMarkWatched = showEpisodes
-    .filter((episode) => !watchedEpisodesIds.includes(episode.id))
-    .map((episode) => ({
+  await prisma.episodeOnUser.createMany({
+    data: episodesToMarkAsWatched.map((episode) => ({
       userId,
       showId,
       episodeId: episode.id,
-    }));
-
-  await prisma.episodeOnUser.createMany({
-    data: episodesToMarkWatched,
+    })),
   });
 }
 

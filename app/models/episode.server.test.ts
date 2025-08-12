@@ -1,6 +1,5 @@
 import { prisma } from "../__mocks__/db.server";
 import {
-  getAiredEpisodesByShowId,
   getConnectedEpisodeCount,
   getEpisodeById,
   getEpisodeByShowIdAndNumbers,
@@ -43,21 +42,6 @@ const EPISODE2 = {
   mazeId: "2",
   name: "Test Episode 2",
   number: 2,
-  season: 1,
-  runtime: 30,
-  showId: "1",
-  summary: "Test Summary",
-};
-
-const EPISODE3 = {
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "3",
-  airDate: new Date(),
-  imageUrl: "https://example.com/image.png",
-  mazeId: "3",
-  name: "Test Episode 3",
-  number: 3,
   season: 1,
   runtime: 30,
   showId: "1",
@@ -119,13 +103,6 @@ test("getEpisodeById should return episode", async () => {
   prisma.episode.findFirst.mockResolvedValue(EPISODE);
   const episode = await getEpisodeById("1");
   expect(episode).toStrictEqual(EPISODE);
-});
-
-// Not actually covering the query itself..
-test("getAiredEpisodesByShowId should return episodes", async () => {
-  prisma.episode.findMany.mockResolvedValue([EPISODE]);
-  const episodes = await getAiredEpisodesByShowId("1");
-  expect(episodes).toStrictEqual([EPISODE]);
 });
 
 test("getEpisodesWithMissingInfo should return episodes", async () => {
@@ -268,36 +245,30 @@ test("markAllEpisodesAsWatched should add entry for not yet watched episodes", a
     userId: "userId",
     archived: false,
   });
-  prisma.episode.findMany.mockResolvedValue([EPISODE, EPISODE2, EPISODE3]);
-  prisma.episodeOnUser.findMany.mockResolvedValue([
-    {
-      id: "1-1",
-      episodeId: "1",
-      showId: "showId",
-      userId: "userId",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "1-3",
-      episodeId: "3",
-      showId: "showId",
-      userId: "userId",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ]);
+  prisma.episode.findMany.mockResolvedValue([EPISODE2]);
 
   await markAllEpisodesAsWatched({
     userId: "userId",
     showId: "showId",
   });
-  expect(prisma.episodeOnUser.findMany).toBeCalledWith({
+
+  expect(prisma.episode.findMany).toBeCalledWith({
     where: {
-      userId: "userId",
       showId: "showId",
+      airDate: {
+        lte: expect.any(Date),
+      },
+      users: {
+        none: {
+          userId: "userId",
+        },
+      },
+    },
+    select: {
+      id: true,
     },
   });
+
   expect(prisma.episodeOnUser.createMany).toBeCalledWith({
     data: [
       {
@@ -330,7 +301,9 @@ test("getTotalWatchTimeForUser should return total runtime", async () => {
       episode: { runtime: 45 },
     },
   ];
-  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(mockEpisodesOnUser);
+  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(
+    mockEpisodesOnUser
+  );
 
   const totalTime = await getTotalWatchTimeForUser("userId");
   expect(totalTime).toBe(75);
@@ -382,7 +355,9 @@ test("getLast12MonthsStats should return monthly stats", async () => {
       show: { id: "showId2", name: "Show 2" },
     },
   ];
-  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(mockEpisodesOnUser);
+  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(
+    mockEpisodesOnUser
+  );
 
   const stats = await getLast12MonthsStats("userId");
   expect(stats).toHaveLength(1);
