@@ -86,7 +86,7 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
     take: 1000,
   });
 
-  const recentyWatchedEpisodeList = recentlyWatchedEpisodes.map(
+  const recentlyWatchedEpisodeList = recentlyWatchedEpisodes.map(
     (episodeMapping) => ({
       ...episodeMapping.episode,
       date: episodeMapping.createdAt,
@@ -94,7 +94,7 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
     })
   );
 
-  return recentyWatchedEpisodeList;
+  return recentlyWatchedEpisodeList;
 }
 
 export async function markEpisodeAsWatched({
