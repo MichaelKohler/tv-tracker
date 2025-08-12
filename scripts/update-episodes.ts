@@ -1,4 +1,4 @@
-import type { Episode } from "@prisma/client";
+import type { Episode, Show } from "@prisma/client";
 import axios from "axios";
 import striptags from "striptags";
 
@@ -10,7 +10,8 @@ async function update() {
   console.log("Starting update..");
 
   console.log("Fetching episodes to update..");
-  const episodesToUpdate = await getEpisodesWithMissingInfo();
+  const episodesToUpdate: (Episode & { show: Show })[] =
+    await getEpisodesWithMissingInfo();
   console.log(
     `Found ${episodesToUpdate.length} episodes to potentially update`
   );
