@@ -336,12 +336,6 @@ export async function getLast12MonthsStats(userId: User["id"]) {
           showId: true,
         },
       },
-      show: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
     },
     orderBy: {
       createdAt: "asc",
