@@ -29,7 +29,9 @@ test("renders stat card without description", () => {
 
   expect(screen.getByText("Test Title")).toBeInTheDocument();
   expect(screen.getByText("42")).toBeInTheDocument();
-  expect(screen.queryByText("This is a test description")).not.toBeInTheDocument();
+  expect(
+    screen.queryByText("This is a test description")
+  ).not.toBeInTheDocument();
 });
 
 test("applies custom className", () => {
