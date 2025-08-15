@@ -135,7 +135,7 @@ The GitHub Actions workflow runs 4 parallel jobs:
 - Test files follow `*.test.{ts,tsx}` pattern
 - Setup file (`setup.ts`) provides global test utilities
 
-Always run "npm test" with `--run`, otherwise the tests will run in watch mode and not return.
+Always run "npm test" with `--run`, otherwise the tests will run in watch mode and not return. Also do this when running tests for a single file.
 
 ## Common Build Issues & Solutions
 
