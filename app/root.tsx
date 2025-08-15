@@ -18,7 +18,7 @@ import React from "react";
 
 import Footer from "./components/footer";
 import Header from "./components/header";
-import { getFlagsFromEnvironment } from "./models/config.server";
+import { evaluateBoolean, FLAGS } from "./flags.server";
 import tailwindStylesheetUrl from "./styles/tailwind.css?url";
 import { getUser } from "./session.server";
 
@@ -48,8 +48,12 @@ export function meta(): ReturnType<MetaFunction> {
 export async function loader({ request }: LoaderFunctionArgs) {
   const pathname = new URL(request.url).pathname;
   if (pathname !== "/maintenance") {
-    const { MAINTENANCE_MODE_ENABLED } = getFlagsFromEnvironment();
-    if (MAINTENANCE_MODE_ENABLED) {
+    const maintenanceModeDisabled = await evaluateBoolean(
+      request,
+      FLAGS.MAINTENANCE_MODE
+    );
+
+    if (!maintenanceModeDisabled) {
       return redirect("/maintenance");
     }
   }

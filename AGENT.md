@@ -39,7 +39,7 @@ Create `.env` file from `.env.example`:
 - `DATABASE_URL`: PostgreSQL connection string (required)
 - `SESSION_SECRET`: Session encryption key (required)
 - SMTP settings (optional, for email features)
-- Feature flags: `SIGNUP_DISABLED`, `MAINTENANCE_MODE_ENABLED`
+- Feature flags: Handled through flipt.io, using the `flags.ts` file. The environment is set in the `FLIPT_ENVIRONMENT` variable. An empty string means everything is enabled.
 
 Never override an already existing `.env` file.
 

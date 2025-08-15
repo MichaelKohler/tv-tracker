@@ -86,7 +86,6 @@ test("renders index with logged in user", () => {
 test("loaders returns signup flag", async () => {
   vi.mocked(getFlagsFromEnvironment).mockReturnValue({
     SIGNUP_DISABLED: true,
-    MAINTENANCE_MODE_ENABLED: true,
   });
   const request = new Request("http://localhost");
   const response = await loader({

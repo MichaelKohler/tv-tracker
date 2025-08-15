@@ -41,3 +41,7 @@ Shows are stored in the `Show` table the first time a user adds a given show. Su
 Adding a show results in a link in `ShowsOnUser` to keep track which user has added which shows. This table also stores whether a user has archived a given show.
 
 Episode links to users are stored in the `EpisodeOnUser` table. Whenever a new show is added, all episodes are marked as unwatched. When an episode gets marked as watched, a new entry in the `EpisodeOnUser` table is created. This saves storage space as not every episode needs to be added to every user.
+
+## Feature Flags
+
+Certain features are configured through feature flags. I am using flipt.io for this. By default the `FLIPT_ENVIRONMENT` is set to an empty string, which means that everything will be enabled by default.

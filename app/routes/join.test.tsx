@@ -17,7 +17,6 @@ import Join, { action, loader } from "./join";
 
 const MOCK_ENV = {
   SIGNUP_DISABLED: false,
-  MAINTENANCE_MODE_ENABLED: false,
 };
 
 beforeEach(() => {
