@@ -83,8 +83,8 @@ Create a structured PRD with these sections:
 ### 3. Output Format
 
 - Use clear markdown formatting
-- Suggest filename: `prd-[feature-name].md`
-- Recommend saving in `/tasks` directory
+- Suggest filename: `[feature-name]-prd.md`
+- Recommend saving in `/docs` directory
 - Ensure all requirements are explicit and testable
 
 ## Quality Standards
