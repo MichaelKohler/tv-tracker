@@ -3,7 +3,7 @@ import { redirect, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { getFlagsFromEnvironment } from "../models/config.server";
+import { evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
 import { useOptionalUser } from "../utils";
 
@@ -20,19 +20,22 @@ beforeEach(() => {
     return {
       ...actual,
       redirect: vi.fn(),
-      useLoaderData: vi
-        .fn()
-        .mockReturnValue({ environment: { SIGNUP_DISABLED: false } }),
+      useLoaderData: vi.fn().mockReturnValue({ features: { signup: true } }),
       Link: ({ children }: { children: React.ReactNode }) => (
         <span>{children}</span>
       ),
     };
   });
-  vi.mock("../models/config.server", () => {
+
+  vi.mock("../flags.server", async () => {
     return {
-      getFlagsFromEnvironment: vi.fn(),
+      FLAGS: {
+        SIGNUP_DISABLED: "signup-disabled",
+      },
+      evaluateBoolean: vi.fn().mockResolvedValue(false),
     };
   });
+
   vi.mock("../session.server", () => {
     return {
       getUserId: vi.fn(),
@@ -56,7 +59,7 @@ test("renders index", () => {
 
 test("renders index with disabled signup", () => {
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    environment: { SIGNUP_DISABLED: true },
+    features: { signup: false },
   });
 
   render(<Index />);
@@ -84,9 +87,7 @@ test("renders index with logged in user", () => {
 });
 
 test("loaders returns signup flag", async () => {
-  vi.mocked(getFlagsFromEnvironment).mockReturnValue({
-    SIGNUP_DISABLED: true,
-  });
+  vi.mocked(evaluateBoolean).mockResolvedValue(true); // signup disabled
   const request = new Request("http://localhost");
   const response = await loader({
     request,
@@ -94,11 +95,11 @@ test("loaders returns signup flag", async () => {
     params: {},
   });
 
-  const { environment } = response as {
-    environment: { SIGNUP_DISABLED: boolean };
+  const { features } = response as {
+    features: { signup: boolean };
   };
 
-  expect(environment.SIGNUP_DISABLED).toBe(true);
+  expect(features.signup).toBe(false);
 });
 
 test("loader redirects to /tv if logged in", async () => {

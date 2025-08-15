@@ -15,7 +15,7 @@ import {
   useNavigation,
 } from "react-router";
 
-import { getFlagsFromEnvironment } from "../models/config.server";
+import { evaluateBoolean, FLAGS } from "../flags.server";
 import { redeemInviteCode } from "../models/invite.server";
 import { createUser, getUserByEmail } from "../models/user.server";
 import { getUserId, createUserSession } from "../session.server";
@@ -32,17 +32,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/");
   }
 
-  const environment = getFlagsFromEnvironment();
-  return { environment };
+  const signupDisabled = await evaluateBoolean(request, FLAGS.SIGNUP_DISABLED);
+
+  return {
+    features: {
+      signup: !signupDisabled,
+    },
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { SIGNUP_DISABLED } = getFlagsFromEnvironment();
   const formData = await request.formData();
   const emailInput = formData.get("email");
   const passwordInput = formData.get("password");
   const invite = formData.get("invite");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
+
+  const signupDisabled = await evaluateBoolean(request, FLAGS.SIGNUP_DISABLED);
 
   const errors = {
     email: null,
@@ -81,7 +87,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  if (SIGNUP_DISABLED) {
+  if (signupDisabled) {
     if (typeof invite !== "string" || invite.length === 0) {
       return data(
         { errors: { ...errors, invite: "Invite code is required" } },
@@ -138,7 +144,7 @@ export default function Join() {
 
   return (
     <main className="mx-auto my-8 flex min-h-full w-full max-w-md flex-col px-8">
-      {data.environment.SIGNUP_DISABLED && (
+      {!data.features.signup && (
         <p className="mb-4">
           Signup is currently disabled. However, if you have an invite code, go
           ahead and paste it in below while signing up. General signup may be
@@ -200,7 +206,7 @@ export default function Join() {
           </div>
         </div>
 
-        {data.environment.SIGNUP_DISABLED && (
+        {!data.features.signup && (
           <div>
             <label
               htmlFor="invite"

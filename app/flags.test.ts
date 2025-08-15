@@ -111,12 +111,21 @@ describe("evaluateVariant", () => {
 });
 
 describe("evaluateBoolean", () => {
-  test("returns true when FLIPT_ENVIRONMENT is empty", async () => {
+  test("returns correct values for E2E environment when FLIPT_ENVIRONMENT is empty", async () => {
     process.env.FLIPT_ENVIRONMENT = "";
 
-    const result = await evaluateBoolean(mockRequest, "test-flag");
+    // Maintenance mode should be disabled (app available)
+    const maintenanceResult = await evaluateBoolean(mockRequest, "maintenance-mode-disabled");
+    expect(maintenanceResult).equal(true);
+    
+    // Signup should be enabled
+    const signupResult = await evaluateBoolean(mockRequest, "signup-disabled");
+    expect(signupResult).equal(false);
+    
+    // Other flags should default to true
+    const otherResult = await evaluateBoolean(mockRequest, "some-other-flag");
+    expect(otherResult).equal(true);
 
-    expect(result).equal(true);
     expect(mockBooleanFn).not.toHaveBeenCalled();
     expect(mockGetUserId).not.toHaveBeenCalled();
   });

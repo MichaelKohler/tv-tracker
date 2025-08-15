@@ -29,6 +29,7 @@ const fliptClient = new FliptClient({
 export const FLAGS = {
   // Maintenance mode is inverted, as by default we set all feature flags to true
   MAINTENANCE_MODE: "maintenance-mode-disabled",
+  SIGNUP_DISABLED: "signup-disabled",
 };
 
 export async function evaluateVariant(request: Request, flag: string) {
@@ -50,6 +51,10 @@ export async function evaluateVariant(request: Request, flag: string) {
 
 export async function evaluateBoolean(request: Request, flag: string) {
   if (process.env.FLIPT_ENVIRONMENT === "") {
+    if (flag === "signup-disabled") {
+      return false;
+    }
+
     return true;
   }
 

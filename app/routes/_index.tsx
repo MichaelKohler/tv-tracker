@@ -7,7 +7,7 @@ import {
 import type { LoaderFunctionArgs } from "react-router";
 import { Link, useLoaderData, redirect } from "react-router";
 
-import { getFlagsFromEnvironment } from "../models/config.server";
+import { evaluateBoolean, FLAGS } from "../flags.server";
 import { getUserId } from "../session.server";
 import { useOptionalUser } from "../utils";
 
@@ -17,8 +17,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/tv");
   }
 
-  const { SIGNUP_DISABLED } = getFlagsFromEnvironment();
-  return { environment: { SIGNUP_DISABLED } };
+  const signupDisabled = await evaluateBoolean(request, FLAGS.SIGNUP_DISABLED);
+
+  return {
+    features: {
+      signup: !signupDisabled,
+    },
+  };
 }
 
 export default function Index() {
@@ -54,12 +59,12 @@ export default function Index() {
           Never lose track of your favorite TV shows again. Search for new
           shows, track your progress and see what&apos;s coming up next.
         </p>
-        {data.environment.SIGNUP_DISABLED && (
+        {!data.features.signup && (
           <h2 className="mt-8 font-title text-3xl uppercase">Coming Soon!</h2>
         )}
         {!user && (
           <div className="mt-9 flex flex-row justify-center space-x-4">
-            {!data.environment.SIGNUP_DISABLED && (
+            {data.features.signup && (
               <Link
                 to="/join"
                 className="text-white-100 flex items-center justify-center rounded bg-mk-tertiary py-2 px-4 font-medium hover:bg-mk active:bg-mk"
@@ -109,7 +114,7 @@ export default function Index() {
           </div>
         </div>
       </div>
-      {!user && !data.environment.SIGNUP_DISABLED && (
+      {!user && data.features.signup && (
         <div className="relative isolate overflow-hidden bg-mk px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -121,7 +126,7 @@ export default function Index() {
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Link
                 to="/join"
-                className="rounded-md bg-mk-tertiary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mk focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-tertiary"
+                className="rounded-md bg-mk-tertiary px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-mk focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mk-tertiary"
               >
                 Get started <ArrowRightIcon className="inline h-4 w-4" />
               </Link>

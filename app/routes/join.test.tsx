@@ -8,16 +8,12 @@ import {
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import * as config from "../models/config.server";
 import * as invite from "../models/invite.server";
+import { evaluateBoolean } from "../flags.server";
 import { createUser, getUserByEmail } from "../models/user.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 import Join, { action, loader } from "./join";
-
-const MOCK_ENV = {
-  SIGNUP_DISABLED: false,
-};
 
 beforeEach(() => {
   vi.mock("react-router", async (importOriginal) => {
@@ -44,6 +40,15 @@ beforeEach(() => {
 
   vi.mock("../db.server");
 
+  vi.mock("../flags.server", async () => {
+    return {
+      FLAGS: {
+        SIGNUP_DISABLED: "signup-disabled",
+      },
+      evaluateBoolean: vi.fn().mockResolvedValue(false),
+    };
+  });
+
   vi.mock("../session.server", async () => {
     return {
       getUserId: vi.fn(),
@@ -65,14 +70,15 @@ beforeEach(() => {
       getUserByEmail: vi.fn(),
     };
   });
-
-  vi.spyOn(config, "getFlagsFromEnvironment").mockReturnValue(MOCK_ENV);
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    environment: MOCK_ENV,
-  });
 });
 
 test("renders join form", () => {
+  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
+    features: {
+      signup: true,
+    },
+  });
+
   render(<Join />);
 
   expect(screen.getByText("Email address")).toBeInTheDocument();
@@ -82,9 +88,8 @@ test("renders join form", () => {
 
 test("renders disabled join form with invite code input", () => {
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    environment: {
-      ...MOCK_ENV,
-      SIGNUP_DISABLED: true,
+    features: {
+      signup: false,
     },
   });
 
@@ -133,9 +138,8 @@ test("renders error message for password", () => {
 
 test("renders error message for invite code", () => {
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    environment: {
-      ...MOCK_ENV,
-      SIGNUP_DISABLED: true,
+    features: {
+      signup: false,
     },
   });
   vi.mocked(useActionData).mockReturnValue({
@@ -163,7 +167,7 @@ test("loader redirects if there is a user", async () => {
   expect(response).toStrictEqual(redirect("/"));
 });
 
-test("loader returns environment if there is no user", async () => {
+test("loader returns features if there is no user", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
 
   const result = await loader({
@@ -172,11 +176,16 @@ test("loader returns environment if there is no user", async () => {
     params: {},
   });
 
-  expect(result).toStrictEqual({ environment: MOCK_ENV });
+  expect(result).toStrictEqual({
+    features: {
+      signup: true,
+    },
+  });
 });
 
 test("action should return if everything ok", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(false); // signup is enabled
   vi.mocked(validateEmail).mockReturnValue(true);
   vi.mocked(getUserByEmail).mockResolvedValue(null);
   vi.mocked(createUser).mockResolvedValue({
@@ -208,6 +217,7 @@ test("action should return if everything ok", async () => {
 
 test("action should return if everything ok with custom redirect", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(false); // signup is enabled
   vi.mocked(validateEmail).mockReturnValue(true);
   vi.mocked(getUserByEmail).mockResolvedValue(null);
   vi.mocked(createUser).mockResolvedValue({
@@ -238,6 +248,7 @@ test("action should return if everything ok with custom redirect", async () => {
 
 test("action should return error if email is invalid", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(false); // signup is enabled
   vi.mocked(validateEmail).mockReturnValue(false);
 
   const formData = new FormData();
@@ -259,6 +270,7 @@ test("action should return error if email is invalid", async () => {
 
 test("action should return error if no password", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(false); // signup is enabled
   vi.mocked(validateEmail).mockReturnValue(true);
 
   const formData = new FormData();
@@ -280,6 +292,7 @@ test("action should return error if no password", async () => {
 
 test("action should return error if password is too short", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(false); // signup is enabled
   vi.mocked(validateEmail).mockReturnValue(true);
 
   const formData = new FormData();
@@ -303,6 +316,7 @@ test("action should return error if password is too short", async () => {
 
 test("action should return error if user exists", async () => {
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(false); // signup is enabled
   vi.mocked(validateEmail).mockReturnValue(true);
   vi.mocked(getUserByEmail).mockResolvedValue({
     id: "123",
@@ -332,11 +346,8 @@ test("action should return error if user exists", async () => {
 });
 
 test("action should return error if invite code is missing for disabled signup", async () => {
-  vi.mocked(config.getFlagsFromEnvironment).mockReturnValue({
-    ...MOCK_ENV,
-    SIGNUP_DISABLED: true,
-  });
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(true); // signup is disabled
   vi.mocked(validateEmail).mockReturnValue(true);
   vi.mocked(getUserByEmail).mockResolvedValue(null);
 
@@ -358,11 +369,8 @@ test("action should return error if invite code is missing for disabled signup",
 });
 
 test("action should return error if invite code is invalid for disabled signup", async () => {
-  vi.mocked(config.getFlagsFromEnvironment).mockReturnValue({
-    ...MOCK_ENV,
-    SIGNUP_DISABLED: true,
-  });
   vi.mocked(getUserId).mockResolvedValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(true); // signup is disabled
   vi.mocked(validateEmail).mockReturnValue(true);
   vi.mocked(getUserByEmail).mockResolvedValue(null);
 
