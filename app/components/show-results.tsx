@@ -8,12 +8,16 @@ interface Props {
   shows: Show[];
   isLoading?: boolean;
   error?: string;
+  features: {
+    addShow: boolean;
+  };
 }
 
 export default function ShowResults({
   shows,
   isLoading = false,
   error,
+  features,
 }: Props) {
   return (
     <>
@@ -48,7 +52,7 @@ export default function ShowResults({
         <div className="mt-3">
           {shows.map((show) => (
             <div key={show.mazeId}>
-              <ShowResult show={show} />
+              <ShowResult show={show} features={features} />
             </div>
           ))}
         </div>

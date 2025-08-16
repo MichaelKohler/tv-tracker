@@ -6,9 +6,12 @@ import Spinner from "./spinner";
 
 interface Props {
   show: Show;
+  features: {
+    addShow: boolean;
+  };
 }
 
-export default function ShowResult({ show }: Props) {
+export default function ShowResult({ show, features }: Props) {
   const navigation = useNavigation();
   const isAddingShow = navigation?.formData?.get("intent") === "add-show";
   const addingShowId = navigation?.formData?.get("showId");
@@ -53,7 +56,7 @@ export default function ShowResult({ show }: Props) {
                 <Spinner />
               </div>
             )}
-            {!isAddingShow && (
+            {!isAddingShow && features.addShow && (
               <Form method="post">
                 <input type="hidden" name="showId" value={show.mazeId} />
                 <input type="hidden" name="intent" value="add-show" />

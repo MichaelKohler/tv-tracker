@@ -6,14 +6,21 @@ import { Await, useLoaderData, useNavigation, Form } from "react-router";
 
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
+import { SEARCH } from "../constants";
+import { evaluate } from "../flags.server";
 import { getSortedShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const shows = getSortedShowsByUserId(userId);
+  const features = {
+    search: await evaluate(SEARCH, {
+      email: request.headers.get("x-user-email") || "",
+    }),
+  };
 
-  return { shows };
+  return { shows, features };
 }
 
 function Loader() {
@@ -24,11 +31,14 @@ function Loader() {
   );
 }
 
-function Content({
-  shows,
-}: {
+interface ContentProps {
   shows: (Show & { archived: boolean; unwatchedEpisodesCount: number })[];
-}) {
+  features: {
+    search: boolean;
+  };
+}
+
+function Content({ shows, features }: ContentProps) {
   const navigation = useNavigation();
   const isLoading = !!navigation.formData;
   const stats = {
@@ -46,17 +56,19 @@ function Content({
         You are currently tracking {stats.shows} shows with{" "}
         {stats.unwatchedEpisodes} unwatched episodes.
       </p>
-      <Form action="/tv/search" className="mt-8">
-        <label className="flex w-full flex-col gap-1">
-          <input
-            name="query"
-            className="flex-1 rounded-md border-2 border-mk px-3 text-lg leading-loose"
-            data-testid="search-input"
-            placeholder="Search..."
-            aria-label="Search"
-          />
-        </label>
-      </Form>
+      {features.search && (
+        <Form action="/tv/search" className="mt-8">
+          <label className="flex w-full flex-col gap-1">
+            <input
+              name="query"
+              className="flex-1 rounded-md border-2 border-mk px-3 text-lg leading-loose"
+              data-testid="search-input"
+              placeholder="Search..."
+              aria-label="Search"
+            />
+          </label>
+        </Form>
+      )}
       {isLoading && <Loader />}
 
       <h1 className="mt-9 font-title text-5xl">Your shows</h1>
@@ -78,7 +90,9 @@ export default function TVIndex() {
     <>
       <Suspense fallback={<Loader />}>
         <Await resolve={data.shows}>
-          {(shows) => <Content shows={shows}></Content>}
+          {(shows) => (
+            <Content shows={shows} features={data.features}></Content>
+          )}
         </Await>
       </Suspense>
     </>

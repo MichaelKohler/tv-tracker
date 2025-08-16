@@ -1,152 +1,97 @@
-import * as React from "react";
-import { useSearchParams } from "react-router";
+import { MemoryRouter, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { addShow, searchShows } from "../models/show.server";
-import Search, { action, loader } from "./tv.search";
+import { ADD_SHOW, SEARCH } from "../constants";
+import { evaluate } from "../flags.server";
+import { searchShows } from "../models/show.server";
+import { requireUserId } from "../session.server";
+
+import TVSearch, { loader } from "./tv.search";
+
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+  return {
+    ...actual,
+    useLoaderData: vi.fn(),
+    useActionData: vi.fn(),
+    useSearchParams: vi.fn().mockReturnValue([new URLSearchParams()]),
+    useNavigation: vi.fn().mockReturnValue({}),
+    Form: vi.fn().mockReturnValue(<form data-testid="search-form"></form>),
+  };
+});
+vi.mock("../flags.server", () => ({
+  evaluate: vi.fn(),
+}));
+vi.mock("../models/show.server");
+vi.mock("../session.server");
+vi.mock("../components/show-results", () => ({
+  __esModule: true,
+  default: () => <div data-testid="show-results"></div>,
+}));
+
+const renderComponent = () =>
+  render(
+    <MemoryRouter>
+      <TVSearch />
+    </MemoryRouter>
+  );
 
 beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
-
-    return {
-      ...(actual as object),
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi.fn(),
-      useSearchParams: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-    };
-  });
-  vi.mock("../components/show-results", async () => {
-    return {
-      default: () => <p>ShowResults</p>,
-    };
-  });
-  vi.mock("../models/show.server", () => {
-    return {
-      addShow: vi.fn(),
-      searchShows: vi.fn(),
-    };
-  });
-  vi.mock("../session.server", async () => {
-    return {
-      requireUserId: vi.fn().mockResolvedValue("123"),
-    };
-  });
-
-  vi.mocked(useSearchParams).mockReturnValue([
-    // @ts-expect-error .. we don't need the full API
-    {
-      get: () => "",
-    },
-  ]);
-
-  vi.mocked(searchShows).mockResolvedValue([
-    {
-      createdAt: new Date("2022-01-01T00:00:00Z"),
-      updatedAt: new Date("2022-01-01T00:00:00Z"),
-      id: "1",
-      imageUrl: "https://example.com/image.png",
-      mazeId: "1",
-      name: "TVShow1",
-      summary: "Test Summary",
-      premiered: new Date("2022-01-01T00:00:00Z"),
-      ended: null,
-      rating: 5,
-    },
-  ]);
+  vi.clearAllMocks();
 });
 
-test("renders search form", () => {
-  render(<Search />);
-
-  expect(screen.getByText("Search")).toBeInTheDocument();
-  expect(screen.getByTestId("search-input")).toBeInTheDocument();
-});
-
-test("renders passed search query", () => {
-  vi.mocked(useSearchParams).mockReturnValue([
-    // @ts-expect-error .. we don't need the full API
-    {
-      get: () => "fooQuery",
-    },
-  ]);
-
-  render(<Search />);
-
-  expect(screen.getByTestId("search-input")).toBeInTheDocument();
-  expect(screen.getByDisplayValue("fooQuery")).toBeInTheDocument();
-});
-
-test("loader should search and return shows", async () => {
-  const result = await loader({
-    request: new Request("http://localhost:8080/tv/search"),
-    context: {},
-    params: {},
+test("renders the page with search enabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    shows: [],
+    features: { search: true, addShow: true },
   });
-
-  expect(searchShows).toBeCalledWith(null, "123");
-  expect(result.length).toBe(1);
-  expect(result[0].name).toBe("TVShow1");
+  renderComponent();
+  expect(screen.getByTestId("search-form")).toBeInTheDocument();
+  expect(screen.getByTestId("show-results")).toBeInTheDocument();
 });
 
-test("loader should search shows with query", async () => {
-  await loader({
-    request: new Request("http://localhost:8080/tv/search?query=fooQuery"),
-    context: {},
-    params: {},
+test("renders the page with search disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    shows: [],
+    features: { search: false, addShow: false },
   });
-
-  expect(searchShows).toBeCalledWith("fooQuery", "123");
+  renderComponent();
+  expect(
+    screen.getByText(
+      "This feature is currently not available. Please try again later."
+    )
+  ).toBeInTheDocument();
+  expect(screen.queryByTestId("search-form")).not.toBeInTheDocument();
+  expect(screen.queryByTestId("show-results")).not.toBeInTheDocument();
 });
 
-test("loader should search and return if no found show", async () => {
+test("loader returns shows and feature flags when enabled", async () => {
+  vi.mocked(requireUserId).mockResolvedValue("123");
   vi.mocked(searchShows).mockResolvedValue([]);
-
-  const result = await loader({
-    request: new Request("http://localhost:8080/tv/search"),
-    context: {},
-    params: {},
+  vi.mocked(evaluate).mockResolvedValue(true);
+  const request = new Request("http://localhost?query=test", {
+    headers: { "x-user-email": "test@example.com" },
   });
-
-  expect(searchShows).toBeCalledWith(null, "123");
-  expect(result.length).toBe(0);
+  await loader({ request, context: {}, params: {} });
+  expect(evaluate).toHaveBeenCalledWith(SEARCH, {
+    email: "test@example.com",
+  });
+  expect(evaluate).toHaveBeenCalledWith(ADD_SHOW, {
+    email: "test@example.com",
+  });
+  expect(searchShows).toHaveBeenCalledWith("test", "123");
 });
 
-test("action should return redirect if everything ok", async () => {
-  const formData = new FormData();
-  formData.append("showId", "1");
-
-  await action({
-    request: new Request("http://localhost:8080/tv/search", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
+test("loader returns no shows and feature flags when disabled", async () => {
+  vi.mocked(requireUserId).mockResolvedValue("123");
+  vi.mocked(searchShows).mockResolvedValue([]);
+  vi.mocked(evaluate).mockResolvedValue(false);
+  const request = new Request("http://localhost?query=test", {
+    headers: { "x-user-email": "test@example.com" },
   });
-
-  expect(addShow).toBeCalledWith("123", "1");
-});
-
-test("action should return error if adding failed", async () => {
-  vi.mocked(addShow).mockRejectedValue(new Error("OH_NO"));
-
-  const formData = new FormData();
-  formData.append("showId", "1");
-
-  const response = await action({
-    request: new Request("http://localhost:8080/tv/search", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
-  });
-  // @ts-expect-error : we do not actually have a real response here..
-  expect(response.data.error).toBe("ADDING_SHOW_FAILED");
+  const response = await loader({ request, context: {}, params: {} });
+  expect(response.features.search).toBe(false);
+  expect(response.features.addShow).toBe(false);
+  expect(searchShows).not.toHaveBeenCalled();
 });

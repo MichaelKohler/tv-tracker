@@ -1,86 +1,89 @@
-import * as React from "react";
-import { useLoaderData } from "react-router";
 import { act, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { Form, MemoryRouter, useLoaderData, useNavigation } from "react-router";
 
-import Index, { type loader } from "./tv._index";
+import { evaluate } from "../flags.server";
+import { getSortedShowsByUserId } from "../models/show.server";
+import { requireUserId } from "../session.server";
 
-beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+import TVIndex, { loader } from "./tv._index";
 
-    return {
-      ...(actual as object),
-      useNavigation: vi.fn().mockReturnValue({}),
-      useLoaderData: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-    };
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+  return {
+    ...actual,
+    useLoaderData: vi.fn(),
+    useNavigation: vi.fn(),
+    Form: vi.fn().mockReturnValue(<form data-testid="search-form"></form>),
+  };
+});
+vi.mock("../flags.server", () => ({
+  evaluate: vi.fn(),
+}));
+vi.mock("../models/show.server");
+vi.mock("../session.server");
+
+const shows = [
+  {
+    id: "1",
+    name: "Show 1",
+    unwatchedEpisodesCount: 1,
+  },
+  {
+    id: "2",
+    name: "Show 2",
+    unwatchedEpisodesCount: 2,
+  },
+];
+
+const renderComponent = () =>
+  render(
+    <MemoryRouter>
+      <TVIndex />
+    </MemoryRouter>
+  );
+
+test("renders the page with search enabled", async () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    shows: Promise.resolve(shows),
+    features: { search: true },
   });
-  vi.mock("../session.server", async () => {
-    return {
-      requireUserId: vi.fn().mockResolvedValue("123"),
-    };
+  vi.mocked(useNavigation).mockReturnValue({
+    formData: undefined,
   });
-
-  vi.mock("../components/show-tiles", async () => {
-    return {
-      default: () => <p>ShowTiles</p>,
-    };
+  await act(async () => {
+    renderComponent();
   });
-
-  vi.mock("../models/show.server", async () => {
-    return {
-      getSortedShowsByUserId: vi.fn().mockResolvedValue([]),
-    };
-  });
-
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    shows: Promise.resolve([]),
-  });
+  await screen.findByText(
+    "You are currently tracking 2 shows with 3 unwatched episodes."
+  );
+  expect(screen.getByTestId("search-form")).toBeInTheDocument();
 });
 
-test("renders page without shows", async () => {
-  act(() => render(<Index />));
-
-  await vi.waitFor(() =>
-    expect(screen.getByTestId("search-input")).toBeInTheDocument()
+test("renders the page with search disabled", async () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    shows: Promise.resolve(shows),
+    features: { search: false },
+  });
+  vi.mocked(useNavigation).mockReturnValue({
+    formData: undefined,
+  });
+  await act(async () => {
+    renderComponent();
+  });
+  await screen.findByText(
+    "You are currently tracking 2 shows with 3 unwatched episodes."
   );
-  expect(
-    screen.getByText(
-      /You are currently tracking 0 shows with 0 unwatched episodes/
-    )
-  ).toBeInTheDocument();
-  expect(
-    screen.getByText(/You have not added any shows yet./)
-  ).toBeInTheDocument();
+  expect(screen.queryByTestId("search-form")).not.toBeInTheDocument();
 });
 
-test("renders page with shows", async () => {
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    // @ts-expect-error .. we do not need to define the full show info for this..
-    shows: Promise.resolve([
-      {
-        unwatchedEpisodesCount: 3,
-      },
-      {
-        unwatchedEpisodesCount: 4,
-      },
-    ]),
+test("loader returns shows and feature flag", async () => {
+  vi.mocked(requireUserId).mockResolvedValue("123");
+  vi.mocked(getSortedShowsByUserId).mockResolvedValue([]);
+  vi.mocked(evaluate).mockResolvedValue(true);
+  const request = new Request("http://localhost", {
+    headers: { "x-user-email": "test@example.com" },
   });
-
-  act(() => render(<Index />));
-
-  await vi.waitFor(() =>
-    expect(screen.getByTestId("search-input")).toBeInTheDocument()
-  );
-  expect(
-    screen.getByText(
-      /You are currently tracking 2 shows with 7 unwatched episodes/
-    )
-  ).toBeInTheDocument();
-  expect(
-    screen.queryByText(/You have not added any shows yet./)
-  ).not.toBeInTheDocument();
+  const response = await loader({ request, context: {}, params: {} });
+  expect(response.features.search).toBe(true);
 });

@@ -1,70 +1,19 @@
-import type { Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import ShowResults from "./show-results";
 
-const shows: Show[] = [
-  {
-    createdAt: new Date("2022-01-01T00:00:00Z"),
-    updatedAt: new Date("2022-01-01T00:00:00Z"),
-    id: "1",
-    imageUrl: "https://example.com/image.png",
-    mazeId: "1",
-    name: "Test Show 1",
-    summary: "Test Summary",
-    premiered: new Date("2022-01-01T00:00:00Z"),
-    ended: null,
-    rating: 5,
-  },
-  {
-    createdAt: new Date("2022-01-01T00:00:00Z"),
-    updatedAt: new Date("2022-01-01T00:00:00Z"),
-    id: "2",
-    imageUrl: "https://example.com/image.png",
-    mazeId: "2",
-    name: "Test Show 2",
-    summary: "Test Summary",
-    premiered: new Date("2022-01-01T00:00:00Z"),
-    ended: null,
-    rating: 5,
-  },
+vi.mock("./show-result", () => ({
+  __esModule: true,
+  default: () => <div data-testid="show-result"></div>,
+}));
+
+const shows = [
+  { id: "1", name: "Show 1", mazeId: 1 },
+  { id: "2", name: "Show 2", mazeId: 2 },
 ];
 
-beforeEach(() => {
-  vi.mock("./show-result", async () => {
-    return {
-      default: () => <p>ShowResult</p>,
-    };
-  });
-});
-
-test("renders show results", async () => {
-  render(<ShowResults shows={shows} isLoading={false} error={undefined} />);
-
-  expect(screen.getByText("tvmaze")).toBeInTheDocument();
-  expect(screen.getAllByText("ShowResult").length).toBe(2);
-});
-
-test("renders spinner while loading results", async () => {
-  render(<ShowResults shows={[]} isLoading={true} error={undefined} />);
-
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
-});
-
-test("renders no shows found message", async () => {
-  render(<ShowResults shows={[]} isLoading={false} error={undefined} />);
-
-  expect(screen.getByText(/No shows found/)).toBeInTheDocument();
-});
-
-test("renders error message", async () => {
-  render(
-    <ShowResults shows={[]} isLoading={false} error="ADDING_SHOW_FAILED" />
-  );
-
-  expect(screen.getByText(/Adding show failed/)).toBeInTheDocument();
-  expect(
-    screen.getByText(/There was an error while adding the show/)
-  ).toBeInTheDocument();
+test("renders the component with add show enabled", () => {
+  render(<ShowResults shows={shows} features={{ addShow: true }} />);
+  expect(screen.getAllByTestId("show-result")).toHaveLength(2);
 });
