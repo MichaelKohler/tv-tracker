@@ -76,10 +76,6 @@ export async function evaluateBoolean(request: Request, flag: string) {
 }
 
 export async function evaluateBooleanFromScripts(flag: string) {
-  if (process.env.FLIPT_ENVIRONMENT === "") {
-    return true;
-  }
-
   const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
     namespaceKey: "default",
     flagKey: flag,
