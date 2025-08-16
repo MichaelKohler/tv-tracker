@@ -28,7 +28,9 @@ jobs:
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          SESSION_SECRET: "unused"
+          FLIPT_URL: ${{ env.FLIPT_URL }}
+          FLIPT_TOKEN: ${{ secrets.FLIPT_TOKEN }}
+          FLIPT_ENVIRONMENT: ${{ env.FLIPT_ENVIRONMENT }}
   update-info:
     name: ⬣ Update Episode Info
     runs-on: ubuntu-latest
