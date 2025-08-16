@@ -86,12 +86,14 @@ export default function TVSearch() {
         </Form>
       )}
 
-      <ShowResults
-        shows={shows}
-        isLoading={loadingResults}
-        error={actionData?.error}
-        features={features}
-      />
+      {features.search && (
+        <ShowResults
+          shows={shows}
+          isLoading={loadingResults}
+          error={actionData?.error}
+          features={features}
+        />
+      )}
     </>
   );
 }

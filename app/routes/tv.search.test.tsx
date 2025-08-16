@@ -109,6 +109,7 @@ test("does not render search form with feature disabled", () => {
   expect(
     screen.getByText("This feature is currently disabled.")
   ).toBeInTheDocument();
+  expect(screen.queryByText("ShowResults")).not.toBeInTheDocument();
 });
 
 test("renders passed search query", () => {
