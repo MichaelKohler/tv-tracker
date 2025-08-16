@@ -4,6 +4,7 @@ import striptags from "striptags";
 
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
+import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
 import { type EmbeddedEpisode } from "../app/models/show.server";
 import { fetchShowWithEmbededEpisodes } from "../app/models/maze.server";
 
@@ -12,6 +13,14 @@ async function updateEpisode(
   season: Episode["season"],
   number: Episode["number"]
 ) {
+  const fetchFromSource = await evaluateBooleanFromScripts(
+    FLAGS.FETCH_FROM_SOURCE
+  );
+  if (!fetchFromSource) {
+    console.log("Feature flag for fetching from source is disabled, skipping");
+    process.exit(1);
+  }
+
   console.log(`Fetching show ${showName} from DB..`);
   const show = await prisma.show.findFirst({
     where: {

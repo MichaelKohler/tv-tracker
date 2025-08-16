@@ -30,6 +30,7 @@ export const FLAGS = {
   // Maintenance mode is inverted, as by default we set all feature flags to true
   MAINTENANCE_MODE: "maintenance-mode-disabled",
   SIGNUP_DISABLED: "signup-disabled",
+  FETCH_FROM_SOURCE: "fetch-from-source",
 };
 
 export async function evaluateVariant(request: Request, flag: string) {
@@ -51,7 +52,7 @@ export async function evaluateVariant(request: Request, flag: string) {
 
 export async function evaluateBoolean(request: Request, flag: string) {
   if (process.env.FLIPT_ENVIRONMENT === "") {
-    if (flag === "signup-disabled") {
+    if (flag === FLAGS.SIGNUP_DISABLED) {
       return false;
     }
 
@@ -72,4 +73,23 @@ export async function evaluateBoolean(request: Request, flag: string) {
   }
 
   throw new Error("Failed to evaluate boolean flag");
+}
+
+export async function evaluateBooleanFromScripts(flag: string) {
+  if (process.env.FLIPT_ENVIRONMENT === "") {
+    return true;
+  }
+
+  const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
+    namespaceKey: "default",
+    flagKey: flag,
+    entityId: "scripts",
+    context: {},
+  });
+
+  if (booleanEvaluationResponse) {
+    return booleanEvaluationResponse.enabled;
+  }
+
+  throw new Error("Failed to evaluate boolean flag from scripts");
 }

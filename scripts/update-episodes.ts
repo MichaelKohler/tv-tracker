@@ -4,9 +4,18 @@ import striptags from "striptags";
 
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
+import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
 import { getEpisodesWithMissingInfo } from "../app/models/episode.server";
 
 async function update() {
+  const fetchFromSource = await evaluateBooleanFromScripts(
+    FLAGS.FETCH_FROM_SOURCE
+  );
+  if (!fetchFromSource) {
+    console.log("Feature flag for fetching from source is disabled, skipping");
+    process.exit(1);
+  }
+
   console.log("Starting update..");
 
   console.log("Fetching episodes to update..");
