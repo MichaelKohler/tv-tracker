@@ -31,6 +31,8 @@ export const FLAGS = {
   MAINTENANCE_MODE: "maintenance-mode-disabled",
   SIGNUP_DISABLED: "signup-disabled",
   FETCH_FROM_SOURCE: "fetch-from-source",
+  SEARCH: "search",
+  ADD_SHOW: "add-show",
 };
 
 export async function evaluateVariant(request: Request, flag: string) {

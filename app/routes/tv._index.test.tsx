@@ -38,6 +38,9 @@ beforeEach(() => {
 
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
     shows: Promise.resolve([]),
+    features: {
+      search: true,
+    },
   });
 });
 
@@ -57,6 +60,21 @@ test("renders page without shows", async () => {
   ).toBeInTheDocument();
 });
 
+test("does not render search when feature is disabled", async () => {
+  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
+    shows: Promise.resolve([]),
+    features: {
+      search: false,
+    },
+  });
+
+  act(() => render(<Index />));
+
+  await vi.waitFor(() =>
+    expect(screen.queryByTestId("search-input")).not.toBeInTheDocument()
+  );
+});
+
 test("renders page with shows", async () => {
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
     // @ts-expect-error .. we do not need to define the full show info for this..
@@ -68,6 +86,9 @@ test("renders page with shows", async () => {
         unwatchedEpisodesCount: 4,
       },
     ]),
+    features: {
+      search: true,
+    },
   });
 
   act(() => render(<Index />));
