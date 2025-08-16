@@ -51,6 +51,7 @@ vi.mock("../models/show.server", () => {
 
 vi.mock("../session.server");
 vi.mock("../flags.server");
+vi.mock("../db.server");
 
 beforeEach(() => {
   vi.mocked(useNavigation).mockReturnValue({
@@ -206,7 +207,7 @@ test("action should not add show with feature disabled", async () => {
   });
 
   expect(addShow).not.toBeCalled();
-  // @ts-expect-error
+  // @ts-expect-error -- response is a DataResponse, which has a data property
   expect(response.data.error).toBe("ADDING_SHOW_DISABLED");
 });
 
@@ -225,6 +226,6 @@ test("action should return error if adding failed", async () => {
     context: {},
     params: {},
   });
-  // @ts-expect-error
+  // @ts-expect-error -- response is a DataResponse, which has a data property
   expect(response.data.error).toBe("ADDING_SHOW_FAILED");
 });
