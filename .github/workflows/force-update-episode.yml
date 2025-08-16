@@ -41,6 +41,6 @@ jobs:
           TV_EPISODE_SEASON: ${{ github.event.inputs.season }}
           TV_EPISODE_NUMBER: ${{ github.event.inputs.number }}
           SESSION_SECRET: "unused"
-          FLIPT_URL: ${{ env.FLIPT_URL }}
+          FLIPT_URL: ${{ vars.FLIPT_URL }}
           FLIPT_TOKEN: ${{ secrets.FLIPT_TOKEN }}
-          FLIPT_ENVIRONMENT: ${{ env.FLIPT_ENVIRONMENT }}
+          FLIPT_ENVIRONMENT: ${{ vars.FLIPT_ENVIRONMENT }}
