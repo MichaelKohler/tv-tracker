@@ -28,6 +28,7 @@ jobs:
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SESSION_SECRET: "unused"
   update-info:
     name: ⬣ Update Episode Info
     runs-on: ubuntu-latest
@@ -48,3 +49,4 @@ jobs:
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SESSION_SECRET: "unused"

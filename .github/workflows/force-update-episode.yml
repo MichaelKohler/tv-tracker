@@ -40,3 +40,4 @@ jobs:
           TV_SHOW_NAME: ${{ github.event.inputs.showName }}
           TV_EPISODE_SEASON: ${{ github.event.inputs.season }}
           TV_EPISODE_NUMBER: ${{ github.event.inputs.number }}
+          SESSION_SECRET: "unused"
