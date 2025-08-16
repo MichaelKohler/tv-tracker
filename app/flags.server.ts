@@ -52,7 +52,7 @@ export async function evaluateVariant(request: Request, flag: string) {
 
 export async function evaluateBoolean(request: Request, flag: string) {
   if (process.env.FLIPT_ENVIRONMENT === "") {
-    if (flag === "signup-disabled") {
+    if (flag === FLAGS.SIGNUP_DISABLED) {
       return false;
     }
 
@@ -77,10 +77,6 @@ export async function evaluateBoolean(request: Request, flag: string) {
 
 export async function evaluateBooleanFromScripts(flag: string) {
   if (process.env.FLIPT_ENVIRONMENT === "") {
-    if (flag === "signup-disabled") {
-      return false;
-    }
-
     return true;
   }
 
@@ -95,5 +91,5 @@ export async function evaluateBooleanFromScripts(flag: string) {
     return booleanEvaluationResponse.enabled;
   }
 
-  throw new Error("Failed to evaluate boolean flag");
+  throw new Error("Failed to evaluate boolean flag from scripts");
 }
