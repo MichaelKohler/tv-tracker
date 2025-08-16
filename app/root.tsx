@@ -11,7 +11,7 @@ import {
   Scripts,
   ScrollRestoration,
   isRouteErrorResponse,
-  redirect,
+  useLoaderData,
   useRouteError,
 } from "react-router";
 import React from "react";
@@ -46,28 +46,24 @@ export function meta(): ReturnType<MetaFunction> {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const pathname = new URL(request.url).pathname;
-  if (pathname !== "/maintenance") {
-    const maintenanceModeDisabled = await evaluateBoolean(
-      request,
-      FLAGS.MAINTENANCE_MODE
-    );
-
-    if (!maintenanceModeDisabled) {
-      return redirect("/maintenance");
-    }
-  }
+  const maintenanceModeDisabled = await evaluateBoolean(
+    request,
+    FLAGS.MAINTENANCE_MODE
+  );
 
   return {
     user: await getUser(request),
+    maintenanceMode: !maintenanceModeDisabled,
   };
 }
 
 function App({
+  maintenanceMode,
   renderLoginButtons = true,
   children,
 }: {
   children?: React.ReactNode;
+  maintenanceMode: boolean;
   renderLoginButtons?: boolean;
 }) {
   return (
@@ -90,7 +86,20 @@ function App({
       </head>
       <body className="h-full">
         <Header renderLoginButtons={renderLoginButtons} />
-        <Outlet />
+        {maintenanceMode ? (
+          <main className="my-8 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
+            <h1 className="font-title text-3xl">Maintenance mode</h1>
+            <p className="mt-4">
+              We are currently working on some improvements. We will be back
+              shortly!
+            </p>
+            <p className="mt-4">
+              Any changes you may perform on data might not be persisted.
+            </p>
+          </main>
+        ) : (
+          <Outlet />
+        )}
         {children}
         <Footer />
         <ScrollRestoration />
@@ -101,17 +110,20 @@ function App({
 }
 
 function DefaultApp() {
-  return <App />;
+  const { maintenanceMode } = useLoaderData<typeof loader>();
+
+  return <App maintenanceMode={maintenanceMode} />;
 }
 
 export default DefaultApp;
 
 export function ErrorBoundary() {
+  const { maintenanceMode } = useLoaderData<typeof loader>();
   const error = useRouteError();
 
   if (isRouteErrorResponse(error) && error.status === 404) {
     return (
-      <App>
+      <App maintenanceMode={maintenanceMode}>
         <main className="flex h-full min-h-screen justify-center bg-white">
           <h1 className="mt-10 font-title text-3xl">Page not found</h1>
         </main>
@@ -120,7 +132,7 @@ export function ErrorBoundary() {
   }
 
   return (
-    <App renderLoginButtons={false}>
+    <App maintenanceMode={maintenanceMode} renderLoginButtons={false}>
       <main className="flex h-full min-h-screen justify-center bg-white">
         <h1 className="mt-10 font-title text-3xl">
           Something went wrong. Please try again.
