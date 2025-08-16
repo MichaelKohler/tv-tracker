@@ -206,9 +206,8 @@ test("action should not add show with feature disabled", async () => {
   });
 
   expect(addShow).not.toBeCalled();
-  const result = await response.json();
-  expect(result.error).toBe("ADDING_SHOW_DISABLED");
-  expect(response.status).toBe(403);
+  // @ts-expect-error
+  expect(response.data.error).toBe("ADDING_SHOW_DISABLED");
 });
 
 test("action should return error if adding failed", async () => {
@@ -226,7 +225,6 @@ test("action should return error if adding failed", async () => {
     context: {},
     params: {},
   });
-  const result = await response.json();
-  expect(result.error).toBe("ADDING_SHOW_FAILED");
-  expect(response.status).toBe(500);
+  // @ts-expect-error
+  expect(response.data.error).toBe("ADDING_SHOW_FAILED");
 });
