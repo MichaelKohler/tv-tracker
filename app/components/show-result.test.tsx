@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 test("renders show result", async () => {
-  render(<ShowResult show={show} />);
+  render(<ShowResult show={show} features={{ addShow: true }} />);
 
   expect(screen.getByText(show.name)).toBeInTheDocument();
   expect(screen.getByText(show.summary)).toBeInTheDocument();
@@ -40,6 +40,13 @@ test("renders show result", async () => {
   ).toBeInTheDocument();
   expect(screen.getByText("5")).toBeInTheDocument();
   expect(screen.getByText("Add Show")).toBeInTheDocument();
+});
+
+test("does not render add show button with feature disabled", async () => {
+  render(<ShowResult show={show} features={{ addShow: false }} />);
+
+  expect(screen.getByText(show.name)).toBeInTheDocument();
+  expect(screen.queryByText("Add Show")).not.toBeInTheDocument();
 });
 
 test("renders spinner on adding show", async () => {
@@ -60,7 +67,7 @@ test("renders spinner on adding show", async () => {
     },
   });
 
-  render(<ShowResult show={show} />);
+  render(<ShowResult show={show} features={{ addShow: true }} />);
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
   expect(screen.queryByText(/Add Show/)).not.toBeInTheDocument();
@@ -84,7 +91,7 @@ test("does not render spinner or button on adding another show", async () => {
     },
   });
 
-  render(<ShowResult show={show} />);
+  render(<ShowResult show={show} features={{ addShow: true }} />);
 
   expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
   expect(screen.queryByText(/Add Show/)).not.toBeInTheDocument();
@@ -108,7 +115,7 @@ test("does not render spinner on other action", async () => {
     },
   });
 
-  render(<ShowResult show={show} />);
+  render(<ShowResult show={show} features={{ addShow: true }} />);
 
   expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
   expect(screen.getByText(/Add Show/)).toBeInTheDocument();

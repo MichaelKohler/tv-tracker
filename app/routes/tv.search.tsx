@@ -1,6 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
-  data,
   redirect,
   useActionData,
   useLoaderData,
@@ -38,7 +37,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const addShowEnabled = await evaluateBoolean(request, FLAGS.ADD_SHOW);
   if (!addShowEnabled) {
-    return data({ error: "ADDING_SHOW_DISABLED" }, { status: 403 });
+    return new Response(JSON.stringify({ error: "ADDING_SHOW_DISABLED" }), {
+      status: 403,
+    });
   }
 
   const userId = await requireUserId(request);
@@ -50,7 +51,9 @@ export async function action({ request }: ActionFunctionArgs) {
   } catch (error) {
     console.error(error);
 
-    return data({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
+    return new Response(JSON.stringify({ error: "ADDING_SHOW_FAILED" }), {
+      status: 500,
+    });
   }
 
   return redirect("/tv");
