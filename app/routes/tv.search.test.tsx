@@ -1,8 +1,9 @@
 import * as React from "react";
-import { useSearchParams } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { evaluateBoolean } from "../flags.server";
 import { addShow, searchShows } from "../models/show.server";
 import Search, { action, loader } from "./tv.search";
 
@@ -37,6 +38,15 @@ beforeEach(() => {
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });
+  vi.mock("../flags.server", async () => {
+    return {
+      evaluateBoolean: vi.fn().mockResolvedValue(true),
+      FLAGS: {
+        SEARCH: "search",
+        ADD_SHOW: "add-show",
+      },
+    };
+  });
 
   vi.mocked(useSearchParams).mockReturnValue([
     // @ts-expect-error .. we don't need the full API
@@ -44,6 +54,14 @@ beforeEach(() => {
       get: () => "",
     },
   ]);
+
+  vi.mocked(useLoaderData).mockReturnValue({
+    shows: [],
+    features: {
+      search: true,
+      addShow: true,
+    },
+  });
 
   vi.mocked(searchShows).mockResolvedValue([
     {
@@ -68,6 +86,23 @@ test("renders search form", () => {
   expect(screen.getByTestId("search-input")).toBeInTheDocument();
 });
 
+test("does not render search form with feature disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    shows: [],
+    features: {
+      search: false,
+      addShow: true,
+    },
+  });
+  render(<Search />);
+
+  expect(screen.getByText("Search")).toBeInTheDocument();
+  expect(screen.queryByTestId("search-input")).not.toBeInTheDocument();
+  expect(
+    screen.getByText("This feature is currently disabled.")
+  ).toBeInTheDocument();
+});
+
 test("renders passed search query", () => {
   vi.mocked(useSearchParams).mockReturnValue([
     // @ts-expect-error .. we don't need the full API
@@ -90,8 +125,20 @@ test("loader should search and return shows", async () => {
   });
 
   expect(searchShows).toBeCalledWith(null, "123");
-  expect(result.length).toBe(1);
-  expect(result[0].name).toBe("TVShow1");
+  expect(result.shows.length).toBe(1);
+  expect(result.shows[0].name).toBe("TVShow1");
+});
+
+test("loader should not search with feature disabled", async () => {
+  vi.mocked(evaluateBoolean).mockResolvedValue(false);
+  const result = await loader({
+    request: new Request("http://localhost:8080/tv/search"),
+    context: {},
+    params: {},
+  });
+
+  expect(searchShows).not.toBeCalled();
+  expect(result.shows.length).toBe(0);
 });
 
 test("loader should search shows with query", async () => {
@@ -114,7 +161,7 @@ test("loader should search and return if no found show", async () => {
   });
 
   expect(searchShows).toBeCalledWith(null, "123");
-  expect(result.length).toBe(0);
+  expect(result.shows.length).toBe(0);
 });
 
 test("action should return redirect if everything ok", async () => {
@@ -131,6 +178,23 @@ test("action should return redirect if everything ok", async () => {
   });
 
   expect(addShow).toBeCalledWith("123", "1");
+});
+
+test("action should not add show with feature disabled", async () => {
+  vi.mocked(evaluateBoolean).mockResolvedValue(false);
+  const formData = new FormData();
+  formData.append("showId", "1");
+
+  await action({
+    request: new Request("http://localhost:8080/tv/search", {
+      method: "POST",
+      body: formData,
+    }),
+    context: {},
+    params: {},
+  });
+
+  expect(addShow).not.toBeCalled();
 });
 
 test("action should return error if adding failed", async () => {
