@@ -1,28 +1,49 @@
+import eslint from "@eslint/js";
+import importPlugin from "eslint-plugin-import";
+import jsxA11y from "eslint-plugin-jsx-a11y";
+import reactPlugin from "eslint-plugin-react";
 import globals from "globals";
-import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
-import react from "eslint-plugin-react";
-import jsxA11Y from "eslint-plugin-jsx-a11y";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import _import from "eslint-plugin-import";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+import tseslint from "typescript-eslint";
 
 export default [
+  ...tseslint.config(
+    eslint.configs.recommended,
+    tseslint.configs.recommended,
+    tseslint.configs.stylistic,
+    importPlugin.flatConfigs.recommended,
+    jsxA11y.flatConfigs.recommended,
+    reactPlugin.configs.flat.recommended
+  ),
+  {
+    languageOptions: {
+      globals: {
+        ...globals.nodeBuiltin,
+      },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json",
+        },
+        node: {
+          extensions: [".js", ".jsx", ".ts", ".tsx"],
+        },
+      },
+      react: {
+        version: "detect",
+      },
+    },
+    rules: {
+      "react/react-in-jsx-scope": "off",
+    },
+  },
   {
     ignores: [
-      "!**/.server",
-      "!**/.client",
       "**/playwright-report",
       "**/build",
       "public/build",
@@ -30,114 +51,8 @@ export default [
       "playwright-report",
       "test-results",
       ".react-router",
+      "eslint.config.mjs",
+      "postcss.config.mjs",
     ],
-  },
-  ...compat.extends("eslint:recommended"),
-  {
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.commonjs,
-      },
-
-      ecmaVersion: "latest",
-      sourceType: "module",
-
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
-
-    settings: {
-      jest: {
-        version: 27,
-      },
-    },
-  },
-  ...fixupConfigRules(
-    compat.extends(
-      "plugin:react/recommended",
-      "plugin:react/jsx-runtime",
-      "plugin:react-hooks/recommended",
-      "plugin:jsx-a11y/recommended",
-      "prettier"
-    )
-  ).map((config) => ({
-    ...config,
-    files: ["**/*.{js,jsx,ts,tsx}"],
-  })),
-  {
-    files: ["**/*.{js,jsx,ts,tsx}"],
-
-    plugins: {
-      react: fixupPluginRules(react),
-      "jsx-a11y": fixupPluginRules(jsxA11Y),
-    },
-
-    settings: {
-      react: {
-        version: "detect",
-      },
-
-      formComponents: ["Form"],
-
-      linkComponents: [
-        {
-          name: "Link",
-          linkAttribute: "to",
-        },
-        {
-          name: "NavLink",
-          linkAttribute: "to",
-        },
-      ],
-
-      "import/resolver": {
-        typescript: {},
-      },
-    },
-  },
-  ...fixupConfigRules(
-    compat.extends(
-      "plugin:@typescript-eslint/recommended",
-      "plugin:import/recommended",
-      "plugin:import/typescript"
-    )
-  ).map((config) => ({
-    ...config,
-    files: ["**/*.{ts,tsx}"],
-  })),
-  {
-    files: ["**/*.{ts,tsx}"],
-
-    plugins: {
-      "@typescript-eslint": fixupPluginRules(typescriptEslint),
-      import: fixupPluginRules(_import),
-    },
-
-    languageOptions: {
-      parser: tsParser,
-    },
-
-    rules: {
-      "testing-library/prefer-screen-queries": "off",
-      "import/order": "error",
-    },
-
-    settings: {
-      "import/internal-regex": "^~/",
-
-      "import/resolver": {
-        node: {
-          extensions: [".ts", ".tsx"],
-        },
-
-        typescript: {
-          alwaysTryTypes: true,
-        },
-      },
-    },
   },
 ];

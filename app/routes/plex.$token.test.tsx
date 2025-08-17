@@ -60,16 +60,16 @@ const mockEpisode = {
   show: mockShow,
 };
 
-type PlexMetadata = {
+interface PlexMetadata {
   grandparentTitle: string;
   parentIndex: number;
   index: number;
-};
+}
 
-type PlexPayload = {
+interface PlexPayload {
   event: string;
   Metadata: PlexMetadata;
-};
+}
 
 const createPlexPayload = (
   overrides: Partial<PlexPayload> = {}

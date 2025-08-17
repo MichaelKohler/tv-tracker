@@ -268,7 +268,7 @@ export async function searchShows(query: string | null, userId: User["id"]) {
   return filteredShows;
 }
 
-export type EmbeddedEpisode = {
+export interface EmbeddedEpisode {
   id: string;
   name: string;
   season: number;
@@ -279,7 +279,7 @@ export type EmbeddedEpisode = {
     medium: string;
   };
   summary: string;
-};
+}
 
 export function prepareShow(showResult: {
   id: string;

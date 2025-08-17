@@ -1,13 +1,21 @@
 import { vi } from "vitest";
 
-vi.stubGlobal("scrollTo", () => {});
+vi.stubGlobal("scrollTo", () => {
+  // Mock implementation
+});
 
 // Mock ResizeObserver for Recharts
 vi.stubGlobal(
   "ResizeObserver",
   class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+    observe() {
+      // Mock implementation
+    }
+    unobserve() {
+      // Mock implementation
+    }
+    disconnect() {
+      // Mock implementation
+    }
   }
 );
