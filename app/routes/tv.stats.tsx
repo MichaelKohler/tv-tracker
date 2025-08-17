@@ -3,6 +3,7 @@ import { useLoaderData } from "react-router";
 
 import StatCard from "../components/stat-card";
 import MonthlyEpisodesChart from "../components/monthly-episodes-chart";
+import { evaluateBoolean, FLAGS } from "../flags.server";
 import {
   getTotalWatchTimeForUser,
   getWatchedEpisodesCountForUser,
@@ -16,6 +17,16 @@ import {
 import { requireUserId } from "../session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const statsRoute = await evaluateBoolean(request, FLAGS.STATS_ROUTE);
+
+  if (!statsRoute) {
+    return {
+      features: {
+        statsRoute: false,
+      },
+    };
+  }
+
   const userId = await requireUserId(request);
 
   const [
@@ -41,6 +52,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     showsTracked,
     archivedShowsCount,
     last12MonthsStats,
+    features: {
+      statsRoute: true,
+    },
   };
 }
 
@@ -77,14 +91,27 @@ function formatRuntime(minutes: number): string {
 }
 
 export default function TVStats() {
+  const data = useLoaderData<typeof loader>();
+
+  if (!data.features.statsRoute) {
+    return (
+      <>
+        <h1 className="font-title text-5xl">Statistics</h1>
+        <p className="mt-9">
+          The statistics are currently unavailable. Please try again later.
+        </p>
+      </>
+    );
+  }
+
   const {
-    totalWatchTime,
-    watchedEpisodesCount,
-    unwatchedEpisodesCount,
-    showsTracked,
-    archivedShowsCount,
-    last12MonthsStats,
-  } = useLoaderData<typeof loader>();
+    totalWatchTime = 0,
+    watchedEpisodesCount = 0,
+    unwatchedEpisodesCount = 0,
+    showsTracked = 0,
+    archivedShowsCount = 0,
+    last12MonthsStats = [],
+  } = data;
 
   const archivedPercentage =
     showsTracked > 0

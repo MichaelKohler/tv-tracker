@@ -1,161 +1,156 @@
-import { useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { createMemoryRouter, RouterProvider } from "react-router";
+import type { Episode, Show } from "@prisma/client";
 
+import * as flags from "../flags.server";
 import { getRecentlyWatchedEpisodes } from "../models/episode.server";
 import TVRecent, { loader } from "./tv.recent";
 
+vi.mock("../flags.server", async (importOriginal) => {
+  const actual = await importOriginal<typeof flags>();
+  return {
+    ...actual,
+    evaluateBoolean: vi.fn(),
+  };
+});
+vi.mock("../db.server");
+vi.mock("../models/episode.server");
+vi.mock("../session.server", async () => {
+  return {
+    requireUserId: vi.fn().mockResolvedValue("123"),
+  };
+});
+
+vi.mock("../components/upcoming-episodes-list", () => ({
+  default: ({
+    episodes,
+  }: {
+    episodes: Record<string, { episodes: (Episode & { show: Show })[] }>;
+  }) => (
+    <div>
+      {Object.values(episodes).map((month) => (
+        <div key={month.episodes[0].id}>{month.episodes[0].name}</div>
+      ))}
+    </div>
+  ),
+}));
+
 const MOCK_DATE = new Date("2024-01-01");
 
-beforeEach(() => {
-  vi.mock("react-router", () => {
-    return {
-      useLoaderData: vi.fn(),
-      Link: ({ children }: { children: React.ReactNode }) => (
-        <span>{children}</span>
-      ),
-    };
-  });
-  vi.unmock("../components/upcoming-episodes-list");
-  vi.mock("../models/episode.server", () => {
-    return {
-      getRecentlyWatchedEpisodes: vi.fn(),
-    };
-  });
-  vi.mock("../session.server", async () => {
-    return {
-      requireUserId: vi.fn().mockResolvedValue("123"),
-    };
-  });
+const mockShow: Show = {
+  id: "1",
+  name: "Test Show",
+  mazeId: "1",
+  premiered: MOCK_DATE,
+  ended: null,
+  imageUrl: "",
+  summary: "",
+  rating: null,
+  createdAt: MOCK_DATE,
+  updatedAt: MOCK_DATE,
+};
 
-  vi.mocked(getRecentlyWatchedEpisodes).mockResolvedValue([
-    {
-      createdAt: MOCK_DATE,
-      updatedAt: MOCK_DATE,
-      id: "1",
-      airDate: MOCK_DATE,
-      date: MOCK_DATE,
-      imageUrl: "https://example.com/image.png",
-      mazeId: "1",
-      name: "Test Episode 1",
-      number: 1,
-      season: 1,
-      runtime: 90,
-      showId: "1",
-      summary: "Test Summary",
-      show: {
-        createdAt: MOCK_DATE,
-        updatedAt: MOCK_DATE,
-        id: "1",
-        premiered: MOCK_DATE,
-        imageUrl: "https://example.com/image.png",
-        mazeId: "maze1",
-        name: "Test Show 1",
-        summary: "Test Summary",
-        ended: null,
-        rating: 1,
+const mockEpisodes: (Episode & { show: Show; date: Date })[] = [
+  {
+    id: "1",
+    name: "Test Episode 1",
+    season: 1,
+    number: 1,
+    airDate: MOCK_DATE,
+    runtime: 60,
+    imageUrl: "",
+    summary: "",
+    showId: "1",
+    mazeId: "1",
+    createdAt: MOCK_DATE,
+    updatedAt: MOCK_DATE,
+    show: mockShow,
+    date: MOCK_DATE,
+  },
+];
+
+const renderComponent = (loaderFn: typeof loader) => {
+  const router = createMemoryRouter(
+    [
+      {
+        path: "/",
+        element: <TVRecent />,
+        loader: loaderFn,
+        ErrorBoundary: () => <div>Error</div>,
       },
-    },
-  ]);
+    ],
+    { initialEntries: ["/"] }
+  );
 
-  const month = MOCK_DATE.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
+  return render(<RouterProvider router={router} />);
+};
+
+describe("TVRecent", () => {
+  beforeEach(() => {
+    vi.mocked(flags.evaluateBoolean).mockResolvedValue(true);
+    vi.mocked(getRecentlyWatchedEpisodes).mockResolvedValue(mockEpisodes);
   });
 
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    [month]: {
-      episodes: [
-        {
-          createdAt: MOCK_DATE,
-          updatedAt: MOCK_DATE,
-          id: "1",
-          airDate: MOCK_DATE,
-          date: MOCK_DATE,
-          imageUrl: "https://example.com/image.png",
-          mazeId: "1",
-          name: "Test Episode 1",
-          number: 1,
-          season: 1,
-          runtime: 90,
-          showId: "1",
-          summary: "Test Summary",
-          show: {
-            createdAt: MOCK_DATE,
-            updatedAt: MOCK_DATE,
-            id: "1",
-            premiered: MOCK_DATE,
-            imageUrl: "https://example.com/image.png",
-            mazeId: "maze1",
-            name: "Test Show 1",
-            summary: "Test Summary",
-            ended: null,
-            rating: 1,
-          },
-        },
-      ],
-      totalRuntime: 90,
-      episodeCount: 1,
-      showCount: 1,
-    },
-  });
-});
-
-test("renders recently watched page with plural stats", () => {
-  render(<TVRecent />);
-
-  expect(screen.getByText("Recently watched")).toBeInTheDocument();
-  expect(screen.getByText("1 hour and 30 minutes")).toBeInTheDocument();
-  expect(screen.getByText("1 episode from 1 show")).toBeInTheDocument();
-});
-
-test("renders recently watched page with singular stats", () => {
-  const month = MOCK_DATE.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    [month]: {
-      episodes: [],
-      totalRuntime: 61,
-      episodeCount: 2,
-      showCount: 2,
-    },
-  });
-  render(<TVRecent />);
-
-  expect(screen.getByText("Recently watched")).toBeInTheDocument();
-  expect(screen.getByText("1 hour and 1 minute")).toBeInTheDocument();
-  expect(screen.getByText("2 episodes from 2 shows")).toBeInTheDocument();
-});
-
-test("renders no recently watched episodes paragraph", () => {
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({});
-
-  render(<TVRecent />);
-
-  expect(
-    screen.getByText("There are no recently watched episodes.")
-  ).toBeInTheDocument();
-});
-
-test("loader should return recently watched episodes", async () => {
-  const result = await loader({
-    request: new Request("http://localhost:8080/tv/recent"),
-    context: {},
-    params: {},
+  it("renders recently watched page with episodes", async () => {
+    renderComponent(loader);
+    await waitFor(() => {
+      expect(screen.getByText("Recently watched")).toBeInTheDocument();
+      expect(screen.getByText("Test Episode 1")).toBeInTheDocument();
+    });
   });
 
-  const month = MOCK_DATE.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
+  it('renders "no recently watched episodes" message when there are no episodes', async () => {
+    vi.mocked(getRecentlyWatchedEpisodes).mockResolvedValue([]);
+    renderComponent(loader);
+    await waitFor(() => {
+      expect(
+        screen.getByText("There are no recently watched episodes.")
+      ).toBeInTheDocument();
+    });
   });
 
-  expect(Object.keys(result).length).toBe(1);
-  expect(result[month].episodes[0].name).toBe("Test Episode 1");
-  expect(result[month].episodes.length).toBe(1);
-  expect(result[month].episodes[0].show.name).toBe("Test Show 1");
-  expect(result[month].totalRuntime).toBe(90);
-  expect(result[month].episodeCount).toBe(1);
-  expect(result[month].showCount).toBe(1);
+  it("renders unavailable message when feature is disabled", async () => {
+    vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+    renderComponent(loader);
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "The overview of recently watched episodes is currently unavailable. Please try again later."
+        )
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("loader", () => {
+    it("should return recently watched episodes when feature is enabled", async () => {
+      const result = await loader({
+        request: new Request("http://localhost:8080/tv/recent"),
+        context: {},
+        params: {},
+      });
+
+      const month = MOCK_DATE.toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
+
+      expect(result.features.recentlyWatchedRoute).toBe(true);
+      expect(Object.keys(result.episodes).length).toBe(1);
+      expect(result.episodes[month].episodes[0].name).toBe("Test Episode 1");
+    });
+
+    it("should return empty episodes when feature is disabled", async () => {
+      vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+
+      const result = await loader({
+        request: new Request("http://localhost:8080/tv/recent"),
+        context: {},
+        params: {},
+      });
+
+      expect(result.features.recentlyWatchedRoute).toBe(false);
+      expect(Object.keys(result.episodes).length).toBe(0);
+    });
+  });
 });

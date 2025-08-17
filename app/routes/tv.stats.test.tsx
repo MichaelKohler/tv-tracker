@@ -2,7 +2,8 @@ import { useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import TVStats, { type loader } from "./tv.stats";
+import * as flags from "../flags.server";
+import TVStats, { loader } from "./tv.stats";
 
 beforeEach(() => {
   vi.mock("react-router", async (importOriginal) => {
@@ -14,9 +15,18 @@ beforeEach(() => {
     };
   });
 
+  vi.mock("../flags.server", async (importOriginal) => {
+    const actual = await importOriginal<typeof flags>();
+    return {
+      ...actual,
+      evaluateBoolean: vi.fn(),
+    };
+  });
+
   vi.mock("../session.server", async () => {
     return {
       requireUserId: vi.fn().mockResolvedValue("123"),
+      getUserId: vi.fn().mockResolvedValue("123"),
     };
   });
 
@@ -45,6 +55,9 @@ test("renders statistics page title", () => {
     showsTracked: 10,
     archivedShowsCount: 2,
     last12MonthsStats: [],
+    features: {
+      statsRoute: true,
+    },
   });
 
   render(<TVStats />);
@@ -61,6 +74,9 @@ test("renders general statistics cards", () => {
     showsTracked: 10,
     archivedShowsCount: 2,
     last12MonthsStats: [],
+    features: {
+      statsRoute: true,
+    },
   });
 
   render(<TVStats />);
@@ -92,6 +108,9 @@ test("renders monthly stats when available", () => {
         showCount: 3,
       },
     ],
+    features: {
+      statsRoute: true,
+    },
   });
 
   render(<TVStats />);
@@ -114,6 +133,9 @@ test("shows message when no activity data", () => {
     showsTracked: 10,
     archivedShowsCount: 2,
     last12MonthsStats: [],
+    features: {
+      statsRoute: true,
+    },
   });
 
   render(<TVStats />);
@@ -134,9 +156,60 @@ test("handles zero archived percentage correctly", () => {
     showsTracked: 0,
     archivedShowsCount: 0,
     last12MonthsStats: [],
+    features: {
+      statsRoute: true,
+    },
   });
 
   render(<TVStats />);
 
   expect(screen.getByText("0 (0%)")).toBeInTheDocument();
+});
+
+test("shows unavailability message when feature is turned off", () => {
+  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
+    totalWatchTime: 0,
+    watchedEpisodesCount: 0,
+    unwatchedEpisodesCount: 0,
+    showsTracked: 0,
+    archivedShowsCount: 0,
+    last12MonthsStats: [],
+    features: {
+      statsRoute: false,
+    },
+  });
+
+  render(<TVStats />);
+
+  expect(
+    screen.getByText(
+      "The statistics are currently unavailable. Please try again later."
+    )
+  ).toBeInTheDocument();
+});
+
+describe("loader", () => {
+  it("should return feature flags", async () => {
+    vi.mocked(flags.evaluateBoolean).mockResolvedValue(true);
+
+    const result = await loader({
+      request: new Request("http://localhost:8080/tv/upcoming"),
+      context: {},
+      params: {},
+    });
+
+    expect(result.features.statsRoute).toBe(true);
+  });
+
+  it("should return feature flags when disabled", async () => {
+    vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+
+    const result = await loader({
+      request: new Request("http://localhost:8080/tv/upcoming"),
+      context: {},
+      params: {},
+    });
+
+    expect(result.features.statsRoute).toBe(false);
+  });
 });
