@@ -243,9 +243,7 @@ export default function AccountPage() {
                 name="newPassword"
                 type="password"
                 autoComplete="new-password"
-                aria-invalid={
-                  actionData?.errors.newPassword ? true : undefined
-                }
+                aria-invalid={actionData?.errors.newPassword ? true : undefined}
                 aria-describedby="new-password-error"
                 className="w-full rounded border border-mk-text px-2 py-1 text-lg"
               />

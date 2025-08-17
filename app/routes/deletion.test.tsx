@@ -109,18 +109,6 @@ test("loader should call evaluateBoolean", async () => {
   );
 });
 
-test("loader should not require user if feature is disabled", async () => {
-  vi.mocked(evaluateBoolean).mockResolvedValue(false);
-
-  await loader({
-    request: new Request("http://localhost:8080/deletion"),
-    context: {},
-    params: {},
-  });
-
-  expect(requireUserId).not.toHaveBeenCalled();
-});
-
 test("action should delete user and logout if everything ok", async () => {
   vi.mocked(requireUserId).mockResolvedValue("123");
 

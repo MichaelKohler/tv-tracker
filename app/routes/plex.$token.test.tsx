@@ -122,7 +122,10 @@ describe("Plex token route", () => {
       showId: mockShow.id,
     });
     expect(response).toEqual({});
-    expect(evaluateBoolean).toHaveBeenCalledWith(expect.any(Request), FLAGS.PLEX);
+    expect(evaluateBoolean).toHaveBeenCalledWith(
+      expect.any(Request),
+      FLAGS.PLEX
+    );
   });
 
   test("returns empty object if feature is disabled", async () => {
