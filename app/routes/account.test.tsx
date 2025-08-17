@@ -1,8 +1,9 @@
 import * as React from "react";
-import { useActionData, useSearchParams } from "react-router";
+import { useActionData, useLoaderData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { evaluateBoolean } from "../flags.server";
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
 import Account, { action, loader } from "./account";
@@ -38,6 +39,21 @@ beforeEach(() => {
       verifyLogin: vi.fn(),
     };
   });
+  vi.mock("../flags.server", () => {
+    return {
+      evaluateBoolean: vi.fn(),
+      FLAGS: {
+        PASSWORD_CHANGE: "password-change",
+        DELETE_ACCOUNT: "delete-account",
+        PLEX: "plex",
+      },
+    };
+  });
+
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: { passwordChange: true, deleteAccount: true, plex: true },
+  });
 
   vi.mocked(useSearchParams).mockReturnValue([
     // @ts-expect-error we do not want to specify all methods of URLSearchParams
@@ -65,7 +81,7 @@ beforeEach(() => {
   });
 });
 
-test("renders page", () => {
+test("renders page with password change form if feature is enabled", () => {
   render(<Account />);
 
   expect(screen.getByText("Current Password")).toBeInTheDocument();
@@ -80,6 +96,85 @@ test("renders page", () => {
   expect(
     screen.getByText(/Delete my account and all data/)
   ).toBeInTheDocument();
+});
+
+test("renders page without password change form if feature is disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: { passwordChange: false, deleteAccount: true, plex: true },
+  });
+
+  render(<Account />);
+
+  expect(screen.queryByText("Current Password")).not.toBeInTheDocument();
+  expect(screen.queryByText("New Password")).not.toBeInTheDocument();
+  expect(screen.queryByText("Confirm Password")).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: /Change password/i })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(
+      /The password change functionality is currently disabled. Please try again later./
+    )
+  ).toBeInTheDocument();
+});
+
+test("renders page without delete account form if feature is disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: {
+      passwordChange: true,
+      deleteAccount: false,
+      plex: true,
+    },
+  });
+
+  render(<Account />);
+
+  expect(
+    screen.queryByText(/Deleting your account will also delete/)
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/Delete my account and all data/)
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(
+      /The account deletion functionality is currently disabled. Please try again later./
+    )
+  ).toBeInTheDocument();
+});
+
+test("renders page without plex section if feature is disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: {
+      passwordChange: true,
+      deleteAccount: true,
+      plex: false,
+    },
+  });
+
+  render(<Account />);
+
+  expect(screen.queryByText(/Plex Webhook/)).not.toBeInTheDocument();
+});
+
+test("loader should fetch the feature flags", async () => {
+  await loader({
+    request: new Request("http://localhost:8080/account"),
+    context: {},
+    params: {},
+  });
+
+  expect(evaluateBoolean).toHaveBeenCalledWith(
+    expect.any(Request),
+    "password-change"
+  );
+  expect(evaluateBoolean).toHaveBeenCalledWith(
+    expect.any(Request),
+    "delete-account"
+  );
+  expect(evaluateBoolean).toHaveBeenCalledWith(expect.any(Request), "plex");
 });
 
 test("renders error message for generic", () => {

@@ -1,12 +1,25 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, Form, useActionData, useNavigation } from "react-router";
+import {
+  data,
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "react-router";
 
+import { evaluateBoolean, FLAGS } from "../flags.server";
 import { deleteUserByUserId } from "../models/user.server";
 import { requireUserId, logout } from "../session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requireUserId(request);
-  return null;
+  const deleteAccountEnabled = await evaluateBoolean(
+    request,
+    FLAGS.DELETE_ACCOUNT
+  );
+  if (deleteAccountEnabled) {
+    await requireUserId(request);
+  }
+  return { deleteAccountEnabled };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -27,8 +40,20 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function DeletionPage() {
-  const actionData = useActionData();
+  const actionData = useActionData<typeof action>();
+  const { deleteAccountEnabled } = useLoaderData<typeof loader>();
   const navigation = useNavigation();
+
+  if (!deleteAccountEnabled) {
+    return (
+      <main className="mx-auto my-8 flex min-h-full w-full max-w-md flex-col px-8">
+        <p>
+          The account deletion functionality is currently disabled. Please try
+          again later.
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto my-8 flex min-h-full w-full max-w-md flex-col px-8">

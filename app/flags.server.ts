@@ -33,6 +33,9 @@ export const FLAGS = {
   FETCH_FROM_SOURCE: "fetch-from-source",
   SEARCH: "search",
   ADD_SHOW: "add-show",
+  PASSWORD_CHANGE: "password-change",
+  DELETE_ACCOUNT: "delete-account",
+  PLEX: "plex",
 };
 
 export async function evaluateVariant(request: Request, flag: string) {

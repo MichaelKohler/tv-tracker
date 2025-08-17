@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
+import { evaluateBoolean, FLAGS } from "../flags.server";
 import {
   getEpisodeByShowIdAndNumbers,
   markEpisodeAsWatched,
@@ -8,6 +9,14 @@ import { getUserByPlexToken } from "../models/user.server";
 import { action } from "./plex.$token";
 
 vi.mock("../db.server");
+vi.mock("../flags.server", () => {
+  return {
+    evaluateBoolean: vi.fn(),
+    FLAGS: {
+      PLEX: "plex",
+    },
+  };
+});
 vi.mock("../models/episode.server");
 vi.mock("../models/show.server");
 vi.mock("../models/user.server");
@@ -77,6 +86,7 @@ const createPlexPayload = (
 describe("Plex token route", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(getUserByPlexToken).mockResolvedValue(mockUser);
     vi.mocked(getShowByUserIdAndName).mockResolvedValue(mockShow);
     vi.mocked(getEpisodeByShowIdAndNumbers).mockResolvedValue(mockEpisode);
@@ -112,6 +122,29 @@ describe("Plex token route", () => {
       showId: mockShow.id,
     });
     expect(response).toEqual({});
+    expect(evaluateBoolean).toHaveBeenCalledWith(
+      expect.any(Request),
+      FLAGS.PLEX
+    );
+  });
+
+  test("returns empty object if feature is disabled", async () => {
+    vi.mocked(evaluateBoolean).mockResolvedValue(false);
+
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify(createPlexPayload()));
+
+    const response = await action({
+      request: new Request("http://localhost:8080/plex/token123", {
+        method: "POST",
+        body: formData,
+      }),
+      params: { token: "token123" },
+      context: {},
+    } as ActionFunctionArgs);
+
+    expect(response).toEqual({});
+    expect(getUserByPlexToken).not.toHaveBeenCalled();
   });
 
   test("returns null for non-scrobble event", async () => {
