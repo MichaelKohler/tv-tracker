@@ -16,21 +16,25 @@ vi.mock("../flags.server", () => {
     },
   };
 });
-vi.mock("react-router", async (importOriginal) => {
-  const actual = await importOriginal();
-
-  return {
-    ...(actual as object),
-    useNavigation: vi.fn().mockReturnValue({}),
-    useActionData: vi.fn(),
-    useLoaderData: vi.fn(),
-    Form: ({ children }: { children: React.ReactNode }) => (
-      <form>{children}</form>
-    ),
-  };
-});
 
 beforeEach(() => {
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
+    return {
+      ...(actual as object),
+      useNavigation: vi.fn().mockReturnValue({}),
+      useActionData: vi.fn(),
+      useLoaderData: vi.fn(),
+      Form: ({ children }: { children: React.ReactNode }) => (
+        <form>{children}</form>
+      ),
+    };
+  });
+
+  vi.mocked(useLoaderData).mockReturnValue({
+    deleteAccountEnabled: true,
+  });
 
   vi.mock("../db.server");
 
@@ -47,10 +51,6 @@ beforeEach(() => {
     plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
     createdAt: new Date(),
     updatedAt: new Date(),
-  });
-
-  vi.mocked(useLoaderData).mockReturnValue({
-    deleteAccountEnabled: true,
   });
 });
 

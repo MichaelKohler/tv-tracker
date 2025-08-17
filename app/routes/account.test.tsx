@@ -1,56 +1,54 @@
 import * as React from "react";
-import { useActionData, useSearchParams } from "react-router";
+import { useActionData, useLoaderData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-
-import { useLoaderData } from "react-router";
 
 import { evaluateBoolean } from "../flags.server";
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
 import Account, { action, loader } from "./account";
 
-vi.mock("react-router", async (importOriginal) => {
-  const actual = await importOriginal();
-
-  return {
-    ...(actual as object),
-    useNavigation: vi.fn().mockReturnValue({}),
-    useActionData: vi.fn(),
-    useLoaderData: vi.fn(),
-    useSearchParams: vi.fn(),
-    Form: ({ children }: { children: React.ReactNode }) => (
-      <form>{children}</form>
-    ),
-    Link: ({ children }: { children: React.ReactNode }) => (
-      <span>{children}</span>
-    ),
-  };
-});
-vi.mock("../session.server", async () => {
-  return {
-    requireUser: vi.fn(),
-  };
-});
-vi.mock("../models/user.server", () => {
-  return {
-    changePassword: vi.fn(),
-    verifyLogin: vi.fn(),
-  };
-});
-vi.mock("../flags.server", () => {
-  return {
-    evaluateBoolean: vi.fn(),
-    FLAGS: {
-      PASSWORD_CHANGE: "password-change",
-      DELETE_ACCOUNT: "delete-account",
-      PLEX: "plex",
-    },
-  };
-});
-
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.mock("react-router", async (importOriginal) => {
+    const actual = await importOriginal();
+
+    return {
+      ...(actual as object),
+      useNavigation: vi.fn().mockReturnValue({}),
+      useActionData: vi.fn(),
+      useLoaderData: vi
+        .fn()
+        .mockReturnValue({ webhookUrl: "http://webhook.example" }),
+      useSearchParams: vi.fn(),
+      Form: ({ children }: { children: React.ReactNode }) => (
+        <form>{children}</form>
+      ),
+      Link: ({ children }: { children: React.ReactNode }) => (
+        <span>{children}</span>
+      ),
+    };
+  });
+  vi.mock("../session.server", async () => {
+    return {
+      requireUser: vi.fn(),
+    };
+  });
+  vi.mock("../models/user.server", () => {
+    return {
+      changePassword: vi.fn(),
+      verifyLogin: vi.fn(),
+    };
+  });
+  vi.mock("../flags.server", () => {
+    return {
+      evaluateBoolean: vi.fn(),
+      FLAGS: {
+        PASSWORD_CHANGE: "password-change",
+        DELETE_ACCOUNT: "delete-account",
+        PLEX: "plex",
+      },
+    };
+  });
 
   vi.mocked(useLoaderData).mockReturnValue({
     webhookUrl: "http://webhook.example",
@@ -103,7 +101,7 @@ test("renders page with password change form if feature is enabled", () => {
 test("renders page without password change form if feature is disabled", () => {
   vi.mocked(useLoaderData).mockReturnValue({
     webhookUrl: "http://webhook.example",
-    features: { passwordChange: false, deleteAccount: true },
+    features: { passwordChange: false, deleteAccount: true, plex: true },
   });
 
   render(<Account />);
