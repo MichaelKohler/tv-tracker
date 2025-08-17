@@ -26,10 +26,7 @@ vi.mock("../components/upcoming-episodes-list", () => ({
   default: ({
     episodes,
   }: {
-    episodes: Record<
-      string,
-      { episodes: (Episode & { show: Show })[] }
-    >;
+    episodes: Record<string, { episodes: (Episode & { show: Show })[] }>;
   }) => (
     <div>
       {Object.values(episodes).map((month) => (

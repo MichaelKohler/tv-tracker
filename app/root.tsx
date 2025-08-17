@@ -102,10 +102,7 @@ function App({
         <Links />
       </head>
       <body className="h-full">
-        <Header
-          renderLoginButtons={renderLoginButtons}
-          features={features}
-        />
+        <Header renderLoginButtons={renderLoginButtons} features={features} />
         {features.maintenanceMode ? (
           <main className="my-8 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
             <h1 className="font-title text-3xl">Maintenance mode</h1>
