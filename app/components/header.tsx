@@ -5,8 +5,14 @@ import { useOptionalUser } from "../utils";
 
 export default function Header({
   renderLoginButtons = true,
+  features,
 }: {
   renderLoginButtons?: boolean;
+  features: {
+    upcomingRoute: boolean;
+    recentlyWatchedRoute: boolean;
+    statsRoute: boolean;
+  };
 }) {
   const user = useOptionalUser();
   const matches = useMatches();
@@ -53,30 +59,36 @@ export default function Header({
               >
                 TV
               </Link>
-              <Link
-                to="/tv/upcoming"
-                className={`text-white-700 flex ${
-                  menuOpen ? "border-b py-12" : "px-8 py-2"
-                } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
-              >
-                Upcoming
-              </Link>
-              <Link
-                to="/tv/recent"
-                className={`text-white-700 flex ${
-                  menuOpen ? "border-b py-12" : "px-8 py-2"
-                } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
-              >
-                Recently watched
-              </Link>
-              <Link
-                to="/tv/stats"
-                className={`text-white-700 flex ${
-                  menuOpen ? "border-b py-12" : "px-8 py-2"
-                } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
-              >
-                Stats
-              </Link>
+              {features.upcomingRoute && (
+                <Link
+                  to="/tv/upcoming"
+                  className={`text-white-700 flex ${
+                    menuOpen ? "border-b py-12" : "px-8 py-2"
+                  } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
+                >
+                  Upcoming
+                </Link>
+              )}
+              {features.recentlyWatchedRoute && (
+                <Link
+                  to="/tv/recent"
+                  className={`text-white-700 flex ${
+                    menuOpen ? "border-b py-12" : "px-8 py-2"
+                  } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
+                >
+                  Recently watched
+                </Link>
+              )}
+              {features.statsRoute && (
+                <Link
+                  to="/tv/stats"
+                  className={`text-white-700 flex ${
+                    menuOpen ? "border-b py-12" : "px-8 py-2"
+                  } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
+                >
+                  Stats
+                </Link>
+              )}
               <Link
                 to="/account"
                 className={`text-white-700 flex ${

@@ -36,6 +36,9 @@ export const FLAGS = {
   PASSWORD_CHANGE: "password-change",
   DELETE_ACCOUNT: "delete-account",
   PLEX: "plex",
+  UPCOMING_ROUTE: "upcoming-route",
+  RECENTLY_WATCHED_ROUTE: "recently-watched",
+  STATS_ROUTE: "stats",
 };
 
 export async function evaluateVariant(request: Request, flag: string) {

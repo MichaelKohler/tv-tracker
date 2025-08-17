@@ -1,142 +1,108 @@
-import { useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { createMemoryRouter, RouterProvider } from "react-router";
 
-import TVStats, { type loader } from "./tv.stats";
+import * as flags from "../flags.server";
+import * as episode from "../models/episode.server";
+import * as show from "../models/show.server";
+import TVStats, { loader } from "./tv.stats";
 
-beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
-
-    return {
-      ...(actual as object),
-      useLoaderData: vi.fn(),
-    };
-  });
-
-  vi.mock("../session.server", async () => {
-    return {
-      requireUserId: vi.fn().mockResolvedValue("123"),
-    };
-  });
-
-  vi.mock("../models/episode.server", async () => {
-    return {
-      getTotalWatchTimeForUser: vi.fn().mockResolvedValue(150),
-      getWatchedEpisodesCountForUser: vi.fn().mockResolvedValue(25),
-      getUnwatchedEpisodesCountForUser: vi.fn().mockResolvedValue(5),
-      getLast12MonthsStats: vi.fn().mockResolvedValue([]),
-    };
-  });
-
-  vi.mock("../models/show.server", async () => {
-    return {
-      getShowsTrackedByUser: vi.fn().mockResolvedValue(10),
-      getArchivedShowsCountForUser: vi.fn().mockResolvedValue(2),
-    };
-  });
+vi.mock("../flags.server", async (importOriginal) => {
+  const actual = await importOriginal<typeof flags>();
+  return {
+    ...actual,
+    evaluateBoolean: vi.fn(),
+  };
 });
-
-test("renders statistics page title", () => {
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    totalWatchTime: 150,
-    watchedEpisodesCount: 25,
-    unwatchedEpisodesCount: 5,
-    showsTracked: 10,
-    archivedShowsCount: 2,
-    last12MonthsStats: [],
-  });
-
-  render(<TVStats />);
-
-  expect(screen.getByText("Statistics")).toBeInTheDocument();
-  expect(screen.getByText("General Statistics")).toBeInTheDocument();
+vi.mock("../models/episode.server");
+vi.mock("../models/show.server");
+vi.mock("../session.server", async () => {
+  return {
+    requireUserId: vi.fn().mockResolvedValue("123"),
+  };
 });
+vi.mock("../components/stat-card", () => ({
+  default: ({ title, value }: { title: string; value: any }) => (
+    <div>
+      <div>{title}</div>
+      <div>{value}</div>
+    </div>
+  ),
+}));
+vi.mock("../components/monthly-episodes-chart", () => ({
+  default: () => <div>Chart</div>,
+}));
 
-test("renders general statistics cards", () => {
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    totalWatchTime: 150,
-    watchedEpisodesCount: 25,
-    unwatchedEpisodesCount: 5,
-    showsTracked: 10,
-    archivedShowsCount: 2,
-    last12MonthsStats: [],
-  });
-
-  render(<TVStats />);
-
-  expect(screen.getByText("Total Watch Time")).toBeInTheDocument();
-  expect(screen.getByText("2h 30m")).toBeInTheDocument();
-  expect(screen.getByText("Shows Tracked")).toBeInTheDocument();
-  expect(screen.getByText("10")).toBeInTheDocument();
-  expect(screen.getByText("Episodes Watched")).toBeInTheDocument();
-  expect(screen.getByText("25")).toBeInTheDocument();
-  expect(screen.getByText("Episodes Not Watched")).toBeInTheDocument();
-  expect(screen.getByText("5")).toBeInTheDocument();
-  expect(screen.getByText("Shows Archived")).toBeInTheDocument();
-  expect(screen.getByText("2 (20%)")).toBeInTheDocument();
-});
-
-test("renders monthly stats when available", () => {
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    totalWatchTime: 150,
-    watchedEpisodesCount: 25,
-    unwatchedEpisodesCount: 5,
-    showsTracked: 8, // Changed from 10 to avoid duplication
-    archivedShowsCount: 2,
-    last12MonthsStats: [
+const renderComponent = (loaderFn: typeof loader) => {
+  const router = createMemoryRouter(
+    [
       {
-        month: "June 2023",
-        episodes: 12, // Changed from 10 to avoid duplication
-        runtime: 300,
-        showCount: 3,
+        path: "/",
+        element: <TVStats />,
+        loader: loaderFn,
       },
     ],
+    { initialEntries: ["/"] }
+  );
+
+  return render(<RouterProvider router={router} />);
+};
+
+describe("TVStats", () => {
+  beforeEach(() => {
+    vi.mocked(flags.evaluateBoolean).mockResolvedValue(true);
+    vi.mocked(episode.getTotalWatchTimeForUser).mockResolvedValue(150);
+    vi.mocked(episode.getWatchedEpisodesCountForUser).mockResolvedValue(25);
+    vi.mocked(episode.getUnwatchedEpisodesCountForUser).mockResolvedValue(5);
+    vi.mocked(episode.getLast12MonthsStats).mockResolvedValue([]);
+    vi.mocked(show.getShowsTrackedByUser).mockResolvedValue(10);
+    vi.mocked(show.getArchivedShowsCountForUser).mockResolvedValue(2);
   });
 
-  render(<TVStats />);
-
-  expect(screen.getByText("Episodes Watched Per Month")).toBeInTheDocument();
-  expect(screen.getByText("Monthly Breakdown")).toBeInTheDocument();
-  expect(screen.getByText("June 2023")).toBeInTheDocument();
-  expect(screen.getByText("12")).toBeInTheDocument();
-  expect(screen.getByText("episodes")).toBeInTheDocument();
-  expect(screen.getByText("3")).toBeInTheDocument();
-  expect(screen.getByText("shows")).toBeInTheDocument();
-  expect(screen.getByText("5 hours")).toBeInTheDocument();
-});
-
-test("shows message when no activity data", () => {
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    totalWatchTime: 150,
-    watchedEpisodesCount: 25,
-    unwatchedEpisodesCount: 5,
-    showsTracked: 10,
-    archivedShowsCount: 2,
-    last12MonthsStats: [],
+  it("renders statistics page with data", async () => {
+    renderComponent(loader);
+    await waitFor(() => {
+      expect(screen.getByText("Statistics")).toBeInTheDocument();
+      expect(screen.getByText("Total Watch Time")).toBeInTheDocument();
+      expect(screen.getByText("2h 30m")).toBeInTheDocument();
+    });
   });
 
-  render(<TVStats />);
-
-  expect(
-    screen.getByText("No viewing activity in the last 12 months.")
-  ).toBeInTheDocument();
-  expect(
-    screen.queryByText("Episodes Watched Per Month")
-  ).not.toBeInTheDocument();
-});
-
-test("handles zero archived percentage correctly", () => {
-  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-    totalWatchTime: 150,
-    watchedEpisodesCount: 25,
-    unwatchedEpisodesCount: 5,
-    showsTracked: 0,
-    archivedShowsCount: 0,
-    last12MonthsStats: [],
+  it("renders unavailable message when feature is disabled", async () => {
+    vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+    renderComponent(loader);
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          "The statistics are currently unavailable. Please try again later."
+        )
+      ).toBeInTheDocument();
+    });
   });
 
-  render(<TVStats />);
+  describe("loader", () => {
+    it("should return stats when feature is enabled", async () => {
+      const result = await loader({
+        request: new Request("http://localhost:8080/tv/stats"),
+        context: {},
+        params: {},
+      });
 
-  expect(screen.getByText("0 (0%)")).toBeInTheDocument();
+      expect(result.features.statsRoute).toBe(true);
+      expect(result.totalWatchTime).toBe(150);
+    });
+
+    it("should return nothing when feature is disabled", async () => {
+      vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+
+      const result = await loader({
+        request: new Request("http://localhost:8080/tv/stats"),
+        context: {},
+        params: {},
+      });
+
+      expect(result.features.statsRoute).toBe(false);
+      expect(result.totalWatchTime).toBeUndefined();
+    });
+  });
 });

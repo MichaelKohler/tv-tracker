@@ -46,24 +46,41 @@ export function meta(): ReturnType<MetaFunction> {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const maintenanceModeDisabled = await evaluateBoolean(
-    request,
-    FLAGS.MAINTENANCE_MODE
-  );
+  const [
+    maintenanceModeDisabled,
+    upcomingRoute,
+    recentlyWatchedRoute,
+    statsRoute,
+  ] = await Promise.all([
+    evaluateBoolean(request, FLAGS.MAINTENANCE_MODE),
+    evaluateBoolean(request, FLAGS.UPCOMING_ROUTE),
+    evaluateBoolean(request, FLAGS.RECENTLY_WATCHED_ROUTE),
+    evaluateBoolean(request, FLAGS.STATS_ROUTE),
+  ]);
 
   return {
     user: await getUser(request),
-    maintenanceMode: !maintenanceModeDisabled,
+    features: {
+      maintenanceMode: !maintenanceModeDisabled,
+      upcomingRoute,
+      recentlyWatchedRoute,
+      statsRoute,
+    },
   };
 }
 
 function App({
-  maintenanceMode,
+  features,
   renderLoginButtons = true,
   children,
 }: {
   children?: React.ReactNode;
-  maintenanceMode: boolean;
+  features: {
+    maintenanceMode: boolean;
+    upcomingRoute: boolean;
+    recentlyWatchedRoute: boolean;
+    statsRoute: boolean;
+  };
   renderLoginButtons?: boolean;
 }) {
   return (
@@ -85,8 +102,11 @@ function App({
         <Links />
       </head>
       <body className="h-full">
-        <Header renderLoginButtons={renderLoginButtons} />
-        {maintenanceMode ? (
+        <Header
+          renderLoginButtons={renderLoginButtons}
+          features={features}
+        />
+        {features.maintenanceMode ? (
           <main className="my-8 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
             <h1 className="font-title text-3xl">Maintenance mode</h1>
             <p className="mt-4">
@@ -110,20 +130,20 @@ function App({
 }
 
 function DefaultApp() {
-  const { maintenanceMode } = useLoaderData<typeof loader>();
+  const { features } = useLoaderData<typeof loader>();
 
-  return <App maintenanceMode={maintenanceMode} />;
+  return <App features={features} />;
 }
 
 export default DefaultApp;
 
 export function ErrorBoundary() {
-  const { maintenanceMode } = useLoaderData<typeof loader>();
+  const { features } = useLoaderData<typeof loader>();
   const error = useRouteError();
 
   if (isRouteErrorResponse(error) && error.status === 404) {
     return (
-      <App maintenanceMode={maintenanceMode}>
+      <App features={features}>
         <main className="flex h-full min-h-screen justify-center bg-white">
           <h1 className="mt-10 font-title text-3xl">Page not found</h1>
         </main>
@@ -132,7 +152,7 @@ export function ErrorBoundary() {
   }
 
   return (
-    <App maintenanceMode={maintenanceMode} renderLoginButtons={false}>
+    <App features={features} renderLoginButtons={false}>
       <main className="flex h-full min-h-screen justify-center bg-white">
         <h1 className="mt-10 font-title text-3xl">
           Something went wrong. Please try again.
