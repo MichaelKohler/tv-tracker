@@ -115,9 +115,6 @@ export async function getShowsByUserId(userId: User["id"]) {
       ? 0
       : pastEpisodesCount - watchedCount;
 
-    // Eslint doesn't like this, however we want to remove this property
-    // from the object we are returning
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { _count, ...showData } = show;
 
     return {

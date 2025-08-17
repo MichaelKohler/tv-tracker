@@ -120,9 +120,6 @@ export async function verifyLogin(
     return null;
   }
 
-  // Removing _password here would mean that we'd return it to the client.
-  // Do not listen to the linter here, this is intentional.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _password, ...userWithoutPassword } = userWithPassword;
 
   return userWithoutPassword;
