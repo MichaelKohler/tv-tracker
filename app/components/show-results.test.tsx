@@ -1,34 +1,12 @@
-import type { Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import ShowResults from "./show-results";
+import { testShow } from "~/test-utils";
 
-const shows: Show[] = [
-  {
-    createdAt: new Date("2022-01-01T00:00:00Z"),
-    updatedAt: new Date("2022-01-01T00:00:00Z"),
-    id: "1",
-    imageUrl: "https://example.com/image.png",
-    mazeId: "1",
-    name: "Test Show 1",
-    summary: "Test Summary",
-    premiered: new Date("2022-01-01T00:00:00Z"),
-    ended: null,
-    rating: 5,
-  },
-  {
-    createdAt: new Date("2022-01-01T00:00:00Z"),
-    updatedAt: new Date("2022-01-01T00:00:00Z"),
-    id: "2",
-    imageUrl: "https://example.com/image.png",
-    mazeId: "2",
-    name: "Test Show 2",
-    summary: "Test Summary",
-    premiered: new Date("2022-01-01T00:00:00Z"),
-    ended: null,
-    rating: 5,
-  },
+const shows = [
+  testShow,
+  { ...testShow, id: "2", mazeId: "2", name: "Test Show 2" },
 ];
 
 beforeEach(() => {

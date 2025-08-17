@@ -5,65 +5,22 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import ShowHeader from "./show-header";
+import { testEpisode, testEpisode2, testShow } from "~/test-utils";
 
-const DEFAULT_EPISODES: Episode[] = [
-  {
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: "1",
-    airDate: new Date("2000-01-01"),
-    imageUrl: "https://example.com/image.png",
-    mazeId: "1",
-    name: "Test Episode 1",
-    number: 1,
-    season: 1,
-    runtime: 30,
-    showId: "1",
-    summary: "Test Summary",
-  },
-  {
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: "2",
-    airDate: new Date("2000-01-01"),
-    imageUrl: "https://example.com/image.png",
-    mazeId: "1",
-    name: "Test Episode 2",
-    number: 2,
-    season: 1,
-    runtime: 30,
-    showId: "1",
-    summary: "Test Summary 2",
-  },
+const DEFAULT_EPISODES = [
+  { ...testEpisode, airDate: new Date("2000-01-01") },
+  { ...testEpisode2, airDate: new Date("2000-01-01") },
 ];
 
 const show: Show & { archived: boolean; episodes: Episode[] } = {
+  ...testShow,
   archived: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "1",
-  imageUrl: "https://example.com/image.png",
-  mazeId: "1",
-  name: "Test Show 1",
-  summary: "Test Summary",
-  premiered: new Date(),
-  ended: null,
-  rating: 5,
   episodes: DEFAULT_EPISODES,
 };
 
 const showWithoutEpisodes: Show & { archived: boolean; episodes: Episode[] } = {
+  ...testShow,
   archived: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "1",
-  imageUrl: "https://example.com/image.png",
-  mazeId: "1",
-  name: "Test Show 1",
-  summary: "Test Summary",
-  premiered: new Date(),
-  ended: null,
-  rating: 5,
   episodes: [],
 };
 
@@ -93,7 +50,7 @@ test("renders show header", async () => {
   expect(
     screen.getByText(new Date(show.premiered).toLocaleDateString())
   ).toBeInTheDocument();
-  expect(screen.getByText("5")).toBeInTheDocument();
+  expect(screen.getByText("8.5")).toBeInTheDocument();
   expect(
     screen.getByText("Mark all aired episodes as watched")
   ).toBeInTheDocument();
