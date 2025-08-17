@@ -3,9 +3,9 @@ import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testEpisode, testShow } from "../test-utils";
 import TVShow from "./tv.$show";
 import type { loader } from "./tv.$show";
-import { testEpisode, testShow } from "~/test-utils";
 
 beforeEach(() => {
   vi.mock("react-router", () => {

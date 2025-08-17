@@ -3,8 +3,8 @@ import { useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testEpisode, testEpisode2 } from "../test-utils";
 import EpisodeList from "./episode-list";
-import { testEpisode, testEpisode2 } from "~/test-utils";
 
 const DEFAULT_EPISODES = [testEpisode, testEpisode2];
 

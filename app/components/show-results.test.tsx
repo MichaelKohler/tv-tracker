@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testShow } from "../test-utils";
 import ShowResults from "./show-results";
-import { testShow } from "~/test-utils";
 
 const shows = [
   testShow,

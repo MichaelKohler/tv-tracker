@@ -4,8 +4,8 @@ import type { Episode, Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testEpisode, testEpisode2, testShow } from "../test-utils";
 import ShowHeader from "./show-header";
-import { testEpisode, testEpisode2, testShow } from "~/test-utils";
 
 const DEFAULT_EPISODES = [
   { ...testEpisode, airDate: new Date("2000-01-01") },

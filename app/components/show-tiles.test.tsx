@@ -3,8 +3,8 @@ import "@testing-library/jest-dom";
 
 import type { Show } from "@prisma/client";
 
+import { testShow } from "../test-utils";
 import ShowTiles from "./show-tiles";
-import { testShow } from "~/test-utils";
 
 const shows: (Show & { archived: boolean })[] = [
   { ...testShow, archived: false },

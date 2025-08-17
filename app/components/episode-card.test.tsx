@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+
+import { testEpisode, testShow } from "../test-utils";
 import EpisodeCard from "./episode-card";
-import { testEpisode, testShow } from "~/test-utils";
 
 beforeEach(() => {
   vi.mock("react-router", async () => {

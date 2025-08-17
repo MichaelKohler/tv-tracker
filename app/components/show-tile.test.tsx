@@ -4,8 +4,8 @@ import { useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testShow } from "../test-utils";
 import ShowTile, { type Props } from "./show-tile";
-import { testShow } from "~/test-utils";
 
 const show: Props["show"] = {
   ...testShow,
