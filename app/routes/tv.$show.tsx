@@ -11,6 +11,7 @@ import {
 import ErrorAlert from "../components/error-alert";
 import EpisodeList from "../components/episode-list";
 import ShowHeader from "../components/show-header";
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   markEpisodeAsWatched,
   markAllEpisodesAsWatched,
@@ -41,7 +42,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
-  return showResult;
+  const [markAllAsWatched, ignoreUnwatchedOnOverview] = await Promise.all([
+    evaluateBoolean(request, FLAGS.MARK_ALL_AS_WATCHED),
+    evaluateBoolean(request, FLAGS.IGNORE_UNWATCHED_ON_OVERVIEW),
+  ]);
+
+  return {
+    ...showResult,
+    features: {
+      markAllAsWatched,
+      ignoreUnwatchedOnOverview,
+    },
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -124,7 +136,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function TVShow() {
-  const { show, watchedEpisodes } = useLoaderData<typeof loader>();
+  const { show, watchedEpisodes, features } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   const error = actionData?.error;
 
@@ -134,7 +146,11 @@ export default function TVShow() {
 
   return (
     <>
-      <ShowHeader show={show} watchedEpisodes={watchedEpisodes} />
+      <ShowHeader
+        show={show}
+        watchedEpisodes={watchedEpisodes}
+        features={features}
+      />
 
       {error && error === "MARKING_ALL_EPISODES_FAILED" && (
         <div className="mb-8 mt-2">

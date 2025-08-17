@@ -6,6 +6,21 @@ import "@testing-library/jest-dom";
 import TVShow from "./tv.$show";
 import type { loader } from "./tv.$show";
 
+const episode = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  id: "1",
+  name: "Episode 1",
+  season: 1,
+  number: 1,
+  airDate: new Date("2022-01-01"),
+  showId: "1",
+  mazeId: "1",
+  imageUrl: "",
+  summary: "Episode summary",
+  runtime: 60,
+};
+
 beforeEach(() => {
   vi.mock("react-router", () => {
     return {
@@ -23,12 +38,6 @@ beforeEach(() => {
   vi.mock("../components/episode-list", async () => {
     return {
       default: () => <p>EpisodeList</p>,
-    };
-  });
-
-  vi.mock("../components/show-header", async () => {
-    return {
-      default: () => <p>ShowHeader</p>,
     };
   });
 
@@ -59,10 +68,14 @@ beforeEach(() => {
       summary: "Summary",
       createdAt: new Date("2022-01-01"),
       updatedAt: new Date("2022-01-01"),
-      episodes: [],
+      episodes: [episode],
       archived: false,
     },
     watchedEpisodes: [],
+    features: {
+      markAllAsWatched: true,
+      ignoreUnwatchedOnOverview: true,
+    },
   });
 
   vi.mocked(useActionData).mockReturnValue({
@@ -73,9 +86,83 @@ beforeEach(() => {
 test("renders detail page", () => {
   render(<TVShow />);
 
-  expect(screen.getByText("ShowHeader")).toBeInTheDocument();
+  expect(screen.getByText("ShowName")).toBeInTheDocument();
   expect(screen.getByText("Episodes")).toBeInTheDocument();
   expect(screen.getByText("EpisodeList")).toBeInTheDocument();
+});
+
+test("renders detail page with mark all as watched button", () => {
+  render(<TVShow />);
+
+  expect(
+    screen.getByText("Mark all aired episodes as watched")
+  ).toBeInTheDocument();
+});
+
+test("renders detail page without mark all as watched button", () => {
+  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
+    show: {
+      id: "1",
+      name: "ShowName",
+      mazeId: "1",
+      premiered: new Date("2022-01-01"),
+      ended: null,
+      rating: 1,
+      imageUrl: "",
+      summary: "Summary",
+      createdAt: new Date("2022-01-01"),
+      updatedAt: new Date("2022-01-01"),
+      episodes: [episode],
+      archived: false,
+    },
+    watchedEpisodes: [],
+    features: {
+      markAllAsWatched: false,
+      ignoreUnwatchedOnOverview: true,
+    },
+  });
+
+  render(<TVShow />);
+
+  expect(
+    screen.queryByText("Mark all aired episodes as watched")
+  ).not.toBeInTheDocument();
+});
+
+test("renders detail page with ignore unwatched on overview button", () => {
+  render(<TVShow />);
+
+  expect(screen.getByText("Ignore unwatched on overview")).toBeInTheDocument();
+});
+
+test("renders detail page without ignore unwatched on overview button", () => {
+  vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
+    show: {
+      id: "1",
+      name: "ShowName",
+      mazeId: "1",
+      premiered: new Date("2022-01-01"),
+      ended: null,
+      rating: 1,
+      imageUrl: "",
+      summary: "Summary",
+      createdAt: new Date("2022-01-01"),
+      updatedAt: new Date("2022-01-01"),
+      episodes: [episode],
+      archived: false,
+    },
+    watchedEpisodes: [],
+    features: {
+      markAllAsWatched: true,
+      ignoreUnwatchedOnOverview: false,
+    },
+  });
+
+  render(<TVShow />);
+
+  expect(
+    screen.queryByText("Ignore unwatched on overview")
+  ).not.toBeInTheDocument();
 });
 
 test("renders error if marking all episodes failed", () => {

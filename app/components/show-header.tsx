@@ -7,9 +7,13 @@ import Spinner from "./spinner";
 interface Props {
   show: Show & { archived: boolean; episodes: Episode[] };
   watchedEpisodes: Episode["id"][];
+  features: {
+    markAllAsWatched: boolean;
+    ignoreUnwatchedOnOverview: boolean;
+  };
 }
 
-export default function ShowHeader({ show, watchedEpisodes }: Props) {
+export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
   const navigation = useNavigation();
   const submissionIntent = navigation?.formData?.get("intent");
   const pastEpisodes = show.episodes?.filter(
@@ -59,7 +63,8 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
                 <Spinner />
               </div>
             )}
-          {show.episodes &&
+          {features.markAllAsWatched &&
+            show.episodes &&
             show.episodes.length > 0 &&
             show.episodes.length !== watchedEpisodes.length &&
             submissionIntent !== "MARK_ALL_WATCHED" && (
@@ -82,19 +87,21 @@ export default function ShowHeader({ show, watchedEpisodes }: Props) {
                 <Spinner />
               </div>
             )}
-          {!show.archived && submissionIntent !== "ARCHIVE" && (
-            <Form method="post">
-              <input type="hidden" name="intent" value="ARCHIVE" />
-              <input type="hidden" name="showId" value={show.id} />
-              <button
-                type="submit"
-                disabled={!!navigation.formData}
-                className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
-              >
-                Ignore unwatched on overview
-              </button>
-            </Form>
-          )}
+          {features.ignoreUnwatchedOnOverview &&
+            !show.archived &&
+            submissionIntent !== "ARCHIVE" && (
+              <Form method="post">
+                <input type="hidden" name="intent" value="ARCHIVE" />
+                <input type="hidden" name="showId" value={show.id} />
+                <button
+                  type="submit"
+                  disabled={!!navigation.formData}
+                  className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
+                >
+                  Ignore unwatched on overview
+                </button>
+              </Form>
+            )}
           {show.archived && submissionIntent !== "UNARCHIVE" && (
             <Form method="post">
               <input type="hidden" name="intent" value="UNARCHIVE" />

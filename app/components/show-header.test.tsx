@@ -79,7 +79,13 @@ beforeEach(() => {
 });
 
 test("renders show header", async () => {
-  render(<ShowHeader show={show} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={show}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(screen.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
   expect(screen.getByText(show.name)).toBeInTheDocument();
@@ -95,13 +101,25 @@ test("renders show header", async () => {
 });
 
 test("renders watch count correctly", async () => {
-  render(<ShowHeader show={show} watchedEpisodes={["1"]} />);
+  render(
+    <ShowHeader
+      show={show}
+      watchedEpisodes={["1"]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(screen.getByText(/Watched 1 of 2 aired episodes/)).toBeInTheDocument();
 });
 
 test("does not render mark all button if no episodes", async () => {
-  render(<ShowHeader show={showWithoutEpisodes} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={showWithoutEpisodes}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(
     screen.queryByText("Mark all aired episodes as watched")
@@ -109,7 +127,13 @@ test("does not render mark all button if no episodes", async () => {
 });
 
 test("does not render mark all button if all watched", async () => {
-  render(<ShowHeader show={show} watchedEpisodes={["1", "2"]} />);
+  render(
+    <ShowHeader
+      show={show}
+      watchedEpisodes={["1", "2"]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(
     screen.queryByText("Mark all aired episodes as watched")
@@ -122,7 +146,13 @@ test("renders archive button if not archived", async () => {
     archived: false,
   };
 
-  render(<ShowHeader show={notArchivedShow} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={notArchivedShow}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(screen.getByText("Ignore unwatched on overview")).toBeInTheDocument();
 });
@@ -133,7 +163,13 @@ test("renders unarchive button if not archived", async () => {
     archived: true,
   };
 
-  render(<ShowHeader show={archivedShow} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={archivedShow}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(
     screen.getByText("Unignore unwatched on overview")
@@ -154,7 +190,13 @@ test("renders spinner on mark all watched", async () => {
     },
   });
 
-  render(<ShowHeader show={show} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={show}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
   expect(
@@ -177,7 +219,13 @@ test("renders spinner on remove show", async () => {
     },
   });
 
-  render(<ShowHeader show={show} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={show}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
   expect(
@@ -200,7 +248,13 @@ test("renders spinner on archiving", async () => {
     },
   });
 
-  render(<ShowHeader show={show} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={show}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
   expect(
@@ -222,7 +276,13 @@ test("renders spinner on unarchiving", async () => {
     },
   });
 
-  render(<ShowHeader show={show} watchedEpisodes={[]} />);
+  render(
+    <ShowHeader
+      show={show}
+      watchedEpisodes={[]}
+      features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+    />
+  );
 
   expect(screen.getByTestId("spinner")).toBeInTheDocument();
   expect(
