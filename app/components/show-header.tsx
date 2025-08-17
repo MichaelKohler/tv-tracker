@@ -13,11 +13,7 @@ interface Props {
   };
 }
 
-export default function ShowHeader({
-  show,
-  watchedEpisodes,
-  features,
-}: Props) {
+export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
   const navigation = useNavigation();
   const submissionIntent = navigation?.formData?.get("intent");
   const pastEpisodes = show.episodes?.filter(

@@ -3,9 +3,23 @@ import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import * as flags from "../flags.server";
 import TVShow from "./tv.$show";
 import type { loader } from "./tv.$show";
+
+const episode = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  id: "1",
+  name: "Episode 1",
+  season: 1,
+  number: 1,
+  airDate: new Date("2022-01-01"),
+  showId: "1",
+  mazeId: "1",
+  imageUrl: "",
+  summary: "Episode summary",
+  runtime: 60,
+};
 
 beforeEach(() => {
   vi.mock("react-router", () => {
@@ -54,16 +68,7 @@ beforeEach(() => {
       summary: "Summary",
       createdAt: new Date("2022-01-01"),
       updatedAt: new Date("2022-01-01"),
-      episodes: [
-        {
-          id: "1",
-          name: "Episode 1",
-          season: 1,
-          episode: 1,
-          airDate: new Date("2022-01-01"),
-          showId: "1",
-        },
-      ],
+      episodes: [episode],
       archived: false,
     },
     watchedEpisodes: [],
@@ -107,16 +112,7 @@ test("renders detail page without mark all as watched button", () => {
       summary: "Summary",
       createdAt: new Date("2022-01-01"),
       updatedAt: new Date("2022-01-01"),
-      episodes: [
-        {
-          id: "1",
-          name: "Episode 1",
-          season: 1,
-          episode: 1,
-          airDate: new Date("2022-01-01"),
-          showId: "1",
-        },
-      ],
+      episodes: [episode],
       archived: false,
     },
     watchedEpisodes: [],
@@ -136,9 +132,7 @@ test("renders detail page without mark all as watched button", () => {
 test("renders detail page with ignore unwatched on overview button", () => {
   render(<TVShow />);
 
-  expect(
-    screen.getByText("Ignore unwatched on overview")
-  ).toBeInTheDocument();
+  expect(screen.getByText("Ignore unwatched on overview")).toBeInTheDocument();
 });
 
 test("renders detail page without ignore unwatched on overview button", () => {
@@ -154,16 +148,7 @@ test("renders detail page without ignore unwatched on overview button", () => {
       summary: "Summary",
       createdAt: new Date("2022-01-01"),
       updatedAt: new Date("2022-01-01"),
-      episodes: [
-        {
-          id: "1",
-          name: "Episode 1",
-          season: 1,
-          episode: 1,
-          airDate: new Date("2022-01-01"),
-          showId: "1",
-        },
-      ],
+      episodes: [episode],
       archived: false,
     },
     watchedEpisodes: [],
