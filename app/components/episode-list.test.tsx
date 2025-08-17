@@ -1,41 +1,12 @@
 import * as React from "react";
 import { useNavigation } from "react-router";
-import type { Episode } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import EpisodeList from "./episode-list";
+import { testEpisode, testEpisode2 } from "~/test-utils";
 
-const DEFAULT_EPISODES: Episode[] = [
-  {
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: "1",
-    airDate: new Date(),
-    imageUrl: "https://example.com/image.png",
-    mazeId: "1",
-    name: "Test Episode 1",
-    number: 1,
-    season: 1,
-    runtime: 30,
-    showId: "1",
-    summary: "Test Summary",
-  },
-  {
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    id: "2",
-    airDate: new Date(),
-    imageUrl: "https://example.com/image.png",
-    mazeId: "1",
-    name: "Test Episode 2",
-    number: 2,
-    season: 1,
-    runtime: 30,
-    showId: "1",
-    summary: "Test Summary 2",
-  },
-];
+const DEFAULT_EPISODES = [testEpisode, testEpisode2];
 
 beforeEach(() => {
   vi.mock("react-router", async () => {
