@@ -3,40 +3,58 @@ import { useActionData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { useLoaderData } from "react-router";
+
+import { evaluateBoolean } from "../flags.server";
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
 import Account, { action, loader } from "./account";
 
-beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+vi.mock("react-router", async (importOriginal) => {
+  const actual = await importOriginal();
 
-    return {
-      ...(actual as object),
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi
-        .fn()
-        .mockReturnValue({ webhookUrl: "http://webhook.example" }),
-      useSearchParams: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-      Link: ({ children }: { children: React.ReactNode }) => (
-        <span>{children}</span>
-      ),
-    };
-  });
-  vi.mock("../session.server", async () => {
-    return {
-      requireUser: vi.fn(),
-    };
-  });
-  vi.mock("../models/user.server", () => {
-    return {
-      changePassword: vi.fn(),
-      verifyLogin: vi.fn(),
-    };
+  return {
+    ...(actual as object),
+    useNavigation: vi.fn().mockReturnValue({}),
+    useActionData: vi.fn(),
+    useLoaderData: vi.fn(),
+    useSearchParams: vi.fn(),
+    Form: ({ children }: { children: React.ReactNode }) => (
+      <form>{children}</form>
+    ),
+    Link: ({ children }: { children: React.ReactNode }) => (
+      <span>{children}</span>
+    ),
+  };
+});
+vi.mock("../session.server", async () => {
+  return {
+    requireUser: vi.fn(),
+  };
+});
+vi.mock("../models/user.server", () => {
+  return {
+    changePassword: vi.fn(),
+    verifyLogin: vi.fn(),
+  };
+});
+vi.mock("../flags.server", () => {
+  return {
+    evaluateBoolean: vi.fn(),
+    FLAGS: {
+      PASSWORD_CHANGE: "password-change",
+      DELETE_ACCOUNT: "delete-account",
+      PLEX: "plex",
+    },
+  };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: { passwordChange: true, deleteAccount: true, plex: true },
   });
 
   vi.mocked(useSearchParams).mockReturnValue([
@@ -65,7 +83,7 @@ beforeEach(() => {
   });
 });
 
-test("renders page", () => {
+test("renders page with password change form if feature is enabled", () => {
   render(<Account />);
 
   expect(screen.getByText("Current Password")).toBeInTheDocument();
@@ -80,6 +98,85 @@ test("renders page", () => {
   expect(
     screen.getByText(/Delete my account and all data/)
   ).toBeInTheDocument();
+});
+
+test("renders page without password change form if feature is disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: { passwordChange: false, deleteAccount: true },
+  });
+
+  render(<Account />);
+
+  expect(screen.queryByText("Current Password")).not.toBeInTheDocument();
+  expect(screen.queryByText("New Password")).not.toBeInTheDocument();
+  expect(screen.queryByText("Confirm Password")).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: /Change password/i })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(
+      /The password change functionality is currently disabled. Please try again later./
+    )
+  ).toBeInTheDocument();
+});
+
+test("renders page without delete account form if feature is disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: {
+      passwordChange: true,
+      deleteAccount: false,
+      plex: true,
+    },
+  });
+
+  render(<Account />);
+
+  expect(
+    screen.queryByText(/Deleting your account will also delete/)
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByText(/Delete my account and all data/)
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(
+      /The account deletion functionality is currently disabled. Please try again later./
+    )
+  ).toBeInTheDocument();
+});
+
+test("renders page without plex section if feature is disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    webhookUrl: "http://webhook.example",
+    features: {
+      passwordChange: true,
+      deleteAccount: true,
+      plex: false,
+    },
+  });
+
+  render(<Account />);
+
+  expect(screen.queryByText(/Plex Webhook/)).not.toBeInTheDocument();
+});
+
+test("loader should fetch the feature flags", async () => {
+  await loader({
+    request: new Request("http://localhost:8080/account"),
+    context: {},
+    params: {},
+  });
+
+  expect(evaluateBoolean).toHaveBeenCalledWith(
+    expect.any(Request),
+    "password-change"
+  );
+  expect(evaluateBoolean).toHaveBeenCalledWith(
+    expect.any(Request),
+    "delete-account"
+  );
+  expect(evaluateBoolean).toHaveBeenCalledWith(expect.any(Request), "plex");
 });
 
 test("renders error message for generic", () => {

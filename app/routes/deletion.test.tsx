@@ -1,25 +1,36 @@
 import * as React from "react";
-import { useActionData } from "react-router";
+import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { evaluateBoolean, FLAGS } from "../flags.server";
 import * as user from "../models/user.server";
 import { requireUserId } from "../session.server";
 import Deletion, { action, loader } from "./deletion";
 
-beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+vi.mock("../flags.server", () => {
+  return {
+    evaluateBoolean: vi.fn(),
+    FLAGS: {
+      DELETE_ACCOUNT: "delete-account",
+    },
+  };
+});
+vi.mock("react-router", async (importOriginal) => {
+  const actual = await importOriginal();
 
-    return {
-      ...(actual as object),
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-    };
-  });
+  return {
+    ...(actual as object),
+    useNavigation: vi.fn().mockReturnValue({}),
+    useActionData: vi.fn(),
+    useLoaderData: vi.fn(),
+    Form: ({ children }: { children: React.ReactNode }) => (
+      <form>{children}</form>
+    ),
+  };
+});
+
+beforeEach(() => {
 
   vi.mock("../db.server");
 
@@ -37,9 +48,13 @@ beforeEach(() => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
+
+  vi.mocked(useLoaderData).mockReturnValue({
+    deleteAccountEnabled: true,
+  });
 });
 
-test("renders deletion form", () => {
+test("renders deletion form if feature is enabled", () => {
   render(<Deletion />);
 
   expect(
@@ -47,6 +62,23 @@ test("renders deletion form", () => {
   ).toBeInTheDocument();
   expect(
     screen.getByText(/Delete my account and all data/)
+  ).toBeInTheDocument();
+});
+
+test("renders message if feature is disabled", () => {
+  vi.mocked(useLoaderData).mockReturnValue({
+    deleteAccountEnabled: false,
+  });
+
+  render(<Deletion />);
+
+  expect(
+    screen.queryByText(/Are you sure you want to delete your account/)
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByText(
+      /The account deletion functionality is currently disabled. Please try again later./
+    )
   ).toBeInTheDocument();
 });
 
@@ -62,16 +94,31 @@ test("renders error message for deletion", () => {
   expect(screen.getByText("DELETION_ERROR")).toBeInTheDocument();
 });
 
-test("loader throws if there is no user", async () => {
-  vi.mocked(requireUserId).mockRejectedValue(new Error("NO_USER"));
+test("loader should call evaluateBoolean", async () => {
+  vi.mocked(evaluateBoolean).mockResolvedValue(true);
 
-  await expect(() =>
-    loader({
-      request: new Request("http://localhost:8080/deletion"),
-      context: {},
-      params: {},
-    })
-  ).rejects.toThrow();
+  await loader({
+    request: new Request("http://localhost:8080/deletion"),
+    context: {},
+    params: {},
+  });
+
+  expect(evaluateBoolean).toHaveBeenCalledWith(
+    expect.any(Request),
+    FLAGS.DELETE_ACCOUNT
+  );
+});
+
+test("loader should not require user if feature is disabled", async () => {
+  vi.mocked(evaluateBoolean).mockResolvedValue(false);
+
+  await loader({
+    request: new Request("http://localhost:8080/deletion"),
+    context: {},
+    params: {},
+  });
+
+  expect(requireUserId).not.toHaveBeenCalled();
 });
 
 test("action should delete user and logout if everything ok", async () => {

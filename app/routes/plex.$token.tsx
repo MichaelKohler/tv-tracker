@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 
+import { evaluateBoolean, FLAGS } from "../flags.server";
 import {
   getEpisodeByShowIdAndNumbers,
   markEpisodeAsWatched,
@@ -8,6 +9,10 @@ import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
+  const plexEnabled = await evaluateBoolean(request, FLAGS.PLEX);
+  if (!plexEnabled) {
+    return {};
+  }
   const body = await request.formData();
   const payload = body.get("payload");
   const parsedPayload = JSON.parse(payload as string);
