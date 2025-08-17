@@ -8,6 +8,7 @@ const mockFeatures = {
   upcomingRoute: true,
   recentlyWatchedRoute: true,
   statsRoute: true,
+  maintenanceMode: false,
 };
 
 beforeEach(() => {

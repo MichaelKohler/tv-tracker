@@ -12,6 +12,7 @@ export default function Header({
     upcomingRoute: boolean;
     recentlyWatchedRoute: boolean;
     statsRoute: boolean;
+    maintenanceMode: boolean;
   };
 }) {
   const user = useOptionalUser();

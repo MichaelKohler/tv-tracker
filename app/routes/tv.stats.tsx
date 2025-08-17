@@ -114,8 +114,8 @@ export default function TVStats() {
   } = data;
 
   const archivedPercentage =
-    showsTracked > 0
-      ? Math.round((archivedShowsCount / showsTracked) * 100)
+    (showsTracked ?? 0) > 0
+      ? Math.round(((archivedShowsCount ?? 0) / (showsTracked ?? 1)) * 100)
       : 0;
 
   return (
@@ -128,27 +128,27 @@ export default function TVStats() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <StatCard
             title="Total Watch Time"
-            value={formatWatchTime(totalWatchTime)}
+            value={formatWatchTime(totalWatchTime ?? 0)}
             description="Time spent watching tracked episodes"
           />
           <StatCard
             title="Shows Tracked"
-            value={showsTracked}
+            value={showsTracked ?? 0}
             description="Total number of shows you're following"
           />
           <StatCard
             title="Episodes Watched"
-            value={watchedEpisodesCount}
+            value={watchedEpisodesCount ?? 0}
             description="Total episodes marked as watched"
           />
           <StatCard
             title="Episodes Not Watched"
-            value={unwatchedEpisodesCount}
+            value={unwatchedEpisodesCount ?? 0}
             description="Aired episodes from tracked shows (incl. archived)"
           />
           <StatCard
             title="Shows Archived"
-            value={`${archivedShowsCount} (${archivedPercentage}%)`}
+            value={`${archivedShowsCount ?? 0} (${archivedPercentage}%)`}
             description="Shows hidden from overview"
           />
         </div>
@@ -159,18 +159,18 @@ export default function TVStats() {
         <h2 className="mb-4 font-title text-3xl">Last 12 Months</h2>
 
         {/* Chart */}
-        {last12MonthsStats.length > 0 && (
+        {(last12MonthsStats?.length ?? 0) > 0 && (
           <div className="mb-8">
-            <MonthlyEpisodesChart data={last12MonthsStats} />
+            <MonthlyEpisodesChart data={last12MonthsStats ?? []} />
           </div>
         )}
 
         {/* Monthly Stats */}
-        {last12MonthsStats.length > 0 && (
+        {(last12MonthsStats?.length ?? 0) > 0 && (
           <div>
             <h3 className="mb-4 text-xl font-semibold">Monthly Breakdown</h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {last12MonthsStats.map((month) => (
+              {last12MonthsStats?.map((month) => (
                 <div
                   key={month.month}
                   className="rounded-lg border border-mklight-100 bg-white p-4 shadow-sm"
@@ -195,7 +195,7 @@ export default function TVStats() {
           </div>
         )}
 
-        {last12MonthsStats.length === 0 && (
+        {(last12MonthsStats?.length ?? 0) === 0 && (
           <p className="text-gray-600">
             No viewing activity in the last 12 months.
           </p>

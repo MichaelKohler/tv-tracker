@@ -14,6 +14,7 @@ vi.mock("../flags.server", async (importOriginal) => {
     evaluateBoolean: vi.fn(),
   };
 });
+vi.mock("../db.server");
 vi.mock("../models/episode.server");
 vi.mock("../models/show.server");
 vi.mock("../session.server", async () => {
@@ -22,7 +23,7 @@ vi.mock("../session.server", async () => {
   };
 });
 vi.mock("../components/stat-card", () => ({
-  default: ({ title, value }: { title: string; value: any }) => (
+  default: ({ title, value }: { title: string; value: string | number }) => (
     <div>
       <div>{title}</div>
       <div>{value}</div>
@@ -40,6 +41,7 @@ const renderComponent = (loaderFn: typeof loader) => {
         path: "/",
         element: <TVStats />,
         loader: loaderFn,
+        ErrorBoundary: () => <div>Error</div>,
       },
     ],
     { initialEntries: ["/"] }

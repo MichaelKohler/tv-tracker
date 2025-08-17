@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { createMemoryRouter, RouterProvider } from "react-router";
+import type { Episode, Show } from "@prisma/client";
 
 import * as flags from "../flags.server";
 import { getUpcomingEpisodes } from "../models/episode.server";
@@ -13,29 +14,58 @@ vi.mock("../flags.server", async (importOriginal) => {
     evaluateBoolean: vi.fn(),
   };
 });
+vi.mock("../db.server");
 vi.mock("../models/episode.server");
 vi.mock("../session.server", async () => {
   return {
     requireUserId: vi.fn().mockResolvedValue("123"),
   };
 });
+
 vi.mock("../components/upcoming-episodes-list", () => ({
-  default: ({ episodes }: { episodes: any }) => (
+  default: ({
+    episodes,
+  }: {
+    episodes: Record<string, (Episode & { show: Show })[]>;
+  }) => (
     <div>
-      {Object.values(episodes).map((month: any) =>
-        month.map((episode: any) => (
-          <div key={episode.id}>{episode.name}</div>
-        ))
+      {Object.values(episodes).map((month) =>
+        month.map((episode) => <div key={episode.id}>{episode.name}</div>)
       )}
     </div>
   ),
 }));
 
-const mockEpisodes = [
+const MOCK_DATE = new Date("2024-01-01");
+
+const mockShow: Show = {
+  id: "1",
+  name: "Test Show",
+  mazeId: "1",
+  premiered: MOCK_DATE,
+  ended: null,
+  imageUrl: "",
+  summary: "",
+  rating: null,
+  createdAt: MOCK_DATE,
+  updatedAt: MOCK_DATE,
+};
+
+const mockEpisodes: (Episode & { show: Show })[] = [
   {
     id: "1",
-    airDate: new Date(),
     name: "Test Episode 1",
+    season: 1,
+    number: 1,
+    airDate: MOCK_DATE,
+    runtime: 60,
+    imageUrl: "",
+    summary: "",
+    showId: "1",
+    mazeId: "1",
+    createdAt: MOCK_DATE,
+    updatedAt: MOCK_DATE,
+    show: mockShow,
   },
 ];
 
@@ -46,6 +76,7 @@ const renderComponent = (loaderFn: typeof loader) => {
         path: "/",
         element: <TVUpcoming />,
         loader: loaderFn,
+        ErrorBoundary: () => <div>Error</div>,
       },
     ],
     { initialEntries: ["/"] }
@@ -98,7 +129,7 @@ describe("TVUpcoming", () => {
         params: {},
       });
 
-      const month = new Date().toLocaleString("default", {
+      const month = MOCK_DATE.toLocaleString("default", {
         month: "long",
         year: "numeric",
       });
