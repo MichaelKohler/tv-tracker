@@ -4,20 +4,12 @@ import { useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testShow } from "../test-utils";
 import ShowTile, { type Props } from "./show-tile";
 
 const show: Props["show"] = {
+  ...testShow,
   archived: false,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "1",
-  imageUrl: "https://example.com/image.png",
-  mazeId: "1",
-  name: "Test Show 1",
-  summary: "Test Summary",
-  premiered: new Date(),
-  ended: null,
-  rating: 5,
   unwatchedEpisodesCount: 1,
 };
 

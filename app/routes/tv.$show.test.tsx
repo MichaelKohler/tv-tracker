@@ -3,23 +3,9 @@ import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testEpisode, testShow } from "../test-utils";
 import TVShow from "./tv.$show";
 import type { loader } from "./tv.$show";
-
-const episode = {
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  id: "1",
-  name: "Episode 1",
-  season: 1,
-  number: 1,
-  airDate: new Date("2022-01-01"),
-  showId: "1",
-  mazeId: "1",
-  imageUrl: "",
-  summary: "Episode summary",
-  runtime: 60,
-};
 
 beforeEach(() => {
   vi.mock("react-router", () => {
@@ -58,17 +44,8 @@ beforeEach(() => {
 
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
     show: {
-      id: "1",
-      name: "ShowName",
-      mazeId: "1",
-      premiered: new Date("2022-01-01"),
-      ended: null,
-      rating: 1,
-      imageUrl: "",
-      summary: "Summary",
-      createdAt: new Date("2022-01-01"),
-      updatedAt: new Date("2022-01-01"),
-      episodes: [episode],
+      ...testShow,
+      episodes: [testEpisode],
       archived: false,
     },
     watchedEpisodes: [],
@@ -86,7 +63,7 @@ beforeEach(() => {
 test("renders detail page", () => {
   render(<TVShow />);
 
-  expect(screen.getByText("ShowName")).toBeInTheDocument();
+  expect(screen.getByText("Test Show")).toBeInTheDocument();
   expect(screen.getByText("Episodes")).toBeInTheDocument();
   expect(screen.getByText("EpisodeList")).toBeInTheDocument();
 });
@@ -102,17 +79,8 @@ test("renders detail page with mark all as watched button", () => {
 test("renders detail page without mark all as watched button", () => {
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
     show: {
-      id: "1",
-      name: "ShowName",
-      mazeId: "1",
-      premiered: new Date("2022-01-01"),
-      ended: null,
-      rating: 1,
-      imageUrl: "",
-      summary: "Summary",
-      createdAt: new Date("2022-01-01"),
-      updatedAt: new Date("2022-01-01"),
-      episodes: [episode],
+      ...testShow,
+      episodes: [testEpisode],
       archived: false,
     },
     watchedEpisodes: [],
@@ -138,17 +106,8 @@ test("renders detail page with ignore unwatched on overview button", () => {
 test("renders detail page without ignore unwatched on overview button", () => {
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
     show: {
-      id: "1",
-      name: "ShowName",
-      mazeId: "1",
-      premiered: new Date("2022-01-01"),
-      ended: null,
-      rating: 1,
-      imageUrl: "",
-      summary: "Summary",
-      createdAt: new Date("2022-01-01"),
-      updatedAt: new Date("2022-01-01"),
-      episodes: [episode],
+      ...testShow,
+      episodes: [testEpisode],
       archived: false,
     },
     watchedEpisodes: [],

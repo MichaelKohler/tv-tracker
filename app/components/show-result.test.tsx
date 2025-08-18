@@ -1,23 +1,12 @@
 import * as React from "react";
 import { useNavigation } from "react-router";
-import type { Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { testShow } from "../test-utils";
 import ShowResult from "./show-result";
 
-const show: Show = {
-  createdAt: new Date("2022-01-01T00:00:00Z"),
-  updatedAt: new Date("2022-01-01T00:00:00Z"),
-  id: "1",
-  imageUrl: "https://example.com/image.png",
-  mazeId: "1",
-  name: "Test Show 1",
-  summary: "Test Summary",
-  premiered: new Date("2022-01-01T00:00:00Z"),
-  ended: null,
-  rating: 5,
-};
+const show = testShow;
 
 beforeEach(() => {
   vi.mock("react-router", async () => {
@@ -38,7 +27,7 @@ test("renders show result", async () => {
   expect(
     screen.getByText(new Date(show.premiered).toLocaleDateString())
   ).toBeInTheDocument();
-  expect(screen.getByText("5")).toBeInTheDocument();
+  expect(screen.getByText("8.5")).toBeInTheDocument();
   expect(screen.getByText("Add Show")).toBeInTheDocument();
 });
 

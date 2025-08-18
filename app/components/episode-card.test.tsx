@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+
+import { testEpisode, testShow } from "../test-utils";
 import EpisodeCard from "./episode-card";
 
 beforeEach(() => {
@@ -14,31 +16,9 @@ beforeEach(() => {
 
 test("renders episode card and does not decode summary", () => {
   const episode = {
-    id: "1",
-    name: "Episode 1",
-    season: 1,
-    number: 1,
-    airDate: new Date(),
+    ...testEpisode,
     summary: "a &lt; b",
-    imageUrl: "",
-    show: {
-      id: "1",
-      name: "Show 1",
-      imageUrl: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      premiered: new Date(),
-      ended: null,
-      rating: 1,
-      mazeId: "1",
-      summary: "summary",
-    },
-    date: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    showId: "1",
-    mazeId: "1",
-    runtime: 30,
+    show: testShow,
   };
 
   render(<EpisodeCard episode={episode} />);
