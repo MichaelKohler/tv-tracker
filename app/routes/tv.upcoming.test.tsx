@@ -77,6 +77,7 @@ const renderComponent = (loaderFn: typeof loader) => {
         element: <TVUpcoming />,
         loader: loaderFn,
         ErrorBoundary: () => <div>Error</div>,
+        HydrateFallback: () => <div>Loading...</div>,
       },
     ],
     { initialEntries: ["/"] }

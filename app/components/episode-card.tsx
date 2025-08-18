@@ -17,7 +17,7 @@ export default function EpisodeCard({ episode }: Props) {
       >
         <div className="min-h-[140px] min-w-[125px] flex-none">
           <img
-            src={episode.show.imageUrl || ""}
+            src={episode.show.imageUrl || "/episode-fallback.png"}
             alt=""
             loading="lazy"
             className="rounded-lg"

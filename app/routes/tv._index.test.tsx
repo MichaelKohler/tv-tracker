@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useLoaderData } from "react-router";
-import { act, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import Index, { type loader } from "./tv._index";
@@ -45,7 +45,7 @@ beforeEach(() => {
 });
 
 test("renders page without shows", async () => {
-  act(() => render(<Index />));
+  render(<Index />);
 
   await vi.waitFor(() =>
     expect(screen.getByTestId("search-input")).toBeInTheDocument()
@@ -68,7 +68,7 @@ test("does not render search when feature is disabled", async () => {
     },
   });
 
-  act(() => render(<Index />));
+  render(<Index />);
 
   await vi.waitFor(() =>
     expect(screen.queryByTestId("search-input")).not.toBeInTheDocument()
@@ -91,7 +91,7 @@ test("renders page with shows", async () => {
     },
   });
 
-  act(() => render(<Index />));
+  render(<Index />);
 
   await vi.waitFor(() =>
     expect(screen.getByTestId("search-input")).toBeInTheDocument()
