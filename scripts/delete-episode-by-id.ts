@@ -27,6 +27,6 @@ if (!EPISODE_ID) {
 }
 
 deleteEpisode(EPISODE_ID).catch((e) => {
-  console.error(e);
+  console.error(e.message);
   process.exit(1);
 });

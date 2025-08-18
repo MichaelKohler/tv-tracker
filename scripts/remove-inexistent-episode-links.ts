@@ -41,6 +41,6 @@ if (!DATABASE_URL) {
 }
 
 check().catch((e) => {
-  console.error(e);
+  console.error(e.message);
   process.exit(1);
 });

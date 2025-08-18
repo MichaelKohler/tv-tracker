@@ -104,7 +104,6 @@ async function fetch(showId: string) {
       return await fetch(showId);
     }
 
-    console.error(error);
     process.exit(1);
   }
 }

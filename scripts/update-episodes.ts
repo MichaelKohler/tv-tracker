@@ -72,7 +72,6 @@ async function fetch(mazeId: string) {
       return await fetch(mazeId);
     }
 
-    console.error(error);
     process.exit(1);
   }
 }
@@ -85,6 +84,6 @@ if (!DATABASE_URL) {
 }
 
 update().catch((e) => {
-  console.error(e);
+  console.error(e.message);
   process.exit(1);
 });

@@ -127,6 +127,6 @@ const season = parseInt(TV_EPISODE_SEASON, 10);
 const number = parseInt(TV_EPISODE_NUMBER, 10);
 
 updateEpisode(TV_SHOW_NAME, season, number).catch((e) => {
-  console.error(e);
+  console.error(e.message);
   process.exit(1);
 });
