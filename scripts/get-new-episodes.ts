@@ -104,7 +104,8 @@ async function fetch(showId: string) {
       return await fetch(showId);
     }
 
-    throw error;
+    console.error(error);
+    process.exit(1);
   }
 }
 
@@ -115,4 +116,7 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-update();
+update().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
