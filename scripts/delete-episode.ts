@@ -2,7 +2,7 @@ import type { Episode, Show } from "@prisma/client";
 
 import { prisma } from "../app/db.server";
 
-async function updateEpisode(
+async function deleteEpisode(
   showName: Show["name"],
   season: Episode["season"],
   number: Episode["number"]
@@ -67,4 +67,7 @@ if (!TV_EPISODE_NUMBER) {
 const season = parseInt(TV_EPISODE_SEASON, 10);
 const number = parseInt(TV_EPISODE_NUMBER, 10);
 
-updateEpisode(TV_SHOW_NAME, season, number);
+deleteEpisode(TV_SHOW_NAME, season, number).catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});

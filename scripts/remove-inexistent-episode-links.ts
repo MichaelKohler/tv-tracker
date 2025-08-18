@@ -40,4 +40,7 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-check();
+check().catch((e) => {
+  console.error(e.message);
+  process.exit(1);
+});
