@@ -1,0 +1,37 @@
+name: 📺 Update Show Status
+
+on:
+  schedule:
+    # Every Monday at 3:00 AM CET/CEST
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  update-show-status:
+    name: ⬣ Update Show Status
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v5
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: ✨ Update Show Status
+        run: npm run update:show:status
+        env:
+          NODE_ENV: production
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SESSION_SECRET: "unused"
+          FLIPT_URL: ${{ vars.FLIPT_URL }}
+          FLIPT_TOKEN: ${{ secrets.FLIPT_TOKEN }}
+          FLIPT_ENVIRONMENT: ${{ vars.FLIPT_ENVIRONMENT }}

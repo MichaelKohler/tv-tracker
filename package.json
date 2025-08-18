@@ -26,6 +26,7 @@
     "update:episode:force": "tsx scripts/force-episode-update.ts",
     "update:episodes": "tsx scripts/get-new-episodes.ts",
     "update:episodes:info": "tsx scripts/update-episodes.ts",
+    "update:show:status": "tsx scripts/update-show-status.ts",
     "validate": "run-p \"test -- --run\" lint typecheck test:e2e"
   },
   "prettier": {
