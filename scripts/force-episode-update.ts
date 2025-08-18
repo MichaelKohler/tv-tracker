@@ -1,5 +1,4 @@
 import type { Episode, Show } from "@prisma/client";
-import axios from "axios";
 import striptags from "striptags";
 
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
@@ -75,9 +74,8 @@ async function updateEpisode(
   }
 
   console.log(`Fetching latest episode info from maze ${episode.mazeId}`);
-  const { data: episodeResult } = await axios.get(
-    `${TV_EPISODE_API_PREFIX}${episode.mazeId}`
-  );
+  const response = await fetch(`${TV_EPISODE_API_PREFIX}${episode.mazeId}`);
+  const episodeResult = await response.json();
 
   if (!episodeResult) {
     throw new Error("EPISODE_NOT_FOUND");

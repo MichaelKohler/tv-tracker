@@ -1,5 +1,4 @@
 import type { Episode } from "@prisma/client";
-import axios from "axios";
 import striptags from "striptags";
 
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
@@ -38,7 +37,7 @@ async function update() {
 
 async function updateEpisode(episode: Episode) {
   console.log(`Fetching mazeId ${episode.mazeId}`);
-  const episodeResult = await fetch(episode.mazeId);
+  const episodeResult = await fetchEpisode(episode.mazeId);
 
   if (!episodeResult) {
     throw new Error("EPISODE_NOT_FOUND");
@@ -57,20 +56,24 @@ async function updateEpisode(episode: Episode) {
   });
 }
 
-async function fetch(mazeId: string) {
+async function fetchEpisode(mazeId: string) {
   try {
-    const { data } = await axios.get(`${TV_EPISODE_API_PREFIX}${mazeId}`);
+    const response = await fetch(`${TV_EPISODE_API_PREFIX}${mazeId}`);
 
-    return data;
+    if (response.status === 429) {
+      console.error("Rate limited, waiting 5 seconds..");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      return await fetchEpisode(mazeId);
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch episode: ${response.statusText}`);
+    }
+
+    return await response.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Failed to update episode", { message: error.message });
-
-    if (error.response && error.response.status === 429) {
-      console.error("Rate limited, waiting 5 seconds..");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      return await fetch(mazeId);
-    }
 
     process.exit(1);
   }

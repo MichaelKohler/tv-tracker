@@ -1,5 +1,4 @@
 import type { Show } from "@prisma/client";
-import axios from "axios";
 
 import { TV_GET_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
@@ -115,35 +114,32 @@ async function fetchShowFromAPI(
   const maxRetries = 3;
 
   try {
-    const response = await axios.get(`${TV_GET_API_PREFIX}${mazeId}`);
-    return response.data as TVMazeShowResponse;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      // Handle rate limiting with retry logic
-      if (error.response?.status === 429 && retryCount < maxRetries) {
-        console.log(
-          `Rate limited, waiting 5 seconds... (attempt ${retryCount + 1}/${maxRetries})`
-        );
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        return await fetchShowFromAPI(mazeId, retryCount + 1);
-      }
+    const response = await fetch(`${TV_GET_API_PREFIX}${mazeId}`);
 
-      // Handle show not found
-      if (error.response?.status === 404) {
-        console.log(`Show with mazeId ${mazeId} not found in TVMaze API`);
-        return null;
-      }
-
-      // Handle other HTTP errors
-      if (error.response?.status) {
-        console.error(
-          `HTTP error ${error.response.status} for mazeId ${mazeId}:`,
-          error.message
-        );
-        throw error;
-      }
+    if (response.status === 429 && retryCount < maxRetries) {
+      console.log(
+        `Rate limited, waiting 5 seconds... (attempt ${retryCount + 1}/${maxRetries})`
+      );
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      return await fetchShowFromAPI(mazeId, retryCount + 1);
     }
 
+    if (response.status === 404) {
+      console.log(`Show with mazeId ${mazeId} not found in TVMaze API`);
+      return null;
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        `HTTP error ${response.status} for mazeId ${mazeId}:`,
+        errorText
+      );
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    return response.json() as Promise<TVMazeShowResponse>;
+  } catch (error: unknown) {
     // Handle network or other errors
     console.error(`Network/unknown error for mazeId ${mazeId}:`, error);
     throw error;
