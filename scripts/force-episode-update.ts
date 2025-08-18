@@ -5,7 +5,7 @@ import striptags from "striptags";
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
 import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
-import { type EmbeddedEpisode } from "../app/models/show.server";
+import { type TVMazeEpisodeResponse } from "../app/types/tvmaze";
 import { fetchShowWithEmbededEpisodes } from "../app/models/maze.server";
 
 async function updateEpisode(
@@ -45,7 +45,7 @@ async function updateEpisode(
     console.log(`Episode not found, fetching info from TVMaze..`);
     const showWithEpisodes = await fetchShowWithEmbededEpisodes(show.mazeId);
     const fetchedEpisode = showWithEpisodes._embedded.episodes.find(
-      (episode: EmbeddedEpisode) => {
+      (episode: TVMazeEpisodeResponse) => {
         return episode.season === season && episode.number === number;
       }
     );

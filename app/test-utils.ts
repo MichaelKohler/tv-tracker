@@ -29,16 +29,16 @@ export const testEpisode: Episode = {
 };
 
 export const testEpisode2: Episode = {
-    id: "2",
-    name: "Test Episode 2",
-    season: 1,
-    number: 2,
-    airDate: new Date("2022-01-08"),
-    summary: "The second test episode.",
-    imageUrl: "https://example.com/episode2.png",
-    showId: "1",
-    mazeId: "2",
-    runtime: 30,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+  id: "2",
+  name: "Test Episode 2",
+  season: 1,
+  number: 2,
+  airDate: new Date("2022-01-08"),
+  summary: "The second test episode.",
+  imageUrl: "https://example.com/episode2.png",
+  showId: "1",
+  mazeId: "2",
+  runtime: 30,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };

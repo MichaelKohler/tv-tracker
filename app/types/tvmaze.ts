@@ -8,11 +8,11 @@ export interface TVMazeShowResponse {
   premiered: string;
   rating: {
     average: number;
-  } | null;
+  };
   summary: string;
   image: {
     medium: string;
-  } | null;
+  };
   _embedded?: {
     episodes: TVMazeEpisodeResponse[];
   };
@@ -26,12 +26,10 @@ export interface TVMazeEpisodeResponse {
   number: number;
   airdate: string;
   airstamp: string;
+  runtime: number | null;
   summary: string | null;
-  image?: {
+  image: {
     medium: string;
   } | null;
   [key: string]: unknown;
 }
-
-// Type alias for the embedded episodes in show responses
-export type EmbeddedEpisode = TVMazeEpisodeResponse;

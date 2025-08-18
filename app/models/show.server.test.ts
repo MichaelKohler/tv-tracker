@@ -664,7 +664,8 @@ test("getShowByUserIdAndName should return null when show is not found", async (
 
 test("prepareShow should strip and decode HTML entities", () => {
   const showResult = {
-    id: "maze1",
+    id: 1,
+    status: "Ended",
     name: "Name",
     premiered: "2022-01-01",
     ended: "2022-01-01",
@@ -679,10 +680,11 @@ test("prepareShow should strip and decode HTML entities", () => {
     _embedded: {
       episodes: [
         {
-          id: "1",
+          id: 1,
           name: "EpisodeName",
           season: 1,
           number: 1,
+          airdate: "2022-01-01",
           airstamp: "2022-01-01",
           runtime: 30,
           image: {
@@ -698,7 +700,9 @@ test("prepareShow should strip and decode HTML entities", () => {
   const { show, episodes } = prepareShow(showResult);
 
   expect(show.summary).toBe("Some description with <b>HTML</b> tags inside..");
-  expect(episodes[0].summary).toBe("Some episode summary with <b>HTML</b>...");
+  expect(episodes?.[0]?.summary).toBe(
+    "Some episode summary with <b>HTML</b>..."
+  );
 });
 
 test("getShowsTrackedByUser should return count", async () => {

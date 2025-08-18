@@ -8,6 +8,7 @@ import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
 } from "./maze.server";
+import { TVMazeShowResponse, TVMazeEpisodeResponse } from "app/types/tvmaze";
 
 // Used to update the episodes of shows in the GitHub action
 // We only want to return currently ongoing shows as we otherwise
@@ -265,35 +266,7 @@ export async function searchShows(query: string | null, userId: User["id"]) {
   return filteredShows;
 }
 
-export interface EmbeddedEpisode {
-  id: string;
-  name: string;
-  season: number;
-  number: number;
-  airstamp: string;
-  runtime: number;
-  image: {
-    medium: string;
-  };
-  summary: string;
-}
-
-export function prepareShow(showResult: {
-  id: string;
-  name: string;
-  premiered: string;
-  ended: string;
-  rating: {
-    average: number;
-  };
-  summary: string;
-  image: {
-    medium: string;
-  };
-  _embedded: {
-    episodes: EmbeddedEpisode[];
-  };
-}) {
+export function prepareShow(showResult: TVMazeShowResponse) {
   const show = {
     mazeId: `${showResult.id}`,
     name: showResult.name,
@@ -304,8 +277,8 @@ export function prepareShow(showResult: {
     summary: decodeHtmlEntities(striptags(showResult.summary)),
   };
 
-  const episodes = showResult._embedded.episodes.map(
-    (episode: EmbeddedEpisode) => ({
+  const episodes = showResult._embedded?.episodes?.map(
+    (episode: TVMazeEpisodeResponse) => ({
       mazeId: `${episode.id}`,
       name: episode.name,
       season: episode.season,
@@ -313,7 +286,7 @@ export function prepareShow(showResult: {
       airDate: new Date(episode.airstamp),
       runtime: episode.runtime || 0,
       imageUrl: episode.image?.medium,
-      summary: decodeHtmlEntities(striptags(episode.summary)),
+      summary: decodeHtmlEntities(striptags(episode.summary || "")),
     })
   );
 
@@ -367,10 +340,11 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
   });
 
   await prisma.episode.createMany({
-    data: episodes.map((episode) => ({
-      ...episode,
-      showId: record.id,
-    })),
+    data:
+      episodes?.map((episode) => ({
+        ...episode,
+        showId: record.id,
+      })) || [],
   });
 
   return {};

@@ -69,9 +69,10 @@ async function updateEpisodes(showId: Show["mazeId"]) {
 
   console.log(`Found ${existingEpisodesIds.length} episodes in database`);
 
-  const episodesToCreate = episodes.filter(
-    (episode) => !existingEpisodesIds.includes(episode.mazeId)
-  );
+  const episodesToCreate =
+    episodes?.filter(
+      (episode) => !existingEpisodesIds.includes(episode.mazeId)
+    ) || [];
 
   console.log(`Adding ${episodesToCreate.length} episodes..`);
 
