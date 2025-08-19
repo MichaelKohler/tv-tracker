@@ -1,5 +1,4 @@
 import type { Show } from "@prisma/client";
-import axios from "axios";
 
 import { TV_GET_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
@@ -33,7 +32,7 @@ async function update() {
 
 async function updateEpisodes(showId: Show["mazeId"]) {
   console.log(`Fetching mazeId ${showId}`);
-  const showResult = await fetch(showId);
+  const showResult = await fetchShowWithEpisodes(showId);
 
   if (!showResult) {
     throw new Error("SHOW_NOT_FOUND");
@@ -86,24 +85,28 @@ async function updateEpisodes(showId: Show["mazeId"]) {
   }
 }
 
-async function fetch(showId: string) {
+async function fetchShowWithEpisodes(showId: string) {
   try {
-    const { data } = await axios.get(
-      `${TV_GET_API_PREFIX}${showId}?&embed=episodes`
-    );
+    const response = await fetch(`${TV_GET_API_PREFIX}${showId}?&embed=episodes`);
 
-    return data;
+    if (response.status === 429) {
+      console.error("Rate limited, waiting 5 seconds..");
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+      return await fetchShowWithEpisodes(showId);
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch show with episodes: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Failed to fetch show with episodes", {
       message: error.message,
     });
-
-    if (error.response && error.response.status === 429) {
-      console.error("Rate limited, waiting 5 seconds..");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      return await fetch(showId);
-    }
 
     process.exit(1);
   }
