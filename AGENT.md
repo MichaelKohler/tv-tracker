@@ -1,15 +1,15 @@
-# TV Tracker - Copilot Instructions
+# TV Tracker - Agent Instructions
 
 ## Project Overview
 
-This is a personal TV show tracking web application built with React Router v7, TypeScript, Prisma ORM, and PostgreSQL. Users can search for TV shows (via TVMaze API), add them to their watchlist, and mark episodes as watched. The application includes authentication, statistics visualization with Recharts, and email notifications.
+This is a personal TV show tracking web application. Users can search for TV shows (via TVMaze API), add them to their watchlist, and mark episodes as watched. The application includes authentication and statistics visualization with Recharts.
 
-**Architecture**: Full-stack React Router SSR application - previously Remix.run (~765 npm packages, ~37 test files, 228 tests)
+**Architecture**: Full-stack React Router SSR application - previously known as Remix.run
 
-- **Frontend**: React Router v7 with SSR, Tailwind CSS 4, TypeScript
+- **Frontend**: React Router v7 with SSR, Tailwind CSS v4, TypeScript
 - **Backend**: React Router server functions, Prisma ORM, PostgreSQL
 - **External APIs**: TVMaze API for show/episode data
-- **Testing**: Vitest (unit), Playwright (E2E), Testing Library
+- **Testing**: Vitest (unit), Playwright (E2E), React Testing Library
 - **Runtime**: Node.js 22+
 
 Use context7 for framework/library documentation.
@@ -112,18 +112,17 @@ npm run test:e2e:report    # View test results
 
 ## Testing & Validation Strategy
 
-### Pre-Commit Validation Pipeline
-
-The GitHub Actions workflow runs 4 parallel jobs:
+### Validation Pipeline
 
 1. **ESLint**: Code linting with cache
 2. **TypeScript**: Type checking compilation
 3. **Vitest**: Unit tests (37 files, 228 tests)
 4. **Playwright**: E2E tests with PostgreSQL service
 
+Always run these (with `npm run validate`) before telling the user you are done.
+
 ### Continuous Integration Requirements
 
-- Node.js 22
 - PostgreSQL database for E2E tests
 - All tests must pass for PR merge
 - Build must complete successfully
@@ -145,30 +144,6 @@ Always run "npm test" with `--run`, otherwise the tests will run in watch mode a
 - **Solution**: Run `npm run setup` after `npm ci`
 - **Problem**: E2E tests fail with database connection
 - **Solution**: Ensure Docker is running, wait for PostgreSQL startup (up to 60s)
-
-### Development Workflow
-
-1. Always run `npm ci` first
-2. Copy and configure `.env` file
-3. Run `npm run setup` for database initialization
-4. Use `npm run dev` for development
-5. Run `npm run validate` before committing
-
-### Performance Notes
-
-- Initial npm install: ~9s (with Prisma generation)
-- Full validation suite: ~4-5s (excluding E2E)
-- E2E test setup: up to 60s (Docker + PostgreSQL)
-- Build time: ~1.5s production build
-
-## Key Dependencies
-
-- **React Router v7**: Full-stack React framework with SSR
-- **Prisma 6**: Database ORM with PostgreSQL
-- **Tailwind CSS 4**: Utility-first styling with PostCSS
-- **Vitest 3**: Fast unit test runner with jsdom
-- **Playwright**: End-to-end testing framework
-- **Recharts**: Chart library for statistics visualization
 
 ## Coding Rules
 
