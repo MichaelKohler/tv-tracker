@@ -33,7 +33,7 @@ jobs:
           rm tv-tracker-${TIMESTAMP}.sql.gz
 
       - name: ⌨️ Configure AWS credentials from Action OIDC
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: eu-central-1
           role-to-assume: arn:aws:iam::143576928876:role/mk-s3-cloud-backup-tv-tracker-github-role
