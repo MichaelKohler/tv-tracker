@@ -6,7 +6,6 @@ import {
   getConnectedEpisodeCount,
 } from "../models/episode.server";
 import { getUserCount } from "../models/user.server";
-import { requireUserId } from "../session.server";
 
 const helpMessage = (metric: string, description: string) =>
   `# HELP ${metric} ${description}`;
@@ -15,8 +14,6 @@ const typeMessage = (metric: string, type: "gauge") =>
 const metricValue = (metric: string, value: number) => `${metric} ${value}`;
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await requireUserId(request);
-
   const [
     showCount,
     connectedShowCount,

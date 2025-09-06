@@ -1,5 +1,3 @@
-import { requireUserId } from "../session.server";
-
 import { loader } from "./metrics";
 
 beforeEach(() => {
@@ -18,11 +16,6 @@ beforeEach(() => {
   vi.mock("../models/user.server", async () => {
     return {
       getUserCount: vi.fn().mockResolvedValue(5),
-    };
-  });
-  vi.mock("../session.server", async () => {
-    return {
-      requireUserId: vi.fn().mockResolvedValue(true),
     };
   });
 });
@@ -60,18 +53,4 @@ test("loader returns stats", async () => {
   expect(text).toContain("# HELP user_count The total number of users.");
   expect(text).toContain("# TYPE user_count gauge");
   expect(text).toContain("user_count 5");
-});
-
-test("loader throws error if no user", async () => {
-  vi.mocked(requireUserId).mockImplementation(() => {
-    throw new Error("no user");
-  });
-
-  await expect(async () => {
-    await loader({
-      request: new Request("http://localhost:8080/metrics"),
-      context: {},
-      params: {},
-    });
-  }).rejects.toThrowError("no user");
 });
