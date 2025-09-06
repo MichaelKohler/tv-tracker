@@ -21,11 +21,7 @@ beforeEach(() => {
 });
 
 test("loader returns stats", async () => {
-  const result = await loader({
-    request: new Request("http://localhost:8080/metrics"),
-    context: {},
-    params: {},
-  });
+  const result = await loader();
   const text = await result.text();
 
   expect(result.headers.get("Content-Type")).toBe("text/plain");
