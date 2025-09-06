@@ -26,6 +26,7 @@
         "ms-playwright.playwright"
       ],
       "settings": {
+        "chat.mcp.autostart": "onlyNew",
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "files.eol": "\n"
