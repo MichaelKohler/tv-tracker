@@ -27,6 +27,7 @@
       ],
       "settings": {
         "chat.mcp.autostart": "onlyNew",
+        "editor.minimap.enabled": false,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "files.eol": "\n"
