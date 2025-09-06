@@ -13,7 +13,7 @@ const typeMessage = (metric: string, type: "gauge") =>
   `# TYPE ${metric} ${type}`;
 const metricValue = (metric: string, value: number) => `${metric} ${value}`;
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({}: LoaderFunctionArgs) {
   const [
     showCount,
     connectedShowCount,
