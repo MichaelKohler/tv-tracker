@@ -1,5 +1,3 @@
-import type { LoaderFunctionArgs } from "react-router";
-
 import { getShowCount, getConnectedShowCount } from "../models/show.server";
 import {
   getEpisodeCount,
@@ -13,7 +11,7 @@ const typeMessage = (metric: string, type: "gauge") =>
   `# TYPE ${metric} ${type}`;
 const metricValue = (metric: string, value: number) => `${metric} ${value}`;
 
-export async function loader({}: LoaderFunctionArgs) {
+export async function loader() {
   const [
     showCount,
     connectedShowCount,
