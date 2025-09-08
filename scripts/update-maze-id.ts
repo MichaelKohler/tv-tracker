@@ -12,6 +12,19 @@ async function updateMazeId(oldMazeId: string, updatedMazeId: string) {
     throw new Error(`EPISODE_WITH_MAZE_ID_${oldMazeId}_NOT_FOUND`);
   }
 
+  console.log(
+    `Checking if an episode with mazeId ${updatedMazeId} already exists...`
+  );
+  const existingEpisode = await prisma.episode.findFirst({
+    where: {
+      mazeId: updatedMazeId,
+    },
+  });
+
+  if (existingEpisode) {
+    throw new Error(`EPISODE_WITH_MAZE_ID_${updatedMazeId}_ALREADY_EXISTS`);
+  }
+
   console.log(`Updating episode mazeId from ${oldMazeId} to ${updatedMazeId}...`);
   await prisma.episode.update({
     data: {
