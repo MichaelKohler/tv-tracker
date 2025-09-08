@@ -29,7 +29,7 @@ jobs:
         run: npm ci
 
       - name: ✨ Update Maze ID
-        run: npm run update:maze-id
+        run: npm run update:mazeId
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
