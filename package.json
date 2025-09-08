@@ -24,6 +24,7 @@
     "test:e2e:teardown": "docker compose -f docker-compose.e2e.yml down -v",
     "typecheck": "tsc -b",
     "update:episode:force": "tsx scripts/force-episode-update.ts",
+    "update:mazeId": "tsx scripts/update-maze-id.ts",
     "update:episodes": "tsx scripts/get-new-episodes.ts",
     "update:episodes:info": "tsx scripts/update-episodes.ts",
     "update:show:status": "tsx scripts/update-show-status.ts",

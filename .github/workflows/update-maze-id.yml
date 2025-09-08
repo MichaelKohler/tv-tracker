@@ -1,0 +1,41 @@
+name: 🔄 Update Maze ID
+
+on:
+  workflow_dispatch:
+    inputs:
+      old_maze_id:
+        description: "Old Maze ID"
+        required: true
+        default: ""
+      updated_maze_id:
+        description: "Updated Maze ID"
+        required: true
+        default: ""
+
+jobs:
+  update:
+    name: ⬣ Update Maze ID
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v5
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: ✨ Update Maze ID
+        run: npm run update:mazeId
+        env:
+          NODE_ENV: production
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OLD_MAZE_ID: ${{ github.event.inputs.old_maze_id }}
+          UPDATED_MAZE_ID: ${{ github.event.inputs.updated_maze_id }}
+          SESSION_SECRET: "unused"
+          FLIPT_URL: ${{ vars.FLIPT_URL }}
+          FLIPT_TOKEN: ${{ secrets.FLIPT_TOKEN }}
+          FLIPT_ENVIRONMENT: ${{ vars.FLIPT_ENVIRONMENT }}
