@@ -9,7 +9,7 @@ async function updateMazeId(oldMazeId: string, updatedMazeId: string) {
   });
 
   if (!episode) {
-    throw new Error(`EPISODE_WITH_MAZE_ID_${oldMazeId}_NOT_FOUND`);
+    throw new Error(`Episode with maze ID ${oldMazeId} not found`);
   }
 
   console.log(
