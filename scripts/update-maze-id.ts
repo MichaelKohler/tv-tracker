@@ -22,7 +22,7 @@ async function updateMazeId(oldMazeId: string, updatedMazeId: string) {
   });
 
   if (existingEpisode) {
-    throw new Error(`EPISODE_WITH_MAZE_ID_${updatedMazeId}_ALREADY_EXISTS`);
+    throw new Error(`Episode with maze ID ${updatedMazeId} already exists`);
   }
 
   console.log(`Updating episode mazeId from ${oldMazeId} to ${updatedMazeId}...`);
