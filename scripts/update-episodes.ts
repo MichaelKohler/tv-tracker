@@ -6,6 +6,9 @@ import { prisma } from "../app/db.server";
 import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
 import { getEpisodesWithMissingInfo } from "../app/models/episode.server";
 
+// Maze Ids that should be ignored during update
+const ignoredMazeIds: string[] = [];
+
 async function update() {
   const fetchFromSource = await evaluateBooleanFromScripts(
     FLAGS.FETCH_FROM_SOURCE
@@ -28,6 +31,11 @@ async function update() {
     console.log(
       `Triggering update of ${episode.id}, mazeId ${episode.mazeId}, ${episode.show.name} S${episode.season}E${episode.number}`
     );
+
+    if (ignoredMazeIds.includes(episode.mazeId)) {
+      console.log(`mazeId ${episode.mazeId} is on ignore list, skipping`);
+      continue;
+    }
 
     await updateEpisode(episode);
 
