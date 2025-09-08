@@ -7,6 +7,7 @@
   "scripts": {
     "build": "react-router build",
     "delete:episode": "tsx scripts/delete-episode.ts",
+    "delete:season": "tsx scripts/delete-season.ts",
     "delete:episode:id": "tsx scripts/delete-episode-by-id.ts",
     "delete:episode-link": "tsx scripts/remove-inexistent-episode-links.ts",
     "dev": "react-router dev",
