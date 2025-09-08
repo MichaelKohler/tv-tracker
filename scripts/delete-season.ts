@@ -48,6 +48,10 @@ if (!TV_EPISODE_SEASON) {
 
 const season = parseInt(TV_EPISODE_SEASON, 10);
 
+if (isNaN(season) || season < 1) {
+  console.error("TV_EPISODE_SEASON must be a valid positive integer");
+  process.exit(1);
+}
 deleteSeason(TV_SHOW_NAME, season).catch((e) => {
   console.error(e.message);
   process.exit(1);
