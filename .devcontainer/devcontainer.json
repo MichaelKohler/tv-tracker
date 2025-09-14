@@ -5,9 +5,7 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "forwardPorts": [
-    3000
-  ],
+  "forwardPorts": [3000],
   "portsAttributes": {
     "3000": {
       "label": "Application",
@@ -29,8 +27,7 @@
         "chat.mcp.autostart": "onlyNew",
         "editor.minimap.enabled": false,
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "files.eol": "\n"
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
       }
     }
   },
