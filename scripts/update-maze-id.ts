@@ -25,7 +25,9 @@ async function updateMazeId(oldMazeId: string, updatedMazeId: string) {
     throw new Error(`Episode with maze ID ${updatedMazeId} already exists`);
   }
 
-  console.log(`Updating episode mazeId from ${oldMazeId} to ${updatedMazeId}...`);
+  console.log(
+    `Updating episode mazeId from ${oldMazeId} to ${updatedMazeId}...`
+  );
   await prisma.episode.update({
     data: {
       mazeId: updatedMazeId,
