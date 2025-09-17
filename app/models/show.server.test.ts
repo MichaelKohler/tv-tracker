@@ -631,11 +631,7 @@ test("unarchiveShowOnUser should unarchive show", async () => {
 });
 
 test("getShowByUserIdAndName should return show by name for user", async () => {
-  const partialShow: Show = {
-    ...SHOW,
-    id: SHOW.id,
-  };
-  vi.mocked(prisma.show.findFirst).mockResolvedValue(partialShow);
+  vi.mocked(prisma.show.findFirst).mockResolvedValue(SHOW);
 
   const result = await getShowByUserIdAndName({
     userId: "userId",
@@ -652,7 +648,7 @@ test("getShowByUserIdAndName should return show by name for user", async () => {
       },
     },
   });
-  expect(result).toStrictEqual(partialShow);
+  expect(result).toStrictEqual(SHOW);
 });
 
 test("getShowByUserIdAndName should return null when show is not found", async () => {
