@@ -647,6 +647,18 @@ test("getShowByUserIdAndName should return show by name for user", async () => {
         },
       },
     },
+    select: {
+      id: true,
+      name: true,
+      mazeId: true,
+      premiered: true,
+      ended: true,
+      rating: true,
+      imageUrl: true,
+      summary: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
   expect(result).toStrictEqual(SHOW);
 });

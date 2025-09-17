@@ -44,6 +44,18 @@ export async function getShowByUserIdAndName({
         },
       },
     },
+    select: {
+      id: true,
+      name: true,
+      mazeId: true,
+      premiered: true,
+      ended: true,
+      rating: true,
+      imageUrl: true,
+      summary: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 
   return show;
@@ -176,8 +188,32 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
       },
       include: {
         show: {
-          include: {
+          select: {
+            id: true,
+            name: true,
+            mazeId: true,
+            premiered: true,
+            ended: true,
+            rating: true,
+            imageUrl: true,
+            summary: true,
+            createdAt: true,
+            updatedAt: true,
             episodes: {
+              select: {
+                id: true,
+                name: true,
+                season: true,
+                number: true,
+                airDate: true,
+                runtime: true,
+                imageUrl: true,
+                summary: true,
+                createdAt: true,
+                updatedAt: true,
+                showId: true,
+                mazeId: true,
+              },
               orderBy: [
                 {
                   season: "desc",
@@ -296,11 +332,17 @@ export function prepareShow(showResult: TVMazeShowResponse) {
 export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
   const alreadyExistingShow = await prisma.show.findFirst({
     where: { mazeId: showId },
+    select: {
+      id: true,
+    },
   });
 
   if (alreadyExistingShow) {
     const alreadyAddedConnection = await prisma.showOnUser.findFirst({
       where: { userId, showId: alreadyExistingShow.id },
+      select: {
+        id: true,
+      },
     });
 
     if (alreadyAddedConnection) {

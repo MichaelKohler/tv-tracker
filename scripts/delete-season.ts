@@ -2,10 +2,7 @@ import type { Episode, Show } from "@prisma/client";
 
 import { prisma } from "../app/db.server";
 
-async function deleteSeason(
-  showName: Show["name"],
-  season: Episode["season"]
-) {
+async function deleteSeason(showName: Show["name"], season: Episode["season"]) {
   console.log(`Fetching show ${showName} from DB..`);
   const show = await prisma.show.findFirst({
     where: {

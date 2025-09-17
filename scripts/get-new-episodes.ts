@@ -44,6 +44,10 @@ async function updateEpisodes(showId: Show["mazeId"]) {
     where: {
       mazeId: showId,
     },
+    select: {
+      id: true,
+      name: true,
+    },
   });
 
   if (!existingShow) {
@@ -87,7 +91,9 @@ async function updateEpisodes(showId: Show["mazeId"]) {
 
 async function fetchShowWithEpisodes(showId: string) {
   try {
-    const response = await fetch(`${TV_GET_API_PREFIX}${showId}?&embed=episodes`);
+    const response = await fetch(
+      `${TV_GET_API_PREFIX}${showId}?&embed=episodes`
+    );
 
     if (response.status === 429) {
       console.error("Rate limited, waiting 5 seconds..");
