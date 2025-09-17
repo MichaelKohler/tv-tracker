@@ -35,7 +35,10 @@ async function update() {
   }
 }
 
-async function updateEpisode(episode: Episode) {
+async function updateEpisode(episode: Partial<Episode>) {
+  if (!episode.mazeId) {
+    return;
+  }
   console.log(`Fetching mazeId ${episode.mazeId}`);
   const episodeResult = await fetchEpisode(episode.mazeId);
 

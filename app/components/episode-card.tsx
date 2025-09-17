@@ -3,8 +3,8 @@ import { Link } from "react-router";
 import { padNumber } from "../utils";
 
 interface Props {
-  episode: Episode & {
-    show: Show;
+  episode: Partial<Episode> & {
+    show: Partial<Show>;
   };
 }
 
@@ -25,12 +25,14 @@ export default function EpisodeCard({ episode }: Props) {
         </div>
         <div className="flex flex-col items-center pl-0 pr-4 pt-4 sm:items-start sm:pl-4 sm:pt-0">
           <h3 className="font-title text-2xl">
-            {episode.show.name} (S{padNumber(episode.season)}E
-            {padNumber(episode.number)})
+            {episode.show.name} (S{padNumber(episode.season || 0)}E
+            {padNumber(episode.number || 0)})
           </h3>
-          <p className="mt-2 text-sm text-gray-500">
-            {new Date(episode.airDate).toLocaleDateString()}
-          </p>
+          {episode.airDate && (
+            <p className="mt-2 text-sm text-gray-500">
+              {new Date(episode.airDate).toLocaleDateString()}
+            </p>
+          )}
           {episode.summary && <p className="mt-4 text-sm">{episode.summary}</p>}
         </div>
       </Link>

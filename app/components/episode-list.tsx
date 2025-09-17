@@ -7,7 +7,7 @@ import { padNumber } from "../utils";
 import Spinner from "./spinner";
 
 interface Props {
-  episodes: Episode[];
+  episodes: Partial<Episode>[];
   watchedEpisodes: Episode["id"][];
   showId: Show["id"];
 }
@@ -33,16 +33,20 @@ export default function EpisodeList({
                 src={episode.imageUrl || EPISODE_FALLBACK_IMG_PATH}
                 alt=""
                 className={`${
-                  watchedEpisodes.includes(episode.id) ? "grayscale" : ""
+                  episode.id && watchedEpisodes.includes(episode.id)
+                    ? "grayscale"
+                    : ""
                 } hover:grayscale-0`}
                 loading="lazy"
               />
             </div>
             <div className="pl-0 pr-4 pt-4 sm:pl-4 sm:pt-0">
               <p>
-                <strong>{episode.name}</strong> (S{padNumber(episode.season)}E
-                {padNumber(episode.number)}) -{" "}
-                {new Date(episode.airDate).toLocaleDateString()}
+                <strong>{episode.name}</strong> (S
+                {padNumber(episode.season || 0)}E
+                {padNumber(episode.number || 0)}) -{" "}
+                {episode.airDate &&
+                  new Date(episode.airDate).toLocaleDateString()}
               </p>
               <p>{episode.summary}</p>
 
@@ -51,7 +55,8 @@ export default function EpisodeList({
                   <Spinner />
                 </div>
               )}
-              {!watchedEpisodes.includes(episode.id) &&
+              {episode.id &&
+                !watchedEpisodes.includes(episode.id) &&
                 (!submissionEpisodeId ||
                   submissionEpisodeId !== episode.id) && (
                   <Form method="post">
@@ -66,7 +71,8 @@ export default function EpisodeList({
                     </button>
                   </Form>
                 )}
-              {watchedEpisodes.includes(episode.id) &&
+              {episode.id &&
+                watchedEpisodes.includes(episode.id) &&
                 (!submissionEpisodeId ||
                   submissionEpisodeId !== episode.id) && (
                   <Form method="post">

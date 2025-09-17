@@ -5,7 +5,12 @@ import type { Episode, Show } from "@prisma/client";
 import Spinner from "./spinner";
 
 interface Props {
-  show: Show & { archived: boolean; episodes: Episode[] };
+  show: Partial<Show> & {
+    id: string;
+    name: string;
+    archived: boolean;
+    episodes: Partial<Episode>[];
+  };
   watchedEpisodes: Episode["id"][];
   features: {
     markAllAsWatched: boolean;
@@ -17,7 +22,7 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
   const navigation = useNavigation();
   const submissionIntent = navigation?.formData?.get("intent");
   const pastEpisodes = show.episodes?.filter(
-    (episode) => new Date(episode.airDate) < new Date()
+    (episode) => episode.airDate && new Date(episode.airDate) < new Date()
   );
 
   return (
@@ -41,10 +46,12 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
           <p>{show.summary}</p>
         </div>
         <div className={`flex flex-col py-5 pl-0 pr-10 md:pl-4`}>
-          <p>
-            <strong>Started:</strong>{" "}
-            {new Date(show.premiered).toLocaleDateString()}
-          </p>
+          {show.premiered && (
+            <p>
+              <strong>Started:</strong>{" "}
+              {new Date(show.premiered).toLocaleDateString()}
+            </p>
+          )}
           {show.ended && (
             <p>
               <strong>Ended:</strong>{" "}

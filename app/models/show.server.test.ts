@@ -631,7 +631,7 @@ test("unarchiveShowOnUser should unarchive show", async () => {
 });
 
 test("getShowByUserIdAndName should return show by name for user", async () => {
-  vi.mocked(prisma.show.findFirst).mockResolvedValue(SHOW);
+  vi.mocked(prisma.show.findFirst).mockResolvedValue({ id: SHOW.id });
 
   const result = await getShowByUserIdAndName({
     userId: "userId",
@@ -639,9 +639,6 @@ test("getShowByUserIdAndName should return show by name for user", async () => {
   });
 
   expect(prisma.show.findFirst).toBeCalledWith({
-    select: {
-      id: true,
-    },
     where: {
       name: SHOW.name,
       users: {
@@ -651,7 +648,7 @@ test("getShowByUserIdAndName should return show by name for user", async () => {
       },
     },
   });
-  expect(result).toStrictEqual(SHOW);
+  expect(result).toStrictEqual({ id: SHOW.id });
 });
 
 test("getShowByUserIdAndName should return null when show is not found", async () => {
