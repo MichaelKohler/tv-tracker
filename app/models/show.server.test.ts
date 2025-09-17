@@ -631,7 +631,7 @@ test("unarchiveShowOnUser should unarchive show", async () => {
 });
 
 test("getShowByUserIdAndName should return show by name for user", async () => {
-  vi.mocked(prisma.show.findFirst).mockResolvedValue({ id: SHOW.id });
+  vi.mocked(prisma.show.findFirst).mockResolvedValue({ id: SHOW.id } as any);
 
   const result = await getShowByUserIdAndName({
     userId: "userId",
