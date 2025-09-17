@@ -56,7 +56,18 @@ const EPISODE_ON_USER = {
   showId: "1",
   episodeId: "1",
   episode: EPISODE,
-  show: {},
+  show: {
+    id: "1",
+    name: "Test Show",
+    mazeId: "1",
+    premiered: new Date(),
+    ended: null,
+    rating: 8.5,
+    imageUrl: "https://example.com/image.png",
+    summary: "Test summary",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
 };
 
 // Not actually covering the query itself..
@@ -126,7 +137,7 @@ test("getRecentlyWatchedEpisodes should return episodes", async () => {
     {
       ...EPISODE,
       date: EPISODE_ON_USER.createdAt,
-      show: {},
+      show: EPISODE_ON_USER.show,
     },
   ]);
 });
@@ -317,7 +328,7 @@ test("getTotalWatchTimeForUser should return total runtime", async () => {
       episode: { runtime: 45 },
     },
   ];
-  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(
+  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValueOnce(
     mockEpisodesOnUser
   );
 
@@ -371,7 +382,7 @@ test("getLast12MonthsStats should return monthly stats", async () => {
       show: { id: "showId2", name: "Show 2" },
     },
   ];
-  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(
+  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValueOnce(
     mockEpisodesOnUser
   );
 
