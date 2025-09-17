@@ -1,8 +1,8 @@
 import type { Episode, Show } from "@prisma/client";
 import EpisodeCard from "./episode-card";
 
-type EpisodeWithShow = Partial<Episode> & {
-  show: Partial<Show>;
+type EpisodeWithShow = Episode & {
+  show: Show;
 };
 
 interface WatchedEpisodes {
