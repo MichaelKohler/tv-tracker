@@ -25,6 +25,10 @@ async function updateEpisode(
     where: {
       name: showName,
     },
+    select: {
+      id: true,
+      mazeId: true,
+    },
   });
 
   if (!show) {

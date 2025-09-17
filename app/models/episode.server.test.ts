@@ -149,8 +149,24 @@ test("getRecentlyWatchedEpisodes should be called with correct params", async ()
     },
     select: {
       createdAt: true,
-      show: true,
-      episode: true,
+      show: {
+        select: {
+          id: true,
+          name: true,
+          imageUrl: true,
+        },
+      },
+      episode: {
+        select: {
+          id: true,
+          name: true,
+          season: true,
+          number: true,
+          airDate: true,
+          summary: true,
+          runtime: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

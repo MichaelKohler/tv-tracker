@@ -11,6 +11,9 @@ async function deleteSeason(
     where: {
       name: showName,
     },
+    select: {
+      id: true,
+    },
   });
 
   if (!show) {

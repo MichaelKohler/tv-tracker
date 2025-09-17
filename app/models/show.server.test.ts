@@ -639,6 +639,9 @@ test("getShowByUserIdAndName should return show by name for user", async () => {
   });
 
   expect(prisma.show.findFirst).toBeCalledWith({
+    select: {
+      id: true,
+    },
     where: {
       name: SHOW.name,
       users: {

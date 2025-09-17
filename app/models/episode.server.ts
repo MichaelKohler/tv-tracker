@@ -7,8 +7,19 @@ export async function getEpisodeById(episodeId: Episode["id"]) {
     where: {
       id: episodeId,
     },
-    include: {
-      show: true,
+    select: {
+      id: true,
+      mazeId: true,
+      name: true,
+      season: true,
+      number: true,
+      airDate: true,
+      runtime: true,
+      imageUrl: true,
+      summary: true,
+      createdAt: true,
+      updatedAt: true,
+      showId: true,
     },
   });
 
@@ -49,8 +60,20 @@ export async function getUpcomingEpisodes(userId: User["id"]) {
         },
       },
     },
-    include: {
-      show: true,
+    select: {
+      id: true,
+      name: true,
+      season: true,
+      number: true,
+      airDate: true,
+      summary: true,
+      show: {
+        select: {
+          id: true,
+          name: true,
+          imageUrl: true,
+        },
+      },
     },
     orderBy: {
       airDate: "asc",
@@ -77,8 +100,24 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
     },
     select: {
       createdAt: true,
-      show: true,
-      episode: true,
+      show: {
+        select: {
+          id: true,
+          name: true,
+          imageUrl: true,
+        },
+      },
+      episode: {
+        select: {
+          id: true,
+          name: true,
+          season: true,
+          number: true,
+          airDate: true,
+          summary: true,
+          runtime: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -239,8 +278,16 @@ export async function getEpisodesWithMissingInfo() {
         },
       ],
     },
-    include: {
-      show: true,
+    select: {
+      id: true,
+      mazeId: true,
+      season: true,
+      number: true,
+      show: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
@@ -252,7 +299,7 @@ export async function getTotalWatchTimeForUser(userId: User["id"]) {
     where: {
       userId,
     },
-    include: {
+    select: {
       episode: {
         select: {
           runtime: true,

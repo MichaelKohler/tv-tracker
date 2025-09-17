@@ -12,6 +12,9 @@ async function deleteEpisode(
     where: {
       name: showName,
     },
+    select: {
+      id: true,
+    },
   });
 
   if (!show) {
@@ -24,6 +27,9 @@ async function deleteEpisode(
       showId: show.id,
       season,
       number,
+    },
+    select: {
+      id: true,
     },
   });
 

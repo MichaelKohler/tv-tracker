@@ -6,6 +6,9 @@ async function updateMazeId(oldMazeId: string, updatedMazeId: string) {
     where: {
       mazeId: oldMazeId,
     },
+    select: {
+      id: true,
+    },
   });
 
   if (!episode) {
@@ -18,6 +21,9 @@ async function updateMazeId(oldMazeId: string, updatedMazeId: string) {
   const existingEpisode = await prisma.episode.findFirst({
     where: {
       mazeId: updatedMazeId,
+    },
+    select: {
+      id: true,
     },
   });
 

@@ -36,6 +36,9 @@ export async function getShowByUserIdAndName({
   name: Show["name"];
 }) {
   const show = await prisma.show.findFirst({
+    select: {
+      id: true,
+    },
     where: {
       name,
       users: {
@@ -174,10 +177,28 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
         showId,
         userId,
       },
-      include: {
+      select: {
+        archived: true,
         show: {
-          include: {
+          select: {
+            id: true,
+            name: true,
+            premiered: true,
+            ended: true,
+            rating: true,
+            imageUrl: true,
+            summary: true,
             episodes: {
+              select: {
+                id: true,
+                name: true,
+                season: true,
+                number: true,
+                airDate: true,
+                runtime: true,
+                imageUrl: true,
+                summary: true,
+              },
               orderBy: [
                 {
                   season: "desc",

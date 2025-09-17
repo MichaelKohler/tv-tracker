@@ -44,6 +44,10 @@ async function updateEpisodes(showId: Show["mazeId"]) {
     where: {
       mazeId: showId,
     },
+    select: {
+      id: true,
+      name: true,
+    },
   });
 
   if (!existingShow) {
