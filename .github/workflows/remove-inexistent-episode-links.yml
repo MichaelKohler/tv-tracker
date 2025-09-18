@@ -2,7 +2,8 @@ name: 🗑️ Remove inexisting episode links
 
 on:
   schedule:
-    - cron: "15 2 * * *"
+    # Every Monday afternoon
+    - cron: "0 15 * * 1"
   workflow_dispatch:
 
 jobs:
