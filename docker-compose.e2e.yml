@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15
+    image: postgres:17
     environment:
       POSTGRES_DB: tv_tracker_e2e
       POSTGRES_USER: tv_tracker
