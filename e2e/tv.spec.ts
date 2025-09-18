@@ -14,17 +14,40 @@ test("allows TV flows", async ({ page }) => {
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
-  await page.getByLabel("Password").press("Enter");
-  await expect(page.getByText("Your Shows")).toBeVisible();
 
+  // Wait for the form submission and navigation
+  await Promise.all([
+    page.getByLabel("Password").press("Enter"),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
+
+  // Navigate to TV search and wait for the page to load
   await page.getByRole("link", { name: "TV", exact: true }).click();
+  await page.waitForURL("/tv");
+
+  // Search for a show and wait for results
   await page.getByPlaceholder("Search...").fill("House of the dragon");
-  await page.getByPlaceholder("Search...").press("Enter");
+
+  await Promise.all([
+    page.getByPlaceholder("Search...").press("Enter"),
+    page.waitForResponse(
+      (resp) => resp.url().includes("/tv/search") && resp.status() === 200
+    ),
+  ]);
+
   await expect(
     page.getByRole("heading", { name: "House of the Dragon", exact: true })
   ).toBeVisible();
-  await page.getByRole("button", { name: "Add Show" }).nth(0).click();
-  await expect(page.getByText("Your Shows")).toBeVisible();
+
+  // Add show and wait for navigation back to TV page
+  await Promise.all([
+    page.getByRole("button", { name: "Add Show" }).nth(0).click(),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
 
   await page.getByText("House of the Dragon").click();
   await expect(page.getByText("Remove show")).toBeVisible();

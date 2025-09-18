@@ -15,9 +15,14 @@ test("allows signup and login", async ({ page }) => {
   await page.getByLabel("Email address").press("Tab");
 
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
-  await page.getByLabel("Password").press("Enter");
 
-  await expect(page.getByText("Your Shows")).toBeVisible();
+  // Wait for the form submission and navigation
+  await Promise.all([
+    page.getByLabel("Password").press("Enter"),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
 
   await page.getByRole("button", { name: "Logout" }).click();
 
@@ -26,9 +31,14 @@ test("allows signup and login", async ({ page }) => {
   await page.getByLabel("Email address").press("Tab");
 
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
-  await page.getByRole("button", { name: "Log in" }).click();
 
-  await expect(page.getByText("Your Shows")).toBeVisible();
+  // Wait for the form submission and navigation
+  await Promise.all([
+    page.getByRole("button", { name: "Log in" }).click(),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
 });
 
 test("allows going from signup to login", async ({ page }) => {
@@ -45,8 +55,14 @@ test("allows to delete account", async ({ page }) => {
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
-  await page.getByLabel("Password").press("Enter");
-  await expect(page.getByText("Your Shows")).toBeVisible();
+
+  // Wait for the form submission and navigation
+  await Promise.all([
+    page.getByLabel("Password").press("Enter"),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
 
   await page.getByRole("link", { name: "Account" }).click();
   await expect(
@@ -72,8 +88,14 @@ test("allows to change password", async ({ page }) => {
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
-  await page.getByLabel("Password").press("Enter");
-  await expect(page.getByText("Your Shows")).toBeVisible();
+
+  // Wait for the form submission and navigation
+  await Promise.all([
+    page.getByLabel("Password").press("Enter"),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
 
   await page.getByRole("link", { name: "Account" }).click();
   await page.getByLabel("Current Password").fill("somePasswordIsVeryStrong123");
@@ -91,8 +113,14 @@ test("allows to change password", async ({ page }) => {
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("someNewVeryStrongPassword4321");
-  await page.getByRole("button", { name: "Log in" }).click();
-  await expect(page.getByText("Your Shows")).toBeVisible();
+
+  // Wait for the form submission and navigation
+  await Promise.all([
+    page.getByRole("button", { name: "Log in" }).click(),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
 });
 
 test("recognizes not matching password", async ({ page }) => {
@@ -103,8 +131,14 @@ test("recognizes not matching password", async ({ page }) => {
   await page.getByLabel("Email address").fill(`${username}@example.com`);
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
-  await page.getByLabel("Password").press("Enter");
-  await expect(page.getByText("Your Shows")).toBeVisible();
+
+  // Wait for the form submission and navigation
+  await Promise.all([
+    page.getByLabel("Password").press("Enter"),
+    page.waitForURL("/tv"),
+  ]);
+
+  await expect(page.getByText("Your shows")).toBeVisible();
 
   await page.getByRole("link", { name: "Account" }).click();
   await page.getByLabel("Current Password").fill("somePasswordIsVeryStrong123");
