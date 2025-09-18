@@ -1,0 +1,16 @@
+services:
+  postgresDev:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: tv_tracker_dev
+      POSTGRES_USER: tv_tracker
+      POSTGRES_PASSWORD: tv_tracker_password
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    command: >
+      postgres -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB -c shared_buffers=256MB

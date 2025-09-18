@@ -12,6 +12,8 @@
     "delete:episode-link": "tsx scripts/remove-inexistent-episode-links.ts",
     "dev": "react-router dev",
     "dev:host": "react-router dev --host",
+    "dev:deps": "docker compose -f docker-compose.dev.yml up -d",
+    "dev:deps:stop": "docker compose -f docker-compose.dev.yml stop",
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "postinstall": "prisma generate",

@@ -9,11 +9,12 @@ This project is based on React Router.
 ```sh
 npm ci
 npx playwright install
+npm run dev:deps
 npm run setup
 npm run dev
 ```
 
-This starts your app in development mode, rebuilding assets on file changes.
+This starts your app in development mode, rebuilding assets on file changes. The data is stored in a local Postgres instance.
 
 The database seed script creates a new user with some data you can use to get started:
 
