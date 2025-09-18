@@ -76,13 +76,6 @@ test("getEpisodeByShowIdAndNumbers should return episode", async () => {
     },
     select: {
       id: true,
-      name: true,
-      season: true,
-      number: true,
-      airDate: true,
-      runtime: true,
-      imageUrl: true,
-      summary: true,
     },
   });
 });
@@ -164,13 +157,6 @@ test("getRecentlyWatchedEpisodes should be called with correct params", async ()
           id: true,
           name: true,
           imageUrl: true,
-          summary: true,
-          createdAt: true,
-          updatedAt: true,
-          mazeId: true,
-          premiered: true,
-          ended: true,
-          rating: true,
         },
       },
       episode: {
@@ -182,18 +168,14 @@ test("getRecentlyWatchedEpisodes should be called with correct params", async ()
           airDate: true,
           runtime: true,
           imageUrl: true,
-          summary: true,
-          createdAt: true,
-          updatedAt: true,
-          showId: true,
-          mazeId: true,
         },
       },
     },
     orderBy: {
       createdAt: "desc",
     },
-    take: 1000,
+    take: 50,
+    skip: 0,
   });
 });
 

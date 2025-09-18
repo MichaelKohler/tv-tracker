@@ -5,7 +5,23 @@ import type { Episode, Show } from "@prisma/client";
 import Spinner from "./spinner";
 
 interface Props {
-  show: Show & { archived: boolean; episodes: Episode[] };
+  show: Pick<
+    Show,
+    | "id"
+    | "name"
+    | "mazeId"
+    | "premiered"
+    | "ended"
+    | "rating"
+    | "imageUrl"
+    | "summary"
+  > & {
+    archived: boolean;
+    episodes: Pick<
+      Episode,
+      "id" | "name" | "season" | "number" | "airDate" | "runtime" | "imageUrl"
+    >[];
+  };
   watchedEpisodes: Episode["id"][];
   features: {
     markAllAsWatched: boolean;

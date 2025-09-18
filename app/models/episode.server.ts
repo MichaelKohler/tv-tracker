@@ -46,13 +46,6 @@ export async function getEpisodeByShowIdAndNumbers({
     },
     select: {
       id: true,
-      name: true,
-      season: true,
-      number: true,
-      airDate: true,
-      runtime: true,
-      imageUrl: true,
-      summary: true,
     },
   });
 
@@ -81,36 +74,28 @@ export async function getUpcomingEpisodes(userId: User["id"]) {
       airDate: true,
       runtime: true,
       imageUrl: true,
-      summary: true,
-      createdAt: true,
-      updatedAt: true,
-      showId: true,
-      mazeId: true,
       show: {
         select: {
           id: true,
           name: true,
           imageUrl: true,
-          summary: true,
-          createdAt: true,
-          updatedAt: true,
-          mazeId: true,
-          premiered: true,
-          ended: true,
-          rating: true,
         },
       },
     },
     orderBy: {
       airDate: "asc",
     },
-    take: 50,
+    take: 30,
   });
 
   return upcomingEpisodes;
 }
 
-export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
+export async function getRecentlyWatchedEpisodes(
+  userId: User["id"],
+  limit = 50,
+  offset = 0
+) {
   const fromDate = new Date();
   fromDate.setMonth(fromDate.getMonth() - 11);
   fromDate.setDate(1);
@@ -131,13 +116,6 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
           id: true,
           name: true,
           imageUrl: true,
-          summary: true,
-          createdAt: true,
-          updatedAt: true,
-          mazeId: true,
-          premiered: true,
-          ended: true,
-          rating: true,
         },
       },
       episode: {
@@ -149,18 +127,14 @@ export async function getRecentlyWatchedEpisodes(userId: User["id"]) {
           airDate: true,
           runtime: true,
           imageUrl: true,
-          summary: true,
-          createdAt: true,
-          updatedAt: true,
-          showId: true,
-          mazeId: true,
         },
       },
     },
     orderBy: {
       createdAt: "desc",
     },
-    take: 1000,
+    take: limit,
+    skip: offset,
   });
 
   const recentlyWatchedEpisodeList = recentlyWatchedEpisodes.map(
@@ -420,16 +394,12 @@ export async function getLast12MonthsStats(userId: User["id"]) {
           showId: true,
         },
       },
-      show: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      showId: true,
     },
     orderBy: {
       createdAt: "asc",
     },
+    take: 1000,
   });
 
   // Group by month

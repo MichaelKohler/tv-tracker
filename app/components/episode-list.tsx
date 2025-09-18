@@ -7,7 +7,10 @@ import { padNumber } from "../utils";
 import Spinner from "./spinner";
 
 interface Props {
-  episodes: Episode[];
+  episodes: Pick<
+    Episode,
+    "id" | "name" | "season" | "number" | "airDate" | "runtime" | "imageUrl"
+  >[];
   watchedEpisodes: Episode["id"][];
   showId: Show["id"];
 }
@@ -44,7 +47,6 @@ export default function EpisodeList({
                 {padNumber(episode.number)}) -{" "}
                 {new Date(episode.airDate).toLocaleDateString()}
               </p>
-              <p>{episode.summary}</p>
 
               {submissionEpisodeId && submissionEpisodeId === episode.id && (
                 <div className="mt-4">

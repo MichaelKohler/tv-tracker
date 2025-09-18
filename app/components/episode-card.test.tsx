@@ -14,14 +14,24 @@ beforeEach(() => {
   });
 });
 
-test("renders episode card and does not decode summary", () => {
+test("renders episode card", () => {
   const episode = {
-    ...testEpisode,
-    summary: "a &lt; b",
-    show: testShow,
+    id: testEpisode.id,
+    name: testEpisode.name,
+    season: testEpisode.season,
+    number: testEpisode.number,
+    airDate: testEpisode.airDate,
+    runtime: testEpisode.runtime,
+    imageUrl: testEpisode.imageUrl,
+    show: {
+      id: testShow.id,
+      name: testShow.name,
+      imageUrl: testShow.imageUrl,
+    },
   };
 
   render(<EpisodeCard episode={episode} />);
 
-  expect(screen.getByText("a &lt; b")).toBeInTheDocument();
+  expect(screen.getByText(testShow.name, { exact: false })).toBeInTheDocument();
+  expect(screen.getByText("S01E01", { exact: false })).toBeInTheDocument();
 });

@@ -32,7 +32,10 @@ function Content({
   shows,
   features,
 }: {
-  shows: (Show & { archived: boolean; unwatchedEpisodesCount: number })[];
+  shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
+    archived: boolean;
+    unwatchedEpisodesCount: number;
+  })[];
   features: { search: boolean };
 }) {
   const navigation = useNavigation();

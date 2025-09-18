@@ -156,7 +156,9 @@ export default function TVStats() {
 
       {/* Last 12 Months */}
       <div className="mt-12">
-        <h2 className="mb-4 font-title text-3xl">Last 12 Months</h2>
+        <h2 className="mb-4 font-title text-3xl">
+          Last 12 Months (or last 1000 episodes)
+        </h2>
 
         {/* Chart */}
         {last12MonthsStats.length > 0 && (
