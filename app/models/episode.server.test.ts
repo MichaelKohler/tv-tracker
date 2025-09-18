@@ -1,7 +1,6 @@
 import { prisma } from "../__mocks__/db.server";
 import {
   getConnectedEpisodeCount,
-  getEpisodeById,
   getEpisodeByShowIdAndNumbers,
   getEpisodeCount,
   getEpisodesWithMissingInfo,
@@ -106,13 +105,6 @@ test("markAllEpisodesAsWatched should throw error if user not connected to show"
       showId: "showId",
     })
   ).rejects.toThrow();
-});
-
-// Not actually covering the query itself..
-test("getEpisodeById should return episode", async () => {
-  prisma.episode.findFirst.mockResolvedValue(EPISODE);
-  const episode = await getEpisodeById("1");
-  expect(episode).toStrictEqual(EPISODE);
 });
 
 test("getEpisodesWithMissingInfo should return episodes", async () => {

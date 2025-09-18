@@ -2,33 +2,6 @@ import type { Episode, Show, User } from "@prisma/client";
 
 import { prisma } from "../db.server";
 
-export async function getEpisodeById(episodeId: Episode["id"]) {
-  const episode = await prisma.episode.findFirst({
-    where: {
-      id: episodeId,
-    },
-    select: {
-      id: true,
-      name: true,
-      season: true,
-      number: true,
-      airDate: true,
-      runtime: true,
-      imageUrl: true,
-      summary: true,
-      show: {
-        select: {
-          id: true,
-          name: true,
-          imageUrl: true,
-        },
-      },
-    },
-  });
-
-  return episode;
-}
-
 export async function getEpisodeByShowIdAndNumbers({
   showId,
   season,
