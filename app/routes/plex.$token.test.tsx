@@ -43,22 +43,7 @@ const mockShow = {
   rating: 8.5,
 };
 
-const mockEpisode = {
-  id: "episode789",
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  airDate: new Date(),
-  date: new Date(),
-  imageUrl: "https://example.com/image.png",
-  mazeId: "maze789",
-  name: "Declaration of Love",
-  number: 7,
-  season: 3,
-  runtime: 44,
-  showId: "show456",
-  summary: "Test Summary",
-  show: mockShow,
-};
+const mockEpisodeId = "episode789";
 
 interface PlexMetadata {
   grandparentTitle: string;
@@ -89,7 +74,9 @@ describe("Plex token route", () => {
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(getUserByPlexToken).mockResolvedValue(mockUser);
     vi.mocked(getShowByUserIdAndName).mockResolvedValue(mockShow);
-    vi.mocked(getEpisodeByShowIdAndNumbers).mockResolvedValue(mockEpisode);
+    vi.mocked(getEpisodeByShowIdAndNumbers).mockResolvedValue({
+      id: mockEpisodeId,
+    });
     vi.mocked(markEpisodeAsWatched).mockResolvedValue(undefined);
   });
 
@@ -118,7 +105,7 @@ describe("Plex token route", () => {
     });
     expect(markEpisodeAsWatched).toHaveBeenCalledWith({
       userId: mockUser.id,
-      episodeId: mockEpisode.id,
+      episodeId: mockEpisodeId,
       showId: mockShow.id,
     });
     expect(response).toEqual({});

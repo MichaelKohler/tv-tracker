@@ -3,7 +3,10 @@ import type { Show } from "@prisma/client";
 import ShowTile from "./show-tile";
 
 interface Props {
-  shows: (Show & { archived: boolean })[];
+  shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
+    archived: boolean;
+    unwatchedEpisodesCount: number;
+  })[];
 }
 
 export default function ShowTiles({ shows }: Props) {

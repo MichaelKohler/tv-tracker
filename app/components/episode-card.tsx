@@ -3,8 +3,11 @@ import { Link } from "react-router";
 import { padNumber } from "../utils";
 
 interface Props {
-  episode: Episode & {
-    show: Show;
+  episode: Pick<
+    Episode,
+    "id" | "name" | "season" | "number" | "airDate" | "runtime" | "imageUrl"
+  > & {
+    show: Pick<Show, "id" | "name" | "imageUrl">;
   };
 }
 
@@ -31,7 +34,6 @@ export default function EpisodeCard({ episode }: Props) {
           <p className="mt-2 text-sm text-gray-500">
             {new Date(episode.airDate).toLocaleDateString()}
           </p>
-          {episode.summary && <p className="mt-4 text-sm">{episode.summary}</p>}
         </div>
       </Link>
     </li>

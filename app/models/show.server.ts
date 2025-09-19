@@ -47,14 +47,6 @@ export async function getShowByUserIdAndName({
     select: {
       id: true,
       name: true,
-      mazeId: true,
-      premiered: true,
-      ended: true,
-      rating: true,
-      imageUrl: true,
-      summary: true,
-      createdAt: true,
-      updatedAt: true,
     },
   });
 
@@ -72,15 +64,8 @@ export async function getShowsByUserId(userId: User["id"]) {
       show: {
         select: {
           id: true,
-          mazeId: true,
           name: true,
-          premiered: true,
-          ended: true,
-          rating: true,
           imageUrl: true,
-          summary: true,
-          createdAt: true,
-          updatedAt: true,
           _count: {
             select: {
               episodes: {
@@ -197,8 +182,6 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
             rating: true,
             imageUrl: true,
             summary: true,
-            createdAt: true,
-            updatedAt: true,
             episodes: {
               select: {
                 id: true,
@@ -208,11 +191,6 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
                 airDate: true,
                 runtime: true,
                 imageUrl: true,
-                summary: true,
-                createdAt: true,
-                updatedAt: true,
-                showId: true,
-                mazeId: true,
               },
               orderBy: [
                 {

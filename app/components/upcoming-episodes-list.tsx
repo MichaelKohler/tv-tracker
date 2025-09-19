@@ -1,8 +1,12 @@
 import type { Episode, Show } from "@prisma/client";
 import EpisodeCard from "./episode-card";
 
-type EpisodeWithShow = Episode & {
-  show: Show;
+type EpisodeWithShow = Pick<
+  Episode,
+  "id" | "name" | "season" | "number" | "airDate" | "runtime" | "imageUrl"
+> & {
+  show: Pick<Show, "id" | "name" | "imageUrl">;
+  date?: Date;
 };
 
 interface WatchedEpisodes {

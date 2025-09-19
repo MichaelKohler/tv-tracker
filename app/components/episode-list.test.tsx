@@ -26,25 +26,11 @@ test("renders episodes", async () => {
 
   expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
   expect(screen.getByText(/S01E01/)).toBeInTheDocument();
-  expect(screen.getByText(DEFAULT_EPISODES[0].summary)).toBeInTheDocument();
 
   expect(screen.getByText(DEFAULT_EPISODES[1].name)).toBeInTheDocument();
   expect(screen.getByText(/S01E02/)).toBeInTheDocument();
-  expect(screen.getByText(DEFAULT_EPISODES[1].summary)).toBeInTheDocument();
 
   expect(screen.queryAllByText("Mark as watched").length).toBe(2);
-});
-
-test("does not decode summary", async () => {
-  const episodes = [
-    {
-      ...DEFAULT_EPISODES[0],
-      summary: "a &lt; b",
-    },
-  ];
-  render(<EpisodeList episodes={episodes} watchedEpisodes={[]} showId="1" />);
-
-  expect(screen.getByText("a &lt; b")).toBeInTheDocument();
 });
 
 test("renders unwatched button if watched", async () => {

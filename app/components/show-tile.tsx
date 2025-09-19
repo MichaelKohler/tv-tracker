@@ -3,7 +3,10 @@ import { Link } from "react-router";
 import type { Show } from "@prisma/client";
 
 export interface Props {
-  show: Show & { archived: boolean; unwatchedEpisodesCount?: number };
+  show: Pick<Show, "id" | "name" | "imageUrl"> & {
+    archived: boolean;
+    unwatchedEpisodesCount?: number;
+  };
 }
 
 export default function ShowTile({ show }: Props) {
