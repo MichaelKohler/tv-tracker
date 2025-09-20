@@ -6,7 +6,6 @@ import {
   useLoaderData,
   useNavigation,
 } from "react-router";
-import * as Sentry from "@sentry/node";
 
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { deleteUserByUserId } from "../models/user.server";
@@ -28,12 +27,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     await deleteUserByUserId(userId);
-
-    Sentry.metrics.increment("user_deleted", 1, {});
   } catch (error) {
     console.error("DELETE_USER_ERROR", error);
-
-    Sentry.metrics.increment("user_delete_failed", 1, {});
 
     return data(
       { errors: { deletion: "Could not delete user. Please try again." } },

@@ -72,6 +72,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function TVUpcoming() {
   const { episodes, features } = useLoaderData<typeof loader>();
 
+  throw new Error("Sentry test!");
+
   if (!features.recentlyWatchedRoute) {
     return (
       <>

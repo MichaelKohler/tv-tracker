@@ -14,7 +14,6 @@ import {
   useSearchParams,
   useNavigation,
 } from "react-router";
-import * as Sentry from "@sentry/node";
 
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { redeemInviteCode } from "../models/invite.server";
@@ -106,8 +105,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const user = await createUser(email, passwordInput);
-
-  Sentry.metrics.increment("user_created", 1, {});
 
   return createUserSession({
     request,
