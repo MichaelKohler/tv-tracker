@@ -18,3 +18,7 @@ coverage
 
 .react-router/
 tsconfig.tsbuildinfo
+
+# Sentry
+.sentryclirc
+.env.sentry-build-plugin

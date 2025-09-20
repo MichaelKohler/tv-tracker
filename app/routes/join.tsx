@@ -235,7 +235,14 @@ export default function Join() {
         )}
 
         <input type="hidden" name="redirectTo" value={redirectTo} />
-
+        <p className="text-sm font-medium text-mk-text">
+          Creating an account means that you are accepting that data is
+          forwarded to <a href="https://sentry.io">Sentry</a> which includes
+          information about errors you encounter and profiling information such
+          as timing information. This also includes information about your
+          browser. There is no way to opt out of this. Don&apos;t use this
+          website if you disagree with this.
+        </p>
         <button
           type="submit"
           className="w-full rounded bg-mk px-4 py-2 text-white hover:mk-tertiary focus:mk-tertiary"
