@@ -22,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const userId = await requireUserId(request);
-  const episodes = await getRecentlyWatchedEpisodes(userId);
+  const episodes = await getRecentlyWatchedEpisodes(userId, 200);
 
   const groupedEpisodes = episodes.reduce(
     (acc, episode) => {
