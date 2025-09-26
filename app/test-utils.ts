@@ -42,3 +42,18 @@ export const testEpisode2: Episode = {
   createdAt: new Date(),
   updatedAt: new Date(),
 };
+
+export const upcomingEpisode: Episode = {
+  id: "3",
+  name: "Upcoming Episode",
+  season: 1,
+  number: 3,
+  airDate: new Date("2999-01-01"),
+  summary: "The upcoming test episode.",
+  imageUrl: "https://example.com/episode3.png",
+  showId: "1",
+  mazeId: "3",
+  runtime: 30,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};

@@ -64,21 +64,27 @@ export default function EpisodeList({
                 (!submissionEpisodeId ||
                   submissionEpisodeId !== episode.id) && (
                   <div className="mt-4 flex gap-2">
-                    <Form method="post" className="inline-block">
-                      <input type="hidden" name="intent" value="MARK_WATCHED" />
-                      <input type="hidden" name="showId" value={showId} />
-                      <input
-                        type="hidden"
-                        name="episodeId"
-                        value={episode.id}
-                      />
-                      <button
-                        type="submit"
-                        className="rounded bg-mk border-2 border-transparent px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
-                      >
-                        Mark as watched
-                      </button>
-                    </Form>
+                    {new Date(episode.airDate) < new Date() && (
+                      <Form method="post" className="inline-block">
+                        <input
+                          type="hidden"
+                          name="intent"
+                          value="MARK_WATCHED"
+                        />
+                        <input type="hidden" name="showId" value={showId} />
+                        <input
+                          type="hidden"
+                          name="episodeId"
+                          value={episode.id}
+                        />
+                        <button
+                          type="submit"
+                          className="rounded bg-mk border-2 border-transparent px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
+                        >
+                          Mark as watched
+                        </button>
+                      </Form>
+                    )}
                     <Form method="post" className="inline-block">
                       <input type="hidden" name="intent" value="MARK_IGNORED" />
                       <input type="hidden" name="showId" value={showId} />
