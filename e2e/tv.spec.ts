@@ -51,8 +51,15 @@ test("allows TV flows", async ({ page }) => {
 
   await page.getByText("House of the Dragon").click();
   await expect(page.getByText("Remove show")).toBeVisible();
+
+  await page.getByText("Ignore", { exact: true }).nth(0).click();
+  await expect(page.getByText("Unignore").nth(0)).toBeVisible();
+  await page.getByText("Unignore").nth(0).click();
+  await expect(page.getByText("Ignore", { exact: true }).nth(0)).toBeVisible();
+
   await page.getByText("Mark as watched").nth(0).click();
   await page.getByText("Mark as not watched").nth(0).click();
+
   await page.getByText("Mark all aired episodes as watched").click();
   await expect(page.getByText("Mark as not watched").nth(0)).toBeVisible();
   await page.getByText("Mark as not watched").nth(0).click();

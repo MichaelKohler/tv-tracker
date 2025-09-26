@@ -8,6 +8,8 @@ import {
   getUpcomingEpisodes,
   markEpisodeAsWatched,
   markEpisodeAsUnwatched,
+  markEpisodeAsIgnored,
+  markEpisodeAsUnignored,
   markAllEpisodesAsWatched,
   getTotalWatchTimeForUser,
   getWatchedEpisodesCountForUser,
@@ -54,6 +56,7 @@ const EPISODE_ON_USER = {
   userId: "1",
   showId: "1",
   episodeId: "1",
+  ignored: false,
   episode: EPISODE,
   show: {},
 };
@@ -141,6 +144,7 @@ test("getRecentlyWatchedEpisodes should be called with correct params", async ()
         gte: fromDate,
       },
       userId: "1",
+      ignored: false,
     },
     select: {
       createdAt: true,
@@ -186,6 +190,7 @@ test("getConnectedEpisodeCount should return count", async () => {
       showId: "1",
       userId: "1",
       episodeId: "1",
+      ignored: false,
     },
   ]);
   const count = await getConnectedEpisodeCount();
@@ -212,8 +217,19 @@ test("markEpisodeAsWatched should create entry", async () => {
     episodeId: "episodeId",
     showId: "showId",
   });
-  expect(prisma.episodeOnUser.create).toBeCalledWith({
-    data: {
+  expect(prisma.episodeOnUser.upsert).toBeCalledWith({
+    where: {
+      episodeId_showId_userId: {
+        episodeId: "episodeId",
+        showId: "showId",
+        userId: "userId",
+      },
+    },
+    update: {
+      ignored: false,
+    },
+    create: {
+      ignored: false,
       show: {
         connect: {
           id: "showId",
@@ -287,6 +303,7 @@ test("markAllEpisodesAsWatched should add entry for not yet watched episodes", a
         showId: "showId",
         userId: "userId",
         episodeId: "2",
+        ignored: false,
       },
     ],
   });
@@ -299,6 +316,7 @@ test("getTotalWatchTimeForUser should return total runtime", async () => {
       userId: "userId",
       showId: "showId",
       episodeId: "episode1",
+      ignored: false,
       createdAt: new Date(),
       updatedAt: new Date(),
       episode: { runtime: 30 },
@@ -308,6 +326,7 @@ test("getTotalWatchTimeForUser should return total runtime", async () => {
       userId: "userId",
       showId: "showId",
       episodeId: "episode2",
+      ignored: false,
       createdAt: new Date(),
       updatedAt: new Date(),
       episode: { runtime: 45 },
@@ -331,11 +350,13 @@ test("getWatchedEpisodesCountForUser should return count", async () => {
 test("getUnwatchedEpisodesCountForUser should return difference", async () => {
   // Mock total aired episodes
   vi.mocked(prisma.episode.count).mockResolvedValue(100);
-  // Mock watched episodes count
-  vi.mocked(prisma.episodeOnUser.count).mockResolvedValue(30);
+  // Mock watched episodes count (first call) and ignored episodes count (second call)
+  vi.mocked(prisma.episodeOnUser.count)
+    .mockResolvedValueOnce(30) // watched count
+    .mockResolvedValueOnce(10); // ignored count
 
   const unwatchedCount = await getUnwatchedEpisodesCountForUser("userId");
-  expect(unwatchedCount).toBe(70);
+  expect(unwatchedCount).toBe(60); // 100 - 30 - 10
 });
 
 test("getLast12MonthsStats should return monthly stats", async () => {
@@ -351,6 +372,7 @@ test("getLast12MonthsStats should return monthly stats", async () => {
       userId: "userId",
       showId: "showId1",
       episodeId: "episode1",
+      ignored: false,
       createdAt: mockDate,
       updatedAt: mockDate,
       episode: { runtime: 30, showId: "showId1" },
@@ -361,6 +383,7 @@ test("getLast12MonthsStats should return monthly stats", async () => {
       userId: "userId",
       showId: "showId2",
       episodeId: "episode2",
+      ignored: false,
       createdAt: mockDate,
       updatedAt: mockDate,
       episode: { runtime: 45, showId: "showId2" },
@@ -382,4 +405,128 @@ test("getLast12MonthsStats should return monthly stats", async () => {
 
   // Cleanup
   vi.useRealTimers();
+});
+
+test("markEpisodeAsIgnored should create entry with ignored: true", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue({
+    id: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    showId: "showId",
+    userId: "userId",
+    archived: false,
+  });
+
+  await markEpisodeAsIgnored({
+    userId: "userId",
+    episodeId: "episodeId",
+    showId: "showId",
+  });
+
+  expect(prisma.episodeOnUser.upsert).toBeCalledWith({
+    where: {
+      episodeId_showId_userId: {
+        episodeId: "episodeId",
+        showId: "showId",
+        userId: "userId",
+      },
+    },
+    update: {
+      ignored: true,
+    },
+    create: {
+      ignored: true,
+      show: {
+        connect: {
+          id: "showId",
+        },
+      },
+      episode: {
+        connect: {
+          id: "episodeId",
+        },
+      },
+      user: {
+        connect: {
+          id: "userId",
+        },
+      },
+    },
+  });
+});
+
+test("markEpisodeAsIgnored should throw when show not found", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue(null);
+
+  await expect(
+    markEpisodeAsIgnored({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    })
+  ).rejects.toThrow();
+});
+
+test("markEpisodeAsUnignored should delete ignored entry", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue({
+    id: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    showId: "showId",
+    userId: "userId",
+    archived: false,
+  });
+  prisma.episodeOnUser.findFirst.mockResolvedValue({
+    id: "episodeOnUserId",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    episodeId: "episodeId",
+    showId: "showId",
+    userId: "userId",
+    ignored: true,
+  });
+
+  await markEpisodeAsUnignored({
+    userId: "userId",
+    episodeId: "episodeId",
+    showId: "showId",
+  });
+
+  expect(prisma.episodeOnUser.delete).toBeCalledWith({
+    where: {
+      id: "episodeOnUserId",
+    },
+  });
+});
+
+test("markEpisodeAsUnignored should throw when show not found", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue(null);
+
+  await expect(
+    markEpisodeAsUnignored({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    })
+  ).rejects.toThrow();
+});
+
+test("markEpisodeAsUnignored should throw when episode not ignored", async () => {
+  prisma.showOnUser.findFirst.mockResolvedValue({
+    id: "1",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    showId: "showId",
+    userId: "userId",
+    archived: false,
+  });
+  prisma.episodeOnUser.findFirst.mockResolvedValue(null);
+
+  await expect(
+    markEpisodeAsUnignored({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    })
+  ).rejects.toThrow();
 });

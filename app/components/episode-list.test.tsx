@@ -21,7 +21,12 @@ beforeEach(() => {
 
 test("renders episodes", async () => {
   render(
-    <EpisodeList episodes={DEFAULT_EPISODES} watchedEpisodes={[]} showId="1" />
+    <EpisodeList
+      episodes={DEFAULT_EPISODES}
+      watchedEpisodes={[]}
+      ignoredEpisodes={[]}
+      showId="1"
+    />
   );
 
   expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
@@ -31,6 +36,7 @@ test("renders episodes", async () => {
   expect(screen.getByText(/S01E02/)).toBeInTheDocument();
 
   expect(screen.queryAllByText("Mark as watched").length).toBe(2);
+  expect(screen.queryAllByText("Ignore").length).toBe(2);
 });
 
 test("renders unwatched button if watched", async () => {
@@ -38,11 +44,13 @@ test("renders unwatched button if watched", async () => {
     <EpisodeList
       episodes={[DEFAULT_EPISODES[0]]}
       watchedEpisodes={["1"]}
+      ignoredEpisodes={[]}
       showId="1"
     />
   );
 
   expect(screen.getByText("Mark as not watched")).toBeInTheDocument();
+  expect(screen.queryByText("Ignore")).not.toBeInTheDocument();
 });
 
 test("renders spinner while submitting mark as read", async () => {
@@ -62,6 +70,7 @@ test("renders spinner while submitting mark as read", async () => {
     <EpisodeList
       episodes={[DEFAULT_EPISODES[0]]}
       watchedEpisodes={[]}
+      ignoredEpisodes={[]}
       showId="1"
     />
   );
@@ -88,10 +97,55 @@ test("does not render spinner while submitting mark as read for another episode"
     <EpisodeList
       episodes={[DEFAULT_EPISODES[0]]}
       watchedEpisodes={[]}
+      ignoredEpisodes={[]}
       showId="1"
     />
   );
 
   expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
   expect(screen.getByText("Mark as watched")).toBeInTheDocument();
+});
+
+test("renders ignored episode with unignore button", async () => {
+  render(
+    <EpisodeList
+      episodes={[DEFAULT_EPISODES[0]]}
+      watchedEpisodes={[]}
+      ignoredEpisodes={["1"]}
+      showId="1"
+    />
+  );
+
+  expect(screen.getByText("Unignore")).toBeInTheDocument();
+  expect(screen.queryByText("Mark as watched")).not.toBeInTheDocument();
+  expect(screen.queryByText("Ignore")).not.toBeInTheDocument();
+});
+
+test("renders ignored episode with grayscale styling", async () => {
+  render(
+    <EpisodeList
+      episodes={[DEFAULT_EPISODES[0]]}
+      watchedEpisodes={[]}
+      ignoredEpisodes={["1"]}
+      showId="1"
+    />
+  );
+
+  const img = screen.getByAltText("");
+  expect(img).toHaveClass("grayscale");
+});
+
+test("renders unignore button if ignored", async () => {
+  render(
+    <EpisodeList
+      episodes={[DEFAULT_EPISODES[0]]}
+      watchedEpisodes={[]}
+      ignoredEpisodes={["1"]}
+      showId="1"
+    />
+  );
+
+  expect(screen.getByText("Unignore")).toBeInTheDocument();
+  expect(screen.queryByText("Mark as watched")).not.toBeInTheDocument();
+  expect(screen.queryByText("Ignore")).not.toBeInTheDocument();
 });

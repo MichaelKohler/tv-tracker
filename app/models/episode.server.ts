@@ -81,6 +81,7 @@ export async function getRecentlyWatchedEpisodes(
         gte: fromDate,
       },
       userId,
+      ignored: false,
     },
     select: {
       createdAt: true,
@@ -146,8 +147,19 @@ export async function markEpisodeAsWatched({
     });
   }
 
-  await prisma.episodeOnUser.create({
-    data: {
+  await prisma.episodeOnUser.upsert({
+    where: {
+      episodeId_showId_userId: {
+        episodeId,
+        showId,
+        userId,
+      },
+    },
+    update: {
+      ignored: false,
+    },
+    create: {
+      ignored: false,
       show: {
         connect: {
           id: showId,
@@ -181,6 +193,112 @@ export async function markEpisodeAsUnwatched({
       userId,
       episodeId,
       showId,
+    },
+  });
+}
+
+export async function markEpisodeAsIgnored({
+  userId,
+  episodeId,
+  showId,
+}: {
+  userId: User["id"];
+  episodeId: Episode["id"];
+  showId: Show["id"];
+}) {
+  const showOnUser = await prisma.showOnUser.findFirst({
+    where: {
+      showId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!showOnUser) {
+    throw new Response("Not Found", {
+      status: 404,
+    });
+  }
+
+  await prisma.episodeOnUser.upsert({
+    where: {
+      episodeId_showId_userId: {
+        episodeId,
+        showId,
+        userId,
+      },
+    },
+    update: {
+      ignored: true,
+    },
+    create: {
+      ignored: true,
+      show: {
+        connect: {
+          id: showId,
+        },
+      },
+      episode: {
+        connect: {
+          id: episodeId,
+        },
+      },
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  });
+}
+
+export async function markEpisodeAsUnignored({
+  userId,
+  episodeId,
+  showId,
+}: {
+  userId: User["id"];
+  episodeId: Episode["id"];
+  showId: Show["id"];
+}) {
+  const showOnUser = await prisma.showOnUser.findFirst({
+    where: {
+      showId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!showOnUser) {
+    throw new Response("Not Found", {
+      status: 404,
+    });
+  }
+
+  // Check if episode is currently ignored
+  const episodeOnUser = await prisma.episodeOnUser.findFirst({
+    where: {
+      userId,
+      episodeId,
+      showId,
+      ignored: true,
+    },
+  });
+
+  if (!episodeOnUser) {
+    throw new Response("Episode not found or not ignored", {
+      status: 404,
+    });
+  }
+
+  // Delete the entry to return episode to unwatched state
+  await prisma.episodeOnUser.delete({
+    where: {
+      id: episodeOnUser.id,
     },
   });
 }
@@ -230,6 +348,7 @@ export async function markAllEpisodesAsWatched({
       userId,
       showId,
       episodeId: episode.id,
+      ignored: false,
     })),
   });
 }
@@ -298,6 +417,7 @@ export async function getTotalWatchTimeForUser(userId: User["id"]) {
   const watchedEpisodes = await prisma.episodeOnUser.findMany({
     where: {
       userId,
+      ignored: false,
     },
     select: {
       episode: {
@@ -317,6 +437,7 @@ export async function getWatchedEpisodesCountForUser(userId: User["id"]) {
   const count = await prisma.episodeOnUser.count({
     where: {
       userId,
+      ignored: false,
     },
   });
 
@@ -343,7 +464,27 @@ export async function getUnwatchedEpisodesCountForUser(userId: User["id"]) {
   // Get watched episodes count
   const watchedCount = await getWatchedEpisodesCountForUser(userId);
 
-  return totalAiredEpisodes - watchedCount;
+  // Get ignored episodes count
+  const ignoredCount = await prisma.episodeOnUser.count({
+    where: {
+      userId,
+      ignored: true,
+      episode: {
+        airDate: {
+          lte: new Date(),
+        },
+      },
+      show: {
+        users: {
+          some: {
+            userId,
+          },
+        },
+      },
+    },
+  });
+
+  return totalAiredEpisodes - watchedCount - ignoredCount;
 }
 
 export async function getLast12MonthsStats(userId: User["id"]) {
@@ -355,6 +496,7 @@ export async function getLast12MonthsStats(userId: User["id"]) {
   const watchedEpisodes = await prisma.episodeOnUser.findMany({
     where: {
       userId,
+      ignored: false,
       createdAt: {
         gte: twelveMonthsAgo,
       },

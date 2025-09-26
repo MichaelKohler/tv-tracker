@@ -49,6 +49,7 @@ beforeEach(() => {
       archived: false,
     },
     watchedEpisodes: [],
+    ignoredEpisodes: [],
     features: {
       markAllAsWatched: true,
       ignoreUnwatchedOnOverview: true,
@@ -84,6 +85,7 @@ test("renders detail page without mark all as watched button", () => {
       archived: false,
     },
     watchedEpisodes: [],
+    ignoredEpisodes: [],
     features: {
       markAllAsWatched: false,
       ignoreUnwatchedOnOverview: true,
@@ -111,6 +113,7 @@ test("renders detail page without ignore unwatched on overview button", () => {
       archived: false,
     },
     watchedEpisodes: [],
+    ignoredEpisodes: [],
     features: {
       markAllAsWatched: true,
       ignoreUnwatchedOnOverview: false,
