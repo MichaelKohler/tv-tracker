@@ -105,6 +105,7 @@ model Episode {
 
 model EpisodeOnUser {
   id         String @id @default(uuid())
+  ignored    Boolean @default(false)
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -119,6 +120,7 @@ model EpisodeOnUser {
   userId     String
 
   @@index([userId])
+  @@index([userId, ignored])
   @@index([episodeId, showId])
   @@index([episodeId])
   @@index([showId])

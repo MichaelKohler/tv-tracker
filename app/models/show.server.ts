@@ -95,6 +95,21 @@ export async function getShowsByUserId(userId: User["id"]) {
     },
     where: {
       userId,
+      ignored: false,
+      showId: {
+        in: showIds,
+      },
+    },
+  });
+
+  const ignoredEpisodesCount = await prisma.episodeOnUser.groupBy({
+    by: ["showId"],
+    _count: {
+      episodeId: true,
+    },
+    where: {
+      userId,
+      ignored: true,
       showId: {
         in: showIds,
       },
@@ -106,12 +121,18 @@ export async function getShowsByUserId(userId: User["id"]) {
     watchedEpisodesCountMap.set(group.showId, group._count.episodeId);
   }
 
+  const ignoredEpisodesCountMap = new Map<string, number>();
+  for (const group of ignoredEpisodesCount) {
+    ignoredEpisodesCountMap.set(group.showId, group._count.episodeId);
+  }
+
   const showsToReturn = showsOnUser.map(({ show, archived, showId }) => {
     const pastEpisodesCount = show._count.episodes;
     const watchedCount = watchedEpisodesCountMap.get(showId) || 0;
+    const ignoredCount = ignoredEpisodesCountMap.get(showId) || 0;
     const unwatchedEpisodesCount = archived
       ? 0
-      : pastEpisodesCount - watchedCount;
+      : pastEpisodesCount - watchedCount - ignoredCount;
 
     const { _count, ...showData } = show;
 
@@ -165,7 +186,7 @@ async function getAddedShowsMazeIds(userId: User["id"]) {
 }
 
 export async function getShowById(showId: Show["id"], userId: User["id"]) {
-  const [showOnUser, watchedEpisodes] = await Promise.all([
+  const [showOnUser, watchedEpisodes, ignoredEpisodes] = await Promise.all([
     prisma.showOnUser.findFirst({
       where: {
         showId,
@@ -209,6 +230,17 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
       where: {
         userId,
         showId,
+        ignored: false,
+      },
+      select: {
+        episodeId: true,
+      },
+    }),
+    prisma.episodeOnUser.findMany({
+      where: {
+        userId,
+        showId,
+        ignored: true,
       },
       select: {
         episodeId: true,
@@ -228,6 +260,7 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
   return {
     show,
     watchedEpisodes: watchedEpisodes.map((episode) => episode.episodeId),
+    ignoredEpisodes: ignoredEpisodes.map((episode) => episode.episodeId),
   };
 }
 

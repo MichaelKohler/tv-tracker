@@ -12,12 +12,14 @@ interface Props {
     "id" | "name" | "season" | "number" | "airDate" | "runtime" | "imageUrl"
   >[];
   watchedEpisodes: Episode["id"][];
+  ignoredEpisodes: Episode["id"][];
   showId: Show["id"];
 }
 
 export default function EpisodeList({
   episodes,
   watchedEpisodes,
+  ignoredEpisodes,
   showId,
 }: Props) {
   const navigation = useNavigation();
@@ -36,7 +38,10 @@ export default function EpisodeList({
                 src={episode.imageUrl || EPISODE_FALLBACK_IMG_PATH}
                 alt=""
                 className={`${
-                  watchedEpisodes.includes(episode.id) ? "grayscale" : ""
+                  watchedEpisodes.includes(episode.id) ||
+                  ignoredEpisodes.includes(episode.id)
+                    ? "grayscale"
+                    : ""
                 } hover:grayscale-0`}
                 loading="lazy"
               />
@@ -53,21 +58,45 @@ export default function EpisodeList({
                   <Spinner />
                 </div>
               )}
+              {/* Unwatched episodes - Show both watch and ignore buttons */}
               {!watchedEpisodes.includes(episode.id) &&
+                !ignoredEpisodes.includes(episode.id) &&
                 (!submissionEpisodeId ||
                   submissionEpisodeId !== episode.id) && (
-                  <Form method="post">
-                    <input type="hidden" name="intent" value="MARK_WATCHED" />
-                    <input type="hidden" name="showId" value={showId} />
-                    <input type="hidden" name="episodeId" value={episode.id} />
-                    <button
-                      type="submit"
-                      className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
-                    >
-                      Mark as watched
-                    </button>
-                  </Form>
+                  <div className="mt-4 flex gap-2">
+                    <Form method="post" className="inline-block">
+                      <input type="hidden" name="intent" value="MARK_WATCHED" />
+                      <input type="hidden" name="showId" value={showId} />
+                      <input
+                        type="hidden"
+                        name="episodeId"
+                        value={episode.id}
+                      />
+                      <button
+                        type="submit"
+                        className="rounded bg-mk border-2 border-transparent px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
+                      >
+                        Mark as watched
+                      </button>
+                    </Form>
+                    <Form method="post" className="inline-block">
+                      <input type="hidden" name="intent" value="MARK_IGNORED" />
+                      <input type="hidden" name="showId" value={showId} />
+                      <input
+                        type="hidden"
+                        name="episodeId"
+                        value={episode.id}
+                      />
+                      <button
+                        type="submit"
+                        className="rounded bg-white border-2 border-black text-black hover:bg-gray-100 px-4 py-2"
+                      >
+                        Ignore
+                      </button>
+                    </Form>
+                  </div>
                 )}
+              {/* Watched episodes - Show only unwatch button */}
               {watchedEpisodes.includes(episode.id) &&
                 (!submissionEpisodeId ||
                   submissionEpisodeId !== episode.id) && (
@@ -77,9 +106,25 @@ export default function EpisodeList({
                     <input type="hidden" name="episodeId" value={episode.id} />
                     <button
                       type="submit"
-                      className="mt-4 rounded bg-mkerror px-4 py-2 text-black hover:bg-mkerror-muted active:bg-mkerror-muted"
+                      className="mt-4 rounded bg-mkerror border-2 border-transparent px-4 py-2 text-black hover:bg-mkerror-muted active:bg-mkerror-muted"
                     >
                       Mark as not watched
+                    </button>
+                  </Form>
+                )}
+              {/* Ignored episodes - Show only unignore button */}
+              {ignoredEpisodes.includes(episode.id) &&
+                (!submissionEpisodeId ||
+                  submissionEpisodeId !== episode.id) && (
+                  <Form method="post">
+                    <input type="hidden" name="intent" value="MARK_UNIGNORED" />
+                    <input type="hidden" name="showId" value={showId} />
+                    <input type="hidden" name="episodeId" value={episode.id} />
+                    <button
+                      type="submit"
+                      className="mt-4 rounded bg-white border-2 border-black text-black hover:bg-gray-100 px-4 py-2"
+                    >
+                      Unignore
                     </button>
                   </Form>
                 )}

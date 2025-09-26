@@ -126,8 +126,10 @@ test("getShowsByUserId should return ids and unwatched count", async () => {
     },
   ];
   vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
-  // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-  vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(episodeOnUserData);
+  vi.mocked(prisma.episodeOnUser.groupBy)
+    // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
+    .mockResolvedValueOnce(episodeOnUserData) // watched episodes
+    .mockResolvedValueOnce([]); // ignored episodes (none)
   const shows = await getShowsByUserId("userId");
   expect(shows).toStrictEqual([
     {
@@ -263,7 +265,7 @@ test("getShowsByUserId should return empty array if not found", async () => {
   expect(shows).toStrictEqual([]);
 });
 
-test("getShowById should return users show with watched episodes", async () => {
+test("getShowById should return users show with watched and ignored episodes", async () => {
   const showOnUser: ShowOnUser & { show: Show & { episodes: Episode[] } } = {
     id: "1",
     showId: "2",
@@ -274,10 +276,16 @@ test("getShowById should return users show with watched episodes", async () => {
     show: { ...SHOW2, episodes: [EPISODE4] },
   };
   vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue(showOnUser);
-  vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue([
-    // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-    { episodeId: "4" },
-  ]);
+  // Mock both watched and ignored episodes
+  vi.mocked(prisma.episodeOnUser.findMany)
+    .mockResolvedValueOnce([
+      // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
+      { episodeId: "4" },
+    ])
+    .mockResolvedValueOnce([
+      // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
+      { episodeId: "5" },
+    ]);
   const shows = await getShowById("2", "userId");
   expect(shows).toStrictEqual({
     show: {
@@ -286,6 +294,7 @@ test("getShowById should return users show with watched episodes", async () => {
       archived: false,
     },
     watchedEpisodes: ["4"],
+    ignoredEpisodes: ["5"],
   });
 });
 
@@ -337,8 +346,10 @@ test("getSortedShowsByUserId should sort shows", async () => {
     },
   ];
   vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
-  // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-  vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(episodeOnUserData);
+  vi.mocked(prisma.episodeOnUser.groupBy)
+    // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
+    .mockResolvedValueOnce(episodeOnUserData) // watched episodes
+    .mockResolvedValueOnce([]); // ignored episodes (none)
 
   const shows = await getSortedShowsByUserId("userId");
 

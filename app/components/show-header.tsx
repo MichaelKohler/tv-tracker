@@ -35,6 +35,7 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
   const pastEpisodes = show.episodes?.filter(
     (episode) => new Date(episode.airDate) < new Date()
   );
+  const totalAiredEpisodes = pastEpisodes?.length || 0;
 
   return (
     <div className="mt-8 flex flex-col md:flex-row">
@@ -47,7 +48,7 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
           />
         )}
         <p className="mb-4 md:mt-4 md:text-center">
-          Watched {watchedEpisodes.length} of {pastEpisodes?.length} aired
+          Watched {watchedEpisodes.length} of {totalAiredEpisodes} aired
           episodes
         </p>
       </div>

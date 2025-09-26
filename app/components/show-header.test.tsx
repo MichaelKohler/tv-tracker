@@ -2,6 +2,7 @@ import * as React from "react";
 import { useNavigation } from "react-router";
 import type { Episode, Show } from "@prisma/client";
 import { render, screen } from "@testing-library/react";
+import { beforeEach, expect, test, vi } from "vitest";
 import "@testing-library/jest-dom";
 
 import { testEpisode, testEpisode2, testShow } from "../test-utils";

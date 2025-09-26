@@ -16,6 +16,8 @@ import {
   markEpisodeAsWatched,
   markAllEpisodesAsWatched,
   markEpisodeAsUnwatched,
+  markEpisodeAsIgnored,
+  markEpisodeAsUnignored,
 } from "../models/episode.server";
 import {
   archiveShowOnUser,
@@ -86,6 +88,29 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
+  if (intent === "MARK_IGNORED") {
+    try {
+      await markEpisodeAsIgnored({ userId, showId, episodeId });
+    } catch (error) {
+      console.error(error);
+
+      return data({ error: "MARKING_EPISODE_IGNORED_FAILED" }, { status: 500 });
+    }
+  }
+
+  if (intent === "MARK_UNIGNORED") {
+    try {
+      await markEpisodeAsUnignored({ userId, showId, episodeId });
+    } catch (error) {
+      console.error(error);
+
+      return data(
+        { error: "MARKING_EPISODE_UNIGNORED_FAILED" },
+        { status: 500 }
+      );
+    }
+  }
+
   if (intent === "MARK_ALL_WATCHED") {
     try {
       await markAllEpisodesAsWatched({ userId, showId });
@@ -136,7 +161,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function TVShow() {
-  const { show, watchedEpisodes, features } = useLoaderData<typeof loader>();
+  const { show, watchedEpisodes, ignoredEpisodes, features } =
+    useLoaderData<typeof loader>();
   const actionData = useActionData();
   const error = actionData?.error;
 
@@ -149,6 +175,7 @@ export default function TVShow() {
       <ShowHeader
         show={show}
         watchedEpisodes={watchedEpisodes}
+        ignoredEpisodes={ignoredEpisodes}
         features={features}
       />
 
@@ -157,6 +184,24 @@ export default function TVShow() {
           <ErrorAlert
             title="Marking all as watched failed"
             message="There was an error while marking all episodes as watched. Please try again as required. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
+
+      {error && error === "MARKING_EPISODE_IGNORED_FAILED" && (
+        <div className="mb-8 mt-2">
+          <ErrorAlert
+            title="Ignoring episode failed"
+            message="There was an error while ignoring the episode. Please try again. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
+
+      {error && error === "MARKING_EPISODE_UNIGNORED_FAILED" && (
+        <div className="mb-8 mt-2">
+          <ErrorAlert
+            title="Unignoring episode failed"
+            message="There was an error while unignoring the episode. Please try again. Sorry for the inconvenience!"
           />
         </div>
       )}
@@ -192,6 +237,7 @@ export default function TVShow() {
       <EpisodeList
         episodes={show.episodes}
         watchedEpisodes={watchedEpisodes}
+        ignoredEpisodes={ignoredEpisodes}
         showId={show.id}
       />
     </>
