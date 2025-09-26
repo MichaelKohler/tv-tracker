@@ -175,7 +175,6 @@ export default function TVShow() {
       <ShowHeader
         show={show}
         watchedEpisodes={watchedEpisodes}
-        ignoredEpisodes={ignoredEpisodes}
         features={features}
       />
 
