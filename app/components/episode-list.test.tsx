@@ -3,7 +3,7 @@ import { useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { testEpisode, testEpisode2 } from "../test-utils";
+import { testEpisode, testEpisode2, upcomingEpisode } from "../test-utils";
 import EpisodeList from "./episode-list";
 
 const DEFAULT_EPISODES = [testEpisode, testEpisode2];
@@ -22,7 +22,7 @@ beforeEach(() => {
 test("renders episodes", async () => {
   render(
     <EpisodeList
-      episodes={DEFAULT_EPISODES}
+      episodes={[...DEFAULT_EPISODES, upcomingEpisode]}
       watchedEpisodes={[]}
       ignoredEpisodes={[]}
       showId="1"
@@ -35,8 +35,8 @@ test("renders episodes", async () => {
   expect(screen.getByText(DEFAULT_EPISODES[1].name)).toBeInTheDocument();
   expect(screen.getByText(/S01E02/)).toBeInTheDocument();
 
-  expect(screen.queryAllByText("Mark as watched").length).toBe(2);
-  expect(screen.queryAllByText("Ignore").length).toBe(2);
+  expect(screen.queryAllByText("Mark as watched").length).toBe(2); // 3rd episode is upcoming
+  expect(screen.queryAllByText("Ignore").length).toBe(3);
 });
 
 test("renders unwatched button if watched", async () => {
