@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:17
+    image: postgres:18
     environment:
       POSTGRES_DB: tv_tracker_e2e
       POSTGRES_USER: tv_tracker
@@ -9,7 +9,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres_e2e_data:/var/lib/postgresql/data
+      - postgres_e2e_data:/var/lib/postgresql/18/docker
     networks:
       - e2e
     command: >

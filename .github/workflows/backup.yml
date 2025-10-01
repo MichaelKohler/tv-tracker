@@ -21,14 +21,14 @@ jobs:
           sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
           curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
           sudo apt update
-          sudo apt install postgresql-17 postgresql-client-17
+          sudo apt install postgresql-18 postgresql-client-18
 
       - name: 🕓 Set Timestamp
         run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
 
       - name: ✨ Create backup
         run: |
-          /usr/lib/postgresql/17/bin/pg_dump ${{ secrets.DATABASE_URL }} | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
+          /usr/lib/postgresql/18/bin/pg_dump ${{ secrets.DATABASE_URL }} | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
           cat tv-tracker-${TIMESTAMP}.sql.gz | gpg --passphrase "${{ secrets.ENCRYPTION_STRING }}" --batch --yes -c -o tv-tracker-${TIMESTAMP}.sql.gz.gpg
           rm tv-tracker-${TIMESTAMP}.sql.gz
 
