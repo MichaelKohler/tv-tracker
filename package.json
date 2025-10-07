@@ -50,7 +50,7 @@
     "@vitest/coverage-v8": "^3.1.2",
     "entities": "^7.0.0",
     "isbot": "^5.1.30",
-    "nodemailer": "^7.0.6",
+    "nodemailer": "^7.0.7",
     "postcss": "^8.5.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
