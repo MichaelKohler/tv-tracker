@@ -172,7 +172,7 @@ export default function TVStats() {
           <div>
             <h3 className="mb-4 text-xl font-semibold">Monthly Breakdown</h3>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {last12MonthsStats.map((month) => (
+              {last12MonthsStats.toReversed().map((month) => (
                 <div
                   key={month.month}
                   className="rounded-lg border border-mklight-100 bg-white p-4 shadow-sm"
