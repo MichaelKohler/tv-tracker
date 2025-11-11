@@ -1,7 +1,7 @@
 import * as React from "react";
 import { redirect, useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
@@ -17,6 +17,7 @@ beforeEach(() => {
   });
   vi.mock("react-router", async () => {
     const actual = await vi.importActual("react-router");
+
     return {
       ...actual,
       redirect: vi.fn(),
@@ -51,10 +52,10 @@ beforeEach(() => {
 test("renders index", () => {
   render(<Index />);
 
-  expect(screen.getByText("What have you watched?")).toBeInTheDocument();
-  expect(screen.getByText("Sign up")).toBeInTheDocument();
-  expect(screen.getByText("Log In")).toBeInTheDocument();
-  expect(screen.queryByText("Coming Soon!")).not.toBeInTheDocument();
+  expect(page.getByText("What have you watched?")).toBeInTheDocument();
+  expect(page.getByText("Sign up")).toBeInTheDocument();
+  expect(page.getByText("Log In")).toBeInTheDocument();
+  expect(page.getByText("Coming Soon!")).not.toBeInTheDocument();
 });
 
 test("renders index with disabled signup", () => {
@@ -64,10 +65,10 @@ test("renders index with disabled signup", () => {
 
   render(<Index />);
 
-  expect(screen.getByText("What have you watched?")).toBeInTheDocument();
-  expect(screen.queryByText("Sign up")).not.toBeInTheDocument();
-  expect(screen.queryByText("Get started")).not.toBeInTheDocument();
-  expect(screen.getByText("Log In")).toBeInTheDocument();
+  expect(page.getByText("What have you watched?")).toBeInTheDocument();
+  expect(page.getByText("Sign up")).not.toBeInTheDocument();
+  expect(page.getByText("Get started")).not.toBeInTheDocument();
+  expect(page.getByText("Log In")).toBeInTheDocument();
 });
 
 test("renders index with logged in user", () => {
@@ -81,9 +82,9 @@ test("renders index with logged in user", () => {
 
   render(<Index />);
 
-  expect(screen.getByText("What have you watched?")).toBeInTheDocument();
-  expect(screen.queryByText("Sign up")).not.toBeInTheDocument();
-  expect(screen.queryByText("Log In")).not.toBeInTheDocument();
+  expect(page.getByText("What have you watched?")).toBeInTheDocument();
+  expect(page.getByText("Sign up")).not.toBeInTheDocument();
+  expect(page.getByText("Log In")).not.toBeInTheDocument();
 });
 
 test("loaders returns signup flag", async () => {

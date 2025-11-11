@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { beforeEach, expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { testShow } from "../test-utils";
 import ShowResults from "./show-results";
@@ -20,20 +21,20 @@ beforeEach(() => {
 test("renders show results", async () => {
   render(<ShowResults shows={shows} isLoading={false} error={undefined} />);
 
-  expect(screen.getByText("tvmaze")).toBeInTheDocument();
-  expect(screen.getAllByText("ShowResult").length).toBe(2);
+  expect(page.getByText("tvmaze")).toBeInTheDocument();
+  expect(page.getByText("ShowResult").length).toBe(2);
 });
 
 test("renders spinner while loading results", async () => {
   render(<ShowResults shows={[]} isLoading={true} error={undefined} />);
 
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).toBeInTheDocument();
 });
 
 test("renders no shows found message", async () => {
   render(<ShowResults shows={[]} isLoading={false} error={undefined} />);
 
-  expect(screen.getByText(/No shows found/)).toBeInTheDocument();
+  expect(page.getByText(/No shows found/)).toBeInTheDocument();
 });
 
 test("renders error message", async () => {
@@ -41,8 +42,8 @@ test("renders error message", async () => {
     <ShowResults shows={[]} isLoading={false} error="ADDING_SHOW_FAILED" />
   );
 
-  expect(screen.getByText(/Adding show failed/)).toBeInTheDocument();
+  expect(page.getByText(/Adding show failed/)).toBeInTheDocument();
   expect(
-    screen.getByText(/There was an error while adding the show/)
+    page.getByText(/There was an error while adding the show/)
   ).toBeInTheDocument();
 });

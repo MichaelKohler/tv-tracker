@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useNavigation } from "react-router";
 import type { Episode, Show } from "@prisma/client";
-import { render, screen } from "@testing-library/react";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 import { beforeEach, expect, test, vi } from "vitest";
-import "@testing-library/jest-dom";
 
 import { testEpisode, testEpisode2, testShow } from "../test-utils";
 import ShowHeader from "./show-header";
@@ -45,17 +45,17 @@ test("renders show header", async () => {
     />
   );
 
-  expect(screen.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
-  expect(screen.getByText(show.name)).toBeInTheDocument();
-  expect(screen.getByText(show.summary)).toBeInTheDocument();
+  expect(page.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
+  expect(page.getByRole("heading", { name: show.name })).toBeInTheDocument();
+  expect(page.getByText(show.summary)).toBeInTheDocument();
   expect(
-    screen.getByText(new Date(show.premiered).toLocaleDateString())
+    page.getByText(new Date(show.premiered).toLocaleDateString())
   ).toBeInTheDocument();
-  expect(screen.getByText("8.5")).toBeInTheDocument();
+  expect(page.getByText("8.5")).toBeInTheDocument();
   expect(
-    screen.getByText("Mark all aired episodes as watched")
+    page.getByText("Mark all aired episodes as watched")
   ).toBeInTheDocument();
-  expect(screen.getByText("Remove show")).toBeInTheDocument();
+  expect(page.getByText("Remove show")).toBeInTheDocument();
 });
 
 test("renders watch count correctly", async () => {
@@ -67,7 +67,7 @@ test("renders watch count correctly", async () => {
     />
   );
 
-  expect(screen.getByText(/Watched 1 of 2 aired episodes/)).toBeInTheDocument();
+  expect(page.getByText(/Watched 1 of 2 aired episodes/)).toBeInTheDocument();
 });
 
 test("does not render mark all button if no episodes", async () => {
@@ -80,7 +80,7 @@ test("does not render mark all button if no episodes", async () => {
   );
 
   expect(
-    screen.queryByText("Mark all aired episodes as watched")
+    page.getByText("Mark all aired episodes as watched")
   ).not.toBeInTheDocument();
 });
 
@@ -94,7 +94,7 @@ test("does not render mark all button if all watched", async () => {
   );
 
   expect(
-    screen.queryByText("Mark all aired episodes as watched")
+    page.getByText("Mark all aired episodes as watched")
   ).not.toBeInTheDocument();
 });
 
@@ -112,7 +112,7 @@ test("renders archive button if not archived", async () => {
     />
   );
 
-  expect(screen.getByText("Ignore unwatched on overview")).toBeInTheDocument();
+  expect(page.getByText("Ignore unwatched on overview")).toBeInTheDocument();
 });
 
 test("renders unarchive button if not archived", async () => {
@@ -129,9 +129,7 @@ test("renders unarchive button if not archived", async () => {
     />
   );
 
-  expect(
-    screen.getByText("Unignore unwatched on overview")
-  ).toBeInTheDocument();
+  expect(page.getByText("Unignore unwatched on overview")).toBeInTheDocument();
 });
 
 test("renders spinner on mark all watched", async () => {
@@ -156,11 +154,11 @@ test("renders spinner on mark all watched", async () => {
     />
   );
 
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).toBeInTheDocument();
   expect(
-    screen.queryByText(/Mark all aired episodes as watched/)
+    page.getByText(/Mark all aired episodes as watched/)
   ).not.toBeInTheDocument();
-  expect(screen.getByText(/Remove show/)).toBeInTheDocument();
+  expect(page.getByText(/Remove show/)).toBeInTheDocument();
 });
 
 test("renders spinner on remove show", async () => {
@@ -185,11 +183,11 @@ test("renders spinner on remove show", async () => {
     />
   );
 
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).toBeInTheDocument();
   expect(
-    screen.getByText(/Mark all aired episodes as watched/)
+    page.getByText(/Mark all aired episodes as watched/)
   ).toBeInTheDocument();
-  expect(screen.queryByText(/Remove show/)).not.toBeInTheDocument();
+  expect(page.getByText(/Remove show/)).not.toBeInTheDocument();
 });
 
 test("renders spinner on archiving", async () => {
@@ -214,9 +212,9 @@ test("renders spinner on archiving", async () => {
     />
   );
 
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).toBeInTheDocument();
   expect(
-    screen.queryByText(/Ignore unwatched on overview/)
+    page.getByText(/Ignore unwatched on overview/)
   ).not.toBeInTheDocument();
 });
 
@@ -242,8 +240,8 @@ test("renders spinner on unarchiving", async () => {
     />
   );
 
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).toBeInTheDocument();
   expect(
-    screen.queryByText(/Unignore unwatched on overview/)
+    page.getByText(/Unignore unwatched on overview/)
   ).not.toBeInTheDocument();
 });

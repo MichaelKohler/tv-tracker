@@ -1,7 +1,7 @@
 import * as React from "react";
 import { redirect, useActionData, useNavigation } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { verifyLogin } from "../models/user.server";
 import { getUserId } from "../session.server";
@@ -52,11 +52,11 @@ beforeEach(() => {
 test("renders login form", () => {
   render(<Login />);
 
-  expect(screen.getByText("Email address")).toBeInTheDocument();
-  expect(screen.getByText("Password")).toBeInTheDocument();
-  expect(screen.getByText("Log in")).toBeInTheDocument();
-  expect(screen.getByText("Remember me")).toBeInTheDocument();
-  expect(screen.getByText("Reset password")).toBeInTheDocument();
+  expect(page.getByText("Email address")).toBeInTheDocument();
+  expect(page.getByText("Password")).toBeInTheDocument();
+  expect(page.getByText("Log in")).toBeInTheDocument();
+  expect(page.getByText("Remember me")).toBeInTheDocument();
+  expect(page.getByText("Reset password")).toBeInTheDocument();
 });
 
 test("renders logging in on button while submitting form", () => {
@@ -65,7 +65,7 @@ test("renders logging in on button while submitting form", () => {
 
   render(<Login />);
 
-  expect(screen.getByText("Logging in...")).toBeInTheDocument();
+  expect(page.getByText("Logging in...")).toBeInTheDocument();
 });
 
 test("renders error message for email", () => {
@@ -78,7 +78,7 @@ test("renders error message for email", () => {
 
   render(<Login />);
 
-  expect(screen.getByText("EMAIL_ERROR")).toBeInTheDocument();
+  expect(page.getByText("EMAIL_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for password", () => {
@@ -91,7 +91,7 @@ test("renders error message for password", () => {
 
   render(<Login />);
 
-  expect(screen.getByText("PASSWORD_ERROR")).toBeInTheDocument();
+  expect(page.getByText("PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("loader redirects if there is a user", async () => {

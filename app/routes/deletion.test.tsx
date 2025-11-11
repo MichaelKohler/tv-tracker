@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useActionData, useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import * as user from "../models/user.server";
@@ -58,11 +58,9 @@ test("renders deletion form if feature is enabled", () => {
   render(<Deletion />);
 
   expect(
-    screen.getByText(/Are you sure you want to delete your account/)
+    page.getByText(/Are you sure you want to delete your account/)
   ).toBeInTheDocument();
-  expect(
-    screen.getByText(/Delete my account and all data/)
-  ).toBeInTheDocument();
+  expect(page.getByText(/Delete my account and all data/)).toBeInTheDocument();
 });
 
 test("renders message if feature is disabled", () => {
@@ -73,10 +71,10 @@ test("renders message if feature is disabled", () => {
   render(<Deletion />);
 
   expect(
-    screen.queryByText(/Are you sure you want to delete your account/)
+    page.getByText(/Are you sure you want to delete your account/)
   ).not.toBeInTheDocument();
   expect(
-    screen.getByText(
+    page.getByText(
       /The account deletion functionality is currently disabled. Please try again later./
     )
   ).toBeInTheDocument();
@@ -91,7 +89,7 @@ test("renders error message for deletion", () => {
 
   render(<Deletion />);
 
-  expect(screen.getByText("DELETION_ERROR")).toBeInTheDocument();
+  expect(page.getByText("DELETION_ERROR")).toBeInTheDocument();
 });
 
 test("loader should call evaluateBoolean", async () => {

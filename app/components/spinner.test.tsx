@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import Spinner from "./spinner";
 
 test("renders spinner", async () => {
   render(<Spinner />);
 
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).toBeInTheDocument();
 });

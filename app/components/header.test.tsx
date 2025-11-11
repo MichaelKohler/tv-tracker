@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { beforeEach, expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { useOptionalUser } from "../utils";
 import Header from "./header";
@@ -42,10 +43,10 @@ test("renders header for logged in user", async () => {
 
   render(<Header features={mockFeatures} />);
 
-  expect(screen.getByText("TV")).toBeInTheDocument();
-  expect(screen.getByText("Account")).toBeInTheDocument();
-  expect(screen.getByText("Upcoming")).toBeInTheDocument();
-  expect(screen.getByText(/Logout/)).toBeInTheDocument();
+  expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
+  expect(page.getByText("Account")).toBeInTheDocument();
+  expect(page.getByText("Upcoming")).toBeInTheDocument();
+  expect(page.getByText(/Logout/)).toBeInTheDocument();
 });
 
 test("renders header without buttons for logged in user", async () => {
@@ -59,10 +60,10 @@ test("renders header without buttons for logged in user", async () => {
 
   render(<Header renderLoginButtons={false} features={mockFeatures} />);
 
-  expect(screen.getByText("TV")).toBeInTheDocument();
-  expect(screen.getByText("Account")).toBeInTheDocument();
-  expect(screen.getByText("Upcoming")).toBeInTheDocument();
-  expect(screen.queryByText(/Logout/)).not.toBeInTheDocument();
+  expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
+  expect(page.getByText("Account")).toBeInTheDocument();
+  expect(page.getByText("Upcoming")).toBeInTheDocument();
+  expect(page.getByText(/Logout/)).not.toBeInTheDocument();
 });
 
 test("renders header for logged out user", async () => {
@@ -70,11 +71,11 @@ test("renders header for logged out user", async () => {
 
   render(<Header features={mockFeatures} />);
 
-  expect(screen.queryByText("TV")).not.toBeInTheDocument();
-  expect(screen.queryByText("Upcoming")).not.toBeInTheDocument();
-  expect(screen.queryByText("Account")).not.toBeInTheDocument();
-  expect(screen.getByText("Log In")).toBeInTheDocument();
-  expect(screen.getByText("Sign up")).toBeInTheDocument();
+  expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
+  expect(page.getByText("Upcoming")).not.toBeInTheDocument();
+  expect(page.getByText("Account")).not.toBeInTheDocument();
+  expect(page.getByText("Log In")).toBeInTheDocument();
+  expect(page.getByText("Sign up")).toBeInTheDocument();
 });
 
 test("renders header without buttons for logged out user", async () => {
@@ -82,11 +83,11 @@ test("renders header without buttons for logged out user", async () => {
 
   render(<Header renderLoginButtons={false} features={mockFeatures} />);
 
-  expect(screen.queryByText(/TV/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/Upcoming/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/Account/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/Log In/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/Sign Up/)).not.toBeInTheDocument();
+  expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
+  expect(page.getByText("Upcoming")).not.toBeInTheDocument();
+  expect(page.getByText("Account")).not.toBeInTheDocument();
+  expect(page.getByText("Log In")).not.toBeInTheDocument();
+  expect(page.getByText("Sign Up")).not.toBeInTheDocument();
 });
 
 test("hides links when features are disabled", async () => {
@@ -109,9 +110,9 @@ test("hides links when features are disabled", async () => {
     />
   );
 
-  expect(screen.getByText("TV")).toBeInTheDocument();
-  expect(screen.queryByText("Upcoming")).not.toBeInTheDocument();
-  expect(screen.queryByText("Recently watched")).not.toBeInTheDocument();
-  expect(screen.queryByText("Stats")).not.toBeInTheDocument();
-  expect(screen.getByText("Account")).toBeInTheDocument();
+  expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
+  expect(page.getByText("Upcoming")).not.toBeInTheDocument();
+  expect(page.getByText("Recently watched")).not.toBeInTheDocument();
+  expect(page.getByText("Stats")).not.toBeInTheDocument();
+  expect(page.getByText("Account")).toBeInTheDocument();
 });

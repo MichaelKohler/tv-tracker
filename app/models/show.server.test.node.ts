@@ -1,4 +1,6 @@
 import type { Show, ShowOnUser, Episode } from "@prisma/client";
+import { expect, test, vi } from "vitest";
+
 import { prisma } from "../db.server";
 import {
   fetchSearchResults,

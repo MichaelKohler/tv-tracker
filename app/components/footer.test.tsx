@@ -1,11 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import Footer from "./footer";
 
 test("renders footer", async () => {
   render(<Footer />);
 
-  expect(screen.getByText("Open Source")).toBeInTheDocument();
-  expect(screen.getByText(/Michael Kohler/)).toBeInTheDocument();
+  expect(page.getByText("Open Source")).toBeInTheDocument();
+  expect(page.getByText(/Michael Kohler/)).toBeInTheDocument();
 });

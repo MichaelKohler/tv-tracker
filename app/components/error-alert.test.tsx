@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import ErrorAlert from "./error-alert";
 
@@ -9,6 +10,6 @@ test("renders error alert", async () => {
 
   render(<ErrorAlert title={title} message={message} />);
 
-  expect(screen.getByText(title)).toBeInTheDocument();
-  expect(screen.getByText(message)).toBeInTheDocument();
+  expect(page.getByText(title)).toBeInTheDocument();
+  expect(page.getByText(message)).toBeInTheDocument();
 });

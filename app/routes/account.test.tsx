@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useActionData, useLoaderData, useSearchParams } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { evaluateBoolean } from "../flags.server";
 import { changePassword, verifyLogin } from "../models/user.server";
@@ -84,18 +84,16 @@ beforeEach(() => {
 test("renders page with password change form if feature is enabled", () => {
   render(<Account />);
 
-  expect(screen.getByText("Current Password")).toBeInTheDocument();
-  expect(screen.getByText("New Password")).toBeInTheDocument();
-  expect(screen.getByText("Confirm Password")).toBeInTheDocument();
+  expect(page.getByText("Current Password")).toBeInTheDocument();
+  expect(page.getByText("New Password")).toBeInTheDocument();
+  expect(page.getByText("Confirm Password")).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: /Change password/i })
+    page.getByRole("button", { name: /Change password/i })
   ).toBeInTheDocument();
   expect(
-    screen.getByText(/Deleting your account will also delete/)
+    page.getByText(/Deleting your account will also delete/)
   ).toBeInTheDocument();
-  expect(
-    screen.getByText(/Delete my account and all data/)
-  ).toBeInTheDocument();
+  expect(page.getByText(/Delete my account and all data/)).toBeInTheDocument();
 });
 
 test("renders page without password change form if feature is disabled", () => {
@@ -106,14 +104,14 @@ test("renders page without password change form if feature is disabled", () => {
 
   render(<Account />);
 
-  expect(screen.queryByText("Current Password")).not.toBeInTheDocument();
-  expect(screen.queryByText("New Password")).not.toBeInTheDocument();
-  expect(screen.queryByText("Confirm Password")).not.toBeInTheDocument();
+  expect(page.getByText("Current Password")).not.toBeInTheDocument();
+  expect(page.getByText("New Password")).not.toBeInTheDocument();
+  expect(page.getByText("Confirm Password")).not.toBeInTheDocument();
   expect(
-    screen.queryByRole("button", { name: /Change password/i })
+    page.getByRole("button", { name: /Change password/i })
   ).not.toBeInTheDocument();
   expect(
-    screen.getByText(
+    page.getByText(
       /The password change functionality is currently disabled. Please try again later./
     )
   ).toBeInTheDocument();
@@ -132,13 +130,13 @@ test("renders page without delete account form if feature is disabled", () => {
   render(<Account />);
 
   expect(
-    screen.queryByText(/Deleting your account will also delete/)
+    page.getByText(/Deleting your account will also delete/)
   ).not.toBeInTheDocument();
   expect(
-    screen.queryByText(/Delete my account and all data/)
+    page.getByText(/Delete my account and all data/)
   ).not.toBeInTheDocument();
   expect(
-    screen.getByText(
+    page.getByText(
       /The account deletion functionality is currently disabled. Please try again later./
     )
   ).toBeInTheDocument();
@@ -156,7 +154,7 @@ test("renders page without plex section if feature is disabled", () => {
 
   render(<Account />);
 
-  expect(screen.queryByText(/Plex Webhook/)).not.toBeInTheDocument();
+  expect(page.getByText(/Plex Webhook/)).not.toBeInTheDocument();
 });
 
 test("loader should fetch the feature flags", async () => {
@@ -191,7 +189,7 @@ test("renders error message for generic", () => {
 
   render(<Account />);
 
-  expect(screen.getByText("GENERIC_ERROR")).toBeInTheDocument();
+  expect(page.getByText("GENERIC_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for token", () => {
@@ -208,7 +206,7 @@ test("renders error message for token", () => {
 
   render(<Account />);
 
-  expect(screen.getByText("TOKEN_ERROR")).toBeInTheDocument();
+  expect(page.getByText("TOKEN_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for current password", () => {
@@ -225,7 +223,7 @@ test("renders error message for current password", () => {
 
   render(<Account />);
 
-  expect(screen.getByText("PASSWORD_ERROR")).toBeInTheDocument();
+  expect(page.getByText("PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for new password", () => {
@@ -242,7 +240,7 @@ test("renders error message for new password", () => {
 
   render(<Account />);
 
-  expect(screen.getByText("NEW_PASSWORD_ERROR")).toBeInTheDocument();
+  expect(page.getByText("NEW_PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("renders error message for confirm password", () => {
@@ -259,7 +257,7 @@ test("renders error message for confirm password", () => {
 
   render(<Account />);
 
-  expect(screen.getByText("CONFIRM_PASSWORD_ERROR")).toBeInTheDocument();
+  expect(page.getByText("CONFIRM_PASSWORD_ERROR")).toBeInTheDocument();
 });
 
 test("renders success message", () => {
@@ -276,9 +274,7 @@ test("renders success message", () => {
 
   render(<Account />);
 
-  expect(
-    screen.getByText(/Your password has been changed/)
-  ).toBeInTheDocument();
+  expect(page.getByText(/Your password has been changed/)).toBeInTheDocument();
 });
 
 test("renders without current password input if token is passed", () => {
@@ -291,7 +287,7 @@ test("renders without current password input if token is passed", () => {
 
   render(<Account />);
 
-  expect(screen.queryByText(/Current Password/)).not.toBeInTheDocument();
+  expect(page.getByText(/Current Password/)).not.toBeInTheDocument();
 });
 
 test("action should return error if new password is invalid", async () => {

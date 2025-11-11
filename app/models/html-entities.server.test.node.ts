@@ -1,3 +1,5 @@
+import { expect, test } from "vitest";
+
 import { decodeHtmlEntities } from "./html-entities.server";
 
 test("decodeHtmlEntities decodes HTML entities", () => {

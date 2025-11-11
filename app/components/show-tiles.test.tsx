@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { beforeEach, expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import type { Show } from "@prisma/client";
 
@@ -37,5 +38,5 @@ beforeEach(() => {
 test("renders result tiles", async () => {
   render(<ShowTiles shows={shows} />);
 
-  expect(screen.getAllByText("ShowTile").length).toBe(2);
+  expect(page.getByText("ShowTile").length).toBe(2);
 });

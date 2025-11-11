@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import type { Episode, Show } from "@prisma/client";
+
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import * as flags from "../flags.server";
 import { getRecentlyWatchedEpisodes } from "../models/episode.server";
@@ -9,6 +10,7 @@ import TVRecent, { loader } from "./tv.recent";
 
 vi.mock("../flags.server", async (importOriginal) => {
   const actual = await importOriginal<typeof flags>();
+
   return {
     ...actual,
     evaluateBoolean: vi.fn(),
@@ -95,32 +97,31 @@ describe("TVRecent", () => {
 
   it("renders recently watched page with episodes", async () => {
     renderComponent(loader);
-    await waitFor(() => {
-      expect(screen.getByText("Recently watched")).toBeInTheDocument();
-      expect(screen.getByText("Test Episode 1")).toBeInTheDocument();
-    });
+
+    expect(page.getByText("Recently watched")).toBeInTheDocument();
+    expect(page.getByText("Test Episode 1")).toBeInTheDocument();
   });
 
   it('renders "no recently watched episodes" message when there are no episodes', async () => {
     vi.mocked(getRecentlyWatchedEpisodes).mockResolvedValue([]);
+
     renderComponent(loader);
-    await waitFor(() => {
-      expect(
-        screen.getByText("There are no recently watched episodes.")
-      ).toBeInTheDocument();
-    });
+
+    expect(
+      page.getByText("There are no recently watched episodes.")
+    ).toBeInTheDocument();
   });
 
   it("renders unavailable message when feature is disabled", async () => {
     vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+
     renderComponent(loader);
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          "The overview of recently watched episodes is currently unavailable. Please try again later."
-        )
-      ).toBeInTheDocument();
-    });
+
+    expect(
+      page.getByText(
+        "The overview of recently watched episodes is currently unavailable. Please try again later."
+      )
+    ).toBeInTheDocument();
   });
 
   describe("loader", () => {

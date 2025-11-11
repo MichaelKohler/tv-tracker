@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useNavigation } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { beforeEach, expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { testEpisode, testEpisode2, upcomingEpisode } from "../test-utils";
 import EpisodeList from "./episode-list";
@@ -10,7 +11,11 @@ const DEFAULT_EPISODES = [testEpisode, testEpisode2];
 
 beforeEach(() => {
   vi.mock("react-router", async () => {
+    const actual =
+      await vi.importActual<typeof import("react-router")>("react-router");
+
     return {
+      ...actual,
       useNavigation: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (
         <form>{children}</form>
@@ -29,14 +34,14 @@ test("renders episodes", async () => {
     />
   );
 
-  expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
-  expect(screen.getByText(/S01E01/)).toBeInTheDocument();
+  expect(page.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
+  expect(page.getByText(/S01E01/)).toBeInTheDocument();
 
-  expect(screen.getByText(DEFAULT_EPISODES[1].name)).toBeInTheDocument();
-  expect(screen.getByText(/S01E02/)).toBeInTheDocument();
+  expect(page.getByText(DEFAULT_EPISODES[1].name)).toBeInTheDocument();
+  expect(page.getByText(/S01E02/)).toBeInTheDocument();
 
-  expect(screen.queryAllByText("Mark as watched").length).toBe(2); // 3rd episode is upcoming
-  expect(screen.queryAllByText("Ignore").length).toBe(3);
+  expect(page.getByText("Mark as watched").length).toBe(2); // 3rd episode is upcoming
+  expect(page.getByText("Ignore").length).toBe(3);
 });
 
 test("renders unwatched button if watched", async () => {
@@ -49,8 +54,8 @@ test("renders unwatched button if watched", async () => {
     />
   );
 
-  expect(screen.getByText("Mark as not watched")).toBeInTheDocument();
-  expect(screen.queryByText("Ignore")).not.toBeInTheDocument();
+  expect(page.getByText("Mark as not watched")).toBeInTheDocument();
+  expect(page.getByText("Ignore")).not.toBeInTheDocument();
 });
 
 test("renders spinner while submitting mark as read", async () => {
@@ -75,9 +80,9 @@ test("renders spinner while submitting mark as read", async () => {
     />
   );
 
-  expect(screen.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
-  expect(screen.getByTestId("spinner")).toBeInTheDocument();
-  expect(screen.queryByText("Mark as watched")).not.toBeInTheDocument();
+  expect(page.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).toBeInTheDocument();
+  expect(page.getByText("Mark as watched")).not.toBeInTheDocument();
 });
 
 test("does not render spinner while submitting mark as read for another episode", async () => {
@@ -102,8 +107,8 @@ test("does not render spinner while submitting mark as read for another episode"
     />
   );
 
-  expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
-  expect(screen.getByText("Mark as watched")).toBeInTheDocument();
+  expect(page.getByTestId("spinner")).not.toBeInTheDocument();
+  expect(page.getByText("Mark as watched")).toBeInTheDocument();
 });
 
 test("renders ignored episode with unignore button", async () => {
@@ -116,9 +121,9 @@ test("renders ignored episode with unignore button", async () => {
     />
   );
 
-  expect(screen.getByText("Unignore")).toBeInTheDocument();
-  expect(screen.queryByText("Mark as watched")).not.toBeInTheDocument();
-  expect(screen.queryByText("Ignore")).not.toBeInTheDocument();
+  expect(page.getByText("Unignore")).toBeInTheDocument();
+  expect(page.getByText("Mark as watched")).not.toBeInTheDocument();
+  expect(page.getByText("Ignore", { exact: true })).not.toBeInTheDocument();
 });
 
 test("renders ignored episode with grayscale styling", async () => {
@@ -131,7 +136,7 @@ test("renders ignored episode with grayscale styling", async () => {
     />
   );
 
-  const img = screen.getByAltText("");
+  const img = page.getByAltText("");
   expect(img).toHaveClass("grayscale");
 });
 
@@ -145,7 +150,7 @@ test("renders unignore button if ignored", async () => {
     />
   );
 
-  expect(screen.getByText("Unignore")).toBeInTheDocument();
-  expect(screen.queryByText("Mark as watched")).not.toBeInTheDocument();
-  expect(screen.queryByText("Ignore")).not.toBeInTheDocument();
+  expect(page.getByText("Unignore")).toBeInTheDocument();
+  expect(page.getByText("Mark as watched")).not.toBeInTheDocument();
+  expect(page.getByText("Ignore", { exact: true })).not.toBeInTheDocument();
 });

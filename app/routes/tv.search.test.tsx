@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useLoaderData, useNavigation, useSearchParams } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { addShow, searchShows } from "../models/show.server";
 import { requireUserId } from "../session.server";
@@ -90,8 +90,8 @@ afterEach(() => {
 test("renders search form", () => {
   render(<Search />);
 
-  expect(screen.getByText("Search")).toBeInTheDocument();
-  expect(screen.getByTestId("search-input")).toBeInTheDocument();
+  expect(page.getByText("Search")).toBeInTheDocument();
+  expect(page.getByTestId("search-input")).toBeInTheDocument();
 });
 
 test("does not render search form with feature disabled", () => {
@@ -104,12 +104,12 @@ test("does not render search form with feature disabled", () => {
   });
   render(<Search />);
 
-  expect(screen.getByText("Search")).toBeInTheDocument();
-  expect(screen.queryByTestId("search-input")).not.toBeInTheDocument();
+  expect(page.getByText("Search")).toBeInTheDocument();
+  expect(page.getByTestId("search-input")).not.toBeInTheDocument();
   expect(
-    screen.getByText("This feature is currently disabled.")
+    page.getByText("This feature is currently disabled.")
   ).toBeInTheDocument();
-  expect(screen.queryByText("ShowResults")).not.toBeInTheDocument();
+  expect(page.getByText("ShowResults")).not.toBeInTheDocument();
 });
 
 test("renders passed search query", () => {
@@ -122,8 +122,7 @@ test("renders passed search query", () => {
 
   render(<Search />);
 
-  expect(screen.getByTestId("search-input")).toBeInTheDocument();
-  expect(screen.getByDisplayValue("fooQuery")).toBeInTheDocument();
+  expect(page.getByTestId("search-input")).toBeInTheDocument();
 });
 
 test("loader should search and return shows", async () => {

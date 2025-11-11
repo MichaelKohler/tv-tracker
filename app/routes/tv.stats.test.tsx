@@ -1,6 +1,6 @@
 import { useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import * as flags from "../flags.server";
 import TVStats, { loader } from "./tv.stats";
@@ -62,8 +62,8 @@ test("renders statistics page title", () => {
 
   render(<TVStats />);
 
-  expect(screen.getByText("Statistics")).toBeInTheDocument();
-  expect(screen.getByText("General Statistics")).toBeInTheDocument();
+  expect(page.getByText("Statistics")).toBeInTheDocument();
+  expect(page.getByText("General Statistics")).toBeInTheDocument();
 });
 
 test("renders general statistics cards", () => {
@@ -81,16 +81,16 @@ test("renders general statistics cards", () => {
 
   render(<TVStats />);
 
-  expect(screen.getByText("Total Watch Time")).toBeInTheDocument();
-  expect(screen.getByText("2h 30m")).toBeInTheDocument();
-  expect(screen.getByText("Shows Tracked")).toBeInTheDocument();
-  expect(screen.getByText("10")).toBeInTheDocument();
-  expect(screen.getByText("Episodes Watched")).toBeInTheDocument();
-  expect(screen.getByText("25")).toBeInTheDocument();
-  expect(screen.getByText("Episodes Not Watched")).toBeInTheDocument();
-  expect(screen.getByText("5")).toBeInTheDocument();
-  expect(screen.getByText("Shows Archived")).toBeInTheDocument();
-  expect(screen.getByText("2 (20%)")).toBeInTheDocument();
+  expect(page.getByText("Total Watch Time")).toBeInTheDocument();
+  expect(page.getByText("2h 30m")).toBeInTheDocument();
+  expect(page.getByText("Shows Tracked")).toBeInTheDocument();
+  expect(page.getByText("10")).toBeInTheDocument();
+  expect(page.getByText("Episodes Watched")).toBeInTheDocument();
+  expect(page.getByText("25")).toBeInTheDocument();
+  expect(page.getByText("Episodes Not Watched")).toBeInTheDocument();
+  expect(page.getByText("5")).toBeInTheDocument();
+  expect(page.getByText("Shows Archived")).toBeInTheDocument();
+  expect(page.getByText("2 (20%)")).toBeInTheDocument();
 });
 
 test("renders monthly stats when available", () => {
@@ -115,14 +115,14 @@ test("renders monthly stats when available", () => {
 
   render(<TVStats />);
 
-  expect(screen.getByText("Episodes Watched Per Month")).toBeInTheDocument();
-  expect(screen.getByText("Monthly Breakdown")).toBeInTheDocument();
-  expect(screen.getByText("June 2023")).toBeInTheDocument();
-  expect(screen.getByText("12")).toBeInTheDocument();
-  expect(screen.getByText("episodes")).toBeInTheDocument();
-  expect(screen.getByText("3")).toBeInTheDocument();
-  expect(screen.getByText("shows")).toBeInTheDocument();
-  expect(screen.getByText("5 hours")).toBeInTheDocument();
+  expect(page.getByText("Episodes Watched Per Month")).toBeInTheDocument();
+  expect(page.getByText("Monthly Breakdown")).toBeInTheDocument();
+  expect(page.getByText("June 2023")).toBeInTheDocument();
+  expect(page.getByText("12")).toBeInTheDocument();
+  expect(page.getByText("episodes")).toBeInTheDocument();
+  expect(page.getByText("3")).toBeInTheDocument();
+  expect(page.getByText("shows")).toBeInTheDocument();
+  expect(page.getByText("5 hours")).toBeInTheDocument();
 });
 
 test("shows message when no activity data", () => {
@@ -141,11 +141,9 @@ test("shows message when no activity data", () => {
   render(<TVStats />);
 
   expect(
-    screen.getByText("No viewing activity in the last 12 months.")
+    page.getByText("No viewing activity in the last 12 months.")
   ).toBeInTheDocument();
-  expect(
-    screen.queryByText("Episodes Watched Per Month")
-  ).not.toBeInTheDocument();
+  expect(page.getByText("Episodes Watched Per Month")).not.toBeInTheDocument();
 });
 
 test("handles zero archived percentage correctly", () => {
@@ -163,7 +161,7 @@ test("handles zero archived percentage correctly", () => {
 
   render(<TVStats />);
 
-  expect(screen.getByText("0 (0%)")).toBeInTheDocument();
+  expect(page.getByText("0 (0%)")).toBeInTheDocument();
 });
 
 test("shows unavailability message when feature is turned off", () => {
@@ -182,7 +180,7 @@ test("shows unavailability message when feature is turned off", () => {
   render(<TVStats />);
 
   expect(
-    screen.getByText(
+    page.getByText(
       "The statistics are currently unavailable. Please try again later."
     )
   ).toBeInTheDocument();

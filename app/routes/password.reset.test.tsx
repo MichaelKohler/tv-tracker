@@ -1,7 +1,7 @@
 import * as React from "react";
 import { redirect, useActionData } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { getUserId } from "../session.server";
 import Reset, { action, loader } from "./password.reset";
@@ -35,8 +35,8 @@ beforeEach(() => {
 test("renders reset form", () => {
   render(<Reset />);
 
-  expect(screen.getByText("Email address")).toBeInTheDocument();
-  expect(screen.getByText("Send password reset email")).toBeInTheDocument();
+  expect(page.getByText("Email address")).toBeInTheDocument();
+  expect(page.getByText("Send password reset email")).toBeInTheDocument();
 });
 
 test("renders error message for email", () => {
@@ -49,7 +49,7 @@ test("renders error message for email", () => {
 
   render(<Reset />);
 
-  expect(screen.getByText("EMAIL_ERROR")).toBeInTheDocument();
+  expect(page.getByText("EMAIL_ERROR")).toBeInTheDocument();
 });
 
 test("renders success message", () => {
@@ -63,7 +63,7 @@ test("renders success message", () => {
   render(<Reset />);
 
   expect(
-    screen.getByText(/An email to reset your password has been sent/)
+    page.getByText(/An email to reset your password has been sent/)
   ).toBeInTheDocument();
 });
 

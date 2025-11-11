@@ -1,4 +1,6 @@
 import { compare } from "bcrypt";
+import { expect, test, vi } from "vitest";
+
 import { prisma } from "../__mocks__/db.server";
 import {
   changePassword,
@@ -14,20 +16,24 @@ import {
 
 vi.mock("../db.server");
 vi.mock("bcrypt", async () => {
+  const actual = await vi.importActual("@node-rs/bcrypt");
+
   return {
+    ...actual,
     compare: vi.fn().mockResolvedValue(true),
     hash: vi.fn().mockResolvedValue("testHash"),
   };
 });
 vi.mock("crypto", async () => {
+  const actual = await vi.importActual("crypto");
+
   return {
-    default: {
-      createHash: vi.fn().mockReturnValue({
-        update: vi.fn().mockReturnValue({
-          digest: vi.fn().mockReturnValue("testHashedToken"),
-        }),
+    ...actual,
+    createHash: vi.fn().mockReturnValue({
+      update: vi.fn().mockReturnValue({
+        digest: vi.fn().mockReturnValue("testHashedToken"),
       }),
-    },
+    }),
   };
 });
 

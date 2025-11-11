@@ -1,8 +1,9 @@
 import * as React from "react";
 import { useNavigation } from "react-router";
 
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { beforeEach, expect, test, vi } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { testShow } from "../test-utils";
 import ShowTile, { type Props } from "./show-tile";
@@ -30,8 +31,8 @@ beforeEach(() => {
 test("renders show tile", async () => {
   render(<ShowTile show={show} />);
 
-  expect(screen.getByText("1")).toBeInTheDocument();
-  expect(screen.getByText(show.name)).toBeInTheDocument();
+  expect(page.getByText("1")).toBeInTheDocument();
+  expect(page.getByText(show.name)).toBeInTheDocument();
 });
 
 test("does not render navigation spinner on different tile", async () => {
@@ -43,5 +44,5 @@ test("does not render navigation spinner on different tile", async () => {
 
   render(<ShowTile show={show} />);
 
-  expect(screen.queryByTestId("spinner")).not.toBeInTheDocument();
+  expect(page.getByTestId("spinner")).not.toBeInTheDocument();
 });

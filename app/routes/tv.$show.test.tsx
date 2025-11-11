@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useActionData, useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { testEpisode, testShow } from "../test-utils";
 import TVShow from "./tv.$show";
@@ -64,16 +64,16 @@ beforeEach(() => {
 test("renders detail page", () => {
   render(<TVShow />);
 
-  expect(screen.getByText("Test Show")).toBeInTheDocument();
-  expect(screen.getByText("Episodes")).toBeInTheDocument();
-  expect(screen.getByText("EpisodeList")).toBeInTheDocument();
+  expect(page.getByText("Test Show")).toBeInTheDocument();
+  expect(page.getByText("Episodes")).toBeInTheDocument();
+  expect(page.getByText("EpisodeList")).toBeInTheDocument();
 });
 
 test("renders detail page with mark all as watched button", () => {
   render(<TVShow />);
 
   expect(
-    screen.getByText("Mark all aired episodes as watched")
+    page.getByText("Mark all aired episodes as watched")
   ).toBeInTheDocument();
 });
 
@@ -95,14 +95,14 @@ test("renders detail page without mark all as watched button", () => {
   render(<TVShow />);
 
   expect(
-    screen.queryByText("Mark all aired episodes as watched")
+    page.getByText("Mark all aired episodes as watched")
   ).not.toBeInTheDocument();
 });
 
 test("renders detail page with ignore unwatched on overview button", () => {
   render(<TVShow />);
 
-  expect(screen.getByText("Ignore unwatched on overview")).toBeInTheDocument();
+  expect(page.getByText("Ignore unwatched on overview")).toBeInTheDocument();
 });
 
 test("renders detail page without ignore unwatched on overview button", () => {
@@ -123,7 +123,7 @@ test("renders detail page without ignore unwatched on overview button", () => {
   render(<TVShow />);
 
   expect(
-    screen.queryByText("Ignore unwatched on overview")
+    page.getByText("Ignore unwatched on overview")
   ).not.toBeInTheDocument();
 });
 
@@ -134,9 +134,9 @@ test("renders error if marking all episodes failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Marking all as watched failed")).toBeInTheDocument();
+  expect(page.getByText("Marking all as watched failed")).toBeInTheDocument();
   expect(
-    screen.getByText(/There was an error while marking all episodes as watched/)
+    page.getByText(/There was an error while marking all episodes as watched/)
   ).toBeInTheDocument();
 });
 
@@ -147,9 +147,9 @@ test("renders error if removing show failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Removing show failed")).toBeInTheDocument();
+  expect(page.getByText("Removing show failed")).toBeInTheDocument();
   expect(
-    screen.getByText(/There was an error while removing the show/)
+    page.getByText(/There was an error while removing the show/)
   ).toBeInTheDocument();
 });
 
@@ -160,9 +160,9 @@ test("renders error if archiving show failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Archiving show failed")).toBeInTheDocument();
+  expect(page.getByText("Archiving show failed")).toBeInTheDocument();
   expect(
-    screen.getByText(/There was an error while archiving the show/)
+    page.getByText(/There was an error while archiving the show/)
   ).toBeInTheDocument();
 });
 
@@ -173,8 +173,8 @@ test("renders error if unarchiving show failed", () => {
 
   render(<TVShow />);
 
-  expect(screen.getByText("Unarchiving show failed")).toBeInTheDocument();
+  expect(page.getByText("Unarchiving show failed")).toBeInTheDocument();
   expect(
-    screen.getByText(/There was an error while unarchiving the show/)
+    page.getByText(/There was an error while unarchiving the show/)
   ).toBeInTheDocument();
 });

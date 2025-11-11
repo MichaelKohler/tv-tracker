@@ -1,7 +1,7 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import { createMemoryRouter, RouterProvider } from "react-router";
 import type { Episode, Show } from "@prisma/client";
+import { createMemoryRouter, RouterProvider } from "react-router";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import * as flags from "../flags.server";
 import { getUpcomingEpisodes } from "../models/episode.server";
@@ -94,32 +94,31 @@ describe("TVUpcoming", () => {
 
   it("renders upcoming page", async () => {
     renderComponent(loader);
-    await waitFor(() => {
-      expect(screen.getByText("Upcoming")).toBeInTheDocument();
-      expect(screen.getByText("Test Episode 1")).toBeInTheDocument();
-    });
+
+    expect(page.getByText("Upcoming")).toBeInTheDocument();
+    expect(page.getByText("Test Episode 1")).toBeInTheDocument();
   });
 
   it('renders "no upcoming episodes" message when there are no episodes', async () => {
     vi.mocked(getUpcomingEpisodes).mockResolvedValue([]);
+
     renderComponent(loader);
-    await waitFor(() => {
-      expect(
-        screen.getByText("There are no upcoming episodes.")
-      ).toBeInTheDocument();
-    });
+
+    expect(
+      page.getByText("There are no upcoming episodes.")
+    ).toBeInTheDocument();
   });
 
   it("renders unavailable message when feature is disabled", async () => {
     vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+
     renderComponent(loader);
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          "The overview of upcoming episodes is currently unavailable. Please try again later."
-        )
-      ).toBeInTheDocument();
-    });
+
+    expect(
+      page.getByText(
+        "The overview of upcoming episodes is currently unavailable. Please try again later."
+      )
+    ).toBeInTheDocument();
   });
 
   describe("loader", () => {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import Index, { type loader } from "./tv._index";
 
@@ -48,15 +48,15 @@ test("renders page without shows", async () => {
   render(<Index />);
 
   await vi.waitFor(() =>
-    expect(screen.getByTestId("search-input")).toBeInTheDocument()
+    expect(page.getByTestId("search-input")).toBeInTheDocument()
   );
   expect(
-    screen.getByText(
+    page.getByText(
       /You are currently tracking 0 shows with 0 unwatched episodes/
     )
   ).toBeInTheDocument();
   expect(
-    screen.getByText(/You have not added any shows yet./)
+    page.getByText(/You have not added any shows yet./)
   ).toBeInTheDocument();
 });
 
@@ -71,7 +71,7 @@ test("does not render search when feature is disabled", async () => {
   render(<Index />);
 
   await vi.waitFor(() =>
-    expect(screen.queryByTestId("search-input")).not.toBeInTheDocument()
+    expect(page.getByTestId("search-input")).not.toBeInTheDocument()
   );
 });
 
@@ -94,14 +94,14 @@ test("renders page with shows", async () => {
   render(<Index />);
 
   await vi.waitFor(() =>
-    expect(screen.getByTestId("search-input")).toBeInTheDocument()
+    expect(page.getByTestId("search-input")).toBeInTheDocument()
   );
   expect(
-    screen.getByText(
+    page.getByText(
       /You are currently tracking 2 shows with 7 unwatched episodes/
     )
   ).toBeInTheDocument();
   expect(
-    screen.queryByText(/You have not added any shows yet./)
+    page.getByText(/You have not added any shows yet./)
   ).not.toBeInTheDocument();
 });

@@ -82,7 +82,7 @@ npm run test:e2e:report    # View test results
 
 - `package.json`: Scripts, dependencies, Node.js 22+ requirement
 - `vite.config.ts`: React Router plugin, build config with source maps
-- `vitest.config.ts`: Test config with jsdom, global test utilities
+- `vitest.config.ts`: Test config for browser mode
 - `playwright.config.ts`: E2E test config, 30s timeouts, retry on CI
 - `eslint.config.mjs`: ESLint v9 flat config with React, TypeScript, accessibility
 - `tsconfig.json`: TypeScript config with strict mode, React JSX
