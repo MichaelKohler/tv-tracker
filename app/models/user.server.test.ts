@@ -1,4 +1,4 @@
-import { compare } from "@node-rs/bcrypt";
+import { compare } from "bcrypt";
 import { prisma } from "../__mocks__/db.server";
 import {
   changePassword,
@@ -13,9 +13,9 @@ import {
 } from "./user.server";
 
 vi.mock("../db.server");
-vi.mock("@node-rs/bcrypt", async () => {
+vi.mock("bcrypt", async () => {
   return {
-    compare: vi.fn(),
+    compare: vi.fn().mockResolvedValue(true),
     hash: vi.fn().mockResolvedValue("testHash"),
   };
 });
