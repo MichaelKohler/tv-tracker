@@ -11,10 +11,14 @@ import Index, { loader } from "./_index";
 
 beforeEach(() => {
   vi.mock("@react-router/node", () => {
+    const actual = vi.importActual("@react-router/node");
+
     return {
+      ...actual,
       json: vi.fn().mockImplementation((arg) => arg),
     };
   });
+
   vi.mock("react-router", async () => {
     const actual = await vi.importActual("react-router");
 
@@ -29,7 +33,10 @@ beforeEach(() => {
   });
 
   vi.mock("../flags.server", async () => {
+    const actual = await vi.importActual("../flags.server");
+
     return {
+      ...actual,
       FLAGS: {
         SIGNUP_DISABLED: "signup-disabled",
       },
@@ -38,12 +45,19 @@ beforeEach(() => {
   });
 
   vi.mock("../session.server", () => {
+    const actual = vi.importActual("../session.server");
+
     return {
+      ...actual,
       getUserId: vi.fn(),
     };
   });
+
   vi.mock("../utils", () => {
+    const actual = vi.importActual("../utils");
+
     return {
+      ...actual,
       useOptionalUser: vi.fn().mockReturnValue(null),
     };
   });

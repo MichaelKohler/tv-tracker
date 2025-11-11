@@ -16,7 +16,7 @@ import {
 
 vi.mock("../db.server");
 vi.mock("bcrypt", async () => {
-  const actual = await vi.importActual("@node-rs/bcrypt");
+  const actual = await vi.importActual("bcrypt");
 
   return {
     ...actual,

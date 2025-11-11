@@ -11,8 +11,7 @@ const DEFAULT_EPISODES = [testEpisode, testEpisode2];
 
 beforeEach(() => {
   vi.mock("react-router", async () => {
-    const actual =
-      await vi.importActual<typeof import("react-router")>("react-router");
+    const actual = await vi.importActual("react-router");
 
     return {
       ...actual,

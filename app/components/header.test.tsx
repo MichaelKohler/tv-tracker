@@ -14,13 +14,18 @@ const mockFeatures = {
 
 beforeEach(() => {
   vi.mock("../utils", async () => {
+    const actual = await vi.importActual("../utils");
     return {
+      ...actual,
       useOptionalUser: vi.fn(),
     };
   });
 
   vi.mock("react-router", async () => {
+    const actual = await vi.importActual("react-router");
+
     return {
+      ...actual,
       useMatches: vi.fn().mockReturnValue([{ id: "foo" }]),
       Form: ({ children }: { children: React.ReactNode }) => (
         <form>{children}</form>

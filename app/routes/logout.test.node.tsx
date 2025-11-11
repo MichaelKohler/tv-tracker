@@ -5,7 +5,10 @@ import { action, loader } from "./logout";
 
 beforeEach(() => {
   vi.mock("../session.server", async () => {
+    const actual = await vi.importActual("../session.server");
+
     return {
+      ...actual,
       logout: vi.fn(),
     };
   });

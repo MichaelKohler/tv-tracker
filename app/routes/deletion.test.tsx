@@ -8,8 +8,11 @@ import * as user from "../models/user.server";
 import { requireUserId } from "../session.server";
 import Deletion, { action, loader } from "./deletion";
 
-vi.mock("../flags.server", () => {
+vi.mock("../flags.server", async () => {
+  const actual = await vi.importActual("../flags.server");
+
   return {
+    ...actual,
     evaluateBoolean: vi.fn(),
     FLAGS: {
       DELETE_ACCOUNT: "delete-account",
@@ -18,11 +21,11 @@ vi.mock("../flags.server", () => {
 });
 
 beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+  vi.mock("react-router", async () => {
+    const actual = await vi.importActual("react-router");
 
     return {
-      ...(actual as object),
+      ...actual,
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
@@ -40,8 +43,9 @@ beforeEach(() => {
 
   vi.mock("../session.server", async () => {
     const actual = await vi.importActual("../session.server");
+
     return {
-      ...(actual as object),
+      ...actual,
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });

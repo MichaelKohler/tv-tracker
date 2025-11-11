@@ -6,11 +6,11 @@ import { render } from "vitest-browser-react";
 import Index, { type loader } from "./tv._index";
 
 beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+  vi.mock("react-router", async () => {
+    const actual = await vi.importActual("react-router");
 
     return {
-      ...(actual as object),
+      ...actual,
       useNavigation: vi.fn().mockReturnValue({}),
       useLoaderData: vi.fn(),
       Form: ({ children }: { children: React.ReactNode }) => (
@@ -18,20 +18,30 @@ beforeEach(() => {
       ),
     };
   });
+
   vi.mock("../session.server", async () => {
+    const actual = await vi.importActual("../session.server");
+
     return {
+      ...actual,
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });
 
   vi.mock("../components/show-tiles", async () => {
+    const actual = await vi.importActual("../components/show-tiles");
+
     return {
+      ...actual,
       default: () => <p>ShowTiles</p>,
     };
   });
 
   vi.mock("../models/show.server", async () => {
+    const actual = await vi.importActual("../models/show.server");
+
     return {
+      ...actual,
       getSortedShowsByUserId: vi.fn().mockResolvedValue([]),
     };
   });

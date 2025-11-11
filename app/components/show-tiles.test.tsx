@@ -29,7 +29,10 @@ const shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
 
 beforeEach(() => {
   vi.mock("./show-tile", async () => {
+    const actual = await vi.importActual("./show-tile");
+
     return {
+      ...actual,
       default: () => <p>ShowTile</p>,
     };
   });

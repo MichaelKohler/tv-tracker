@@ -16,11 +16,11 @@ import { validateEmail } from "../utils";
 import Join, { action, loader } from "./join";
 
 beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+  vi.mock("react-router", async () => {
+    const actual = await vi.importActual("react-router");
 
     return {
-      ...(actual as object),
+      ...actual,
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
       useLoaderData: vi.fn(),
@@ -41,7 +41,10 @@ beforeEach(() => {
   vi.mock("../db.server");
 
   vi.mock("../flags.server", async () => {
+    const actual = await vi.importActual("../flags.server");
+
     return {
+      ...actual,
       FLAGS: {
         SIGNUP_DISABLED: "signup-disabled",
       },
@@ -50,7 +53,10 @@ beforeEach(() => {
   });
 
   vi.mock("../session.server", async () => {
+    const actual = await vi.importActual("../session.server");
+
     return {
+      ...actual,
       getUserId: vi.fn(),
       createUserSession: vi.fn().mockImplementation((arg) => arg),
     };
@@ -58,14 +64,18 @@ beforeEach(() => {
 
   vi.mock("../utils", async () => {
     const actual = await vi.importActual("../utils");
+
     return {
-      ...(actual as object),
+      ...actual,
       validateEmail: vi.fn(),
     };
   });
 
-  vi.mock("../models/user.server", () => {
+  vi.mock("../models/user.server", async () => {
+    const actual = await vi.importActual("../models/user.server");
+
     return {
+      ...actual,
       createUser: vi.fn(),
       getUserByEmail: vi.fn(),
     };

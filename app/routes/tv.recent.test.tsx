@@ -8,8 +8,8 @@ import * as flags from "../flags.server";
 import { getRecentlyWatchedEpisodes } from "../models/episode.server";
 import TVRecent, { loader } from "./tv.recent";
 
-vi.mock("../flags.server", async (importOriginal) => {
-  const actual = await importOriginal<typeof flags>();
+vi.mock("../flags.server", async () => {
+  const actual = await vi.importActual("../flags.server");
 
   return {
     ...actual,

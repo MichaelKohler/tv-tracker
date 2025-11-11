@@ -6,17 +6,17 @@ import * as flags from "../flags.server";
 import TVStats, { loader } from "./tv.stats";
 
 beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+  vi.mock("react-router", async () => {
+    const actual = await vi.importActual("react-router");
 
     return {
-      ...(actual as object),
+      ...actual,
       useLoaderData: vi.fn(),
     };
   });
 
-  vi.mock("../flags.server", async (importOriginal) => {
-    const actual = await importOriginal<typeof flags>();
+  vi.mock("../flags.server", async () => {
+    const actual = await vi.importActual("../flags.server");
     return {
       ...actual,
       evaluateBoolean: vi.fn(),

@@ -12,7 +12,10 @@ const shows = [
 
 beforeEach(() => {
   vi.mock("./show-result", async () => {
+    const actual = await vi.importActual("./show-result");
+
     return {
+      ...actual,
       default: () => <p>ShowResult</p>,
     };
   });

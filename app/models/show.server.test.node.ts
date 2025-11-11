@@ -27,7 +27,10 @@ import {
 vi.mock("../db.server");
 
 vi.mock("./maze.server", async () => {
+  const actual = await vi.importActual("./maze.server");
+
   return {
+    ...actual,
     fetchSearchResults: vi.fn(),
     fetchShowWithEmbededEpisodes: vi.fn(),
   };

@@ -24,6 +24,7 @@ vi.stubGlobal(
 // Mock ResponsiveContainer to avoid dimension warnings
 vi.mock("recharts", async () => {
   const actual = await vi.importActual("recharts");
+
   return {
     ...actual,
     ResponsiveContainer: ({ children }: { children: React.ReactNode }) =>

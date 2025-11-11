@@ -7,7 +7,10 @@ const mockGetUserId = vi.hoisted(() => vi.fn());
 
 // Mock the Flipt module
 vi.mock("@flipt-io/flipt", () => {
+  const actual = vi.importActual("@flipt-io/flipt");
+
   return {
+    ...actual,
     FliptClient: vi.fn(
       class {
         evaluation = {
@@ -27,9 +30,14 @@ vi.mock("@flipt-io/flipt", () => {
 });
 
 // Mock the session.server module
-vi.mock("./session.server", () => ({
-  getUserId: mockGetUserId,
-}));
+vi.mock("./session.server", () => {
+  const actual = vi.importActual("./session.server");
+
+  return {
+    ...actual,
+    getUserId: mockGetUserId,
+  };
+});
 
 // Import after mocking
 import { FLAGS, evaluateVariant, evaluateBoolean } from "./flags.server";

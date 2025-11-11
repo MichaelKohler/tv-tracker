@@ -8,15 +8,19 @@ import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
 import { action } from "./plex.$token";
 
-vi.mock("../db.server");
-vi.mock("../flags.server", () => {
+vi.mock("../flags.server", async () => {
+  const actual = await vi.importActual("../flags.server");
+
   return {
+    ...actual,
     evaluateBoolean: vi.fn(),
     FLAGS: {
       PLEX: "plex",
     },
   };
 });
+
+vi.mock("../db.server");
 vi.mock("../models/episode.server");
 vi.mock("../models/show.server");
 vi.mock("../models/user.server");

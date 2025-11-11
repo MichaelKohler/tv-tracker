@@ -9,7 +9,10 @@ import type { loader } from "./tv.$show";
 
 beforeEach(() => {
   vi.mock("react-router", () => {
+    const actual = vi.importActual("react-router");
+
     return {
+      ...actual,
       useCatch: vi.fn().mockReturnValue({ status: 404 }),
       useNavigation: vi.fn().mockReturnValue({}),
       useActionData: vi.fn(),
@@ -22,13 +25,19 @@ beforeEach(() => {
   });
 
   vi.mock("../components/episode-list", async () => {
+    const actual = await vi.importActual("../components/episode-list");
+
     return {
+      ...actual,
       default: () => <p>EpisodeList</p>,
     };
   });
 
   vi.mock("../models/show.server", () => {
+    const actual = vi.importActual("../models/show.server");
+
     return {
+      ...actual,
       getShowById: vi.fn(),
       removeShowFromUser: vi.fn(),
     };
@@ -37,7 +46,10 @@ beforeEach(() => {
   vi.mock("../db.server");
 
   vi.mock("../session.server", async () => {
+    const actual = await vi.importActual("../session.server");
+
     return {
+      ...actual,
       requireUserId: vi.fn().mockResolvedValue("123"),
     };
   });
