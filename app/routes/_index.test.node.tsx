@@ -2,6 +2,7 @@ import * as React from "react";
 import { redirect, useLoaderData } from "react-router";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import { evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
@@ -9,58 +10,45 @@ import { useOptionalUser } from "../utils";
 
 import Index, { loader } from "./_index";
 
+vi.mock("@react-router/node", () => ({
+  ...vi.importActual("@react-router/node"),
+  json: vi.fn().mockImplementation((arg) => arg),
+}));
+
+vi.mock("react-router", () => ({
+  ...vi.importActual("react-router"),
+  redirect: vi.fn(),
+  useLoaderData: vi.fn().mockReturnValue({ features: { signup: true } }),
+  Link: ({ children }: { children: React.ReactNode }) => (
+    <span>{children}</span>
+  ),
+}));
+
+vi.mock("../flags.server", () => ({
+  ...vi.importActual("../flags.server"),
+  FLAGS: {
+    SIGNUP_DISABLED: "signup-disabled",
+  },
+  evaluateBoolean: vi.fn().mockResolvedValue(false),
+}));
+
+vi.mock("../session.server", () => ({
+  ...vi.importActual("../session.server"),
+  getUserId: vi.fn(),
+}));
+
+vi.mock("../utils", () => ({
+  ...vi.importActual("../utils"),
+  useOptionalUser: vi.fn().mockReturnValue(undefined),
+}));
+
 beforeEach(() => {
-  vi.mock("@react-router/node", () => {
-    const actual = vi.importActual("@react-router/node");
+  vi.clearAllMocks();
 
-    return {
-      ...actual,
-      json: vi.fn().mockImplementation((arg) => arg),
-    };
-  });
-
-  vi.mock("react-router", async () => {
-    const actual = await vi.importActual("react-router");
-
-    return {
-      ...actual,
-      redirect: vi.fn(),
-      useLoaderData: vi.fn().mockReturnValue({ features: { signup: true } }),
-      Link: ({ children }: { children: React.ReactNode }) => (
-        <span>{children}</span>
-      ),
-    };
-  });
-
-  vi.mock("../flags.server", async () => {
-    const actual = await vi.importActual("../flags.server");
-
-    return {
-      ...actual,
-      FLAGS: {
-        SIGNUP_DISABLED: "signup-disabled",
-      },
-      evaluateBoolean: vi.fn().mockResolvedValue(false),
-    };
-  });
-
-  vi.mock("../session.server", () => {
-    const actual = vi.importActual("../session.server");
-
-    return {
-      ...actual,
-      getUserId: vi.fn(),
-    };
-  });
-
-  vi.mock("../utils", () => {
-    const actual = vi.importActual("../utils");
-
-    return {
-      ...actual,
-      useOptionalUser: vi.fn().mockReturnValue(null),
-    };
-  });
+  // Reset default mock implementations
+  vi.mocked(useLoaderData).mockReturnValue({ features: { signup: true } });
+  vi.mocked(useOptionalUser).mockReturnValue(undefined);
+  vi.mocked(evaluateBoolean).mockResolvedValue(false);
 });
 
 test("renders index", () => {

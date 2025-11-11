@@ -7,52 +7,54 @@ import { testEpisode, testShow } from "../test-utils";
 import TVShow from "./tv.$show";
 import type { loader } from "./tv.$show";
 
+vi.mock("react-router", () => {
+  const actual = vi.importActual("react-router");
+
+  return {
+    ...actual,
+    useCatch: vi.fn().mockReturnValue({ status: 404 }),
+    useNavigation: vi.fn().mockReturnValue({}),
+    useActionData: vi.fn(),
+    useLoaderData: vi.fn().mockReturnValue({}),
+    useSearchParams: vi.fn(),
+    Form: ({ children }: { children: React.ReactNode }) => (
+      <form>{children}</form>
+    ),
+  };
+});
+
+vi.mock("../components/episode-list", async () => {
+  const actual = await vi.importActual("../components/episode-list");
+
+  return {
+    ...actual,
+    default: () => <p>EpisodeList</p>,
+  };
+});
+
+vi.mock("../models/show.server", () => {
+  const actual = vi.importActual("../models/show.server");
+
+  return {
+    ...actual,
+    getShowById: vi.fn(),
+    removeShowFromUser: vi.fn(),
+  };
+});
+
+vi.mock("../db.server");
+
+vi.mock("../session.server", async () => {
+  const actual = await vi.importActual("../session.server");
+
+  return {
+    ...actual,
+    requireUserId: vi.fn().mockResolvedValue("123"),
+  };
+});
+
 beforeEach(() => {
-  vi.mock("react-router", () => {
-    const actual = vi.importActual("react-router");
-
-    return {
-      ...actual,
-      useCatch: vi.fn().mockReturnValue({ status: 404 }),
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi.fn().mockReturnValue({}),
-      useSearchParams: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-    };
-  });
-
-  vi.mock("../components/episode-list", async () => {
-    const actual = await vi.importActual("../components/episode-list");
-
-    return {
-      ...actual,
-      default: () => <p>EpisodeList</p>,
-    };
-  });
-
-  vi.mock("../models/show.server", () => {
-    const actual = vi.importActual("../models/show.server");
-
-    return {
-      ...actual,
-      getShowById: vi.fn(),
-      removeShowFromUser: vi.fn(),
-    };
-  });
-
-  vi.mock("../db.server");
-
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
-
-    return {
-      ...actual,
-      requireUserId: vi.fn().mockResolvedValue("123"),
-    };
-  });
+  vi.clearAllMocks();
 
   vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
     show: {

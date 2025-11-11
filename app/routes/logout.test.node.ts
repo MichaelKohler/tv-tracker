@@ -1,17 +1,20 @@
 import { redirect } from "react-router";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import { logout } from "../session.server";
 import { action, loader } from "./logout";
 
-beforeEach(() => {
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
+vi.mock("../session.server", async () => {
+  const actual = await vi.importActual("../session.server");
 
-    return {
-      ...actual,
-      logout: vi.fn(),
-    };
-  });
+  return {
+    ...actual,
+    logout: vi.fn(),
+  };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 });
 
 test("loader returns redirect", async () => {

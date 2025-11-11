@@ -6,31 +6,33 @@ import { render } from "vitest-browser-react";
 import { getUserId } from "../session.server";
 import Reset, { action, loader } from "./password.reset";
 
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+
+  return {
+    ...actual,
+    useNavigation: vi.fn().mockReturnValue({}),
+    useActionData: vi.fn(),
+    useLoaderData: vi.fn(),
+    Form: ({ children }: { children: React.ReactNode }) => (
+      <form>{children}</form>
+    ),
+  };
+});
+
+vi.mock("../db.server");
+
+vi.mock("../session.server", async () => {
+  const actual = await vi.importActual("../session.server");
+
+  return {
+    ...actual,
+    getUserId: vi.fn(),
+  };
+});
+
 beforeEach(() => {
-  vi.mock("react-router", async () => {
-    const actual = await vi.importActual("react-router");
-
-    return {
-      ...actual,
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-    };
-  });
-
-  vi.mock("../db.server");
-
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
-
-    return {
-      ...actual,
-      getUserId: vi.fn(),
-    };
-  });
+  vi.clearAllMocks();
 
   vi.mocked(getUserId).mockResolvedValue(undefined);
 });

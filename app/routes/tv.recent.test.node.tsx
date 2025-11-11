@@ -91,6 +91,8 @@ const renderComponent = (loaderFn: typeof loader) => {
 
 describe("TVRecent", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+
     vi.mocked(flags.evaluateBoolean).mockResolvedValue(true);
     vi.mocked(getRecentlyWatchedEpisodes).mockResolvedValue(mockEpisodes);
   });

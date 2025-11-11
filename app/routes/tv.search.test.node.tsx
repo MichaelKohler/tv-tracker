@@ -54,6 +54,8 @@ vi.mock("../flags.server");
 vi.mock("../db.server");
 
 beforeEach(() => {
+  vi.resetAllMocks();
+
   vi.mocked(useNavigation).mockReturnValue({
     formData: undefined,
     state: "idle",
@@ -81,10 +83,6 @@ beforeEach(() => {
 
   vi.mocked(searchShows).mockResolvedValue(shows);
   vi.mocked(requireUserId).mockResolvedValue("123");
-});
-
-afterEach(() => {
-  vi.restoreAllMocks();
 });
 
 test("renders search form", () => {

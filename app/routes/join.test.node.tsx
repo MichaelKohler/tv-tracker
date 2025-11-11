@@ -7,6 +7,7 @@ import {
 } from "react-router";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import * as invite from "../models/invite.server";
 import { evaluateBoolean } from "../flags.server";
@@ -15,71 +16,53 @@ import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 import Join, { action, loader } from "./join";
 
+vi.mock("react-router", () => ({
+  ...vi.importActual("react-router"),
+  useNavigation: vi.fn().mockReturnValue({}),
+  useActionData: vi.fn(),
+  useLoaderData: vi.fn(),
+  useSearchParams: vi.fn().mockReturnValue([
+    {
+      get: () => "dummySearchParamValue..",
+    },
+  ]),
+  Form: ({ children }: { children: React.ReactNode }) => (
+    <form>{children}</form>
+  ),
+  Link: ({ children }: { children: React.ReactNode }) => (
+    <span>{children}</span>
+  ),
+}));
+
+vi.mock("../db.server");
+
+vi.mock("../flags.server", () => ({
+  ...vi.importActual("../flags.server"),
+  FLAGS: {
+    SIGNUP_DISABLED: "signup-disabled",
+  },
+  evaluateBoolean: vi.fn().mockResolvedValue(false),
+}));
+
+vi.mock("../session.server", () => ({
+  ...vi.importActual("../session.server"),
+  getUserId: vi.fn(),
+  createUserSession: vi.fn().mockImplementation((arg) => arg),
+}));
+
+vi.mock("../utils", () => ({
+  ...vi.importActual("../utils"),
+  validateEmail: vi.fn(),
+}));
+
+vi.mock("../models/user.server", () => ({
+  ...vi.importActual("../models/user.server"),
+  createUser: vi.fn(),
+  getUserByEmail: vi.fn(),
+}));
+
 beforeEach(() => {
-  vi.mock("react-router", async () => {
-    const actual = await vi.importActual("react-router");
-
-    return {
-      ...actual,
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi.fn(),
-      useSearchParams: vi.fn().mockReturnValue([
-        {
-          get: () => "dummySearchParamValue..",
-        },
-      ]),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-      Link: ({ children }: { children: React.ReactNode }) => (
-        <span>{children}</span>
-      ),
-    };
-  });
-
-  vi.mock("../db.server");
-
-  vi.mock("../flags.server", async () => {
-    const actual = await vi.importActual("../flags.server");
-
-    return {
-      ...actual,
-      FLAGS: {
-        SIGNUP_DISABLED: "signup-disabled",
-      },
-      evaluateBoolean: vi.fn().mockResolvedValue(false),
-    };
-  });
-
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
-
-    return {
-      ...actual,
-      getUserId: vi.fn(),
-      createUserSession: vi.fn().mockImplementation((arg) => arg),
-    };
-  });
-
-  vi.mock("../utils", async () => {
-    const actual = await vi.importActual("../utils");
-
-    return {
-      ...actual,
-      validateEmail: vi.fn(),
-    };
-  });
-
-  vi.mock("../models/user.server", async () => {
-    const actual = await vi.importActual("../models/user.server");
-
-    return {
-      ...actual,
-      createUser: vi.fn(),
-      getUserByEmail: vi.fn(),
-    };
-  });
+  vi.clearAllMocks();
 });
 
 test("renders join form", () => {

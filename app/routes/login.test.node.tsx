@@ -2,61 +2,48 @@ import * as React from "react";
 import { redirect, useActionData, useNavigation } from "react-router";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import { verifyLogin } from "../models/user.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 import Login, { action, loader } from "./login";
 
+vi.mock("react-router", () => ({
+  ...vi.importActual("react-router"),
+  useNavigation: vi.fn().mockReturnValue({}),
+  useActionData: vi.fn(),
+  useSearchParams: vi.fn().mockReturnValue([
+    {
+      get: () => "dummySearchParamValue..",
+    },
+  ]),
+  Form: ({ children }: { children: React.ReactNode }) => (
+    <form>{children}</form>
+  ),
+  Link: ({ children }: { children: React.ReactNode }) => (
+    <span>{children}</span>
+  ),
+}));
+
+vi.mock("../session.server", () => ({
+  ...vi.importActual("../session.server"),
+  getUserId: vi.fn(),
+  createUserSession: vi.fn().mockImplementation((arg) => arg),
+}));
+
+vi.mock("../utils", () => ({
+  ...vi.importActual("../utils"),
+  validateEmail: vi.fn(),
+}));
+
+vi.mock("../models/user.server", () => ({
+  ...vi.importActual("../models/user.server"),
+  verifyLogin: vi.fn(),
+}));
+
 beforeEach(() => {
-  vi.mock("react-router", async () => {
-    const actual = await vi.importActual("react-router");
-
-    return {
-      ...actual,
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useSearchParams: vi.fn().mockReturnValue([
-        {
-          get: () => "dummySearchParamValue..",
-        },
-      ]),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-      Link: ({ children }: { children: React.ReactNode }) => (
-        <span>{children}</span>
-      ),
-    };
-  });
-
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
-
-    return {
-      ...actual,
-      getUserId: vi.fn(),
-      createUserSession: vi.fn().mockImplementation((arg) => arg),
-    };
-  });
-
-  vi.mock("../utils", async () => {
-    const actual = await vi.importActual("../utils");
-
-    return {
-      ...actual,
-      validateEmail: vi.fn(),
-    };
-  });
-
-  vi.mock("../models/user.server", async () => {
-    const actual = await vi.importActual("../models/user.server");
-
-    return {
-      ...actual,
-      verifyLogin: vi.fn(),
-    };
-  });
+  vi.clearAllMocks();
 });
 
 test("renders login form", () => {

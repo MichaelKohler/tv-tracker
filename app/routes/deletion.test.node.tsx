@@ -20,35 +20,38 @@ vi.mock("../flags.server", async () => {
   };
 });
 
-beforeEach(() => {
-  vi.mock("react-router", async () => {
-    const actual = await vi.importActual("react-router");
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
 
-    return {
-      ...actual,
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-    };
-  });
+  return {
+    ...actual,
+    useNavigation: vi.fn().mockReturnValue({}),
+    useActionData: vi.fn(),
+    useLoaderData: vi.fn(),
+    Form: ({ children }: { children: React.ReactNode }) => (
+      <form>{children}</form>
+    ),
+  };
+});
+
+vi.mock("../db.server");
+
+vi.mock("../session.server", async () => {
+  const actual = await vi.importActual("../session.server");
+
+  return {
+    ...actual,
+    requireUserId: vi.fn().mockResolvedValue("123"),
+  };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
 
   vi.mocked(useLoaderData).mockReturnValue({
     deleteAccountEnabled: true,
   });
 
-  vi.mock("../db.server");
-
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
-
-    return {
-      ...actual,
-      requireUserId: vi.fn().mockResolvedValue("123"),
-    };
-  });
   vi.spyOn(user, "deleteUserByUserId").mockResolvedValue({
     id: "123",
     email: "foo@example.com",

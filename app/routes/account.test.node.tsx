@@ -2,65 +2,52 @@ import * as React from "react";
 import { useActionData, useLoaderData, useSearchParams } from "react-router";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import { evaluateBoolean } from "../flags.server";
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
 import Account, { action, loader } from "./account";
 
+vi.mock("react-router", () => ({
+  ...vi.importActual("react-router"),
+  useNavigation: vi.fn().mockReturnValue({}),
+  useActionData: vi.fn(),
+  useLoaderData: vi
+    .fn()
+    .mockReturnValue({ webhookUrl: "http://webhook.example" }),
+  useSearchParams: vi.fn(),
+  Form: ({ children }: { children: React.ReactNode }) => (
+    <form>{children}</form>
+  ),
+  Link: ({ children }: { children: React.ReactNode }) => (
+    <span>{children}</span>
+  ),
+}));
+
+vi.mock("../session.server", () => ({
+  ...vi.importActual("../session.server"),
+  requireUser: vi.fn(),
+}));
+
+vi.mock("../models/user.server", () => ({
+  ...vi.importActual("../models/user.server"),
+  changePassword: vi.fn(),
+  verifyLogin: vi.fn(),
+}));
+
+vi.mock("../flags.server", () => ({
+  ...vi.importActual("../flags.server"),
+  evaluateBoolean: vi.fn(),
+  FLAGS: {
+    PASSWORD_CHANGE: "password-change",
+    DELETE_ACCOUNT: "delete-account",
+    PLEX: "plex",
+  },
+}));
+
 beforeEach(() => {
-  vi.mock("react-router", async () => {
-    const actual = await vi.importActual("react-router");
-
-    return {
-      ...actual,
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi
-        .fn()
-        .mockReturnValue({ webhookUrl: "http://webhook.example" }),
-      useSearchParams: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-      Link: ({ children }: { children: React.ReactNode }) => (
-        <span>{children}</span>
-      ),
-    };
-  });
-
-  vi.mock("../session.server", async () => {
-    const actual = await vi.importActual("../session.server");
-
-    return {
-      ...actual,
-      requireUser: vi.fn(),
-    };
-  });
-
-  vi.mock("../models/user.server", async () => {
-    const actual = await vi.importActual("../models/user.server");
-
-    return {
-      ...actual,
-      changePassword: vi.fn(),
-      verifyLogin: vi.fn(),
-    };
-  });
-
-  vi.mock("../flags.server", async () => {
-    const actual = await vi.importActual("../flags.server");
-
-    return {
-      ...actual,
-      evaluateBoolean: vi.fn(),
-      FLAGS: {
-        PASSWORD_CHANGE: "password-change",
-        DELETE_ACCOUNT: "delete-account",
-        PLEX: "plex",
-      },
-    };
-  });
+  vi.clearAllMocks();
 
   vi.mocked(useLoaderData).mockReturnValue({
     webhookUrl: "http://webhook.example",

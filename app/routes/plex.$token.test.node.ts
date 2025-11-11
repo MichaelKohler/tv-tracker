@@ -1,4 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import {
   getEpisodeByShowIdAndNumbers,
@@ -9,10 +11,7 @@ import { getUserByPlexToken } from "../models/user.server";
 import { action } from "./plex.$token";
 
 vi.mock("../flags.server", async () => {
-  const actual = await vi.importActual("../flags.server");
-
   return {
-    ...actual,
     evaluateBoolean: vi.fn(),
     FLAGS: {
       PLEX: "plex",
@@ -75,6 +74,7 @@ const createPlexPayload = (
 describe("Plex token route", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(getUserByPlexToken).mockResolvedValue(mockUser);
     vi.mocked(getShowByUserIdAndName).mockResolvedValue(mockShow);

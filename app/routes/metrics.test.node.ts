@@ -1,34 +1,38 @@
+import { beforeEach, expect, test, vi } from "vitest";
+
 import { loader } from "./metrics";
 
+vi.mock("../models/show.server", async () => {
+  const actual = await vi.importActual("../models/show.server");
+
+  return {
+    ...actual,
+    getShowCount: vi.fn().mockResolvedValue(55),
+    getConnectedShowCount: vi.fn().mockResolvedValue(53),
+  };
+});
+
+vi.mock("../models/episode.server", async () => {
+  const actual = await vi.importActual("../models/episode.server");
+
+  return {
+    ...actual,
+    getEpisodeCount: vi.fn().mockResolvedValue(2000),
+    getConnectedEpisodeCount: vi.fn().mockResolvedValue(1500),
+  };
+});
+
+vi.mock("../models/user.server", async () => {
+  const actual = await vi.importActual("../models/user.server");
+
+  return {
+    ...actual,
+    getUserCount: vi.fn().mockResolvedValue(5),
+  };
+});
+
 beforeEach(() => {
-  vi.mock("../models/show.server", async () => {
-    const actual = await vi.importActual("../models/show.server");
-
-    return {
-      ...actual,
-      getShowCount: vi.fn().mockResolvedValue(55),
-      getConnectedShowCount: vi.fn().mockResolvedValue(53),
-    };
-  });
-
-  vi.mock("../models/episode.server", async () => {
-    const actual = await vi.importActual("../models/episode.server");
-
-    return {
-      ...actual,
-      getEpisodeCount: vi.fn().mockResolvedValue(2000),
-      getConnectedEpisodeCount: vi.fn().mockResolvedValue(1500),
-    };
-  });
-
-  vi.mock("../models/user.server", async () => {
-    const actual = await vi.importActual("../models/user.server");
-
-    return {
-      ...actual,
-      getUserCount: vi.fn().mockResolvedValue(5),
-    };
-  });
+  vi.clearAllMocks();
 });
 
 test("loader returns stats", async () => {
