@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { describe, expect, it } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import type { Episode, Show } from "@prisma/client";
 
@@ -65,28 +66,34 @@ const DEFAULT_EPISODES: (Episode & {
   },
 ];
 
-test("renders list", async () => {
-  render(<FullEpisodesList episodes={DEFAULT_EPISODES} />);
+describe("FullEpisodesList", () => {
+  it("renders list", async () => {
+    render(<FullEpisodesList episodes={DEFAULT_EPISODES} />);
 
-  expect(screen.getByText(/Test Episode 1/)).toBeInTheDocument();
-  expect(screen.getByText(/S01E01/)).toBeInTheDocument();
-  expect(screen.getByText(DEFAULT_EPISODES[0].summary)).toBeInTheDocument();
-  expect(screen.getByText(DEFAULT_EPISODES[0].show.name)).toBeInTheDocument();
+    expect(page.getByText(/Test Episode 1/)).toBeInTheDocument();
+    expect(page.getByText(/S01E01/)).toBeInTheDocument();
+    expect(
+      page.getByText(DEFAULT_EPISODES[0].summary, { exact: true })
+    ).toBeInTheDocument();
+    expect(page.getByText(DEFAULT_EPISODES[0].show.name)).toBeInTheDocument();
 
-  expect(screen.getByText(/Test Episode 2/)).toBeInTheDocument();
-  expect(screen.getByText(/S01E02/)).toBeInTheDocument();
-  expect(screen.getByText(DEFAULT_EPISODES[1].summary)).toBeInTheDocument();
-  expect(screen.getByText(DEFAULT_EPISODES[1].show.name)).toBeInTheDocument();
-});
+    expect(page.getByText(/Test Episode 2/)).toBeInTheDocument();
+    expect(page.getByText(/S01E02/)).toBeInTheDocument();
+    expect(
+      page.getByText(DEFAULT_EPISODES[1].summary, { exact: true })
+    ).toBeInTheDocument();
+    expect(page.getByText(DEFAULT_EPISODES[1].show.name)).toBeInTheDocument();
+  });
 
-test("does not decode summary", async () => {
-  const episodes = [
-    {
-      ...DEFAULT_EPISODES[0],
-      summary: "a &lt; b",
-    },
-  ];
-  render(<FullEpisodesList episodes={episodes} />);
+  it("does not decode summary", async () => {
+    const episodes = [
+      {
+        ...DEFAULT_EPISODES[0],
+        summary: "a &lt; b",
+      },
+    ];
+    render(<FullEpisodesList episodes={episodes} />);
 
-  expect(screen.getByText("a &lt; b")).toBeInTheDocument();
+    expect(page.getByText("a &lt; b")).toBeInTheDocument();
+  });
 });

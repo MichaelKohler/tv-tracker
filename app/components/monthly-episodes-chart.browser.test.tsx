@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
-import "@testing-library/jest-dom";
+import { describe, expect, it } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import MonthlyEpisodesChart from "./monthly-episodes-chart";
 
@@ -28,22 +28,13 @@ const mockData = [
 describe("MonthlyEpisodesChart", () => {
   it("renders chart title", () => {
     render(<MonthlyEpisodesChart data={mockData} />);
-    expect(screen.getByText("Episodes Watched Per Month")).toBeInTheDocument();
-  });
-
-  it("renders chart with data", () => {
-    render(<MonthlyEpisodesChart data={mockData} />);
-    // ResponsiveContainer and LineChart should be in the DOM
-    const container = screen
-      .getByText("Episodes Watched Per Month")
-      .closest("div");
-    expect(container).toBeInTheDocument();
+    expect(page.getByText("Episodes Watched Per Month")).toBeInTheDocument();
   });
 
   it("does not render when data is empty", () => {
     render(<MonthlyEpisodesChart data={[]} />);
     expect(
-      screen.queryByText("Episodes Watched Per Month")
+      page.getByText("Episodes Watched Per Month")
     ).not.toBeInTheDocument();
   });
 });

@@ -114,6 +114,7 @@ test("verifyLogin should return user without password if correct", async () => {
       hash: "foo",
     },
   });
+  // @ts-expect-error .. compare does return a promise that resolves to a boolean..
   vi.mocked(compare).mockResolvedValue(true);
 
   const user = await verifyLogin("foo@example.com", "foo");
@@ -160,6 +161,7 @@ test("verifyLogin should return null if password is invalid", async () => {
       hash: "foo",
     },
   });
+  // @ts-expect-error .. compare does return a promise that resolves to a boolean..
   vi.mocked(compare).mockResolvedValue(false);
 
   const user = await verifyLogin("foo@example.com", "foo");

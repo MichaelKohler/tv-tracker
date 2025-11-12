@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
-
 import type { Show } from "@prisma/client";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { page } from "vitest/browser";
+import { render } from "vitest-browser-react";
 
 import { testShow } from "../test-utils";
 import ShowTiles from "./show-tiles";
@@ -26,16 +26,18 @@ const shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
   },
 ];
 
-beforeEach(() => {
-  vi.mock("./show-tile", async () => {
-    return {
-      default: () => <p>ShowTile</p>,
-    };
+vi.mock("./show-tile", async () => ({
+  default: () => <p>ShowTile</p>,
+}));
+
+describe("ShowTiles", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
   });
-});
 
-test("renders result tiles", async () => {
-  render(<ShowTiles shows={shows} />);
+  it("renders result tiles", async () => {
+    render(<ShowTiles shows={shows} />);
 
-  expect(screen.getAllByText("ShowTile").length).toBe(2);
+    expect(page.getByText("ShowTile").length).toBe(2);
+  });
 });
