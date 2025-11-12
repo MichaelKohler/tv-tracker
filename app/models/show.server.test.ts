@@ -25,7 +25,7 @@ import {
 vi.mock("../db.server");
 
 vi.mock("./maze.server", async () => ({
-  ...vi.importActual("./maze.server"),
+  ...(await vi.importActual("./maze.server")),
   fetchSearchResults: vi.fn(),
   fetchShowWithEmbededEpisodes: vi.fn(),
 }));
@@ -73,7 +73,7 @@ const SHOW2: Show = {
 
 describe("Show Model", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("getAllRunningShowIds should return ids", async () => {

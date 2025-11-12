@@ -14,13 +14,13 @@ import {
 } from "./user.server";
 
 vi.mock("bcrypt", async () => ({
-  ...vi.importActual("bcrypt"),
+  ...(await vi.importActual("bcrypt")),
   compare: vi.fn().mockResolvedValue(true),
   hash: vi.fn().mockResolvedValue("testHash"),
 }));
 
 vi.mock("crypto", async () => ({
-  ...vi.importActual("crypto"),
+  ...(await vi.importActual("crypto")),
   default: {
     createHash: vi.fn().mockReturnValue({
       update: vi.fn().mockReturnValue({

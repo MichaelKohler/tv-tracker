@@ -31,7 +31,7 @@ vi.mock("react-router", async () => ({
 
 describe("Header", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
 
     vi.mocked(useMatches).mockReturnValue([
       {

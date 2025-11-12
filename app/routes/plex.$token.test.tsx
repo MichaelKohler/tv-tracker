@@ -9,14 +9,13 @@ import { getUserByPlexToken } from "../models/user.server";
 import { action } from "./plex.$token";
 
 vi.mock("../db.server");
-vi.mock("../flags.server", () => {
-  return {
-    evaluateBoolean: vi.fn(),
-    FLAGS: {
-      PLEX: "plex",
-    },
-  };
-});
+vi.mock("../flags.server", async () => ({
+  ...(await vi.importActual("../flags.server")),
+  evaluateBoolean: vi.fn(),
+  FLAGS: {
+    PLEX: "plex",
+  },
+}));
 vi.mock("../models/episode.server");
 vi.mock("../models/show.server");
 vi.mock("../models/user.server");
@@ -70,7 +69,7 @@ const createPlexPayload = (
 
 describe("Plex token route", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(getUserByPlexToken).mockResolvedValue(mockUser);
     vi.mocked(getShowByUserIdAndName).mockResolvedValue(mockShow);
@@ -80,7 +79,7 @@ describe("Plex token route", () => {
     vi.mocked(markEpisodeAsWatched).mockResolvedValue(undefined);
   });
 
-  test("marks episode as watched for valid scrobble event", async () => {
+  it("marks episode as watched for valid scrobble event", async () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
@@ -115,7 +114,7 @@ describe("Plex token route", () => {
     );
   });
 
-  test("returns empty object if feature is disabled", async () => {
+  it("returns empty object if feature is disabled", async () => {
     vi.mocked(evaluateBoolean).mockResolvedValue(false);
 
     const formData = new FormData();
@@ -134,7 +133,7 @@ describe("Plex token route", () => {
     expect(getUserByPlexToken).not.toHaveBeenCalled();
   });
 
-  test("returns null for non-scrobble event", async () => {
+  it("returns null for non-scrobble event", async () => {
     const formData = new FormData();
     formData.append(
       "payload",
@@ -154,7 +153,7 @@ describe("Plex token route", () => {
     expect(response).toBeNull();
   });
 
-  test("returns null for missing token", async () => {
+  it("returns null for missing token", async () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
@@ -171,7 +170,7 @@ describe("Plex token route", () => {
     expect(response).toBeNull();
   });
 
-  test("returns empty object when user not found", async () => {
+  it("returns empty object when user not found", async () => {
     vi.mocked(getUserByPlexToken).mockResolvedValue(null);
 
     const formData = new FormData();
@@ -191,7 +190,7 @@ describe("Plex token route", () => {
     expect(response).toEqual({});
   });
 
-  test("returns empty object when show not found", async () => {
+  it("returns empty object when show not found", async () => {
     vi.mocked(getShowByUserIdAndName).mockResolvedValue(null);
 
     const formData = new FormData();
@@ -212,7 +211,7 @@ describe("Plex token route", () => {
     expect(response).toEqual({});
   });
 
-  test("returns empty object when episode not found", async () => {
+  it("returns empty object when episode not found", async () => {
     vi.mocked(getEpisodeByShowIdAndNumbers).mockResolvedValue(null);
 
     const formData = new FormData();
@@ -234,7 +233,7 @@ describe("Plex token route", () => {
     expect(response).toEqual({});
   });
 
-  test("returns empty object when marking as watched throws", async () => {
+  it("returns empty object when marking as watched throws", async () => {
     vi.mocked(markEpisodeAsWatched).mockRejectedValue(new Error("DB error"));
 
     const formData = new FormData();

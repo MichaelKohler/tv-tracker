@@ -14,7 +14,7 @@ vi.mock("react-router", async () => ({
 
 describe("EpisodeCard", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders episode card", () => {

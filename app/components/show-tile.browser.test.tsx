@@ -27,7 +27,7 @@ vi.mock("react-router", async () => ({
 
 describe("ShowTile", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders show tile", async () => {

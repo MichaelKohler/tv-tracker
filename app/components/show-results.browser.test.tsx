@@ -17,7 +17,7 @@ vi.mock("./show-result", async () => ({
 
 describe("ShowResults", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders show results", async () => {

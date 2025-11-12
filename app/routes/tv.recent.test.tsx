@@ -7,22 +7,21 @@ import * as flags from "../flags.server";
 import { getRecentlyWatchedEpisodes } from "../models/episode.server";
 import TVRecent, { loader } from "./tv.recent";
 
-vi.mock("../flags.server", async (importOriginal) => {
-  const actual = await importOriginal<typeof flags>();
-  return {
-    ...actual,
-    evaluateBoolean: vi.fn(),
-  };
-});
+vi.mock("../flags.server", async () => ({
+  ...(await vi.importActual("../flags.server")),
+  evaluateBoolean: vi.fn(),
+}));
+
 vi.mock("../db.server");
 vi.mock("../models/episode.server");
-vi.mock("../session.server", async () => {
-  return {
-    requireUserId: vi.fn().mockResolvedValue("123"),
-  };
-});
 
-vi.mock("../components/upcoming-episodes-list", () => ({
+vi.mock("../session.server", async () => ({
+  ...(await vi.importActual("../session.server")),
+  requireUserId: vi.fn().mockResolvedValue("123"),
+}));
+
+vi.mock("../components/upcoming-episodes-list", async () => ({
+  ...(await vi.importActual("../components/upcoming-episodes-list")),
   default: ({
     episodes,
   }: {

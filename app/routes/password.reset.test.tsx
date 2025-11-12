@@ -6,92 +6,93 @@ import "@testing-library/jest-dom";
 import { getUserId } from "../session.server";
 import Reset, { action, loader } from "./password.reset";
 
-beforeEach(() => {
-  vi.mock("react-router", async (importOriginal) => {
-    const actual = await importOriginal();
+vi.mock("react-router", async () => ({
+  ...(await vi.importActual("react-router")),
+  useNavigation: vi.fn().mockReturnValue({}),
+  useActionData: vi.fn(),
+  useLoaderData: vi.fn(),
+  Form: ({ children }: { children: React.ReactNode }) => (
+    <form>{children}</form>
+  ),
+}));
 
-    return {
-      ...(actual as object),
-      useNavigation: vi.fn().mockReturnValue({}),
-      useActionData: vi.fn(),
-      useLoaderData: vi.fn(),
-      Form: ({ children }: { children: React.ReactNode }) => (
-        <form>{children}</form>
-      ),
-    };
+vi.mock("../db.server");
+
+vi.mock("../session.server", async () => ({
+  ...(await vi.importActual("../session.server")),
+  getUserId: vi.fn().mockResolvedValue(undefined),
+}));
+
+describe("Password Reset Route", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  vi.mock("../db.server");
+  it("renders reset form", () => {
+    render(<Reset />);
 
-  vi.mock("../session.server", async () => {
-    return {
-      getUserId: vi.fn(),
-    };
+    expect(screen.getByText("Email address")).toBeInTheDocument();
+    expect(screen.getByText("Send password reset email")).toBeInTheDocument();
   });
 
-  vi.mocked(getUserId).mockResolvedValue(undefined);
-});
+  it("renders error message for email", () => {
+    vi.mocked(useActionData).mockReturnValue({
+      errors: {
+        email: "EMAIL_ERROR",
+      },
+      done: false,
+    });
 
-test("renders reset form", () => {
-  render(<Reset />);
+    render(<Reset />);
 
-  expect(screen.getByText("Email address")).toBeInTheDocument();
-  expect(screen.getByText("Send password reset email")).toBeInTheDocument();
-});
-
-test("renders error message for email", () => {
-  vi.mocked(useActionData).mockReturnValue({
-    errors: {
-      email: "EMAIL_ERROR",
-    },
-    done: false,
+    expect(screen.getByText("EMAIL_ERROR")).toBeInTheDocument();
   });
 
-  render(<Reset />);
+  it("renders success message", () => {
+    vi.mocked(useActionData).mockReturnValue({
+      errors: {
+        email: null,
+      },
+      done: true,
+    });
 
-  expect(screen.getByText("EMAIL_ERROR")).toBeInTheDocument();
-});
+    render(<Reset />);
 
-test("renders success message", () => {
-  vi.mocked(useActionData).mockReturnValue({
-    errors: {
-      email: null,
-    },
-    done: true,
+    expect(
+      screen.getByText(/An email to reset your password has been sent/)
+    ).toBeInTheDocument();
   });
 
-  render(<Reset />);
+  describe("Loader", () => {
+    it("redirects if there is a user", async () => {
+      vi.mocked(getUserId).mockResolvedValue("123");
 
-  expect(
-    screen.getByText(/An email to reset your password has been sent/)
-  ).toBeInTheDocument();
-});
+      const response = await loader({
+        request: new Request("http://localhost:8080/password/reset"),
+        context: {},
+        params: {},
+      });
 
-test("loader redirects if there is a user", async () => {
-  vi.mocked(getUserId).mockResolvedValue("123");
-
-  const response = await loader({
-    request: new Request("http://localhost:8080/password/reset"),
-    context: {},
-    params: {},
+      expect(response).toStrictEqual(redirect("/password/change"));
+    });
   });
 
-  expect(response).toStrictEqual(redirect("/password/change"));
-});
+  describe("Action", () => {
+    it("should return error if email is invalid", async () => {
+      const formData = new FormData();
+      formData.append("email", "");
 
-test("action should return error if email is invalid", async () => {
-  const formData = new FormData();
-  formData.append("email", "");
+      const response = await action({
+        request: new Request("http://localhost:8080/password/reset", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
 
-  const response = await action({
-    request: new Request("http://localhost:8080/password/reset", {
-      method: "POST",
-      body: formData,
-    }),
-    context: {},
-    params: {},
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data.errors.email).toBe("Email is invalid");
+    });
   });
-
-  // @ts-expect-error : we do not actually have a real response here..
-  expect(response.data.errors.email).toBe("Email is invalid");
 });

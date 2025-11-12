@@ -63,7 +63,7 @@ const EPISODE_ON_USER = {
 
 describe("Episode Model", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   // Not actually covering the query itself..

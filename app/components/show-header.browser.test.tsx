@@ -35,7 +35,7 @@ vi.mock("react-router", async () => ({
 
 describe("ShowHeader", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
 
     // @ts-expect-error .. we don't need to specify all of it..
     vi.mocked(useNavigation).mockReturnValue({

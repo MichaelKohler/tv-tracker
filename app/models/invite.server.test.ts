@@ -5,7 +5,7 @@ vi.mock("../db.server");
 
 describe("Invite Model", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("redeemInviteCode should delete existing invite", async () => {

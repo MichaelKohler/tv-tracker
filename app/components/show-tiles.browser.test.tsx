@@ -32,7 +32,7 @@ vi.mock("./show-tile", async () => ({
 
 describe("ShowTiles", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders result tiles", async () => {
