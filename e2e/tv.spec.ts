@@ -64,7 +64,7 @@ test("allows TV flows", async ({ page }) => {
   await expect(page.getByText("Mark as not watched").nth(0)).toBeVisible();
   await page.getByText("Mark as not watched").nth(0).click();
 
-  await expect(page.getByText("Archive")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Archive" })).toBeVisible();
 
   await page.getByText("Remove show").click();
   await expect(
