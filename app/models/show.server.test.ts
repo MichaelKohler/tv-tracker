@@ -223,8 +223,8 @@ describe("Show Model", () => {
       },
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
-    // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
     vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(
+      // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
       episodeOnUserData
     );
 
