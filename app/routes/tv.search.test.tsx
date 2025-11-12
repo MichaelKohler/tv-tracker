@@ -37,11 +37,13 @@ vi.mock("react-router", async (importOriginal) => {
     ),
   };
 });
+
 vi.mock("../components/show-results", async () => {
   return {
     default: () => <p>ShowResults</p>,
   };
 });
+
 vi.mock("../models/show.server", () => {
   return {
     addShow: vi.fn(),
@@ -50,10 +52,11 @@ vi.mock("../models/show.server", () => {
 });
 
 vi.mock("../session.server");
-vi.mock("../flags.server");
 vi.mock("../db.server");
 
 beforeEach(() => {
+  vi.resetAllMocks();
+
   vi.mocked(useNavigation).mockReturnValue({
     formData: undefined,
     state: "idle",
@@ -64,6 +67,7 @@ beforeEach(() => {
     json: undefined,
     text: undefined,
   });
+
   vi.mocked(useSearchParams).mockReturnValue([
     // @ts-expect-error .. we don't need the full API
     {
@@ -81,10 +85,6 @@ beforeEach(() => {
 
   vi.mocked(searchShows).mockResolvedValue(shows);
   vi.mocked(requireUserId).mockResolvedValue("123");
-});
-
-afterEach(() => {
-  vi.restoreAllMocks();
 });
 
 test("renders search form", () => {

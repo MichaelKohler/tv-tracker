@@ -6,19 +6,28 @@ const mockBooleanFn = vi.hoisted(() => vi.fn());
 const mockGetUserId = vi.hoisted(() => vi.fn());
 
 // Mock the Flipt module
-vi.mock("@flipt-io/flipt", () => ({
-  FliptClient: vi.fn().mockImplementation(() => ({
-    evaluation: {
-      variant: mockVariantFn,
-      boolean: mockBooleanFn,
-    },
-  })),
-  AuthenticationStrategy: vi.fn().mockImplementation(() => ({
-    authenticate: vi
-      .fn()
-      .mockReturnValue(new Map([["Authorization", "Basic test-token"]])),
-  })),
-}));
+vi.mock("@flipt-io/flipt", () => {
+  const actual = vi.importActual("@flipt-io/flipt");
+
+  return {
+    ...actual,
+    FliptClient: vi.fn(
+      class {
+        evaluation = {
+          variant: mockVariantFn,
+          boolean: mockBooleanFn,
+        };
+      }
+    ),
+    AuthenticationStrategy: vi.fn(
+      class {
+        authenticate = vi
+          .fn()
+          .mockReturnValue(new Map([["Authorization", "Basic test-token"]]));
+      }
+    ),
+  };
+});
 
 // Mock the session.server module
 vi.mock("./session.server", () => ({
