@@ -6,8 +6,5 @@ export default defineConfig({
 
   build: {
     sourcemap: true,
-    rollupOptions: {
-      external: ["@node-rs/bcrypt-wasm32-wasi"],
-    },
   },
 });
