@@ -23,6 +23,8 @@ vi.mock("react-router", async () => ({
   ),
 }));
 
+vi.mock("../db.server");
+
 vi.mock("../flags.server", async () => ({
   ...(await vi.importActual("../flags.server")),
   FLAGS: {

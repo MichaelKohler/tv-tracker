@@ -3,6 +3,8 @@ import { redirect } from "react-router";
 import { logout } from "../session.server";
 import { action, loader } from "./logout";
 
+vi.mock("../db.server");
+
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
   logout: vi.fn(),

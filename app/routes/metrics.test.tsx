@@ -1,5 +1,7 @@
 import { loader } from "./metrics";
 
+vi.mock("../db.server");
+
 vi.mock("../models/show.server", async () => ({
   ...(await vi.importActual("../models/show.server")),
   getShowCount: vi.fn().mockResolvedValue(55),

@@ -25,9 +25,12 @@ vi.mock("@flipt-io/flipt", async () => ({
   ),
 }));
 
-// Mock the session.server module
+vi.mock("../db.server");
+
+// We don't want to mock partially here, as otherwise
+// we need to make sure that none of the other functions
+// of this module are calling out to the database.
 vi.mock("./session.server", async () => ({
-  ...(await vi.importActual("./session.server")),
   getUserId: mockGetUserId,
 }));
 

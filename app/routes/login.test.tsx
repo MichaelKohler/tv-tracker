@@ -41,6 +41,8 @@ vi.mock("../models/user.server", async () => ({
   verifyLogin: vi.fn(),
 }));
 
+vi.mock("../db.server");
+
 describe("Login Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();

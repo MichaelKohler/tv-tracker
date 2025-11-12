@@ -10,6 +10,8 @@ vi.mock("react-router", async () => ({
   useLoaderData: vi.fn(),
 }));
 
+vi.mock("../db.server");
+
 vi.mock("../flags.server", async () => ({
   ...(await vi.importActual("../flags.server")),
   evaluateBoolean: vi.fn(),

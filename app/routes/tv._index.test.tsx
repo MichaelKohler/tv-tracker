@@ -14,6 +14,8 @@ vi.mock("react-router", async () => ({
   ),
 }));
 
+vi.mock("../db.server");
+
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
   requireUserId: vi.fn().mockResolvedValue("123"),

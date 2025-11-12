@@ -24,16 +24,7 @@ vi.mock("react-router", async () => ({
   ),
 }));
 
-vi.mock("../session.server", async () => ({
-  ...(await vi.importActual("../session.server")),
-  requireUser: vi.fn(),
-}));
-
-vi.mock("../models/user.server", async () => ({
-  ...(await vi.importActual("../models/user.server")),
-  changePassword: vi.fn(),
-  verifyLogin: vi.fn(),
-}));
+vi.mock("../db.server");
 
 vi.mock("../flags.server", async () => ({
   ...(await vi.importActual("../flags.server")),
@@ -43,6 +34,17 @@ vi.mock("../flags.server", async () => ({
     DELETE_ACCOUNT: "delete-account",
     PLEX: "plex",
   },
+}));
+
+vi.mock("../models/user.server", async () => ({
+  ...(await vi.importActual("../models/user.server")),
+  changePassword: vi.fn(),
+  verifyLogin: vi.fn(),
+}));
+
+vi.mock("../session.server", async () => ({
+  ...(await vi.importActual("../session.server")),
+  requireUser: vi.fn(),
 }));
 
 describe("Account Route", () => {
