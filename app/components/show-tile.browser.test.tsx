@@ -10,7 +10,6 @@ import ShowTile, { type Props } from "./show-tile";
 
 const show: Props["show"] = {
   ...testShow,
-  archived: false,
   unwatchedEpisodesCount: 1,
 };
 

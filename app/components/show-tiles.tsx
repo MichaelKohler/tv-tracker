@@ -4,7 +4,6 @@ import ShowTile from "./show-tile";
 
 interface Props {
   shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
-    archived: boolean;
     unwatchedEpisodesCount: number;
   })[];
 }

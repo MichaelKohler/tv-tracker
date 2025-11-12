@@ -137,7 +137,6 @@ export async function getShowsByUserId(userId: User["id"], archived = false) {
 
     return {
       ...showData,
-      archived,
       unwatchedEpisodesCount,
     };
   });

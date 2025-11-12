@@ -4,7 +4,6 @@ import type { Show } from "@prisma/client";
 
 export interface Props {
   show: Pick<Show, "id" | "name" | "imageUrl"> & {
-    archived: boolean;
     unwatchedEpisodesCount?: number;
   };
 }
@@ -22,13 +21,10 @@ export default function ShowTile({ show }: Props) {
             }`}
           />
         )}
-        {!show.archived && (show.unwatchedEpisodesCount ?? 0) > 0 && (
+        {(show.unwatchedEpisodesCount ?? 0) > 0 && (
           <div className="absolute left-0 top-0 rounded-tl-lg bg-orange-400 px-2 py-2 text-xl">
             {show.unwatchedEpisodesCount}
           </div>
-        )}
-        {show.archived && (
-          <div className="absolute left-0 top-0 rounded-tl-lg bg-red-400 px-4 py-4 text-xl"></div>
         )}
         <h2 className="text-center font-title text-xl">{show.name}</h2>
       </div>

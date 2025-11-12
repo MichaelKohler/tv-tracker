@@ -33,7 +33,6 @@ function Content({
   features,
 }: {
   shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
-    archived: boolean;
     unwatchedEpisodesCount: number;
   })[];
   features: { search: boolean };

@@ -110,7 +110,6 @@ describe("Show Model", () => {
       {
         ...SHOW,
         unwatchedEpisodesCount: 2,
-        archived: true,
       },
     ]);
   });
@@ -172,12 +171,10 @@ describe("Show Model", () => {
       {
         ...SHOW,
         unwatchedEpisodesCount: 1,
-        archived: false,
       },
       {
         ...SHOW2,
         unwatchedEpisodesCount: 0,
-        archived: false,
       },
     ]);
   });
@@ -365,12 +362,10 @@ describe("Show Model", () => {
       {
         ...SHOW,
         unwatchedEpisodesCount: 1,
-        archived: false,
       },
       {
         ...SHOW2,
         unwatchedEpisodesCount: 0,
-        archived: false,
       },
     ]);
   });
