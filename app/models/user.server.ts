@@ -7,6 +7,7 @@ import { prisma } from "../db.server";
 export type { User } from "@prisma/client";
 
 const ONE_HOUR_MS = 1 * 60 * 60 * 1000;
+const BCRYPT_ROUNDS = 12;
 
 export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } });
@@ -25,7 +26,7 @@ export async function getUserByPlexToken(plexToken: User["plexToken"]) {
 }
 
 export async function createUser(email: User["email"], password: string) {
-  const hashedPassword = await hash(password, 10);
+  const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
   return prisma.user.create({
     data: {
@@ -79,7 +80,7 @@ export async function changePassword(
     throw new Error("USER_NOT_FOUND");
   }
 
-  const hashedPassword = await hash(password, 10);
+  const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
   await prisma.password.update({
     where: {
