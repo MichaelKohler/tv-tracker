@@ -60,6 +60,9 @@ jobs:
       - name: 📥 Download deps
         run: npm ci
 
+      - name: 🌳 Install Playwright browsers
+        run: npx playwright install
+
       - name: ⚡ Run vitest
         run: npm run test
 
