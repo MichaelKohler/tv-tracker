@@ -52,11 +52,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     upcomingRoute,
     recentlyWatchedRoute,
     statsRoute,
+    archiveEnabled,
   ] = await Promise.all([
     evaluateBoolean(request, FLAGS.MAINTENANCE_MODE),
     evaluateBoolean(request, FLAGS.UPCOMING_ROUTE),
     evaluateBoolean(request, FLAGS.RECENTLY_WATCHED_ROUTE),
     evaluateBoolean(request, FLAGS.STATS_ROUTE),
+    evaluateBoolean(request, FLAGS.ARCHIVE),
   ]);
 
   return {
@@ -66,6 +68,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       upcomingRoute,
       recentlyWatchedRoute,
       statsRoute,
+      archive: archiveEnabled,
     },
   };
 }
@@ -81,6 +84,7 @@ function App({
     upcomingRoute: boolean;
     recentlyWatchedRoute: boolean;
     statsRoute: boolean;
+    archive: boolean;
   };
   renderLoginButtons?: boolean;
 }) {

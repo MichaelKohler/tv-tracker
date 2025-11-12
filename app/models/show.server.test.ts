@@ -20,6 +20,7 @@ import {
   unarchiveShowOnUser,
   getShowsTrackedByUser,
   getArchivedShowsCountForUser,
+  getArchivedShowsByUserId,
 } from "./show.server";
 
 vi.mock("../db.server");
@@ -80,6 +81,38 @@ describe("Show Model", () => {
     vi.mocked(prisma.show.findMany).mockResolvedValue([SHOW, SHOW2]);
     const runningShowIds = await getAllRunningShowIds();
     expect(runningShowIds).toStrictEqual(["maze1", "maze2"]);
+  });
+
+  it("getArchivedShowsByUserId should return archived ids and unwatched count", async () => {
+    // Note that this does not actually check the "where" clause in the prisma query.
+    const showOnUserData: (ShowOnUser & {
+      show: Show & { _count: { episodes: number } };
+    })[] = [
+      {
+        archived: true,
+        showId: "1",
+        id: "1",
+        userId: "userId",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        show: {
+          ...SHOW,
+          _count: {
+            episodes: 2,
+          },
+        },
+      },
+    ];
+    vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
+    vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue([]); // watched episodes
+    const shows = await getArchivedShowsByUserId("userId");
+    expect(shows).toStrictEqual([
+      {
+        ...SHOW,
+        unwatchedEpisodesCount: 2,
+        archived: true,
+      },
+    ]);
   });
 
   it("getShowsByUserId should return ids and unwatched count", async () => {
@@ -232,37 +265,6 @@ describe("Show Model", () => {
     const showNames = shows.map((s) => s.name);
 
     expect(showNames).toEqual(["a show", "B show", "c show"]);
-  });
-
-  it("getShowsByUserId should return 0 unwatched episodes for archived shows", async () => {
-    const showOnUserData: (ShowOnUser & {
-      show: Show & { _count: { episodes: number } };
-    })[] = [
-      {
-        archived: true,
-        showId: "1",
-        id: "1",
-        userId: "userId",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        show: {
-          ...SHOW,
-          _count: {
-            episodes: 3,
-          },
-        },
-      },
-    ];
-    vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
-    vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue([]);
-    const shows = await getShowsByUserId("userId");
-    expect(shows).toStrictEqual([
-      {
-        ...SHOW,
-        unwatchedEpisodesCount: 0,
-        archived: true,
-      },
-    ]);
   });
 
   it("getShowsByUserId should return empty array if not found", async () => {

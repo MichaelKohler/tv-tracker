@@ -53,14 +53,14 @@ export async function getShowByUserIdAndName({
   return show;
 }
 
-export async function getShowsByUserId(userId: User["id"]) {
+export async function getShowsByUserId(userId: User["id"], archived = false) {
   const showsOnUser = await prisma.showOnUser.findMany({
     where: {
       userId,
+      archived,
     },
     select: {
       showId: true,
-      archived: true,
       show: {
         select: {
           id: true,
@@ -126,13 +126,12 @@ export async function getShowsByUserId(userId: User["id"]) {
     ignoredEpisodesCountMap.set(group.showId, group._count.episodeId);
   }
 
-  const showsToReturn = showsOnUser.map(({ show, archived, showId }) => {
+  const showsToReturn = showsOnUser.map(({ show, showId }) => {
     const pastEpisodesCount = show._count.episodes;
     const watchedCount = watchedEpisodesCountMap.get(showId) || 0;
     const ignoredCount = ignoredEpisodesCountMap.get(showId) || 0;
-    const unwatchedEpisodesCount = archived
-      ? 0
-      : pastEpisodesCount - watchedCount - ignoredCount;
+    const unwatchedEpisodesCount =
+      pastEpisodesCount - watchedCount - ignoredCount;
 
     const { _count, ...showData } = show;
 
@@ -144,6 +143,10 @@ export async function getShowsByUserId(userId: User["id"]) {
   });
 
   return showsToReturn;
+}
+
+export async function getArchivedShowsByUserId(userId: User["id"]) {
+  return getShowsByUserId(userId, true);
 }
 
 export async function getSortedShowsByUserId(userId: User["id"]) {

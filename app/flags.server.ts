@@ -40,7 +40,7 @@ export const FLAGS = {
   RECENTLY_WATCHED_ROUTE: "recently-watched",
   STATS_ROUTE: "stats",
   MARK_ALL_AS_WATCHED: "mark-all-as-watched",
-  IGNORE_UNWATCHED_ON_OVERVIEW: "ignore-unwatched-on-overview",
+  ARCHIVE: "ignore-unwatched-on-overview",
 };
 
 export async function evaluateVariant(request: Request, flag: string) {

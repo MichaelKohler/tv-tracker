@@ -51,7 +51,7 @@ describe("TVShow Route", () => {
       ignoredEpisodes: [],
       features: {
         markAllAsWatched: true,
-        ignoreUnwatchedOnOverview: true,
+        archive: true,
       },
     });
 
@@ -87,7 +87,7 @@ describe("TVShow Route", () => {
       ignoredEpisodes: [],
       features: {
         markAllAsWatched: false,
-        ignoreUnwatchedOnOverview: true,
+        archive: true,
       },
     });
 
@@ -98,15 +98,13 @@ describe("TVShow Route", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders detail page with ignore unwatched on overview button", () => {
+  it("renders detail page with Archive button", () => {
     render(<TVShow />);
 
-    expect(
-      screen.getByText("Ignore unwatched on overview")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Archive")).toBeInTheDocument();
   });
 
-  it("renders detail page without ignore unwatched on overview button", () => {
+  it("renders detail page without Archive button", () => {
     vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
       show: {
         ...testShow,
@@ -117,15 +115,13 @@ describe("TVShow Route", () => {
       ignoredEpisodes: [],
       features: {
         markAllAsWatched: true,
-        ignoreUnwatchedOnOverview: false,
+        archive: false,
       },
     });
 
     render(<TVShow />);
 
-    expect(
-      screen.queryByText("Ignore unwatched on overview")
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Archive")).not.toBeInTheDocument();
   });
 
   it("renders error if marking all episodes failed", () => {

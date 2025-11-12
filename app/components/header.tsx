@@ -13,6 +13,7 @@ export default function Header({
     recentlyWatchedRoute: boolean;
     statsRoute: boolean;
     maintenanceMode: boolean;
+    archive: boolean;
   };
 }) {
   const user = useOptionalUser();
@@ -78,6 +79,16 @@ export default function Header({
                   } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
                 >
                   Recently watched
+                </Link>
+              )}
+              {features.archive && (
+                <Link
+                  to="/tv/archive"
+                  className={`text-white-700 flex ${
+                    menuOpen ? "border-b py-12" : "px-8 py-2"
+                  } text-3xl lg:text-base font-semibold hover:text-mklight-300 hover:transition-colors hover:duration-300 focus:text-mklight-300`}
+                >
+                  Archive
                 </Link>
               )}
               {features.statsRoute && (

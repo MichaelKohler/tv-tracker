@@ -11,6 +11,7 @@ const mockFeatures = {
   recentlyWatchedRoute: true,
   statsRoute: true,
   maintenanceMode: false,
+  archive: true,
 };
 
 vi.mock("../utils", async () => ({
@@ -76,6 +77,7 @@ describe("Header", () => {
     expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
     expect(page.getByText("Account")).toBeInTheDocument();
     expect(page.getByText("Upcoming")).toBeInTheDocument();
+    expect(page.getByText("Archive")).toBeInTheDocument();
     expect(page.getByText("Logout")).not.toBeInTheDocument();
   });
 
@@ -87,6 +89,7 @@ describe("Header", () => {
     expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
     expect(page.getByText("Upcoming")).not.toBeInTheDocument();
     expect(page.getByText("Account")).not.toBeInTheDocument();
+    expect(page.getByText("Archive")).not.toBeInTheDocument();
     expect(page.getByText("Log In")).toBeInTheDocument();
     expect(page.getByText("Sign up")).toBeInTheDocument();
   });
@@ -99,6 +102,7 @@ describe("Header", () => {
     expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
     expect(page.getByText("Upcoming")).not.toBeInTheDocument();
     expect(page.getByText("Account")).not.toBeInTheDocument();
+    expect(page.getByText("Archive")).not.toBeInTheDocument();
     expect(page.getByText("Log In")).not.toBeInTheDocument();
     expect(page.getByText("Sign Up")).not.toBeInTheDocument();
   });
@@ -119,6 +123,7 @@ describe("Header", () => {
           recentlyWatchedRoute: false,
           statsRoute: false,
           maintenanceMode: false,
+          archive: false,
         }}
       />
     );
@@ -126,7 +131,7 @@ describe("Header", () => {
     expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
     expect(page.getByText("Upcoming")).not.toBeInTheDocument();
     expect(page.getByText("Recently watched")).not.toBeInTheDocument();
+    expect(page.getByText("Archive")).not.toBeInTheDocument();
     expect(page.getByText("Stats")).not.toBeInTheDocument();
-    expect(page.getByText("Account")).toBeInTheDocument();
   });
 });

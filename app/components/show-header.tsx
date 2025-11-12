@@ -25,7 +25,7 @@ interface Props {
   watchedEpisodes: Episode["id"][];
   features: {
     markAllAsWatched: boolean;
-    ignoreUnwatchedOnOverview: boolean;
+    archive: boolean;
   };
 }
 
@@ -104,7 +104,7 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
                 <Spinner />
               </div>
             )}
-          {features.ignoreUnwatchedOnOverview &&
+          {features.archive &&
             !show.archived &&
             submissionIntent !== "ARCHIVE" && (
               <Form method="post">
@@ -115,7 +115,7 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
                   disabled={!!navigation.formData}
                   className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
                 >
-                  Ignore unwatched on overview
+                  Archive
                 </button>
               </Form>
             )}
@@ -128,7 +128,7 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
                 disabled={!!navigation.formData}
                 className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
               >
-                Unignore unwatched on overview
+                Unarchive
               </button>
             </Form>
           )}

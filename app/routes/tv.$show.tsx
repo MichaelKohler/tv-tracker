@@ -44,16 +44,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
-  const [markAllAsWatched, ignoreUnwatchedOnOverview] = await Promise.all([
+  const [markAllAsWatched, archive] = await Promise.all([
     evaluateBoolean(request, FLAGS.MARK_ALL_AS_WATCHED),
-    evaluateBoolean(request, FLAGS.IGNORE_UNWATCHED_ON_OVERVIEW),
+    evaluateBoolean(request, FLAGS.ARCHIVE),
   ]);
 
   return {
     ...showResult,
     features: {
       markAllAsWatched,
-      ignoreUnwatchedOnOverview,
+      archive,
     },
   };
 }

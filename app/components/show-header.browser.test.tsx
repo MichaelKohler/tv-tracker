@@ -48,7 +48,7 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
@@ -70,7 +70,7 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={show}
         watchedEpisodes={["1"]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
@@ -82,7 +82,7 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={showWithoutEpisodes}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
@@ -96,7 +96,7 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={show}
         watchedEpisodes={["1", "2"]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
@@ -115,11 +115,11 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={notArchivedShow}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
-    expect(page.getByText("Ignore unwatched on overview")).toBeInTheDocument();
+    expect(page.getByText("Archive")).toBeInTheDocument();
   });
 
   it("renders unarchive button if not archived", async () => {
@@ -132,13 +132,11 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={archivedShow}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
-    expect(
-      page.getByText("Unignore unwatched on overview")
-    ).toBeInTheDocument();
+    expect(page.getByText("UnArchive")).toBeInTheDocument();
   });
 
   it("renders spinner on mark all watched", async () => {
@@ -159,7 +157,7 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
@@ -188,7 +186,7 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
@@ -217,14 +215,12 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
     expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(
-      page.getByText(/Ignore unwatched on overview/)
-    ).not.toBeInTheDocument();
+    expect(page.getByText(/Archive/)).not.toBeInTheDocument();
   });
 
   it("renders spinner on unarchiving", async () => {
@@ -245,13 +241,11 @@ describe("ShowHeader", () => {
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, ignoreUnwatchedOnOverview: true }}
+        features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
     expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(
-      page.getByText(/Unignore unwatched on overview/)
-    ).not.toBeInTheDocument();
+    expect(page.getByText(/UnArchive/)).not.toBeInTheDocument();
   });
 });

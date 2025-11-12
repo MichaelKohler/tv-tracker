@@ -77,7 +77,11 @@ function Content({
           the search field above.
         </p>
       )}
-      {shows.length > 0 && <ShowTiles shows={shows} />}
+      {shows.length > 0 && (
+        <div className="mt-6">
+          <ShowTiles shows={shows} />
+        </div>
+      )}
     </>
   );
 }
