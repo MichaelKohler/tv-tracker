@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { testEpisode, testShow } from "../test-utils";
 import EpisodeCard from "./episode-card";
+import { VisualTestContainer } from "./visual-test-helper";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
@@ -17,7 +18,7 @@ describe("EpisodeCard", () => {
     vi.clearAllMocks();
   });
 
-  it("renders episode card", () => {
+  it("renders episode card", async () => {
     const episode = {
       id: testEpisode.id,
       name: testEpisode.name,
@@ -33,9 +34,16 @@ describe("EpisodeCard", () => {
       },
     };
 
-    render(<EpisodeCard episode={episode} />);
+    render(
+      <VisualTestContainer testid="episode-card">
+        <EpisodeCard episode={episode} />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText(testShow.name, { exact: false })).toBeInTheDocument();
     expect(page.getByText("S01E01", { exact: false })).toBeInTheDocument();
+
+    expect(page.getByTestId("episode-card")).toBeInTheDocument();
+    expect(page.getByTestId("episode-card")).toMatchScreenshot("episode-card");
   });
 });
