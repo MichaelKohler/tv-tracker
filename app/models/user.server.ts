@@ -7,7 +7,7 @@ import { prisma } from "../db.server";
 export type { User } from "@prisma/client";
 
 const ONE_HOUR_MS = 1 * 60 * 60 * 1000;
-const BCRYPT_ROUNDS = 12;
+const BCRYPT_ROUNDS = 10;
 
 export async function getUserById(id: User["id"]) {
   return prisma.user.findUnique({ where: { id } });
