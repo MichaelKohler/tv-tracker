@@ -1,5 +1,5 @@
 import * as React from "react";
-import { redirect, useActionData } from "react-router";
+import { useActionData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
