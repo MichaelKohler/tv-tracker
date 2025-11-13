@@ -73,7 +73,9 @@ describe("Password Reset Route", () => {
         params: {},
       });
 
-      expect(response).toStrictEqual(redirect("/password/change"));
+      expect((response as Response).headers.get("Location")).toStrictEqual(
+        "/account"
+      );
     });
   });
 

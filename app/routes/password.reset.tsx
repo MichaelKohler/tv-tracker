@@ -14,7 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
   // Instead of using the password reset request form for logged in
   // users, use the change password form directly
-  if (userId) return redirect("/password/change");
+  if (userId) return redirect("/account");
   return {};
 }
 
