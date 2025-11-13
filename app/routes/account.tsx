@@ -15,8 +15,22 @@ import { requireUser } from "../session.server";
 import { getPasswordValidationError } from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { plexToken } = await requireUser(request);
   const url = new URL(request.url);
+  const token = url.searchParams.get("token");
+
+  if (token) {
+    // We need to short-curcuit everything and allow the change of password
+    return {
+      webhookUrl: null,
+      features: {
+        passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
+        deleteAccount: false,
+        plex: false,
+      },
+    };
+  }
+
+  const { plexToken } = await requireUser(request);
   const webhookUrl = url.origin + "/plex/" + plexToken;
 
   const features = {

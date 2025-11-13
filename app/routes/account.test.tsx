@@ -160,24 +160,6 @@ describe("Account Route", () => {
     expect(screen.queryByText(/Plex Webhook/)).not.toBeInTheDocument();
   });
 
-  it("loader should fetch the feature flags", async () => {
-    await loader({
-      request: new Request("http://localhost:8080/account"),
-      context: {},
-      params: {},
-    });
-
-    expect(evaluateBoolean).toHaveBeenCalledWith(
-      expect.any(Request),
-      "password-change"
-    );
-    expect(evaluateBoolean).toHaveBeenCalledWith(
-      expect.any(Request),
-      "delete-account"
-    );
-    expect(evaluateBoolean).toHaveBeenCalledWith(expect.any(Request), "plex");
-  });
-
   it("renders error message for generic", () => {
     vi.mocked(useActionData).mockReturnValue({
       errors: {
@@ -513,7 +495,25 @@ describe("Account Route", () => {
   });
 
   describe("loader", () => {
-    it(" throws if there is no user", async () => {
+    it("should fetch the feature flags", async () => {
+      await loader({
+        request: new Request("http://localhost:8080/account"),
+        context: {},
+        params: {},
+      });
+
+      expect(evaluateBoolean).toHaveBeenCalledWith(
+        expect.any(Request),
+        "password-change"
+      );
+      expect(evaluateBoolean).toHaveBeenCalledWith(
+        expect.any(Request),
+        "delete-account"
+      );
+      expect(evaluateBoolean).toHaveBeenCalledWith(expect.any(Request), "plex");
+    });
+
+    it("should throw if there is no user and no token", async () => {
       vi.mocked(requireUser).mockRejectedValue(new Error("NO_USER"));
 
       await expect(() =>
@@ -523,6 +523,22 @@ describe("Account Route", () => {
           params: {},
         })
       ).rejects.toThrow();
+    });
+
+    it("should enable the password change form if there is a token even without a user", async () => {
+      vi.mocked(requireUser).mockRejectedValue(new Error("NO_USER"));
+      vi.mocked(evaluateBoolean).mockResolvedValue(true);
+
+      const response = await loader({
+        request: new Request("http://localhost:8080/account?token=foo"),
+        context: {},
+        params: {},
+      });
+
+      expect(response.webhookUrl).toBeNull();
+      expect(response.features.passwordChange).toBe(true);
+      expect(response.features.deleteAccount).toBe(false);
+      expect(response.features.plex).toBe(false);
     });
   });
 });
