@@ -33,7 +33,8 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  triggerPasswordReset(email, new URL(request.url).origin);
+  const host = new URL(request.url).host;
+  triggerPasswordReset(email, host);
 
   return { done: true, errors };
 }
