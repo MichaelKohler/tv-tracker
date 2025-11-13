@@ -148,6 +148,24 @@ export async function getArchivedShowsByUserId(userId: User["id"]) {
   return getShowsByUserId(userId, true);
 }
 
+export async function getSortedArchivedShowsByUserId(userId: User["id"]) {
+  const shows = await getArchivedShowsByUserId(userId);
+
+  shows.sort((showA, showB) => {
+    if (showB.name > showA.name) {
+      return -1;
+    }
+
+    if (showB.name < showA.name) {
+      return 1;
+    }
+
+    return 0;
+  });
+
+  return shows;
+}
+
 export async function getSortedShowsByUserId(userId: User["id"]) {
   const shows = await getShowsByUserId(userId);
 

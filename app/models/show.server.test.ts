@@ -20,7 +20,7 @@ import {
   unarchiveShowOnUser,
   getShowsTrackedByUser,
   getArchivedShowsCountForUser,
-  getArchivedShowsByUserId,
+  getSortedArchivedShowsByUserId,
 } from "./show.server";
 
 vi.mock("../db.server");
@@ -72,6 +72,19 @@ const SHOW2: Show = {
   rating: 2,
 };
 
+const SHOW3: Show = {
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  id: "3",
+  premiered: new Date(),
+  imageUrl: "https://example.com/image.png",
+  mazeId: "maze3",
+  name: "AAA",
+  summary: "Test Summary",
+  ended: null,
+  rating: 2,
+};
+
 describe("Show Model", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -83,7 +96,7 @@ describe("Show Model", () => {
     expect(runningShowIds).toStrictEqual(["maze1", "maze2"]);
   });
 
-  it("getArchivedShowsByUserId should return archived ids and unwatched count", async () => {
+  it("getSortedArchivedShowsByUserId should return archived ids and unwatched count in sorted manner", async () => {
     // Note that this does not actually check the "where" clause in the prisma query.
     const showOnUserData: (ShowOnUser & {
       show: Show & { _count: { episodes: number } };
@@ -98,18 +111,54 @@ describe("Show Model", () => {
         show: {
           ...SHOW,
           _count: {
-            episodes: 2,
+            episodes: 0,
+          },
+        },
+      },
+      {
+        archived: true,
+        showId: "2",
+        id: "2",
+        userId: "userId",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        show: {
+          ...SHOW2,
+          _count: {
+            episodes: 0,
+          },
+        },
+      },
+      {
+        archived: true,
+        showId: "3",
+        id: "3",
+        userId: "userId",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        show: {
+          ...SHOW3,
+          _count: {
+            episodes: 0,
           },
         },
       },
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
     vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue([]); // watched episodes
-    const shows = await getArchivedShowsByUserId("userId");
+    const shows = await getSortedArchivedShowsByUserId("userId");
     expect(shows).toStrictEqual([
       {
+        ...SHOW3,
+        unwatchedEpisodesCount: 0,
+      },
+      {
         ...SHOW,
-        unwatchedEpisodesCount: 2,
+        unwatchedEpisodesCount: 0,
+      },
+      {
+        ...SHOW2,
+        unwatchedEpisodesCount: 0,
       },
     ]);
   });

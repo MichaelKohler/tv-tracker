@@ -4,12 +4,12 @@ import { useLoaderData, useNavigation } from "react-router";
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
 import { evaluateBoolean, FLAGS } from "../flags.server";
-import { getArchivedShowsByUserId } from "../models/show.server";
+import { getSortedArchivedShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
-  const shows = await getArchivedShowsByUserId(userId);
+  const shows = await getSortedArchivedShowsByUserId(userId);
   const features = {
     archive: await evaluateBoolean(request, FLAGS.ARCHIVE),
   };
