@@ -4,9 +4,11 @@ import { createTransport } from "nodemailer";
 export async function sendPasswordResetMail({
   email,
   token,
+  origin,
 }: {
   email: User["email"];
   token: PasswordReset["token"];
+  origin: string;
 }) {
   const { SMTP_HOST, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD } = process.env;
 
@@ -30,7 +32,7 @@ export async function sendPasswordResetMail({
     from: `tv-tracker <${process.env.SMTP_EMAIL}>`,
     to: `${email} <${email}>`,
     subject: "Password reset code",
-    text: `Somebody has requested a password reset for tv-tracker. If this was you, go to https://.../password/change?token=${token} to reset your password. The link will expire in 1 hour. If this wasn't you, you do not need to take any further action.`,
+    text: `Somebody has requested a password reset for tv-tracker. If this was you, go to https://${origin}/account?token=${token} to reset your password. The link will expire in 1 hour. If this wasn't you, you do not need to take any further action.`,
   };
 
   try {
