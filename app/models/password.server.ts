@@ -5,10 +5,7 @@ import { prisma } from "../db.server";
 import { sendPasswordResetMail } from "./mail.server";
 import { getUserByEmail } from "./user.server";
 
-export async function triggerPasswordReset(
-  email: User["email"],
-  origin: string
-) {
+export async function triggerPasswordReset(email: User["email"]) {
   // Always generate a token to maintain consistent timing
   const token = randomUUID();
   const hashedToken = createHash("sha256").update(token).digest("hex");
@@ -32,7 +29,7 @@ export async function triggerPasswordReset(
         },
       });
 
-      sendPasswordResetMail({ email, token, origin });
+      sendPasswordResetMail({ email, token });
     } catch {
       console.error("Failed to create password reset entry for email:", email);
     }
