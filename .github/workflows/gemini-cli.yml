@@ -118,7 +118,7 @@ jobs:
       - name: "Checkout PR branch"
         if: |-
           ${{  steps.get_context.outputs.is_pr == 'true' }}
-        uses: "actions/checkout@v6
+        uses: "actions/checkout@v6"
         with:
           token: "${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}"
           repository: "${{ github.repository }}"
@@ -128,7 +128,7 @@ jobs:
       - name: "Checkout main branch"
         if: |-
           ${{  steps.get_context.outputs.is_pr == 'false' }}
-        uses: "actions/checkout@v6
+        uses: "actions/checkout@v6"
         with:
           token: "${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}"
           repository: "${{ github.repository }}"
