@@ -3,9 +3,7 @@ import { redirect, useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { verifyLogin } from "../models/user.server";
-import { getUserId } from "../session.server";
-import { validateEmail } from "../utils";
+import { auth } from "../auth.server";
 import Login, { action, loader } from "./login";
 
 vi.mock("react-router", async () => ({
@@ -25,23 +23,13 @@ vi.mock("react-router", async () => ({
   ),
 }));
 
-vi.mock("../session.server", async () => ({
-  ...(await vi.importActual("../session.server")),
-  getUserId: vi.fn(),
-  createUserSession: vi.fn().mockImplementation((arg) => arg),
+vi.mock("../auth.server", () => ({
+  auth: {
+    getSession: vi.fn(),
+    signIn: vi.fn(),
+    createSessionCookie: vi.fn(),
+  },
 }));
-
-vi.mock("../utils", async () => ({
-  ...(await vi.importActual("../utils")),
-  validateEmail: vi.fn(),
-}));
-
-vi.mock("../models/user.server", async () => ({
-  ...(await vi.importActual("../models/user.server")),
-  verifyLogin: vi.fn(),
-}));
-
-vi.mock("../db.server");
 
 describe("Login Route", () => {
   beforeEach(() => {
@@ -94,7 +82,7 @@ describe("Login Route", () => {
   });
 
   it("loader redirects if there is a user", async () => {
-    vi.mocked(getUserId).mockResolvedValue("123");
+    vi.mocked(auth.getSession).mockResolvedValue({ user: { id: "123" } });
 
     const response = await loader({
       request: new Request("http://localhost:8080/login"),
@@ -106,7 +94,7 @@ describe("Login Route", () => {
   });
 
   it("loader returns nothing if there is no user", async () => {
-    vi.mocked(getUserId).mockResolvedValue(undefined);
+    vi.mocked(auth.getSession).mockResolvedValue(null);
 
     const result = await loader({
       request: new Request("http://localhost:8080/login"),
@@ -118,20 +106,13 @@ describe("Login Route", () => {
   });
 
   it("action should return if everything ok", async () => {
-    vi.mocked(getUserId).mockResolvedValue(undefined);
-    vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue({
-      id: "123",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-    });
+    const session = { user: { id: "123" } };
+    vi.mocked(auth.signIn).mockResolvedValue({ session });
+    vi.mocked(auth.createSessionCookie).mockResolvedValue("cookie");
 
     const formData = new FormData();
     formData.append("email", "foo@example.com");
     formData.append("password", "foo");
-    formData.append("remember", "off");
 
     const response = await action({
       request: new Request("http://localhost:8080/login", {
@@ -142,29 +123,20 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.redirectTo).toBe("/tv");
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.remember).toBe(false);
+    expect(response.headers.get("Set-Cookie")).toBe("cookie");
   });
 
-  it("action should return if everything ok with remember on", async () => {
-    vi.mocked(getUserId).mockResolvedValue(undefined);
-    vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue({
-      id: "123",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-    });
+  it("action should set maxAge if remember is on", async () => {
+    const session = { user: { id: "123" } };
+    vi.mocked(auth.signIn).mockResolvedValue({ session });
+    vi.mocked(auth.createSessionCookie).mockResolvedValue("cookie");
 
     const formData = new FormData();
     formData.append("email", "foo@example.com");
     formData.append("password", "foo");
     formData.append("remember", "on");
 
-    const response = await action({
+    await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
         body: formData,
@@ -173,26 +145,17 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.remember).toBe(true);
+    expect(auth.createSessionCookie).toHaveBeenCalledWith(session, {
+      maxAge: 604800,
+    });
   });
 
-  it("action should return if everything ok with custom redirect", async () => {
-    vi.mocked(getUserId).mockResolvedValue(undefined);
-    vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue({
-      id: "123",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-    });
+  it("action should return error if signIn fails", async () => {
+    vi.mocked(auth.signIn).mockRejectedValue({ type: "CredentialsSignin" });
 
     const formData = new FormData();
     formData.append("email", "foo@example.com");
     formData.append("password", "foo");
-    formData.append("remember", "off");
-    formData.append("redirectTo", "/customRedirectLocation");
 
     const response = await action({
       request: new Request("http://localhost:8080/login", {
@@ -203,63 +166,15 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.redirectTo).toBe("/customRedirectLocation");
+    expect(response.errors.email).toBe("Invalid email or password");
   });
 
-  it("action should return error if email is invalid", async () => {
-    vi.mocked(getUserId).mockResolvedValue(undefined);
-    vi.mocked(validateEmail).mockReturnValue(false);
-
-    const formData = new FormData();
-    formData.append("email", "invalid");
-    formData.append("password", "foo");
-    formData.append("remember", "off");
-
-    const response = await action({
-      request: new Request("http://localhost:8080/login", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    });
-
-    // @ts-expect-error : we do not actually have a real response here..
-    expect(response.data.errors.email).toBe("Email is invalid");
-  });
-
-  it("action should return error if no password", async () => {
-    vi.mocked(getUserId).mockResolvedValue(undefined);
-    vi.mocked(validateEmail).mockReturnValue(true);
-
-    const formData = new FormData();
-    formData.append("email", "foo@example.com");
-    formData.append("password", "");
-    formData.append("remember", "off");
-
-    const response = await action({
-      request: new Request("http://localhost:8080/login", {
-        method: "POST",
-        body: formData,
-      }),
-      context: {},
-      params: {},
-    });
-
-    // @ts-expect-error : we do not actually have a real response here..
-    expect(response.data.errors.password).toBe("Password is required");
-  });
-
-  it("action should return error if verifyLogin fails", async () => {
-    vi.mocked(getUserId).mockResolvedValue(undefined);
-    vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue(null);
+  it("action should return error if signIn fails with unknown error", async () => {
+    vi.mocked(auth.signIn).mockRejectedValue(new Error("Unknown error"));
 
     const formData = new FormData();
     formData.append("email", "foo@example.com");
     formData.append("password", "foo");
-    formData.append("remember", "off");
 
     const response = await action({
       request: new Request("http://localhost:8080/login", {
@@ -270,7 +185,6 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error : we do not actually have a real response here..
-    expect(response.data.errors.email).toBe("Invalid email or password");
+    expect(response.errors.email).toBe("An unknown error occurred");
   });
 });

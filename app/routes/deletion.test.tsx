@@ -3,6 +3,7 @@ import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { auth } from "../auth.server";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import * as user from "../models/user.server";
 import { requireUserId } from "../session.server";
@@ -33,6 +34,13 @@ vi.mock("../session.server", async () => ({
   requireUserId: vi.fn().mockResolvedValue("123"),
 }));
 
+vi.mock("../auth.server", () => ({
+  auth: {
+    getSession: vi.fn(),
+    destroySession: vi.fn(),
+  },
+}));
+
 describe("Account Deletion Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -47,6 +55,10 @@ describe("Account Deletion Route", () => {
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       createdAt: new Date(),
       updatedAt: new Date(),
+    });
+
+    vi.mocked(auth.getSession).mockResolvedValue({
+      session: { user: { id: "123" } },
     });
   });
 

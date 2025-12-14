@@ -3,14 +3,12 @@ import { compare } from "bcrypt";
 import { prisma } from "../__mocks__/db.server";
 import {
   changePassword,
-  createUser,
   deleteUserByEmail,
   deleteUserByUserId,
   getUserByEmail,
   getUserById,
   getUserByPlexToken,
   getUserCount,
-  verifyLogin,
 } from "./user.server";
 
 vi.mock("bcrypt", async () => ({
@@ -78,20 +76,6 @@ describe("User Model", () => {
     });
   });
 
-  it("createUser should create user", async () => {
-    await createUser("foo@example.com", "foo");
-    expect(prisma.user.create).toBeCalledWith({
-      data: {
-        email: "foo@example.com",
-        password: {
-          create: {
-            hash: "testHash",
-          },
-        },
-      },
-    });
-  });
-
   it("deleteUserByEmail should delete user", async () => {
     await deleteUserByEmail("foo@example.com");
     expect(prisma.user.delete).toBeCalledWith({
@@ -110,72 +94,6 @@ describe("User Model", () => {
     });
   });
 
-  it("verifyLogin should return user without password if correct", async () => {
-    const now = new Date();
-    prisma.user.findUnique.mockResolvedValue({
-      id: "123",
-      createdAt: now,
-      updatedAt: now,
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
-      password: {
-        hash: "foo",
-      },
-    });
-    // @ts-expect-error .. compare does return a promise that resolves to a boolean..
-    vi.mocked(compare).mockResolvedValue(true);
-
-    const user = await verifyLogin("foo@example.com", "foo");
-    expect(user).toStrictEqual({
-      id: "123",
-      createdAt: now,
-      updatedAt: now,
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-    });
-  });
-
-  it("verifyLogin should return null if no user found", async () => {
-    prisma.user.findUnique.mockResolvedValue(null);
-
-    const user = await verifyLogin("foo@example.com", "foo");
-    expect(user).toBeNull();
-  });
-
-  it("verifyLogin should return null if user password found", async () => {
-    const now = new Date();
-    prisma.user.findUnique.mockResolvedValue({
-      id: "123",
-      createdAt: now,
-      updatedAt: now,
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-    });
-
-    const user = await verifyLogin("foo@example.com", "foo");
-    expect(user).toBeNull();
-  });
-
-  it("verifyLogin should return null if password is invalid", async () => {
-    const now = new Date();
-    prisma.user.findUnique.mockResolvedValue({
-      id: "123",
-      createdAt: now,
-      updatedAt: now,
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
-      password: {
-        hash: "foo",
-      },
-    });
-    // @ts-expect-error .. compare does return a promise that resolves to a boolean..
-    vi.mocked(compare).mockResolvedValue(false);
-
-    const user = await verifyLogin("foo@example.com", "foo");
-    expect(user).toBeNull();
-  });
 
   it("getUserCount should return user count", async () => {
     prisma.user.count.mockResolvedValue(2);

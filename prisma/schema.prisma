@@ -1,79 +1,106 @@
 datasource db {
-  provider             = "postgresql"
-  url                  = env("DATABASE_URL")
-  relationMode         = "prisma"
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 generator client {
-  provider         = "prisma-client-js"
-  previewFeatures  = ["driverAdapters"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 model User {
-  id        String @id @default(uuid())
-  email     String @unique
-  plexToken String @unique @default(uuid())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  password  Password?
-
-  shows     ShowOnUser[]
-  episodes  EpisodeOnUser[]
+  id            String    @id @default(uuid())
+  email         String    @unique
+  plexToken     String    @unique @default(uuid())
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  shows         ShowOnUser[]
+  episodes      EpisodeOnUser[]
 
   @@index([plexToken])
 }
 
-model Password {
-  hash   String
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique
+  @@map("session")
 }
 
-model PasswordReset {
-  id String @id @default(uuid())
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  createdAt DateTime @default(now())
+  @@map("account")
+}
 
-  token String @unique
-  email String
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
 }
 
 model Show {
-  id         String @id @default(uuid())
-  name       String
-  mazeId     String @unique
-  premiered  DateTime
-  ended      DateTime?
-  rating     Float?
-  imageUrl   String?
-  summary    String
+  id        String   @id @default(uuid())
+  name      String
+  mazeId    String   @unique
+  premiered DateTime
+  ended     DateTime?
+  rating    Float?
+  imageUrl  String?
+  summary   String
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  episodes  Episode[]
-
-  users        ShowOnUser[]
-  userEpisode  EpisodeOnUser[]
+  episodes    Episode[]
+  users       ShowOnUser[]
+  userEpisode EpisodeOnUser[]
 
   @@index([mazeId])
 }
 
 model ShowOnUser {
-  id         String @id @default(uuid())
-  archived   Boolean @default(false)
+  id       String @id @default(uuid())
+  archived Boolean @default(false)
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  show       Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  showId     String
+  show   Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  showId String
 
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
 
   @@index([userId])
   @@index([showId])
@@ -81,43 +108,43 @@ model ShowOnUser {
 }
 
 model Episode {
-  id        String @id @default(uuid())
-  mazeId    String @unique
-  name      String
-  season    Int
-  number    Int
-  airDate   DateTime
-  runtime   Int
-  imageUrl  String?
-  summary   String
+  id       String @id @default(uuid())
+  mazeId   String @unique
+  name     String
+  season   Int
+  number   Int
+  airDate  DateTime
+  runtime  Int
+  imageUrl String?
+  summary  String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  show      Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  showId    String
+  show  Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  showId String
 
-  users     EpisodeOnUser[]
+  users EpisodeOnUser[]
 
   @@index([showId])
   @@index([imageUrl])
 }
 
 model EpisodeOnUser {
-  id         String @id @default(uuid())
-  ignored    Boolean @default(false)
+  id      String  @id @default(uuid())
+  ignored Boolean @default(false)
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  episode    Episode   @relation(fields: [episodeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  episodeId  String
+  episode   Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  episodeId String
 
-  show       Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  showId     String
+  show   Show   @relation(fields: [showId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  showId String
 
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId     String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
 
   @@index([userId])
   @@index([userId, ignored])
@@ -128,5 +155,5 @@ model EpisodeOnUser {
 }
 
 model Invite {
-  id         String @id @default(uuid())
+  id String @id @default(uuid())
 }

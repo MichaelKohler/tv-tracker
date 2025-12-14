@@ -5,7 +5,6 @@ import type {
   MetaFunction,
 } from "react-router";
 import {
-  data,
   Form,
   Link,
   redirect,
@@ -14,58 +13,51 @@ import {
   useNavigation,
 } from "react-router";
 
-import { verifyLogin } from "../models/user.server";
-import { createUserSession, getUserId } from "../session.server";
-import { safeRedirect, validateAndSanitizeEmail } from "../utils";
+import { auth } from "../auth.server";
+import { safeRedirect } from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  const session = await auth.getSession(request);
+  if (session) return redirect("/");
   return {};
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const emailInput = formData.get("email");
-  const passwordInput = formData.get("password");
   const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
-  const remember = formData.get("remember");
+  const remember = formData.get("remember") === "on";
 
-  const errors = {
-    email: null,
-    password: null,
-  };
-
-  const email = validateAndSanitizeEmail(emailInput);
-  if (!email) {
-    return data(
-      { errors: { ...errors, email: "Email is invalid" } },
-      { status: 400 }
-    );
+  try {
+    const { session } = await auth.signIn("username", {
+      request,
+      formData,
+    });
+    // Handle successful sign-in
+    // For example, redirect to a protected route
+    return redirect(redirectTo, {
+      headers: {
+        "Set-Cookie": await auth.createSessionCookie(session, {
+          maxAge: remember ? 60 * 60 * 24 * 7 : undefined,
+        }),
+      },
+    });
+  } catch (e) {
+    if (e.type === "CredentialsSignin") {
+      return {
+        errors: {
+          email: "Invalid email or password",
+          password: "Invalid email or password",
+        },
+      };
+    }
+    // Handle other errors
+    return {
+      errors: {
+        email: "An unknown error occurred",
+        password: "An unknown error occurred",
+      },
+    };
   }
-
-  if (typeof passwordInput !== "string" || passwordInput.length === 0) {
-    return data(
-      { errors: { ...errors, password: "Password is required" } },
-      { status: 400 }
-    );
-  }
-
-  const user = await verifyLogin(email, passwordInput);
-
-  if (!user) {
-    return data(
-      { errors: { ...errors, email: "Invalid email or password" } },
-      { status: 400 }
-    );
-  }
-
-  return createUserSession({
-    request,
-    userId: user.id,
-    remember: remember === "on" ? true : false,
-    redirectTo,
-  });
 }
 
 export function meta(): ReturnType<MetaFunction> {
@@ -80,14 +72,16 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const redirectTo = searchParams.get("redirectTo") || "/tv";
-  const actionData = useActionData();
+  const actionData = useActionData() as {
+    errors?: { email?: string; password?: string };
+  };
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    if (actionData?.errors.email) {
+    if (actionData?.errors?.email) {
       emailRef.current?.focus();
-    } else if (actionData?.errors.password) {
+    } else if (actionData?.errors?.password) {
       passwordRef.current?.focus();
     }
   }, [actionData]);
@@ -110,11 +104,11 @@ export default function LoginPage() {
               name="email"
               type="email"
               autoComplete="email"
-              aria-invalid={actionData?.errors.email ? true : undefined}
+              aria-invalid={actionData?.errors?.email ? true : undefined}
               aria-describedby="email-error"
               className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
-            {actionData?.errors.email && (
+            {actionData?.errors?.email && (
               <div className="pt-1 text-mkerror" id="email-error">
                 {actionData.errors.email}
               </div>
@@ -136,11 +130,11 @@ export default function LoginPage() {
               name="password"
               type="password"
               autoComplete="current-password"
-              aria-invalid={actionData?.errors.password ? true : undefined}
+              aria-invalid={actionData?.errors?.password ? true : undefined}
               aria-describedby="password-error"
               className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
-            {actionData?.errors.password && (
+            {actionData?.errors?.password && (
               <div className="pt-1 text-mkerror" id="password-error">
                 {actionData.errors.password}
               </div>

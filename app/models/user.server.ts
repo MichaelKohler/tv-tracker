@@ -25,20 +25,6 @@ export async function getUserByPlexToken(plexToken: User["plexToken"]) {
   return prisma.user.findUnique({ where: { plexToken } });
 }
 
-export async function createUser(email: User["email"], password: string) {
-  const hashedPassword = await hash(password, BCRYPT_ROUNDS);
-
-  return prisma.user.create({
-    data: {
-      email,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
-    },
-  });
-}
 
 async function validatePasswordResetToken(token: string) {
   const hashedToken = createHash("sha256").update(token).digest("hex");
@@ -100,31 +86,6 @@ export async function deleteUserByUserId(id: User["id"]) {
   return prisma.user.delete({ where: { id } });
 }
 
-export async function verifyLogin(
-  email: User["email"],
-  password: Password["hash"]
-) {
-  const userWithPassword = await prisma.user.findUnique({
-    where: { email },
-    include: {
-      password: true,
-    },
-  });
-
-  if (!userWithPassword || !userWithPassword.password) {
-    return null;
-  }
-
-  const isValid = await compare(password, userWithPassword.password.hash);
-
-  if (!isValid) {
-    return null;
-  }
-
-  const { password: _password, ...userWithoutPassword } = userWithPassword;
-
-  return userWithoutPassword;
-}
 
 export async function getUserCount() {
   return prisma.user.count();
