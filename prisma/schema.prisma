@@ -13,8 +13,6 @@ model User {
   id            String    @id @default(uuid())
   email         String    @unique
   plexToken     String    @unique @default(uuid())
-  emailVerified Boolean   @default(false)
-  image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]

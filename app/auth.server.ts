@@ -10,7 +10,6 @@ export const auth = betterAuth({
   }),
   users: {
     pk: "id",
-    // This is the default, but we're being explicit
     columns: {
       id: {
         type: "string",
@@ -23,22 +22,7 @@ export const auth = betterAuth({
       name: {
         type: "string",
       },
-      image: {
-        type: "string",
-        isAvatar: true,
-      },
     },
   },
-  plugins: [
-    username({
-      password: {
-        // The salt length can be configured here
-        // saltLength: 16,
-      },
-      // You can also enable or disable features
-      // enableMagicLink: false,
-      // enablePasswordReset: false,
-      // enableSignup: false,
-    }),
-  ],
+  plugins: [username()],
 });

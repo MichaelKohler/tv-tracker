@@ -5,6 +5,7 @@ import type {
   MetaFunction,
 } from "react-router";
 import {
+  data,
   Form,
   Link,
   redirect,
@@ -32,8 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
       request,
       formData,
     });
-    // Handle successful sign-in
-    // For example, redirect to a protected route
+
     return redirect(redirectTo, {
       headers: {
         "Set-Cookie": await auth.createSessionCookie(session, {
@@ -43,20 +43,10 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   } catch (e) {
     if (e.type === "CredentialsSignin") {
-      return {
-        errors: {
-          email: "Invalid email or password",
-          password: "Invalid email or password",
-        },
-      };
+      return data({ error: "Invalid email or password" }, { status: 400 });
     }
-    // Handle other errors
-    return {
-      errors: {
-        email: "An unknown error occurred",
-        password: "An unknown error occurred",
-      },
-    };
+
+    return data({ error: "An unknown error occurred" }, { status: 500 });
   }
 }
 
@@ -72,17 +62,13 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams();
   const navigation = useNavigation();
   const redirectTo = searchParams.get("redirectTo") || "/tv";
-  const actionData = useActionData() as {
-    errors?: { email?: string; password?: string };
-  };
+  const actionData = useActionData() as { error?: string };
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    if (actionData?.errors?.email) {
+    if (actionData?.error) {
       emailRef.current?.focus();
-    } else if (actionData?.errors?.password) {
-      passwordRef.current?.focus();
     }
   }, [actionData]);
 
@@ -104,13 +90,13 @@ export default function LoginPage() {
               name="email"
               type="email"
               autoComplete="email"
-              aria-invalid={actionData?.errors?.email ? true : undefined}
+              aria-invalid={actionData?.error ? true : undefined}
               aria-describedby="email-error"
               className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
-            {actionData?.errors?.email && (
+            {actionData?.error && (
               <div className="pt-1 text-mkerror" id="email-error">
-                {actionData.errors.email}
+                {actionData.error}
               </div>
             )}
           </div>
@@ -130,15 +116,10 @@ export default function LoginPage() {
               name="password"
               type="password"
               autoComplete="current-password"
-              aria-invalid={actionData?.errors?.password ? true : undefined}
+              aria-invalid={actionData?.error ? true : undefined}
               aria-describedby="password-error"
               className="w-full rounded border border-mk-text px-2 py-1 text-lg"
             />
-            {actionData?.errors?.password && (
-              <div className="pt-1 text-mkerror" id="password-error">
-                {actionData.errors.password}
-              </div>
-            )}
           </div>
         </div>
 

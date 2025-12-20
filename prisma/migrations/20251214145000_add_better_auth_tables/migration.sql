@@ -52,11 +52,8 @@ ALTER TABLE "session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId"
 -- AddForeignKey
 ALTER TABLE "account" ADD CONSTRAINT "account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- AlterTable
-ALTER TABLE "User" ADD COLUMN     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "image" TEXT;
-
 -- Data Migration
 INSERT INTO "account" ("id", "accountId", "providerId", "userId", "password", "createdAt", "updatedAt")
-SELECT "userId", "userId", 'username', "userId", "hash", NOW(), NOW()
-FROM "Password";
+SELECT p."userId", u."id", 'username', u."id", p."hash", u."createdAt", u."updatedAt"
+FROM "Password" p
+JOIN "User" u ON p."userId" = u."id";
