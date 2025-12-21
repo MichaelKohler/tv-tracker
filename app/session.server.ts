@@ -1,8 +1,11 @@
 import { redirect } from "react-router";
+import type { User } from "@prisma/client";
+
 import { auth } from "./auth.server";
 
 export async function getSession(request: Request) {
-  return auth.getSession(request);
+  const { session } = await auth.getSession(request);
+  return session;
 }
 
 export async function getUserId(request: Request) {
@@ -10,9 +13,9 @@ export async function getUserId(request: Request) {
   return session?.user?.id;
 }
 
-export async function getUser(request: Request) {
+export async function getUser(request: Request): Promise<User | null> {
   const session = await getSession(request);
-  return session?.user;
+  return (session?.user as User) ?? null;
 }
 
 export async function requireUserId(

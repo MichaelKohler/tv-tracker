@@ -71,6 +71,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/bcrypt": "^6.0.0",
     "@types/eslint": "^9.6.1",
+    "bcrypt": "^6.0.0",
     "@types/node": "^24.10.0",
     "@types/nodemailer": "^7.0.3",
     "@types/react": "^19.2.2",

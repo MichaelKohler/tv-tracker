@@ -5,7 +5,6 @@ import type {
   MetaFunction,
 } from "react-router";
 import {
-  data,
   Form,
   Link,
   redirect,
@@ -18,7 +17,7 @@ import { auth } from "../auth.server";
 import { safeRedirect } from "../utils";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await auth.getSession(request);
+  const { session } = await auth.getSession(request);
   if (session) return redirect("/");
   return {};
 }
@@ -29,10 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const remember = formData.get("remember") === "on";
 
   try {
-    const { session } = await auth.signIn("username", {
-      request,
-      formData,
-    });
+    const { session } = await auth.signIn("username", { request, formData });
 
     return redirect(redirectTo, {
       headers: {
@@ -43,10 +39,10 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   } catch (e) {
     if (e.type === "CredentialsSignin") {
-      return data({ error: "Invalid email or password" }, { status: 400 });
+      return { error: "Invalid email or password" };
     }
 
-    return data({ error: "An unknown error occurred" }, { status: 500 });
+    return { error: "An unknown error occurred" };
   }
 }
 
@@ -64,7 +60,6 @@ export default function LoginPage() {
   const redirectTo = searchParams.get("redirectTo") || "/tv";
   const actionData = useActionData() as { error?: string };
   const emailRef = React.useRef<HTMLInputElement>(null);
-  const passwordRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (actionData?.error) {
@@ -112,7 +107,6 @@ export default function LoginPage() {
           <div className="mt-1">
             <input
               id="password"
-              ref={passwordRef}
               name="password"
               type="password"
               autoComplete="current-password"

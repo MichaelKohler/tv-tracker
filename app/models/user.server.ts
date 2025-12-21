@@ -45,38 +45,6 @@ async function validatePasswordResetToken(token: string) {
   return passwordResetEntry.email;
 }
 
-export async function changePassword(
-  email: User["email"],
-  password: string,
-  token: string
-) {
-  let userEmail = email;
-
-  if (!email && !token) {
-    throw new Error("NO_EMAIL_OR_TOKEN_PASSED");
-  }
-
-  // If this is a password reset flow change, then we need to validate the token
-  if (token) {
-    userEmail = await validatePasswordResetToken(token);
-  }
-
-  const existingUser = await getUserByEmail(userEmail);
-  if (!existingUser) {
-    throw new Error("USER_NOT_FOUND");
-  }
-
-  const hashedPassword = await hash(password, BCRYPT_ROUNDS);
-
-  await prisma.password.update({
-    where: {
-      userId: existingUser.id,
-    },
-    data: {
-      hash: hashedPassword,
-    },
-  });
-}
 
 export async function deleteUserByEmail(email: User["email"]) {
   return prisma.user.delete({ where: { email } });
