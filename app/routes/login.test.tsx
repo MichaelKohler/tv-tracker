@@ -55,30 +55,14 @@ describe("Login Route", () => {
     expect(screen.getByText("Logging in...")).toBeInTheDocument();
   });
 
-  it("renders error message for email", () => {
+  it("renders error message", () => {
     vi.mocked(useActionData).mockReturnValue({
-      errors: {
-        email: "EMAIL_ERROR",
-        password: null,
-      },
+      error: "LOGIN_ERROR",
     });
 
     render(<Login />);
 
-    expect(screen.getByText("EMAIL_ERROR")).toBeInTheDocument();
-  });
-
-  it("renders error message for password", () => {
-    vi.mocked(useActionData).mockReturnValue({
-      errors: {
-        email: null,
-        password: "PASSWORD_ERROR",
-      },
-    });
-
-    render(<Login />);
-
-    expect(screen.getByText("PASSWORD_ERROR")).toBeInTheDocument();
+    expect(screen.getByText("LOGIN_ERROR")).toBeInTheDocument();
   });
 
   it("loader redirects if there is a user", async () => {
@@ -166,7 +150,8 @@ describe("Login Route", () => {
       params: {},
     });
 
-    expect(response.errors.email).toBe("Invalid email or password");
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.data.error).toBe("Invalid email or password");
   });
 
   it("action should return error if signIn fails with unknown error", async () => {
@@ -185,6 +170,7 @@ describe("Login Route", () => {
       params: {},
     });
 
-    expect(response.errors.email).toBe("An unknown error occurred");
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.data.error).toBe("An unknown error occurred");
   });
 });

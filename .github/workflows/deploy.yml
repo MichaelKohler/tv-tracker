@@ -4,17 +4,19 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'prisma/migrations/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: "npm"
       - run: npm ci
-      - run: npm run setup
+      - run: npx prisma migrate deploy
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
