@@ -99,8 +99,5 @@
   "engines": {
     "node": ">=22.6"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "version": "2.0.0"
 }
