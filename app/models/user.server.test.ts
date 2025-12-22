@@ -43,6 +43,9 @@ describe("User Model", () => {
   it("getUserById should return user", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: now,
       updatedAt: now,
@@ -52,6 +55,9 @@ describe("User Model", () => {
     const user = await getUserById("123");
     expect(user).toStrictEqual({
       id: "123",
+      emailVerified: false,
+      name: null,
+      image: null,
       createdAt: now,
       updatedAt: now,
       email: "foo@example.com",
@@ -62,6 +68,9 @@ describe("User Model", () => {
   it("getUserByEmail should return user", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: now,
       updatedAt: now,
@@ -71,6 +80,9 @@ describe("User Model", () => {
     const user = await getUserByEmail("foo@example.com");
     expect(user).toStrictEqual({
       id: "123",
+      emailVerified: false,
+      name: null,
+      image: null,
       createdAt: now,
       updatedAt: now,
       email: "foo@example.com",
@@ -113,6 +125,9 @@ describe("User Model", () => {
   it("verifyLogin should return user without password if correct", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: now,
       updatedAt: now,
@@ -129,6 +144,9 @@ describe("User Model", () => {
     const user = await verifyLogin("foo@example.com", "foo");
     expect(user).toStrictEqual({
       id: "123",
+      emailVerified: false,
+      name: null,
+      image: null,
       createdAt: now,
       updatedAt: now,
       email: "foo@example.com",
@@ -146,6 +164,9 @@ describe("User Model", () => {
   it("verifyLogin should return null if user password found", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: now,
       updatedAt: now,
@@ -160,6 +181,9 @@ describe("User Model", () => {
   it("verifyLogin should return null if password is invalid", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: now,
       updatedAt: now,
@@ -191,6 +215,9 @@ describe("User Model", () => {
 
   it("changePassword should change password if email and password", async () => {
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -236,6 +263,9 @@ describe("User Model", () => {
 
   it("changePassword should change password with reset token", async () => {
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -268,6 +298,9 @@ describe("User Model", () => {
   it("getUserByPlexToken should return user when valid token provided", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
+      emailVerified: false,
+      name: null,
+      image: null,
       id: "123",
       createdAt: now,
       updatedAt: now,
@@ -277,6 +310,9 @@ describe("User Model", () => {
     const user = await getUserByPlexToken("test-plex-token");
     expect(user).toStrictEqual({
       id: "123",
+      emailVerified: false,
+      name: null,
+      image: null,
       createdAt: now,
       updatedAt: now,
       email: "foo@example.com",

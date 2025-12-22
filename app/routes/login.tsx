@@ -14,7 +14,7 @@ import {
   useNavigation,
 } from "react-router";
 
-import { verifyLogin } from "../models/user.server";
+import { verifyLoginWithBetterAuth } from "../lib/auth-helpers.server";
 import { createUserSession, getUserId } from "../session.server";
 import { safeRedirect, validateAndSanitizeEmail } from "../utils";
 
@@ -51,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const user = await verifyLogin(email, passwordInput);
+  const user = await verifyLoginWithBetterAuth(email, passwordInput);
 
   if (!user) {
     return data(

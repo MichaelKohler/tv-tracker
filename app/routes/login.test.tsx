@@ -3,7 +3,7 @@ import { redirect, useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import { verifyLogin } from "../models/user.server";
+import { verifyLoginWithBetterAuth } from "../lib/auth-helpers.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 import Login, { action, loader } from "./login";
@@ -36,9 +36,8 @@ vi.mock("../utils", async () => ({
   validateEmail: vi.fn(),
 }));
 
-vi.mock("../models/user.server", async () => ({
-  ...(await vi.importActual("../models/user.server")),
-  verifyLogin: vi.fn(),
+vi.mock("../lib/auth-helpers.server", async () => ({
+  verifyLoginWithBetterAuth: vi.fn(),
 }));
 
 vi.mock("../db.server");
@@ -120,7 +119,7 @@ describe("Login Route", () => {
   it("action should return if everything ok", async () => {
     vi.mocked(getUserId).mockResolvedValue(undefined);
     vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue({
+    vi.mocked(verifyLoginWithBetterAuth).mockResolvedValue({
       id: "123",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -151,7 +150,7 @@ describe("Login Route", () => {
   it("action should return if everything ok with remember on", async () => {
     vi.mocked(getUserId).mockResolvedValue(undefined);
     vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue({
+    vi.mocked(verifyLoginWithBetterAuth).mockResolvedValue({
       id: "123",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -180,7 +179,7 @@ describe("Login Route", () => {
   it("action should return if everything ok with custom redirect", async () => {
     vi.mocked(getUserId).mockResolvedValue(undefined);
     vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue({
+    vi.mocked(verifyLoginWithBetterAuth).mockResolvedValue({
       id: "123",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -254,7 +253,7 @@ describe("Login Route", () => {
   it("action should return error if verifyLogin fails", async () => {
     vi.mocked(getUserId).mockResolvedValue(undefined);
     vi.mocked(validateEmail).mockReturnValue(true);
-    vi.mocked(verifyLogin).mockResolvedValue(null);
+    vi.mocked(verifyLoginWithBetterAuth).mockResolvedValue(null);
 
     const formData = new FormData();
     formData.append("email", "foo@example.com");

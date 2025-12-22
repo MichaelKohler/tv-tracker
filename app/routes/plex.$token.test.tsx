@@ -23,6 +23,9 @@ vi.mock("../models/user.server");
 // Use consistent mock objects that match the structure from other tests
 const mockUser = {
   id: "user123",
+  emailVerified: false,
+  name: null,
+  image: null,
   createdAt: new Date(),
   updatedAt: new Date(),
   email: "foo@example.com",

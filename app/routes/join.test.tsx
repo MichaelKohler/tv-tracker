@@ -188,6 +188,9 @@ describe("Join Route", () => {
       vi.mocked(getUserByEmail).mockResolvedValue(null);
       vi.mocked(createUser).mockResolvedValue({
         id: "123",
+      emailVerified: false,
+      name: null,
+      image: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         email: "foo@example.com",
@@ -220,6 +223,9 @@ describe("Join Route", () => {
       vi.mocked(getUserByEmail).mockResolvedValue(null);
       vi.mocked(createUser).mockResolvedValue({
         id: "123",
+      emailVerified: false,
+      name: null,
+      image: null,
         createdAt: new Date(),
         updatedAt: new Date(),
         email: "foo@example.com",
@@ -318,6 +324,9 @@ describe("Join Route", () => {
       vi.mocked(validateEmail).mockReturnValue(true);
       vi.mocked(getUserByEmail).mockResolvedValue({
         id: "123",
+      emailVerified: false,
+      name: null,
+      image: null,
         email: "foo@example.com",
         plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
         createdAt: new Date(),

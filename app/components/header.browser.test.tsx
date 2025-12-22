@@ -49,6 +49,9 @@ describe("Header", () => {
   it("renders header for logged in user", async () => {
     vi.mocked(useOptionalUser).mockReturnValue({
       id: "some-id",
+      emailVerified: false,
+      name: null,
+      image: null,
       email: "some-email",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       createdAt: new Date(),
@@ -66,6 +69,9 @@ describe("Header", () => {
   it("renders header without buttons for logged in user", async () => {
     vi.mocked(useOptionalUser).mockReturnValue({
       id: "some-id",
+      emailVerified: false,
+      name: null,
+      image: null,
       email: "some-email",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       createdAt: new Date(),
@@ -110,6 +116,9 @@ describe("Header", () => {
   it("hides links when features are disabled", async () => {
     vi.mocked(useOptionalUser).mockReturnValue({
       id: "some-id",
+      emailVerified: false,
+      name: null,
+      image: null,
       email: "some-email",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       createdAt: new Date(),

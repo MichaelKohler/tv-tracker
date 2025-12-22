@@ -73,6 +73,9 @@ describe("Index Route", () => {
   it("renders index with logged in user", () => {
     vi.mocked(useOptionalUser).mockReturnValue({
       id: "1",
+      emailVerified: false,
+      name: null,
+      image: null,
       createdAt: new Date(),
       updatedAt: new Date(),
       email: "foo@example.com",

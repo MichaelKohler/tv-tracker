@@ -1,0 +1,30 @@
+name: 🗄️ Database Migrations
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'prisma/migrations/**'
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    name: 🔄 Run Database Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v6
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: 🗄️ Run Prisma Migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
