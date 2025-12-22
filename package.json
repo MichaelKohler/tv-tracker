@@ -98,8 +98,5 @@
   "engines": {
     "node": ">=22.6"
   },
-  "prisma": {
-    "seed": "node --experimental-strip-types prisma/seed.ts"
-  },
   "version": "2.0.0"
 }
