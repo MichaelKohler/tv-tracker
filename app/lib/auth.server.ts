@@ -10,6 +10,11 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false,
   },
+  advanced: {
+    ipAddress: {
+      disableIpTracking: true,
+    },
+  },
   secret: process.env.BETTER_AUTH_SECRET || process.env.SESSION_SECRET,
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5173",
 });
