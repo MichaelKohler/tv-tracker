@@ -103,7 +103,7 @@ jobs:
         run: npx prisma db seed
         env:
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
-          BETTER_AUTH_SECRET: super-duper-s3cret
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL: http://localhost:5173
 
       - name: ⚙️ Build
@@ -114,7 +114,7 @@ jobs:
         env:
           HOME: /root
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
-          BETTER_AUTH_SECRET: super-duper-s3cret
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL: http://localhost:5173
 
       - name: ⬆️ Upload artifacts
