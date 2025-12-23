@@ -1,0 +1,43 @@
+name: 🗄️ Database Migrations
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'prisma/migrations/**'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch name to checkout'
+        required: true
+        default: 'main'
+        type: string
+      database_url:
+        description: 'Database URL to run migrations against'
+        required: true
+        type: string
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    name: 🔄 Run Database Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || 'main' }}
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: 🗄️ Run Prisma Migrations
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ inputs.database_url || secrets.DATABASE_URL }}
