@@ -124,6 +124,7 @@ describe("TVUpcoming", () => {
 
   describe("loader", () => {
     it("should return upcoming episodes when feature is enabled", async () => {
+      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/upcoming"),
         context: {},
@@ -143,6 +144,7 @@ describe("TVUpcoming", () => {
     it("should return empty episodes when feature is disabled", async () => {
       vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/upcoming"),
         context: {},

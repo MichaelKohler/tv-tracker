@@ -83,6 +83,7 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
@@ -120,6 +121,7 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
@@ -140,6 +142,7 @@ describe("Plex token route", () => {
       JSON.stringify(createPlexPayload({ event: "media.play" }))
     );
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
@@ -176,6 +179,7 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
@@ -196,6 +200,7 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
@@ -217,6 +222,7 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
@@ -239,6 +245,7 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",

@@ -123,6 +123,7 @@ describe("TV Show Search Route", () => {
 
   it("loader should search and return shows", async () => {
     vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
+    // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
       context: {},
@@ -136,6 +137,7 @@ describe("TV Show Search Route", () => {
 
   it("loader should not search with feature disabled", async () => {
     vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(false);
+    // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
       context: {},
@@ -148,6 +150,7 @@ describe("TV Show Search Route", () => {
 
   it("loader should search shows with query", async () => {
     vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
+    // @ts-expect-error .. ignore unstable_pattern for example
     await loader({
       request: new Request("http://localhost:8080/tv/search?query=fooQuery"),
       context: {},
@@ -161,6 +164,7 @@ describe("TV Show Search Route", () => {
     vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
     vi.mocked(searchShows).mockResolvedValue([]);
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
       context: {},
@@ -176,6 +180,7 @@ describe("TV Show Search Route", () => {
     const formData = new FormData();
     formData.append("showId", "1");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     await action({
       request: new Request("http://localhost:8080/tv/search", {
         method: "POST",
@@ -193,6 +198,7 @@ describe("TV Show Search Route", () => {
     const formData = new FormData();
     formData.append("showId", "1");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/tv/search", {
         method: "POST",
@@ -214,6 +220,7 @@ describe("TV Show Search Route", () => {
     const formData = new FormData();
     formData.append("showId", "1");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/tv/search", {
         method: "POST",

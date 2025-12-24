@@ -124,6 +124,7 @@ describe("TVRecent", () => {
 
   describe("loader", () => {
     it("should return recently watched episodes when feature is enabled", async () => {
+      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/recent"),
         context: {},
@@ -143,6 +144,7 @@ describe("TVRecent", () => {
     it("should return empty episodes when feature is disabled", async () => {
       vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/recent"),
         context: {},

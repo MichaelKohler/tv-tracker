@@ -94,6 +94,7 @@ describe("Account Deletion Route", () => {
     it("should call evaluateBoolean", async () => {
       vi.mocked(evaluateBoolean).mockResolvedValue(true);
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       await loader({
         request: new Request("http://localhost:8080/deletion"),
         context: {},
@@ -111,6 +112,7 @@ describe("Account Deletion Route", () => {
     it("should delete user and logout if everything ok", async () => {
       vi.mocked(requireUserId).mockResolvedValue("123");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
@@ -128,6 +130,7 @@ describe("Account Deletion Route", () => {
         new Error("OH_NO_DELETION_ERROR")
       );
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",

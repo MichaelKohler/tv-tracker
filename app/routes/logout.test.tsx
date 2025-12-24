@@ -22,6 +22,7 @@ describe("Logout route", () => {
   });
 
   it("should logout user", async () => {
+    // @ts-expect-error .. ignore unstable_pattern for example
     await action({
       request: new Request("http://localhost:8080/logout", {
         method: "POST",

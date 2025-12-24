@@ -67,6 +67,7 @@ describe("Password Reset Route", () => {
     it("redirects if there is a user", async () => {
       vi.mocked(getUserId).mockResolvedValue("123");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await loader({
         request: new Request("http://localhost:8080/password/reset"),
         context: {},
@@ -84,6 +85,7 @@ describe("Password Reset Route", () => {
       const formData = new FormData();
       formData.append("email", "");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/reset", {
           method: "POST",

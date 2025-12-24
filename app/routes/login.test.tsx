@@ -96,6 +96,7 @@ describe("Login Route", () => {
   it("loader redirects if there is a user", async () => {
     vi.mocked(getUserId).mockResolvedValue("123");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await loader({
       request: new Request("http://localhost:8080/login"),
       context: {},
@@ -108,6 +109,7 @@ describe("Login Route", () => {
   it("loader returns nothing if there is no user", async () => {
     vi.mocked(getUserId).mockResolvedValue(undefined);
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/login"),
       context: {},
@@ -133,6 +135,7 @@ describe("Login Route", () => {
     formData.append("password", "foo");
     formData.append("remember", "off");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
@@ -164,6 +167,7 @@ describe("Login Route", () => {
     formData.append("password", "foo");
     formData.append("remember", "on");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
@@ -194,6 +198,7 @@ describe("Login Route", () => {
     formData.append("remember", "off");
     formData.append("redirectTo", "/customRedirectLocation");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
@@ -216,6 +221,7 @@ describe("Login Route", () => {
     formData.append("password", "foo");
     formData.append("remember", "off");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
@@ -238,6 +244,7 @@ describe("Login Route", () => {
     formData.append("password", "");
     formData.append("remember", "off");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
@@ -261,6 +268,7 @@ describe("Login Route", () => {
     formData.append("password", "foo");
     formData.append("remember", "off");
 
+    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",

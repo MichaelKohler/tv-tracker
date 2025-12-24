@@ -187,6 +187,7 @@ describe("TVStats Route", () => {
     it("should return feature flags", async () => {
       vi.mocked(flags.evaluateBoolean).mockResolvedValue(true);
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/upcoming"),
         context: {},
@@ -199,6 +200,7 @@ describe("TVStats Route", () => {
     it("should return feature flags when disabled", async () => {
       vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/upcoming"),
         context: {},

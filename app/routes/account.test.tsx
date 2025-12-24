@@ -284,6 +284,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "");
       formData.append("confirmPassword", "newnewPassword");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -303,6 +304,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "newnewPassword");
       formData.append("confirmPassword", "");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -324,6 +326,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "newnewPassword");
       formData.append("confirmPassword", "newnewPassword2");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -345,6 +348,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "newnewPassword");
       formData.append("confirmPassword", "newnewPassword");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -368,6 +372,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "newnewPassword");
       formData.append("confirmPassword", "newnewPassword");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -389,6 +394,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "newnewPassword");
       formData.append("confirmPassword", "newnewPassword");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -414,6 +420,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "newnewPassword");
       formData.append("confirmPassword", "newnewPassword");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -438,6 +445,7 @@ describe("Account Route", () => {
       formData.append("confirmPassword", "newnewPassword");
 
       await expect(() =>
+        // @ts-expect-error .. ignore unstable_pattern for example
         action({
           request: new Request("http://localhost:8080/password/change", {
             method: "POST",
@@ -455,6 +463,7 @@ describe("Account Route", () => {
       formData.append("newPassword", "newnewPassword");
       formData.append("confirmPassword", "newnewPassword");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -481,6 +490,7 @@ describe("Account Route", () => {
       formData.append("confirmPassword", "newnewPassword");
       formData.append("token", "someToken");
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/password/change", {
           method: "POST",
@@ -496,6 +506,7 @@ describe("Account Route", () => {
 
   describe("loader", () => {
     it("should fetch the feature flags", async () => {
+      // @ts-expect-error .. ignore unstable_pattern for example
       await loader({
         request: new Request("http://localhost:8080/account"),
         context: {},
@@ -517,6 +528,7 @@ describe("Account Route", () => {
       vi.mocked(requireUser).mockRejectedValue(new Error("NO_USER"));
 
       await expect(() =>
+        // @ts-expect-error .. ignore unstable_pattern for example
         loader({
           request: new Request("http://localhost:8080/account"),
           context: {},
@@ -529,6 +541,7 @@ describe("Account Route", () => {
       vi.mocked(requireUser).mockRejectedValue(new Error("NO_USER"));
       vi.mocked(evaluateBoolean).mockResolvedValue(true);
 
+      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await loader({
         request: new Request("http://localhost:8080/account?token=foo"),
         context: {},
