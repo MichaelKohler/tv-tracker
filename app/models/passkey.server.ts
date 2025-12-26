@@ -68,3 +68,10 @@ export async function updatePasskeyName(
     },
   });
 }
+
+export async function getPasskeyByCredentialId(credentialId: string) {
+  return prisma.passkey.findUnique({
+    where: { credentialId },
+    include: { user: true },
+  });
+}
