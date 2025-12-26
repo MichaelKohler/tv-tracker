@@ -12,6 +12,11 @@ import {
 import { startRegistration } from "@simplewebauthn/browser";
 
 import { evaluateBoolean, FLAGS } from "../flags.server";
+import {
+  deletePasskey,
+  getPasskeysByUserId,
+  updatePasskeyName,
+} from "../models/passkey.server";
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
 import { getPasswordValidationError } from "../utils";
@@ -24,6 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // We need to short-curcuit everything and allow the change of password
     return {
       webhookUrl: null,
+      passkeys: [],
       features: {
         passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
         passkeyRegistration: false,
@@ -33,8 +39,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     };
   }
 
-  const { plexToken } = await requireUser(request);
-  const webhookUrl = url.origin + "/plex/" + plexToken;
+  const user = await requireUser(request);
+  const webhookUrl = url.origin + "/plex/" + user.plexToken;
 
   const features = {
     passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
@@ -46,18 +52,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
     plex: await evaluateBoolean(request, FLAGS.PLEX),
   };
 
+  const passkeys = await getPasskeysByUserId(user.id);
+
+  const sanitizedPasskeys = passkeys.map((passkey) => ({
+    id: passkey.id,
+    name: passkey.name,
+    createdAt: passkey.createdAt,
+    lastUsedAt: passkey.lastUsedAt,
+  }));
+
   return {
     webhookUrl,
+    passkeys: sanitizedPasskeys,
     features,
   };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const currentPassword = formData.get("password");
-  const newPassword = formData.get("newPassword");
-  const confirmPassword = formData.get("confirmPassword");
-  const token = formData.get("token") || "";
+  const intent = formData.get("intent");
 
   const errors = {
     password: null,
@@ -65,7 +78,74 @@ export async function action({ request }: ActionFunctionArgs) {
     confirmPassword: null,
     token: null,
     generic: null,
+    passkey: null,
   };
+
+  if (intent === "edit-passkey") {
+    const user = await requireUser(request);
+    const passkeyId = formData.get("passkeyId");
+    const passkeyName = formData.get("passkeyName");
+
+    if (typeof passkeyId !== "string" || !passkeyId) {
+      return data(
+        { errors: { ...errors, passkey: "Invalid passkey ID" }, done: false },
+        { status: 400 }
+      );
+    }
+
+    if (typeof passkeyName !== "string" || passkeyName.trim() === "") {
+      return data(
+        {
+          errors: { ...errors, passkey: "Passkey name is required" },
+          done: false,
+        },
+        { status: 400 }
+      );
+    }
+
+    try {
+      await updatePasskeyName(passkeyId, user.id, passkeyName.trim());
+      return { done: true, errors };
+    } catch (_error) {
+      return data(
+        {
+          errors: { ...errors, passkey: "Failed to update passkey name" },
+          done: false,
+        },
+        { status: 500 }
+      );
+    }
+  }
+
+  if (intent === "delete-passkey") {
+    const user = await requireUser(request);
+    const passkeyId = formData.get("passkeyId");
+
+    if (typeof passkeyId !== "string" || !passkeyId) {
+      return data(
+        { errors: { ...errors, passkey: "Invalid passkey ID" }, done: false },
+        { status: 400 }
+      );
+    }
+
+    try {
+      await deletePasskey(passkeyId, user.id);
+      return { done: true, errors };
+    } catch (_error) {
+      return data(
+        {
+          errors: { ...errors, passkey: "Failed to delete passkey" },
+          done: false,
+        },
+        { status: 500 }
+      );
+    }
+  }
+
+  const currentPassword = formData.get("password");
+  const newPassword = formData.get("newPassword");
+  const confirmPassword = formData.get("confirmPassword");
+  const token = formData.get("token") || "";
 
   if (typeof newPassword !== "string" || newPassword === "") {
     return data(
@@ -144,8 +224,6 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     await changePassword(user.email, newPassword, token.toString());
   } catch (error) {
-    console.error("CHANGE_PASSWORD_ERROR", error);
-
     if (error instanceof Error && error.message === "PASSWORD_RESET_EXPIRED") {
       return data(
         {
@@ -175,7 +253,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AccountPage() {
-  const { webhookUrl, features } = useLoaderData<typeof loader>();
+  const { webhookUrl, passkeys, features } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const currentPasswordRef = useRef<HTMLInputElement>(null);
   const newPasswordRef = useRef<HTMLInputElement>(null);
@@ -189,6 +267,9 @@ export default function AccountPage() {
   const [passkeyError, setPasskeyError] = useState<string | null>(null);
   const [passkeySuccess, setPasskeySuccess] = useState(false);
   const passkeyNameRef = useRef<HTMLInputElement>(null);
+
+  const [editingPasskeyId, setEditingPasskeyId] = useState<string | null>(null);
+  const [editingPasskeyName, setEditingPasskeyName] = useState("");
 
   useEffect(() => {
     if (actionData?.errors.password) {
@@ -466,6 +547,132 @@ export default function AccountPage() {
             <p className="mt-2 text-green-600">
               Passkey registered successfully!
             </p>
+          )}
+
+          {actionData?.errors?.passkey && (
+            <p className="mt-2 text-mkerror">{actionData.errors.passkey}</p>
+          )}
+
+          {passkeys.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Your Passkeys</h3>
+              <div className="space-y-4">
+                {passkeys.map((passkey) => (
+                  <div
+                    key={passkey.id}
+                    className="border border-mk-text rounded p-4"
+                  >
+                    {editingPasskeyId === passkey.id ? (
+                      <Form method="post" className="space-y-2">
+                        <input
+                          type="hidden"
+                          name="intent"
+                          value="edit-passkey"
+                        />
+                        <input
+                          type="hidden"
+                          name="passkeyId"
+                          value={passkey.id}
+                        />
+                        <div>
+                          <label
+                            htmlFor={`passkey-name-${passkey.id}`}
+                            className="block text-sm font-medium text-mk-text"
+                          >
+                            Passkey Name
+                          </label>
+                          <input
+                            id={`passkey-name-${passkey.id}`}
+                            name="passkeyName"
+                            type="text"
+                            value={editingPasskeyName}
+                            onChange={(e) =>
+                              setEditingPasskeyName(e.target.value)
+                            }
+                            className="w-full rounded border border-mk-text px-2 py-1 text-lg"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            type="submit"
+                            className="rounded bg-mk px-3 py-1 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingPasskeyId(null);
+                              setEditingPasskeyName("");
+                            }}
+                            className="rounded border border-mk-text px-3 py-1 hover:bg-gray-100"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </Form>
+                    ) : (
+                      <>
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-semibold text-lg">
+                            {passkey.name}
+                          </h4>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingPasskeyId(passkey.id);
+                                setEditingPasskeyName(passkey.name);
+                              }}
+                              className="text-mk hover:text-mk-tertiary focus:text-mk-tertiary"
+                              aria-label={`Edit ${passkey.name}`}
+                            >
+                              Edit
+                            </button>
+                            <Form method="post" className="inline">
+                              <input
+                                type="hidden"
+                                name="intent"
+                                value="delete-passkey"
+                              />
+                              <input
+                                type="hidden"
+                                name="passkeyId"
+                                value={passkey.id}
+                              />
+                              <button
+                                type="submit"
+                                className="text-red-600 hover:text-red-800 focus:text-red-800"
+                                aria-label={`Delete ${passkey.name}`}
+                                onClick={(e) => {
+                                  if (
+                                    !confirm(
+                                      `Are you sure you want to delete "${passkey.name}"?`
+                                    )
+                                  ) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </Form>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          Created:{" "}
+                          {new Date(passkey.createdAt).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Last used:{" "}
+                          {new Date(passkey.lastUsedAt).toLocaleDateString()}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </>
       ) : null}

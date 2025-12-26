@@ -152,7 +152,7 @@ Always run "npm test" with `--run`, otherwise the tests will run in watch mode a
 - Use Tailwind CSS for styling
 - Use Remix patterns such as loaders and actions instead of client-side hooks
 - Use meaningful variable and function names
-- Write self-documenting code with minimal comments
+- Write self-documenting code without any comments
 - Prefer composition over inheritance
 - Keep functions small and focused (single responsibility)
 - Run tests, linting and formatting at the end of each agent run cycle

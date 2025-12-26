@@ -43,3 +43,28 @@ export async function updatePasskeyCounter(id: string, newCounter: bigint) {
     },
   });
 }
+
+export async function deletePasskey(id: string, userId: string) {
+  return prisma.passkey.delete({
+    where: {
+      id,
+      userId,
+    },
+  });
+}
+
+export async function updatePasskeyName(
+  id: string,
+  userId: string,
+  name: string
+) {
+  return prisma.passkey.update({
+    where: {
+      id,
+      userId,
+    },
+    data: {
+      name,
+    },
+  });
+}

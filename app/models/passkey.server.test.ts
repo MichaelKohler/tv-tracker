@@ -1,8 +1,10 @@
 import { prisma } from "../__mocks__/db.server";
 import {
   createPasskey,
+  deletePasskey,
   getPasskeysByUserId,
   updatePasskeyCounter,
+  updatePasskeyName,
 } from "./passkey.server";
 
 vi.mock("../db.server");
@@ -134,6 +136,73 @@ describe("Passkey Model", () => {
         data: {
           counter: BigInt(10),
           lastUsedAt: expect.any(Date),
+        },
+      });
+    });
+  });
+
+  describe("deletePasskey", () => {
+    it("should delete passkey with user ownership check", async () => {
+      const now = new Date();
+      const mockDeletedPasskey = {
+        id: "passkey-1",
+        userId: "user-123",
+        credentialId: "cred-abc",
+        publicKey: Buffer.from("public-key"),
+        counter: BigInt(5),
+        transports: ["usb"],
+        name: "YubiKey",
+        createdAt: now,
+        updatedAt: now,
+        lastUsedAt: now,
+      };
+
+      prisma.passkey.delete.mockResolvedValue(mockDeletedPasskey);
+
+      const result = await deletePasskey("passkey-1", "user-123");
+
+      expect(result).toEqual(mockDeletedPasskey);
+      expect(prisma.passkey.delete).toHaveBeenCalledWith({
+        where: {
+          id: "passkey-1",
+          userId: "user-123",
+        },
+      });
+    });
+  });
+
+  describe("updatePasskeyName", () => {
+    it("should update passkey name with user ownership check", async () => {
+      const now = new Date();
+      const mockUpdatedPasskey = {
+        id: "passkey-1",
+        userId: "user-123",
+        credentialId: "cred-abc",
+        publicKey: Buffer.from("public-key"),
+        counter: BigInt(5),
+        transports: ["usb"],
+        name: "My Updated YubiKey",
+        createdAt: now,
+        updatedAt: now,
+        lastUsedAt: now,
+      };
+
+      prisma.passkey.update.mockResolvedValue(mockUpdatedPasskey);
+
+      const result = await updatePasskeyName(
+        "passkey-1",
+        "user-123",
+        "My Updated YubiKey"
+      );
+
+      expect(result).toEqual(mockUpdatedPasskey);
+      expect(prisma.passkey.update).toHaveBeenCalledWith({
+        where: {
+          id: "passkey-1",
+          userId: "user-123",
+        },
+        data: {
+          name: "My Updated YubiKey",
         },
       });
     });
