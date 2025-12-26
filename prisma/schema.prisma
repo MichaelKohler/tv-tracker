@@ -18,6 +18,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   password  Password?
+  passkeys  Passkey[]
 
   shows     ShowOnUser[]
   episodes  EpisodeOnUser[]
@@ -129,4 +130,24 @@ model EpisodeOnUser {
 
 model Invite {
   id         String @id @default(uuid())
+}
+
+model Passkey {
+  id            String   @id @default(uuid())
+  credentialId  String   @unique
+  publicKey     Bytes
+  counter       BigInt
+  transports    String[]
+
+  name          String
+  lastUsedAt    DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId        String
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([credentialId])
 }

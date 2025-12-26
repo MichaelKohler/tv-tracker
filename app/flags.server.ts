@@ -36,6 +36,7 @@ export const FLAGS = {
   PASSWORD_CHANGE: "password-change",
   DELETE_ACCOUNT: "delete-account",
   PLEX: "plex",
+  PASSKEY_REGISTRATION: "passkey-registration",
   UPCOMING_ROUTE: "upcoming-route",
   RECENTLY_WATCHED_ROUTE: "recently-watched",
   STATS_ROUTE: "stats",

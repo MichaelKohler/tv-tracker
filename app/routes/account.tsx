@@ -1,4 +1,5 @@
-import * as React from "react";
+import { useState, useRef, useEffect } from "react";
+import type { FormEvent } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   data,
@@ -8,6 +9,7 @@ import {
   useLoaderData,
   useSearchParams,
 } from "react-router";
+import { startRegistration } from "@simplewebauthn/browser";
 
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { changePassword, verifyLogin } from "../models/user.server";
@@ -24,6 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       webhookUrl: null,
       features: {
         passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
+        passkeyRegistration: false,
         deleteAccount: false,
         plex: false,
       },
@@ -35,6 +38,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const features = {
     passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
+    passkeyRegistration: await evaluateBoolean(
+      request,
+      FLAGS.PASSKEY_REGISTRATION
+    ),
     deleteAccount: await evaluateBoolean(request, FLAGS.DELETE_ACCOUNT),
     plex: await evaluateBoolean(request, FLAGS.PLEX),
   };
@@ -170,13 +177,20 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function AccountPage() {
   const { webhookUrl, features } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const currentPasswordRef = React.useRef<HTMLInputElement>(null);
-  const newPasswordRef = React.useRef<HTMLInputElement>(null);
-  const passwordConfirmRef = React.useRef<HTMLInputElement>(null);
+  const currentPasswordRef = useRef<HTMLInputElement>(null);
+  const newPasswordRef = useRef<HTMLInputElement>(null);
+  const passwordConfirmRef = useRef<HTMLInputElement>(null);
   const [searchParams] = useSearchParams();
   const resetToken = searchParams.get("token") || "";
 
-  React.useEffect(() => {
+  const [showPasskeyForm, setShowPasskeyForm] = useState(false);
+  const [passkeyName, setPasskeyName] = useState("");
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [passkeyError, setPasskeyError] = useState<string | null>(null);
+  const [passkeySuccess, setPasskeySuccess] = useState(false);
+  const passkeyNameRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
     if (actionData?.errors.password) {
       currentPasswordRef.current?.focus();
     } else if (actionData?.errors.newPassword) {
@@ -196,6 +210,64 @@ export default function AccountPage() {
       passwordConfirmRef.current.value = "";
     }
   }, [actionData]);
+
+  async function handleRegisterPasskey(e: FormEvent) {
+    e.preventDefault();
+
+    if (!passkeyName.trim()) {
+      setPasskeyError("Please enter a name for your passkey");
+      passkeyNameRef.current?.focus();
+      return;
+    }
+
+    setIsRegistering(true);
+    setPasskeyError(null);
+
+    try {
+      const optionsResponse = await fetch("/passkey/register-options");
+
+      if (!optionsResponse.ok) {
+        throw new Error("Failed to get registration options");
+      }
+
+      const options = await optionsResponse.json();
+
+      const credential = await startRegistration(options);
+
+      const verifyResponse = await fetch("/passkey/register-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential, name: passkeyName.trim() }),
+      });
+
+      const result = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        throw new Error(result.error || "Registration failed");
+      }
+
+      setPasskeySuccess(true);
+      setPasskeyName("");
+      setShowPasskeyForm(false);
+    } catch (error) {
+      const errorMessages: Record<string, string> = {
+        NotAllowedError: "Registration canceled or timed out",
+        InvalidStateError: "This passkey is already registered",
+        NotSupportedError: "Your browser doesn't support passkeys",
+        AbortError: "Registration was canceled",
+      };
+
+      setPasskeyError(
+        error instanceof Error && error.name in errorMessages
+          ? errorMessages[error.name]
+          : error instanceof Error
+            ? error.message
+            : "Failed to register passkey. Please try again."
+      );
+    } finally {
+      setIsRegistering(false);
+    }
+  }
 
   return (
     <main className="my-8 mx-auto flex min-h-full w-full max-w-md flex-col px-8">
@@ -313,6 +385,90 @@ export default function AccountPage() {
           again later.
         </p>
       )}
+
+      {features.passkeyRegistration ? (
+        <>
+          <hr className="my-8" />
+
+          <h2 className="text-xl font-bold">Security Keys & Passkeys</h2>
+          <p className="my-4">
+            Add a passkey or security key for faster, more secure login.
+            Passkeys use your device&apos;s biometrics or PIN.
+          </p>
+
+          {!showPasskeyForm ? (
+            <button
+              type="button"
+              onClick={() => {
+                setShowPasskeyForm(true);
+                setPasskeyError(null);
+                setPasskeySuccess(false);
+              }}
+              className="w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
+            >
+              Add Passkey
+            </button>
+          ) : (
+            <form onSubmit={handleRegisterPasskey} className="my-4">
+              <div>
+                <label
+                  htmlFor="passkeyName"
+                  className="block text-sm font-medium text-mk-text"
+                >
+                  Passkey Name
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="passkeyName"
+                    ref={passkeyNameRef}
+                    type="text"
+                    value={passkeyName}
+                    onChange={(e) => setPasskeyName(e.target.value)}
+                    placeholder="e.g., My iPhone, YubiKey 5"
+                    disabled={isRegistering}
+                    aria-invalid={passkeyError ? true : undefined}
+                    aria-describedby="passkey-name-error"
+                    className="w-full rounded border border-mk-text px-2 py-1 text-lg"
+                  />
+                  {passkeyError && (
+                    <p className="pt-1 text-mkerror" id="passkey-name-error">
+                      {passkeyError}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                <button
+                  type="submit"
+                  disabled={isRegistering}
+                  className="flex-1 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary disabled:opacity-50"
+                >
+                  {isRegistering ? "Registering..." : "Register Passkey"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPasskeyForm(false);
+                    setPasskeyName("");
+                    setPasskeyError(null);
+                  }}
+                  disabled={isRegistering}
+                  className="rounded border border-mk-text px-4 py-2 hover:bg-gray-100 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
+          {passkeySuccess && (
+            <p className="mt-2 text-green-600">
+              Passkey registered successfully!
+            </p>
+          )}
+        </>
+      ) : null}
 
       {features.plex && webhookUrl ? (
         <>

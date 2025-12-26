@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useActionData, useLoaderData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
 import { evaluateBoolean } from "../flags.server";
@@ -33,6 +34,7 @@ vi.mock("../flags.server", async () => ({
     PASSWORD_CHANGE: "password-change",
     DELETE_ACCOUNT: "delete-account",
     PLEX: "plex",
+    PASSKEY_REGISTRATION: "passkey-registration",
   },
 }));
 
@@ -53,7 +55,12 @@ describe("Account Route", () => {
 
     vi.mocked(useLoaderData).mockReturnValue({
       webhookUrl: "http://webhook.example",
-      features: { passwordChange: true, deleteAccount: true, plex: true },
+      features: {
+        passwordChange: true,
+        passkeyRegistration: true,
+        deleteAccount: true,
+        plex: true,
+      },
     });
 
     vi.mocked(useSearchParams).mockReturnValue([
@@ -102,7 +109,12 @@ describe("Account Route", () => {
   it("renders page without password change form if feature is disabled", () => {
     vi.mocked(useLoaderData).mockReturnValue({
       webhookUrl: "http://webhook.example",
-      features: { passwordChange: false, deleteAccount: true, plex: true },
+      features: {
+        passwordChange: false,
+        passkeyRegistration: true,
+        deleteAccount: true,
+        plex: true,
+      },
     });
 
     render(<Account />);
@@ -125,6 +137,7 @@ describe("Account Route", () => {
       webhookUrl: "http://webhook.example",
       features: {
         passwordChange: true,
+        passkeyRegistration: true,
         deleteAccount: false,
         plex: true,
       },
@@ -150,6 +163,7 @@ describe("Account Route", () => {
       webhookUrl: "http://webhook.example",
       features: {
         passwordChange: true,
+        passkeyRegistration: true,
         deleteAccount: true,
         plex: false,
       },
@@ -552,6 +566,85 @@ describe("Account Route", () => {
       expect(response.features.passwordChange).toBe(true);
       expect(response.features.deleteAccount).toBe(false);
       expect(response.features.plex).toBe(false);
+      expect(response.features.passkeyRegistration).toBe(false);
+    });
+  });
+
+  describe("Passkey UI", () => {
+    it("renders passkey section when feature is enabled", () => {
+      render(<Account />);
+
+      expect(screen.getByText("Security Keys & Passkeys")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Add a passkey or security key for faster/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Add Passkey/i })
+      ).toBeInTheDocument();
+    });
+
+    it("does not render passkey section when feature is disabled", () => {
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        features: {
+          passwordChange: true,
+          passkeyRegistration: false,
+          deleteAccount: true,
+          plex: true,
+        },
+      });
+
+      render(<Account />);
+
+      expect(
+        screen.queryByText("Security Keys & Passkeys")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /Add Passkey/i })
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows passkey form when Add Passkey button is clicked", async () => {
+      const user = userEvent.setup();
+      render(<Account />);
+
+      const addButton = screen.getByRole("button", { name: /Add Passkey/i });
+      await user.click(addButton);
+
+      expect(screen.getByLabelText("Passkey Name")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Register Passkey/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Cancel/i })
+      ).toBeInTheDocument();
+    });
+
+    it("hides form when Cancel button is clicked", async () => {
+      const user = userEvent.setup();
+      render(<Account />);
+
+      await user.click(screen.getByRole("button", { name: /Add Passkey/i }));
+      expect(screen.getByLabelText("Passkey Name")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /Cancel/i }));
+      expect(screen.queryByLabelText("Passkey Name")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Add Passkey/i })
+      ).toBeInTheDocument();
+    });
+
+    it("shows placeholder text in passkey name input", async () => {
+      const user = userEvent.setup();
+      render(<Account />);
+
+      await user.click(screen.getByRole("button", { name: /Add Passkey/i }));
+
+      const input = screen.getByLabelText("Passkey Name");
+      expect(input).toHaveAttribute(
+        "placeholder",
+        "e.g., My iPhone, YubiKey 5"
+      );
     });
   });
 });
