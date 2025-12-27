@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import type { AuthenticationResponseJSON } from "@simplewebauthn/types";
+import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 
 import {

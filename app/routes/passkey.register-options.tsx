@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
-import type { AuthenticatorTransport } from "@simplewebauthn/types";
+import type { AuthenticatorTransport } from "@simplewebauthn/browser";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
 import { getPasskeysByUserId } from "../models/passkey.server";
