@@ -12,6 +12,8 @@ import {
 } from "../session.server";
 import { action } from "./passkey.login-verify";
 
+vi.mock("../db.server");
+
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
   verifyAuthenticationResponse: vi.fn(),

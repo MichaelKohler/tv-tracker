@@ -4,6 +4,8 @@ import { generateAuthenticationOptions } from "@simplewebauthn/server";
 import { sessionStorage, setPasskeyChallenge } from "../session.server";
 import { loader } from "./passkey.login-options";
 
+vi.mock("../db.server");
+
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
   generateAuthenticationOptions: vi.fn(),

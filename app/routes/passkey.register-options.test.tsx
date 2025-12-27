@@ -9,6 +9,8 @@ import {
 } from "../session.server";
 import { loader } from "./passkey.register-options";
 
+vi.mock("../db.server");
+
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
   generateRegistrationOptions: vi.fn(),

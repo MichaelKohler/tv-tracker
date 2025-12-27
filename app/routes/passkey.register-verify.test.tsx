@@ -10,6 +10,8 @@ import {
 } from "../session.server";
 import { action } from "./passkey.register-verify";
 
+vi.mock("../db.server");
+
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
   verifyRegistrationResponse: vi.fn(),
