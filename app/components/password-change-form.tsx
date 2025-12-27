@@ -151,7 +151,7 @@ export function PasswordChangeForm({
 
         <button
           type="submit"
-          className="w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
+          className="w-full rounded mt-4 bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
         >
           Change password
         </button>
