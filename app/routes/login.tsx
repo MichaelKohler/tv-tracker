@@ -13,6 +13,7 @@ import {
   useSearchParams,
   useNavigation,
 } from "react-router";
+import { startAuthentication } from "@simplewebauthn/browser";
 
 import { verifyLogin } from "../models/user.server";
 import { createUserSession, getUserId } from "../session.server";
@@ -84,6 +85,9 @@ export default function LoginPage() {
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
 
+  const [isAuthenticating, setIsAuthenticating] = React.useState(false);
+  const [passkeyError, setPasskeyError] = React.useState<string | null>(null);
+
   React.useEffect(() => {
     if (actionData?.errors.email) {
       emailRef.current?.focus();
@@ -91,6 +95,56 @@ export default function LoginPage() {
       passwordRef.current?.focus();
     }
   }, [actionData]);
+
+  async function handlePasskeyLogin() {
+    setIsAuthenticating(true);
+    setPasskeyError(null);
+
+    try {
+      const optionsResponse = await fetch("/passkey/login-options");
+
+      if (!optionsResponse.ok) {
+        throw new Error("Failed to get authentication options");
+      }
+
+      const options = await optionsResponse.json();
+
+      const credential = await startAuthentication(options);
+
+      const verifyResponse = await fetch("/passkey/login-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential,
+          redirectTo,
+          remember: false,
+        }),
+      });
+
+      if (!verifyResponse.ok) {
+        const result = await verifyResponse.json();
+        throw new Error(result.error || "Authentication failed");
+      }
+
+      window.location.href = redirectTo;
+    } catch (error) {
+      const errorMessages: Record<string, string> = {
+        NotAllowedError: "Authentication canceled or timed out",
+        NotSupportedError: "Your browser doesn't support passkeys",
+        AbortError: "Authentication was canceled",
+      };
+
+      setPasskeyError(
+        error instanceof Error && error.name in errorMessages
+          ? errorMessages[error.name]
+          : error instanceof Error
+            ? error.message
+            : "Failed to authenticate with passkey. Please try again."
+      );
+    } finally {
+      setIsAuthenticating(false);
+    }
+  }
 
   return (
     <main className="mx-auto my-8 flex min-h-full w-full max-w-md flex-col px-8">
@@ -200,6 +254,18 @@ export default function LoginPage() {
           </div>
         </div>
       </Form>
+
+      <div className="mt-6">
+        <button
+          type="button"
+          onClick={handlePasskeyLogin}
+          disabled={isAuthenticating}
+          className="w-full rounded border border-mk-text px-4 py-2 hover:bg-gray-100 disabled:opacity-50"
+        >
+          {isAuthenticating ? "Authenticating..." : "Sign in with Passkey"}
+        </button>
+        {passkeyError && <p className="mt-2 text-mkerror">{passkeyError}</p>}
+      </div>
     </main>
   );
 }

@@ -43,6 +43,11 @@ vi.mock("../models/user.server", async () => ({
 
 vi.mock("../db.server");
 
+vi.mock("@simplewebauthn/browser", async () => ({
+  ...(await vi.importActual("@simplewebauthn/browser")),
+  startAuthentication: vi.fn(),
+}));
+
 describe("Login Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -56,6 +61,12 @@ describe("Login Route", () => {
     expect(screen.getByText("Log in")).toBeInTheDocument();
     expect(screen.getByText("Remember me")).toBeInTheDocument();
     expect(screen.getByText("Reset password")).toBeInTheDocument();
+  });
+
+  it("renders passkey login button", () => {
+    render(<Login />);
+
+    expect(screen.getByText("Sign in with Passkey")).toBeInTheDocument();
   });
 
   it("renders logging in on button while submitting form", () => {
