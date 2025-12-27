@@ -100,7 +100,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     try {
       await updatePasskeyName(passkeyId, user.id, passkeyName.trim());
-      return { done: true, errors };
+      return { done: true, errors, intent: "edit-passkey" };
     } catch (_error) {
       return data(
         {
@@ -125,7 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     try {
       await deletePasskey(passkeyId, user.id);
-      return { done: true, errors };
+      return { done: true, errors, intent: "delete-passkey" };
     } catch (_error) {
       return data(
         {

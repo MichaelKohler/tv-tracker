@@ -28,6 +28,7 @@ export function PasswordChangeForm({
 
     if (
       actionData?.done &&
+      !("intent" in actionData) &&
       currentPasswordRef.current &&
       newPasswordRef.current &&
       passwordConfirmRef.current
@@ -147,7 +148,9 @@ export function PasswordChangeForm({
           </p>
         )}
 
-        {actionData?.done && <p>Your password has been changed.</p>}
+        {actionData?.done && !("intent" in actionData) && (
+          <p>Your password has been changed.</p>
+        )}
 
         <button
           type="submit"

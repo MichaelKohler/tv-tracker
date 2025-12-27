@@ -1,6 +1,6 @@
 import { useState, useRef, type FormEvent } from "react";
 import { startRegistration } from "@simplewebauthn/browser";
-import { useActionData } from "react-router";
+import { useActionData, useRevalidator } from "react-router";
 
 import type { action } from "../routes/account";
 
@@ -10,6 +10,7 @@ interface PasskeyRegistrationProps {
 
 export function PasskeyRegistration({ isEnabled }: PasskeyRegistrationProps) {
   const actionData = useActionData<typeof action>();
+  const revalidator = useRevalidator();
   const [showPasskeyForm, setShowPasskeyForm] = useState(false);
   const [passkeyName, setPasskeyName] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
@@ -55,6 +56,7 @@ export function PasskeyRegistration({ isEnabled }: PasskeyRegistrationProps) {
       setPasskeySuccess(true);
       setPasskeyName("");
       setShowPasskeyForm(false);
+      revalidator.revalidate();
     } catch (error) {
       const errorMessages: Record<string, string> = {
         NotAllowedError: "Registration canceled or timed out",

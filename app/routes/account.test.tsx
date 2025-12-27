@@ -18,6 +18,7 @@ vi.mock("react-router", async () => ({
     .fn()
     .mockReturnValue({ webhookUrl: "http://webhook.example" }),
   useSearchParams: vi.fn(),
+  useRevalidator: vi.fn().mockReturnValue({ revalidate: vi.fn() }),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),

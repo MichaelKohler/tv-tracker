@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { Form } from "react-router";
+import { useEffect, useState } from "react";
+import { Form, useActionData } from "react-router";
+
+import type { action } from "../routes/account";
 
 interface Passkey {
   id: string;
@@ -13,8 +15,16 @@ interface PasskeyListProps {
 }
 
 export function PasskeyList({ passkeys }: PasskeyListProps) {
+  const actionData = useActionData<typeof action>();
   const [editingPasskeyId, setEditingPasskeyId] = useState<string | null>(null);
   const [editingPasskeyName, setEditingPasskeyName] = useState("");
+
+  useEffect(() => {
+    if (actionData?.done && !actionData.errors.passkey) {
+      setEditingPasskeyId(null);
+      setEditingPasskeyName("");
+    }
+  }, [actionData]);
 
   if (!passkeys || passkeys.length === 0) {
     return null;
