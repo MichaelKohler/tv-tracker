@@ -35,7 +35,13 @@ vi.mock("./session.server", async () => ({
 }));
 
 // Import after mocking the flipt client
-import { FLAGS, evaluateVariant, evaluateBoolean } from "./flags.server";
+import {
+  FLAGS,
+  DEFAULT_FLAG_VALUES,
+  evaluateVariant,
+  evaluateBoolean,
+  evaluateBooleanFromScripts,
+} from "./flags.server";
 
 // Store original environment variables
 const originalEnv = process.env;
@@ -187,31 +193,31 @@ describe("Flags", () => {
       });
     });
 
-    it("throws error when flipt client returns null", async () => {
+    it("returns default value when flipt client returns null", async () => {
       process.env.FLIPT_ENVIRONMENT = "production";
       mockBooleanFn.mockResolvedValue(null);
 
-      await expect(evaluateBoolean(mockRequest, "test-flag")).rejects.toThrow(
-        "Failed to evaluate boolean flag"
-      );
+      const result = await evaluateBoolean(mockRequest, FLAGS.SEARCH);
+
+      expect(result).equal(DEFAULT_FLAG_VALUES[FLAGS.SEARCH]);
     });
 
-    it("throws error when flipt client returns undefined", async () => {
+    it("returns default value when flipt client returns undefined", async () => {
       process.env.FLIPT_ENVIRONMENT = "production";
       mockBooleanFn.mockResolvedValue(undefined);
 
-      await expect(evaluateBoolean(mockRequest, "test-flag")).rejects.toThrow(
-        "Failed to evaluate boolean flag"
-      );
+      const result = await evaluateBoolean(mockRequest, FLAGS.ARCHIVE);
+
+      expect(result).equal(DEFAULT_FLAG_VALUES[FLAGS.ARCHIVE]);
     });
 
-    it("handles flipt client rejection", async () => {
+    it("returns default value when flipt client rejects with network error", async () => {
       process.env.FLIPT_ENVIRONMENT = "production";
       mockBooleanFn.mockRejectedValue(new Error("Network error"));
 
-      await expect(evaluateBoolean(mockRequest, "test-flag")).rejects.toThrow(
-        "Network error"
-      );
+      const result = await evaluateBoolean(mockRequest, FLAGS.UPCOMING_ROUTE);
+
+      expect(result).equal(DEFAULT_FLAG_VALUES[FLAGS.UPCOMING_ROUTE]);
     });
 
     it("handles different environment values", async () => {
@@ -222,6 +228,105 @@ describe("Flags", () => {
 
       expect(result).equal(true);
       expect(mockBooleanFn).toHaveBeenCalledOnce();
+    });
+
+    it("returns false for SIGNUP_DISABLED flag on error", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      mockBooleanFn.mockRejectedValue(new Error("Network error"));
+
+      const result = await evaluateBoolean(mockRequest, FLAGS.SIGNUP_DISABLED);
+
+      expect(result).equal(false);
+    });
+
+    it("returns true for MAINTENANCE_MODE flag on error (inverted logic)", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      mockBooleanFn.mockRejectedValue(new Error("Network error"));
+
+      const result = await evaluateBoolean(
+        mockRequest,
+        FLAGS.MAINTENANCE_MODE
+      );
+
+      expect(result).equal(true);
+    });
+
+    it("returns false for PLEX flag on error (optional feature)", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      mockBooleanFn.mockRejectedValue(new Error("Network error"));
+
+      const result = await evaluateBoolean(mockRequest, FLAGS.PLEX);
+
+      expect(result).equal(false);
+    });
+
+    it("returns false for unknown flag on error", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      mockBooleanFn.mockRejectedValue(new Error("Network error"));
+
+      const result = await evaluateBoolean(mockRequest, "unknown-flag");
+
+      expect(result).equal(false);
+    });
+  });
+
+  describe("evaluateVariant error handling", () => {
+    it("returns null when flipt client throws error", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      mockVariantFn.mockRejectedValue(new Error("Service unavailable"));
+
+      const result = await evaluateVariant(mockRequest, "test-flag");
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null when flipt client network fails", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      mockVariantFn.mockRejectedValue(new Error("Connection timeout"));
+
+      const result = await evaluateVariant(mockRequest, "test-flag");
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("evaluateBooleanFromScripts", () => {
+    it("returns enabled value when flipt client returns response", async () => {
+      mockBooleanFn.mockResolvedValue({ enabled: true });
+
+      const result = await evaluateBooleanFromScripts(FLAGS.FETCH_FROM_SOURCE);
+
+      expect(result).equal(true);
+      expect(mockBooleanFn).toHaveBeenCalledWith({
+        namespaceKey: "default",
+        flagKey: FLAGS.FETCH_FROM_SOURCE,
+        entityId: "scripts",
+        context: {},
+      });
+    });
+
+    it("returns default value when flipt client throws error", async () => {
+      mockBooleanFn.mockRejectedValue(new Error("Connection timeout"));
+
+      const result = await evaluateBooleanFromScripts(FLAGS.FETCH_FROM_SOURCE);
+
+      expect(result).equal(DEFAULT_FLAG_VALUES[FLAGS.FETCH_FROM_SOURCE]);
+    });
+
+    it("returns default value when flipt client returns null", async () => {
+      mockBooleanFn.mockResolvedValue(null);
+
+      const result = await evaluateBooleanFromScripts(FLAGS.FETCH_FROM_SOURCE);
+
+      expect(result).equal(DEFAULT_FLAG_VALUES[FLAGS.FETCH_FROM_SOURCE]);
+    });
+
+    it("returns false for unknown flag on error", async () => {
+      mockBooleanFn.mockRejectedValue(new Error("Network error"));
+
+      const result = await evaluateBooleanFromScripts("unknown-flag");
+
+      expect(result).equal(false);
     });
   });
 });

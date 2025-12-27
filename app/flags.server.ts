@@ -43,21 +43,42 @@ export const FLAGS = {
   ARCHIVE: "ignore-unwatched-on-overview",
 };
 
+export const DEFAULT_FLAG_VALUES: Record<string, boolean> = {
+  [FLAGS.MAINTENANCE_MODE]: true,
+  [FLAGS.SIGNUP_DISABLED]: false,
+  [FLAGS.FETCH_FROM_SOURCE]: false,
+  [FLAGS.SEARCH]: false,
+  [FLAGS.ADD_SHOW]: false,
+  [FLAGS.PASSWORD_CHANGE]: false,
+  [FLAGS.DELETE_ACCOUNT]: false,
+  [FLAGS.PLEX]: false,
+  [FLAGS.UPCOMING_ROUTE]: false,
+  [FLAGS.RECENTLY_WATCHED_ROUTE]: false,
+  [FLAGS.STATS_ROUTE]: false,
+  [FLAGS.MARK_ALL_AS_WATCHED]: false,
+  [FLAGS.ARCHIVE]: false,
+};
+
 export async function evaluateVariant(request: Request, flag: string) {
   if (process.env.FLIPT_ENVIRONMENT === "") {
     return true;
   }
 
-  const userId = await getUserId(request);
+  try {
+    const userId = await getUserId(request);
 
-  const variantEvaluationResponse = await fliptClient.evaluation.variant({
-    namespaceKey: "default",
-    flagKey: flag,
-    entityId: userId || "",
-    context: {},
-  });
+    const variantEvaluationResponse = await fliptClient.evaluation.variant({
+      namespaceKey: "default",
+      flagKey: flag,
+      entityId: userId || "",
+      context: {},
+    });
 
-  return variantEvaluationResponse;
+    return variantEvaluationResponse;
+  } catch (error) {
+    console.error(`Failed to evaluate variant flag ${flag}:`, error);
+    return null;
+  }
 }
 
 export async function evaluateBoolean(request: Request, flag: string) {
@@ -69,33 +90,50 @@ export async function evaluateBoolean(request: Request, flag: string) {
     return true;
   }
 
-  const userId = await getUserId(request);
+  try {
+    const userId = await getUserId(request);
 
-  const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
-    namespaceKey: "default",
-    flagKey: flag,
-    entityId: userId || "",
-    context: {},
-  });
+    const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
+      namespaceKey: "default",
+      flagKey: flag,
+      entityId: userId || "",
+      context: {},
+    });
 
-  if (booleanEvaluationResponse) {
-    return booleanEvaluationResponse.enabled;
+    if (booleanEvaluationResponse) {
+      return booleanEvaluationResponse.enabled;
+    }
+
+    console.warn(`Flipt returned null for flag ${flag}, using default`);
+    return DEFAULT_FLAG_VALUES[flag] ?? false;
+  } catch (error) {
+    console.error(`Failed to evaluate boolean flag ${flag}:`, error);
+    return DEFAULT_FLAG_VALUES[flag] ?? false;
   }
-
-  throw new Error("Failed to evaluate boolean flag");
 }
 
 export async function evaluateBooleanFromScripts(flag: string) {
-  const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
-    namespaceKey: "default",
-    flagKey: flag,
-    entityId: "scripts",
-    context: {},
-  });
+  try {
+    const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
+      namespaceKey: "default",
+      flagKey: flag,
+      entityId: "scripts",
+      context: {},
+    });
 
-  if (booleanEvaluationResponse) {
-    return booleanEvaluationResponse.enabled;
+    if (booleanEvaluationResponse) {
+      return booleanEvaluationResponse.enabled;
+    }
+
+    console.warn(
+      `Flipt returned null for flag ${flag} in scripts, using default`
+    );
+    return DEFAULT_FLAG_VALUES[flag] ?? false;
+  } catch (error) {
+    console.error(
+      `Failed to evaluate boolean flag ${flag} from scripts:`,
+      error
+    );
+    return DEFAULT_FLAG_VALUES[flag] ?? false;
   }
-
-  throw new Error("Failed to evaluate boolean flag from scripts");
 }
