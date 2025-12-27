@@ -20,6 +20,7 @@ export default defineConfig({
         test: {
           include: ["**/*.browser.test.{ts,tsx}", "!**/__screenshots__/**"],
           name: "browser",
+          setupFiles: ["./setup.browser.ts"],
           browser: {
             provider: playwright(),
             enabled: true,
@@ -39,6 +40,5 @@ export default defineConfig({
     coverage: {
       provider: "v8",
     },
-    setupFiles: ["./setup.ts"],
   },
 });

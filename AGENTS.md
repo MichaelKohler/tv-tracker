@@ -48,17 +48,15 @@ Never override an already existing `.env` file.
 ```bash
 npm run typecheck    # TypeScript compilation (~1s)
 npm run lint        # ESLint with cache (~1s)
-npm run test        # Vitest unit tests (~4s, 228 tests)
+npm run test        # Vitest unit tests (~5s, 315 tests)
 npm run build       # Production build (~1.5s)
 npm run dev         # Development server with HMR
-npm run validate    # Runs: test --run, lint, typecheck, test:e2e in parallel
+npm run validate    # Runs: test --run, lint, typecheck, test:e2e in serial
 ```
 
 **Build Notes**:
 
 - Source maps enabled in production (shows warning)
-- Tests include expected stderr output (intentional error testing)
-- Recharts components show width/height warnings in tests (expected)
 - Build generates ~27 client chunks + SSR bundle
 
 ### E2E Testing (Docker Required)
@@ -116,8 +114,8 @@ npm run test:e2e:report    # View test results
 
 1. **ESLint**: Code linting with cache
 2. **TypeScript**: Type checking compilation
-3. **Vitest**: Unit tests (37 files, 228 tests)
-4. **Playwright**: E2E tests with PostgreSQL service
+3. **Vitest**: Unit tests (51 files, 315 tests)
+4. **Playwright**: E2E tests (16 tests) with PostgreSQL service
 
 Always run these (with `npm run validate`) before telling the user you are done.
 
@@ -132,7 +130,11 @@ Always run these (with `npm run validate`) before telling the user you are done.
 - Unit tests use mocked Prisma client (`app/__mocks__/db.server.ts`)
 - E2E tests use real PostgreSQL in Docker container
 - Test files follow `*.test.{ts,tsx}` pattern
-- Setup file (`setup.ts`) provides global test utilities
+
+**Expected Test Output**:
+
+- Vitest may display stderr output during tests for intentional error testing scenarios
+- All tests passing with exit code 0 indicates success, regardless of stderr output
 
 Always run "npm test" with `--run`, otherwise the tests will run in watch mode and not return. Also do this when running tests for a single file.
 
