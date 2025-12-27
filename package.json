@@ -31,7 +31,7 @@
     "update:episodes": "tsx scripts/get-new-episodes.ts",
     "update:episodes:info": "tsx scripts/update-episodes.ts",
     "update:show:status": "tsx scripts/update-show-status.ts",
-    "validate": "run-p \"test -- --run\" lint typecheck test:e2e"
+    "validate": "npm run test -- --run && npm run lint && npm run typecheck && npm run test:e2e"
   },
   "prettier": {
     "trailingComma": "es5"
@@ -82,7 +82,6 @@
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.5.0",
     "jsdom": "^27.3.0",
-    "npm-run-all": "^4.1.5",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^6.19.1",
