@@ -1,9 +1,11 @@
 import * as React from "react";
 import { useActionData, useLoaderData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
 import { evaluateBoolean } from "../flags.server";
+import { getPasskeysByUserId } from "../models/passkey.server";
 import { changePassword, verifyLogin } from "../models/user.server";
 import { requireUser } from "../session.server";
 import Account, { action, loader } from "./account";
@@ -16,6 +18,7 @@ vi.mock("react-router", async () => ({
     .fn()
     .mockReturnValue({ webhookUrl: "http://webhook.example" }),
   useSearchParams: vi.fn(),
+  useRevalidator: vi.fn().mockReturnValue({ revalidate: vi.fn() }),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -33,6 +36,7 @@ vi.mock("../flags.server", async () => ({
     PASSWORD_CHANGE: "password-change",
     DELETE_ACCOUNT: "delete-account",
     PLEX: "plex",
+    PASSKEY_REGISTRATION: "passkey-registration",
   },
 }));
 
@@ -47,13 +51,26 @@ vi.mock("../session.server", async () => ({
   requireUser: vi.fn(),
 }));
 
+vi.mock("../models/passkey.server", async () => ({
+  ...(await vi.importActual("../models/passkey.server")),
+  deletePasskey: vi.fn(),
+  getPasskeysByUserId: vi.fn(),
+  updatePasskeyName: vi.fn(),
+}));
+
 describe("Account Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
     vi.mocked(useLoaderData).mockReturnValue({
       webhookUrl: "http://webhook.example",
-      features: { passwordChange: true, deleteAccount: true, plex: true },
+      passkeys: [],
+      features: {
+        passwordChange: true,
+        passkeyRegistration: true,
+        deleteAccount: true,
+        plex: true,
+      },
     });
 
     vi.mocked(useSearchParams).mockReturnValue([
@@ -70,6 +87,8 @@ describe("Account Route", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    vi.mocked(getPasskeysByUserId).mockResolvedValue([]);
 
     vi.mocked(changePassword).mockResolvedValue(undefined);
 
@@ -102,7 +121,13 @@ describe("Account Route", () => {
   it("renders page without password change form if feature is disabled", () => {
     vi.mocked(useLoaderData).mockReturnValue({
       webhookUrl: "http://webhook.example",
-      features: { passwordChange: false, deleteAccount: true, plex: true },
+      passkeys: [],
+      features: {
+        passwordChange: false,
+        passkeyRegistration: true,
+        deleteAccount: true,
+        plex: true,
+      },
     });
 
     render(<Account />);
@@ -123,8 +148,10 @@ describe("Account Route", () => {
   it("renders page without delete account form if feature is disabled", () => {
     vi.mocked(useLoaderData).mockReturnValue({
       webhookUrl: "http://webhook.example",
+      passkeys: [],
       features: {
         passwordChange: true,
+        passkeyRegistration: true,
         deleteAccount: false,
         plex: true,
       },
@@ -148,8 +175,10 @@ describe("Account Route", () => {
   it("renders page without plex section if feature is disabled", () => {
     vi.mocked(useLoaderData).mockReturnValue({
       webhookUrl: "http://webhook.example",
+      passkeys: [],
       features: {
         passwordChange: true,
+        passkeyRegistration: true,
         deleteAccount: true,
         plex: false,
       },
@@ -552,6 +581,296 @@ describe("Account Route", () => {
       expect(response.features.passwordChange).toBe(true);
       expect(response.features.deleteAccount).toBe(false);
       expect(response.features.plex).toBe(false);
+      expect(response.features.passkeyRegistration).toBe(false);
+    });
+  });
+
+  describe("Passkey UI", () => {
+    it("renders passkey section when feature is enabled", () => {
+      render(<Account />);
+
+      expect(screen.getByText("Security Keys & Passkeys")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Add a passkey or security key for faster/)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Add Passkey/i })
+      ).toBeInTheDocument();
+    });
+
+    it("does not render passkey section when feature is disabled", () => {
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        features: {
+          passwordChange: true,
+          passkeyRegistration: false,
+          deleteAccount: true,
+          plex: true,
+        },
+      });
+
+      render(<Account />);
+
+      expect(
+        screen.queryByText("Security Keys & Passkeys")
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /Add Passkey/i })
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows passkey form when Add Passkey button is clicked", async () => {
+      const user = userEvent.setup();
+      render(<Account />);
+
+      const addButton = screen.getByRole("button", { name: /Add Passkey/i });
+      await user.click(addButton);
+
+      expect(screen.getByLabelText("Passkey Name")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Register Passkey/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Cancel/i })
+      ).toBeInTheDocument();
+    });
+
+    it("hides form when Cancel button is clicked", async () => {
+      const user = userEvent.setup();
+      render(<Account />);
+
+      await user.click(screen.getByRole("button", { name: /Add Passkey/i }));
+      expect(screen.getByLabelText("Passkey Name")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /Cancel/i }));
+      expect(screen.queryByLabelText("Passkey Name")).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Add Passkey/i })
+      ).toBeInTheDocument();
+    });
+
+    it("shows placeholder text in passkey name input", async () => {
+      const user = userEvent.setup();
+      render(<Account />);
+
+      await user.click(screen.getByRole("button", { name: /Add Passkey/i }));
+
+      const input = screen.getByLabelText("Passkey Name");
+      expect(input).toHaveAttribute(
+        "placeholder",
+        "e.g., My iPhone, YubiKey 5"
+      );
+    });
+  });
+
+  describe("Passkey List", () => {
+    it("does not show passkey list when no passkeys exist", () => {
+      render(<Account />);
+
+      expect(screen.queryByText("Your Passkeys")).not.toBeInTheDocument();
+    });
+
+    it("shows passkey list when passkeys exist", () => {
+      const mockPasskeys = [
+        {
+          id: "passkey-1",
+          userId: "user-123",
+          credentialId: "cred-1",
+          publicKey: Buffer.from("key-1"),
+          counter: BigInt(0),
+          transports: ["usb"],
+          name: "YubiKey",
+          createdAt: new Date("2024-01-01"),
+          updatedAt: new Date("2024-01-01"),
+          lastUsedAt: new Date("2024-01-15"),
+        },
+        {
+          id: "passkey-2",
+          userId: "user-123",
+          credentialId: "cred-2",
+          publicKey: Buffer.from("key-2"),
+          counter: BigInt(0),
+          transports: ["internal"],
+          name: "iPhone",
+          createdAt: new Date("2024-02-01"),
+          updatedAt: new Date("2024-02-01"),
+          lastUsedAt: new Date("2024-02-20"),
+        },
+      ];
+
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        passkeys: mockPasskeys,
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+      });
+
+      render(<Account />);
+
+      expect(screen.getByText("Your Passkeys")).toBeInTheDocument();
+      expect(screen.getByText("YubiKey")).toBeInTheDocument();
+      expect(screen.getByText("iPhone")).toBeInTheDocument();
+      expect(screen.getByText(/Created: 1\/1\/2024/)).toBeInTheDocument();
+      expect(screen.getByText(/Last used: 1\/15\/2024/)).toBeInTheDocument();
+    });
+
+    it("shows edit and delete buttons for each passkey", () => {
+      const mockPasskeys = [
+        {
+          id: "passkey-1",
+          userId: "user-123",
+          credentialId: "cred-1",
+          publicKey: Buffer.from("key-1"),
+          counter: BigInt(0),
+          transports: ["usb"],
+          name: "YubiKey",
+          createdAt: new Date("2024-01-01"),
+          updatedAt: new Date("2024-01-01"),
+          lastUsedAt: new Date("2024-01-15"),
+        },
+      ];
+
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        passkeys: mockPasskeys,
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+      });
+
+      render(<Account />);
+
+      const editButtons = screen.getAllByRole("button", { name: /Edit/i });
+      const deleteButtons = screen.getAllByRole("button", { name: /Delete/i });
+
+      expect(editButtons).toHaveLength(1);
+      expect(deleteButtons).toHaveLength(1);
+    });
+
+    it("shows edit form when edit button is clicked", async () => {
+      const user = userEvent.setup();
+      const mockPasskeys = [
+        {
+          id: "passkey-1",
+          userId: "user-123",
+          credentialId: "cred-1",
+          publicKey: Buffer.from("key-1"),
+          counter: BigInt(0),
+          transports: ["usb"],
+          name: "YubiKey",
+          createdAt: new Date("2024-01-01"),
+          updatedAt: new Date("2024-01-01"),
+          lastUsedAt: new Date("2024-01-15"),
+        },
+      ];
+
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        passkeys: mockPasskeys,
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+      });
+
+      render(<Account />);
+
+      const editButton = screen.getByRole("button", { name: /Edit/i });
+      await user.click(editButton);
+
+      expect(screen.getByLabelText("Passkey Name")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Save/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Cancel/i })
+      ).toBeInTheDocument();
+    });
+
+    it("hides edit form when cancel button is clicked", async () => {
+      const user = userEvent.setup();
+      const mockPasskeys = [
+        {
+          id: "passkey-1",
+          userId: "user-123",
+          credentialId: "cred-1",
+          publicKey: Buffer.from("key-1"),
+          counter: BigInt(0),
+          transports: ["usb"],
+          name: "YubiKey",
+          createdAt: new Date("2024-01-01"),
+          updatedAt: new Date("2024-01-01"),
+          lastUsedAt: new Date("2024-01-15"),
+        },
+      ];
+
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        passkeys: mockPasskeys,
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+      });
+
+      render(<Account />);
+
+      const editButton = screen.getByRole("button", { name: /Edit/i });
+      await user.click(editButton);
+
+      expect(screen.getByLabelText("Passkey Name")).toBeInTheDocument();
+
+      const cancelButton = screen.getByRole("button", { name: /Cancel/i });
+      await user.click(cancelButton);
+
+      expect(screen.queryByLabelText("Passkey Name")).not.toBeInTheDocument();
+      expect(screen.getByText("YubiKey")).toBeInTheDocument();
+    });
+
+    it("pre-fills edit form with current passkey name", async () => {
+      const user = userEvent.setup();
+      const mockPasskeys = [
+        {
+          id: "passkey-1",
+          userId: "user-123",
+          credentialId: "cred-1",
+          publicKey: Buffer.from("key-1"),
+          counter: BigInt(0),
+          transports: ["usb"],
+          name: "My YubiKey",
+          createdAt: new Date("2024-01-01"),
+          updatedAt: new Date("2024-01-01"),
+          lastUsedAt: new Date("2024-01-15"),
+        },
+      ];
+
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        passkeys: mockPasskeys,
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+      });
+
+      render(<Account />);
+
+      const editButton = screen.getByRole("button", { name: /Edit/i });
+      await user.click(editButton);
+
+      const input = screen.getByLabelText("Passkey Name");
+      expect(input).toHaveValue("My YubiKey");
     });
   });
 });
