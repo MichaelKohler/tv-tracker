@@ -153,6 +153,7 @@ export function ErrorBoundary() {
     );
   }
 
+  console.error(error);
   Sentry.captureException(error);
 
   return (
