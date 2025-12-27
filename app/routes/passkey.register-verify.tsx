@@ -62,7 +62,8 @@ export async function action({ request }: ActionFunctionArgs) {
         },
       }
     );
-  } catch (_error) {
+  } catch (error) {
+    console.error("Passkey registration verification error:", error);
     return data({ error: "Failed to verify passkey" }, { status: 500 });
   }
 }

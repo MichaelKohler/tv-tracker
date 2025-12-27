@@ -84,7 +84,8 @@ export async function action({ request }: ActionFunctionArgs) {
       remember: remember ?? false,
       redirectTo: safeRedirect(redirectTo, "/tv"),
     });
-  } catch (_error) {
+  } catch (error) {
+    console.error("Passkey authentication error:", error);
     return data({ error: "Failed to authenticate passkey" }, { status: 500 });
   }
 }
