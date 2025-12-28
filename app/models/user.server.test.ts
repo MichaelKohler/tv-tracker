@@ -10,6 +10,8 @@ import {
   getUserById,
   getUserByPlexToken,
   getUserCount,
+  removePassword,
+  userHasPassword,
   verifyLogin,
 } from "./user.server";
 
@@ -198,11 +200,15 @@ describe("User Model", () => {
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
     });
     await changePassword("foo@example.com", "foo", "");
-    expect(prisma.password.update).toBeCalledWith({
+    expect(prisma.password.upsert).toBeCalledWith({
       where: {
         userId: "123",
       },
-      data: {
+      create: {
+        userId: "123",
+        hash: "testHash",
+      },
+      update: {
         hash: "testHash",
       },
     });
@@ -250,11 +256,15 @@ describe("User Model", () => {
     });
 
     await changePassword("foo@example.com", "foo", "fooToken");
-    expect(prisma.password.update).toBeCalledWith({
+    expect(prisma.password.upsert).toBeCalledWith({
       where: {
         userId: "123",
       },
-      data: {
+      create: {
+        userId: "123",
+        hash: "testHash",
+      },
+      update: {
         hash: "testHash",
       },
     });
@@ -288,5 +298,114 @@ describe("User Model", () => {
     const user = await getUserByPlexToken("");
     expect(user).toBeNull();
     expect(prisma.user.findUnique).not.toBeCalled();
+  });
+
+  it("verifyLogin should return null when empty password provided", async () => {
+    const user = await verifyLogin("foo@example.com", "");
+    expect(user).toBeNull();
+    expect(prisma.user.findUnique).not.toBeCalled();
+  });
+
+  it("userHasPassword should return true when user has password", async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
+      password: {
+        hash: "foo",
+      },
+    });
+
+    const hasPassword = await userHasPassword("123");
+    expect(hasPassword).toBe(true);
+  });
+
+  it("userHasPassword should return false when user has no password", async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
+      password: null,
+    });
+
+    const hasPassword = await userHasPassword("123");
+    expect(hasPassword).toBe(false);
+  });
+
+  it("removePassword should remove password when user has password and passkey", async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      // @ts-expect-error ... the password and passkeys are includes
+      password: {
+        hash: "foo",
+      },
+      passkeys: [
+        {
+          id: "passkey123",
+          name: "My Passkey",
+        },
+      ],
+    });
+
+    await removePassword("123");
+    expect(prisma.password.delete).toBeCalledWith({
+      where: {
+        userId: "123",
+      },
+    });
+  });
+
+  it("removePassword should throw error when user not found", async () => {
+    prisma.user.findUnique.mockResolvedValue(null);
+
+    await expect(() => removePassword("123")).rejects.toThrowError(
+      "USER_NOT_FOUND"
+    );
+  });
+
+  it("removePassword should throw error when no password to remove", async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      // @ts-expect-error ... the password and passkeys are includes
+      password: null,
+      passkeys: [],
+    });
+
+    await expect(() => removePassword("123")).rejects.toThrowError(
+      "NO_PASSWORD_TO_REMOVE"
+    );
+  });
+
+  it("removePassword should throw error when no passkeys registered", async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      // @ts-expect-error ... the password and passkeys are includes
+      password: {
+        hash: "foo",
+      },
+      passkeys: [],
+    });
+
+    await expect(() => removePassword("123")).rejects.toThrowError(
+      "NEED_PASSKEY_BEFORE_REMOVAL"
+    );
   });
 });

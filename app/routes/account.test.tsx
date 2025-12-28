@@ -6,8 +6,12 @@ import "@testing-library/jest-dom";
 
 import { evaluateBoolean } from "../flags.server";
 import { getPasskeysByUserId } from "../models/passkey.server";
-import { changePassword, verifyLogin } from "../models/user.server";
-import { requireUser } from "../session.server";
+import {
+  changePassword,
+  userHasPassword,
+  verifyLogin,
+} from "../models/user.server";
+import { getSession, requireUser } from "../session.server";
 import Account, { action, loader } from "./account";
 
 vi.mock("react-router", async () => ({
@@ -19,6 +23,7 @@ vi.mock("react-router", async () => ({
     .mockReturnValue({ webhookUrl: "http://webhook.example" }),
   useSearchParams: vi.fn(),
   useRevalidator: vi.fn().mockReturnValue({ revalidate: vi.fn() }),
+  useSubmit: vi.fn().mockReturnValue(vi.fn()),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -43,12 +48,17 @@ vi.mock("../flags.server", async () => ({
 vi.mock("../models/user.server", async () => ({
   ...(await vi.importActual("../models/user.server")),
   changePassword: vi.fn(),
+  userHasPassword: vi.fn(),
   verifyLogin: vi.fn(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
+  getSession: vi.fn(),
   requireUser: vi.fn(),
+  sessionStorage: {
+    commitSession: vi.fn(),
+  },
 }));
 
 vi.mock("../models/passkey.server", async () => ({
@@ -71,6 +81,7 @@ describe("Account Route", () => {
         deleteAccount: true,
         plex: true,
       },
+      hasPassword: true,
     });
 
     vi.mocked(useSearchParams).mockReturnValue([
@@ -89,6 +100,19 @@ describe("Account Route", () => {
     });
 
     vi.mocked(getPasskeysByUserId).mockResolvedValue([]);
+
+    vi.mocked(userHasPassword).mockResolvedValue(true);
+
+    vi.mocked(getSession).mockResolvedValue({
+      get: vi.fn().mockReturnValue(null),
+      unset: vi.fn(),
+      has: vi.fn(),
+      set: vi.fn(),
+      flash: vi.fn(),
+      id: "test-session-id",
+      data: {},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     vi.mocked(changePassword).mockResolvedValue(undefined);
 
@@ -601,6 +625,8 @@ describe("Account Route", () => {
     it("does not render passkey section when feature is disabled", () => {
       vi.mocked(useLoaderData).mockReturnValue({
         webhookUrl: "http://webhook.example",
+        passkeys: [],
+        hasPassword: true,
         features: {
           passwordChange: true,
           passkeyRegistration: false,
