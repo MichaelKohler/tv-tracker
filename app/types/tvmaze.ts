@@ -38,8 +38,3 @@ export interface TVMazeEpisodeResponse {
   } | null;
   [key: string]: unknown;
 }
-
-export interface TVMazeSearchResult {
-  score: number;
-  show: TVMazeShowResponse;
-}

@@ -467,7 +467,7 @@ describe("Show Model", () => {
 
   it("searchShows should return fetched shows", async () => {
     const show = {
-      mazeId: "1",
+      mazeId: 1,
       name: "Name",
       premiered: new Date("2022-01-01"),
       ended: new Date("2022-01-01"),
@@ -507,7 +507,7 @@ describe("Show Model", () => {
 
   it("searchShows should return fetched shows excluding already added shows", async () => {
     const show = {
-      mazeId: "2",
+      mazeId: 2,
       name: "Name",
       premiered: new Date("2022-01-01"),
       ended: new Date("2022-01-01"),
