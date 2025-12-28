@@ -1,11 +1,11 @@
 import { Form, useNavigation } from "react-router";
 
-import type { Show } from "@prisma/client";
+import type { SearchResultShow } from "app/types/show";
 
 import Spinner from "./spinner";
 
 interface Props {
-  show: Omit<Show, "id" | "createdAt" | "updatedAt">;
+  show: SearchResultShow;
   features?: {
     addShow: boolean;
   };

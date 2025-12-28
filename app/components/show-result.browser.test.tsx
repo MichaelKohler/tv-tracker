@@ -4,10 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 
-import { testShow } from "../test-utils";
+import { testSearchShow } from "../test-utils";
 import ShowResult from "./show-result";
 
-const show = testShow;
+const show = testSearchShow;
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
@@ -56,7 +56,7 @@ describe("ShowResult", () => {
           }
 
           if (key === "showId") {
-            return show.id.toString();
+            return show.mazeId.toString();
           }
 
           return "";
@@ -104,7 +104,7 @@ describe("ShowResult", () => {
           }
 
           if (key === "showId") {
-            return show.id.toString();
+            return show.mazeId.toString();
           }
 
           return "";

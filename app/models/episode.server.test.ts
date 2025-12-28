@@ -66,7 +66,6 @@ describe("Episode Model", () => {
     vi.clearAllMocks();
   });
 
-  // Not actually covering the query itself..
   it("getEpisodeByShowIdAndNumbers should return episode", async () => {
     prisma.episode.findFirst.mockResolvedValue(EPISODE);
     const episode = await getEpisodeByShowIdAndNumbers({
@@ -114,14 +113,12 @@ describe("Episode Model", () => {
     expect(episodes).toStrictEqual([EPISODE]);
   });
 
-  // Not actually covering the query itself..
   it("getUpcomingEpisodes should return episodes", async () => {
     prisma.episode.findMany.mockResolvedValue([EPISODE]);
     const episodes = await getUpcomingEpisodes("1");
     expect(episodes).toStrictEqual([EPISODE]);
   });
 
-  // Not actually covering the query itself..
   it("getRecentlyWatchedEpisodes should return episodes", async () => {
     prisma.episodeOnUser.findMany.mockResolvedValue([EPISODE_ON_USER]);
     const episodes = await getRecentlyWatchedEpisodes("1");

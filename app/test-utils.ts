@@ -1,4 +1,5 @@
 import type { Show, Episode } from "@prisma/client";
+import type { SearchResultShow } from "./types/show";
 
 export const testShow: Show = {
   id: "1",
@@ -11,6 +12,16 @@ export const testShow: Show = {
   rating: 8.5,
   createdAt: new Date(),
   updatedAt: new Date(),
+};
+
+export const testSearchShow: SearchResultShow = {
+  mazeId: 1,
+  name: "Test Show",
+  imageUrl: "https://example.com/show.png",
+  premiered: new Date("2022-01-01"),
+  ended: null,
+  summary: "A test show.",
+  rating: 8.5,
 };
 
 export const testEpisode: Episode = {

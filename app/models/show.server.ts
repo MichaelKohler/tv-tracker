@@ -8,7 +8,12 @@ import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
 } from "./maze.server";
-import { TVMazeShowResponse, TVMazeEpisodeResponse } from "app/types/tvmaze";
+import {
+  TVMazeShowResponse,
+  TVMazeEpisodeResponse,
+  TVMazeSearchResult,
+} from "app/types/tvmaze";
+import { SearchResultShow } from "app/types/show";
 
 // Used to update the episodes of shows in the GitHub action
 // We only want to return currently ongoing shows as we otherwise
@@ -307,23 +312,28 @@ export async function removeShowFromUser({
   });
 }
 
-export async function searchShows(query: string | null, userId: User["id"]) {
+export async function searchShows(
+  query: string | null,
+  userId: User["id"]
+): Promise<SearchResultShow[]> {
   if (!query) {
     return [];
   }
 
   const addedShowsPromise = getAddedShowsMazeIds(userId);
 
-  const showsResult = await fetchSearchResults(query);
-  const shows: Omit<Show, "id" | "createdAt" | "updatedAt">[] = showsResult.map(
-    (showResult) => ({
-      mazeId: `${showResult.show.id}`,
+  const showsResult: TVMazeSearchResult[] = await fetchSearchResults(query);
+  const shows: SearchResultShow[] = showsResult.map(
+    (showResult: TVMazeSearchResult) => ({
+      mazeId: showResult.show.id,
       name: showResult.show.name,
-      premiered: new Date(showResult.show.premiered),
+      premiered: showResult.show.premiered
+        ? new Date(showResult.show.premiered)
+        : "",
       ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
-      rating: showResult.show.rating.average,
-      imageUrl: showResult.show.image?.medium,
-      summary: decodeHtmlEntities(striptags(showResult.show.summary)),
+      rating: showResult.show.rating.average ?? null,
+      imageUrl: showResult.show.image?.medium ?? null,
+      summary: decodeHtmlEntities(striptags(showResult.show.summary || "")),
     })
   );
 
@@ -339,11 +349,13 @@ export function prepareShow(showResult: TVMazeShowResponse) {
   const show = {
     mazeId: `${showResult.id}`,
     name: showResult.name,
-    premiered: new Date(showResult.premiered),
+    premiered: showResult.premiered ? new Date(showResult.premiered) : "",
     ended: showResult.ended ? new Date(showResult.ended) : null,
-    rating: showResult.rating.average,
-    imageUrl: showResult.image?.medium,
-    summary: decodeHtmlEntities(striptags(showResult.summary)),
+    rating: showResult.rating.average ?? null,
+    imageUrl: showResult.image?.medium ?? null,
+    summary: showResult.summary
+      ? decodeHtmlEntities(striptags(showResult.summary))
+      : "",
   };
 
   const episodes = showResult._embedded?.episodes?.map(
@@ -353,9 +365,9 @@ export function prepareShow(showResult: TVMazeShowResponse) {
       season: episode.season,
       number: episode.number,
       airDate: new Date(episode.airstamp),
-      runtime: episode.runtime || 0,
-      imageUrl: episode.image?.medium,
-      summary: decodeHtmlEntities(striptags(episode.summary || "")),
+      runtime: episode.runtime ?? 0,
+      imageUrl: episode.image?.medium ?? null,
+      summary: decodeHtmlEntities(striptags(episode.summary ?? "")),
     })
   );
 
