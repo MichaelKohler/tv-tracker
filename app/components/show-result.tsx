@@ -5,7 +5,7 @@ import type { Show } from "@prisma/client";
 import Spinner from "./spinner";
 
 interface Props {
-  show: Show;
+  show: Omit<Show, "id" | "createdAt" | "updatedAt">;
   features?: {
     addShow: boolean;
   };

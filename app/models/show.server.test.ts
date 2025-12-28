@@ -52,7 +52,7 @@ const SHOW: Show = {
   id: "1",
   premiered: new Date(),
   imageUrl: "https://example.com/image.png",
-  mazeId: "maze1",
+  mazeId: "1",
   name: "Test Show 1",
   summary: "Test Summary",
   ended: null,
@@ -93,7 +93,7 @@ describe("Show Model", () => {
   it("getAllRunningShowIds should return ids", async () => {
     vi.mocked(prisma.show.findMany).mockResolvedValue([SHOW, SHOW2]);
     const runningShowIds = await getAllRunningShowIds();
-    expect(runningShowIds).toStrictEqual(["maze1", "maze2"]);
+    expect(runningShowIds).toStrictEqual(["1", "maze2"]);
   });
 
   it("getSortedArchivedShowsByUserId should return archived ids and unwatched count in sorted manner", async () => {
@@ -467,7 +467,7 @@ describe("Show Model", () => {
 
   it("searchShows should return fetched shows", async () => {
     const show = {
-      mazeId: "maze1",
+      mazeId: "1",
       name: "Name",
       premiered: new Date("2022-01-01"),
       ended: new Date("2022-01-01"),
@@ -478,8 +478,9 @@ describe("Show Model", () => {
     vi.mocked(fetchSearchResults).mockResolvedValue([
       {
         show: {
-          id: "maze1",
+          id: 1,
           name: "Name",
+          status: "Running",
           premiered: "2022-01-01",
           ended: "2022-01-01",
           rating: {
@@ -490,6 +491,7 @@ describe("Show Model", () => {
           },
           summary: "Some description <strong>with HTML</strong> tags inside..",
         },
+        score: 1,
       },
     ]);
     vi.mocked(prisma.show.findMany).mockResolvedValue([]);
@@ -505,7 +507,7 @@ describe("Show Model", () => {
 
   it("searchShows should return fetched shows excluding already added shows", async () => {
     const show = {
-      mazeId: "maze2",
+      mazeId: "2",
       name: "Name",
       premiered: new Date("2022-01-01"),
       ended: new Date("2022-01-01"),
@@ -516,8 +518,9 @@ describe("Show Model", () => {
     vi.mocked(fetchSearchResults).mockResolvedValue([
       {
         show: {
-          id: "maze1",
+          id: 1,
           name: "Name",
+          status: "Running",
           premiered: "2022-01-01",
           ended: "2022-01-01",
           rating: {
@@ -528,11 +531,13 @@ describe("Show Model", () => {
           },
           summary: "Some description <strong>with HTML</strong> tags inside..",
         },
+        score: 1,
       },
       {
         show: {
-          id: "maze2",
+          id: 2,
           name: "Name",
+          status: "Running",
           premiered: "2022-01-01",
           ended: "2022-01-01",
           rating: {
@@ -543,6 +548,7 @@ describe("Show Model", () => {
           },
           summary: "Some description <strong>with HTML</strong> tags inside..",
         },
+        score: 0.9,
       },
     ]);
     vi.mocked(prisma.show.findMany).mockResolvedValue([SHOW]);
@@ -553,7 +559,7 @@ describe("Show Model", () => {
 
   it("addShow should add show and episodes", async () => {
     const show = {
-      mazeId: "maze1",
+      mazeId: "1",
       name: "Name",
       premiered: new Date("2022-01-01"),
       ended: new Date("2022-01-01"),
@@ -572,10 +578,11 @@ describe("Show Model", () => {
       summary: "Some episode summary...",
     };
     vi.mocked(fetchShowWithEmbededEpisodes).mockResolvedValue({
-      id: "maze1",
+      id: 1,
       name: "Name",
       premiered: "2022-01-01",
       ended: "2022-01-01",
+      status: "Running",
       rating: {
         average: 2,
       },
@@ -586,10 +593,11 @@ describe("Show Model", () => {
       _embedded: {
         episodes: [
           {
-            id: "1",
+            id: 1,
             name: "EpisodeName",
             season: 1,
             number: 1,
+            airdate: "2022-01-01",
             airstamp: "2022-01-01",
             runtime: 30,
             image: {
