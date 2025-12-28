@@ -86,7 +86,7 @@
     "jsdom": "^27.3.0",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "prisma": "^6.19.1",
+    "prisma": "^7.1.0",
     "tailwindcss": "^4.1.18",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
