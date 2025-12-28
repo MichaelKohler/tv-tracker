@@ -10,11 +10,8 @@ import Search, { action, loader } from "./tv.search";
 
 const shows = [
   {
-    createdAt: new Date("2022-01-01T00:00:00Z"),
-    updatedAt: new Date("2022-01-01T00:00:00Z"),
-    id: "1",
     imageUrl: "https://example.com/image.png",
-    mazeId: "1",
+    mazeId: 1,
     name: "TVShow1",
     summary: "Test Summary",
     premiered: new Date("2022-01-01T00:00:00Z"),

@@ -5,14 +5,14 @@ export interface TVMazeShowResponse {
   name: string;
   status: string;
   ended: string | null;
-  premiered: string;
+  premiered: string | null;
   rating: {
-    average: number;
+    average: number | null;
   };
-  summary: string;
+  summary: string | null;
   image: {
     medium: string;
-  };
+  } | null;
   _embedded?: {
     episodes: TVMazeEpisodeResponse[];
   };
@@ -37,4 +37,9 @@ export interface TVMazeEpisodeResponse {
     medium: string;
   } | null;
   [key: string]: unknown;
+}
+
+export interface TVMazeSearchResult {
+  score: number;
+  show: TVMazeShowResponse;
 }

@@ -1,11 +1,11 @@
-import type { Show } from "@prisma/client";
+import type { SearchResultShow } from "app/types/show";
 
 import ErrorAlert from "./error-alert";
 import ShowResult from "./show-result";
 import Spinner from "./spinner";
 
 interface Props {
-  shows: Omit<Show, "id" | "createdAt" | "updatedAt">[];
+  shows: SearchResultShow[];
   isLoading?: boolean;
   error?: string;
   features?: {

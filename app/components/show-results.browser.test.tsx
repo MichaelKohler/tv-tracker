@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 
-import { testShow } from "../test-utils";
+import { testSearchShow } from "../test-utils";
 import ShowResults from "./show-results";
 
 const shows = [
-  testShow,
-  { ...testShow, id: "2", mazeId: "2", name: "Test Show 2" },
+  testSearchShow,
+  { ...testSearchShow, mazeId: 2, name: "Test Show 2" },
 ];
 
 vi.mock("./show-result", async () => ({
