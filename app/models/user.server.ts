@@ -82,11 +82,15 @@ export async function changePassword(
 
   const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
-  await prisma.password.update({
+  await prisma.password.upsert({
     where: {
       userId: existingUser.id,
     },
-    data: {
+    create: {
+      userId: existingUser.id,
+      hash: hashedPassword,
+    },
+    update: {
       hash: hashedPassword,
     },
   });
@@ -100,10 +104,46 @@ export async function deleteUserByUserId(id: User["id"]) {
   return prisma.user.delete({ where: { id } });
 }
 
+export async function userHasPassword(userId: User["id"]): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { password: true },
+  });
+
+  return !!user?.password;
+}
+
+export async function removePassword(userId: User["id"]) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { password: true, passkeys: true },
+  });
+
+  if (!user) {
+    throw new Error("USER_NOT_FOUND");
+  }
+
+  if (!user.password) {
+    throw new Error("NO_PASSWORD_TO_REMOVE");
+  }
+
+  if (user.passkeys.length === 0) {
+    throw new Error("NEED_PASSKEY_BEFORE_REMOVAL");
+  }
+
+  await prisma.password.delete({
+    where: { userId },
+  });
+}
+
 export async function verifyLogin(
   email: User["email"],
   password: Password["hash"]
 ) {
+  if (!password || password.length === 0) {
+    return null;
+  }
+
   const userWithPassword = await prisma.user.findUnique({
     where: { email },
     include: {
