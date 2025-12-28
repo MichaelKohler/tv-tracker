@@ -23,6 +23,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db
 
       - name: 📄 Check format
         run: npm run format:check
@@ -44,6 +46,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db
 
       - name: 🔎 Type check
         run: npm run typecheck
@@ -62,6 +66,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db
 
       - name: 🌳 Install Playwright browsers
         run: npx playwright install
@@ -96,6 +102,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
       - name: 🛠 Setup Database
         run: npx prisma db push

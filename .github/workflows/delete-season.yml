@@ -27,6 +27,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: 🗑️ Delete Season
         run: npm run delete:season

@@ -36,6 +36,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: ${{ inputs.database_url || secrets.DATABASE_URL }}
 
       - name: 🗄️ Run Prisma Migrations
         run: npx prisma migrate deploy

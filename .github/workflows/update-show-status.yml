@@ -25,6 +25,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Show Status
         run: npm run update:show:status
