@@ -43,11 +43,22 @@ async function updateEpisode(
   if (!episode) {
     console.log(`Episode not found, fetching info from TVMaze..`);
     const showWithEpisodes = await fetchShowWithEmbededEpisodes(show.mazeId);
+
+    if (!showWithEpisodes._embedded) {
+      console.error("Show does not have embedded episodes");
+      return;
+    }
+
     const fetchedEpisode = showWithEpisodes._embedded.episodes.find(
       (episode: TVMazeEpisodeResponse) => {
         return episode.season === season && episode.number === number;
       }
     );
+
+    if (!fetchedEpisode) {
+      console.error(`Episode not found for season ${season}, number ${number}`);
+      return;
+    }
 
     console.log("Fetched episode", fetchedEpisode);
 
@@ -59,7 +70,7 @@ async function updateEpisode(
       airDate: new Date(fetchedEpisode.airstamp),
       runtime: fetchedEpisode.runtime || 0,
       imageUrl: fetchedEpisode.image?.medium,
-      summary: striptags(fetchedEpisode.summary),
+      summary: fetchedEpisode.summary ? striptags(fetchedEpisode.summary) : "",
     };
 
     console.log(`Creating new episode in DB (${season}, ${number})..`);

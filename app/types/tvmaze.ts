@@ -19,6 +19,11 @@ export interface TVMazeShowResponse {
   [key: string]: unknown;
 }
 
+export interface TVMazeSearchResult {
+  show: TVMazeShowResponse;
+  score: number;
+}
+
 export interface TVMazeEpisodeResponse {
   id: number;
   name: string;

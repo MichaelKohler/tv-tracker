@@ -315,20 +315,21 @@ export async function searchShows(query: string | null, userId: User["id"]) {
   const addedShowsPromise = getAddedShowsMazeIds(userId);
 
   const showsResult = await fetchSearchResults(query);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const shows: Show[] = showsResult.map((showResult: any) => ({
-    mazeId: showResult.show.id,
-    name: showResult.show.name,
-    premiered: new Date(showResult.show.premiered),
-    ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
-    rating: showResult.show.rating.average,
-    imageUrl: showResult.show.image?.medium,
-    summary: decodeHtmlEntities(striptags(showResult.show.summary)),
-  }));
+  const shows: Omit<Show, "id" | "createdAt" | "updatedAt">[] = showsResult.map(
+    (showResult) => ({
+      mazeId: `${showResult.show.id}`,
+      name: showResult.show.name,
+      premiered: new Date(showResult.show.premiered),
+      ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
+      rating: showResult.show.rating.average,
+      imageUrl: showResult.show.image?.medium,
+      summary: decodeHtmlEntities(striptags(showResult.show.summary)),
+    })
+  );
 
   const addedShowIds = await addedShowsPromise;
   const filteredShows = shows.filter(
-    (show: Show) => !addedShowIds.includes(show.mazeId.toString())
+    (show) => !addedShowIds.includes(show.mazeId.toString())
   );
 
   return filteredShows;

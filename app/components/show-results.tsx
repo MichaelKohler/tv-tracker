@@ -5,7 +5,7 @@ import ShowResult from "./show-result";
 import Spinner from "./spinner";
 
 interface Props {
-  shows: Show[];
+  shows: Omit<Show, "id" | "createdAt" | "updatedAt">[];
   isLoading?: boolean;
   error?: string;
   features?: {
