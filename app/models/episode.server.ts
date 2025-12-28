@@ -445,44 +445,41 @@ export async function getWatchedEpisodesCountForUser(userId: User["id"]) {
 }
 
 export async function getUnwatchedEpisodesCountForUser(userId: User["id"]) {
-  // Get total aired episodes for shows the user is tracking
-  const totalAiredEpisodes = await prisma.episode.count({
-    where: {
-      airDate: {
-        lte: new Date(),
-      },
-      show: {
-        users: {
-          some: {
-            userId,
-          },
-        },
-      },
-    },
-  });
-
-  // Get watched episodes count
-  const watchedCount = await getWatchedEpisodesCountForUser(userId);
-
-  // Get ignored episodes count
-  const ignoredCount = await prisma.episodeOnUser.count({
-    where: {
-      userId,
-      ignored: true,
-      episode: {
+  const [totalAiredEpisodes, watchedCount, ignoredCount] = await Promise.all([
+    prisma.episode.count({
+      where: {
         airDate: {
           lte: new Date(),
         },
-      },
-      show: {
-        users: {
-          some: {
-            userId,
+        show: {
+          users: {
+            some: {
+              userId,
+            },
           },
         },
       },
-    },
-  });
+    }),
+    getWatchedEpisodesCountForUser(userId),
+    prisma.episodeOnUser.count({
+      where: {
+        userId,
+        ignored: true,
+        episode: {
+          airDate: {
+            lte: new Date(),
+          },
+        },
+        show: {
+          users: {
+            some: {
+              userId,
+            },
+          },
+        },
+      },
+    }),
+  ]);
 
   return totalAiredEpisodes - watchedCount - ignoredCount;
 }

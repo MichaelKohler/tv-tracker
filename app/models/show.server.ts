@@ -88,33 +88,34 @@ export async function getShowsByUserId(userId: User["id"], archived = false) {
 
   const showIds = showsOnUser.map((s) => s.showId);
 
-  const watchedEpisodesCount = await prisma.episodeOnUser.groupBy({
-    by: ["showId"],
-    _count: {
-      episodeId: true,
-    },
-    where: {
-      userId,
-      ignored: false,
-      showId: {
-        in: showIds,
+  const [watchedEpisodesCount, ignoredEpisodesCount] = await Promise.all([
+    prisma.episodeOnUser.groupBy({
+      by: ["showId"],
+      _count: {
+        episodeId: true,
       },
-    },
-  });
-
-  const ignoredEpisodesCount = await prisma.episodeOnUser.groupBy({
-    by: ["showId"],
-    _count: {
-      episodeId: true,
-    },
-    where: {
-      userId,
-      ignored: true,
-      showId: {
-        in: showIds,
+      where: {
+        userId,
+        ignored: false,
+        showId: {
+          in: showIds,
+        },
       },
-    },
-  });
+    }),
+    prisma.episodeOnUser.groupBy({
+      by: ["showId"],
+      _count: {
+        episodeId: true,
+      },
+      where: {
+        userId,
+        ignored: true,
+        showId: {
+          in: showIds,
+        },
+      },
+    }),
+  ]);
 
   const watchedEpisodesCountMap = new Map<string, number>();
   for (const group of watchedEpisodesCount) {
