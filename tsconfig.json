@@ -20,6 +20,9 @@
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
+    "paths": {
+      "@prisma/client": ["./app/generated/prisma"]
+    },
     "skipLibCheck": true,
     "noEmit": true
   }
