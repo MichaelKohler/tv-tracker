@@ -2,6 +2,30 @@ import type { Episode, Show, User } from "@prisma/client";
 
 import { prisma } from "../db.server";
 
+async function verifyUserOwnsShow({
+  userId,
+  showId,
+}: {
+  userId: User["id"];
+  showId: Show["id"];
+}) {
+  const showOnUser = await prisma.showOnUser.findFirst({
+    where: {
+      showId,
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!showOnUser) {
+    throw new Response("Not Found", {
+      status: 404,
+    });
+  }
+}
+
 export async function getEpisodeByShowIdAndNumbers({
   showId,
   season,
@@ -131,21 +155,7 @@ export async function markEpisodeAsWatched({
   episodeId: Episode["id"];
   showId: Show["id"];
 }) {
-  const showOnUser = await prisma.showOnUser.findFirst({
-    where: {
-      showId,
-      userId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!showOnUser) {
-    throw new Response("Not Found", {
-      status: 404,
-    });
-  }
+  await verifyUserOwnsShow({ userId, showId });
 
   await prisma.episodeOnUser.upsert({
     where: {
@@ -206,21 +216,7 @@ export async function markEpisodeAsIgnored({
   episodeId: Episode["id"];
   showId: Show["id"];
 }) {
-  const showOnUser = await prisma.showOnUser.findFirst({
-    where: {
-      showId,
-      userId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!showOnUser) {
-    throw new Response("Not Found", {
-      status: 404,
-    });
-  }
+  await verifyUserOwnsShow({ userId, showId });
 
   await prisma.episodeOnUser.upsert({
     where: {
@@ -263,21 +259,7 @@ export async function markEpisodeAsUnignored({
   episodeId: Episode["id"];
   showId: Show["id"];
 }) {
-  const showOnUser = await prisma.showOnUser.findFirst({
-    where: {
-      showId,
-      userId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!showOnUser) {
-    throw new Response("Not Found", {
-      status: 404,
-    });
-  }
+  await verifyUserOwnsShow({ userId, showId });
 
   // Check if episode is currently ignored
   const episodeOnUser = await prisma.episodeOnUser.findFirst({
@@ -310,21 +292,7 @@ export async function markAllEpisodesAsWatched({
   userId: User["id"];
   showId: Show["id"];
 }) {
-  const showOnUser = await prisma.showOnUser.findFirst({
-    where: {
-      showId,
-      userId,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!showOnUser) {
-    throw new Response("Not Found", {
-      status: 404,
-    });
-  }
+  await verifyUserOwnsShow({ userId, showId });
 
   const episodesToMarkAsWatched = await prisma.episode.findMany({
     where: {
