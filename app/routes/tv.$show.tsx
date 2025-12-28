@@ -58,6 +58,64 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   };
 }
 
+interface IntentHandler {
+  handler: (params: {
+    userId: string;
+    showId: string;
+    episodeId: string;
+  }) => Promise<void | Response>;
+  errorCode: string;
+}
+
+const intentHandlers: Record<string, IntentHandler> = {
+  MARK_WATCHED: {
+    handler: ({ userId, showId, episodeId }) =>
+      markEpisodeAsWatched({ userId, showId, episodeId }),
+    errorCode: "MARKING_EPISODE_FAILED",
+  },
+  MARK_UNWATCHED: {
+    handler: ({ userId, showId, episodeId }) =>
+      markEpisodeAsUnwatched({ userId, showId, episodeId }),
+    errorCode: "MARKING_EPISODE_UNWATCHED_FAILED",
+  },
+  MARK_IGNORED: {
+    handler: ({ userId, showId, episodeId }) =>
+      markEpisodeAsIgnored({ userId, showId, episodeId }),
+    errorCode: "MARKING_EPISODE_IGNORED_FAILED",
+  },
+  MARK_UNIGNORED: {
+    handler: ({ userId, showId, episodeId }) =>
+      markEpisodeAsUnignored({ userId, showId, episodeId }),
+    errorCode: "MARKING_EPISODE_UNIGNORED_FAILED",
+  },
+  MARK_ALL_WATCHED: {
+    handler: ({ userId, showId }) =>
+      markAllEpisodesAsWatched({ userId, showId }),
+    errorCode: "MARKING_ALL_EPISODES_FAILED",
+  },
+  DELETE_SHOW: {
+    handler: async ({ userId, showId }) => {
+      await removeShowFromUser({ userId, showId });
+      return redirect("/tv");
+    },
+    errorCode: "REMOVE_SHOW_FAILED",
+  },
+  ARCHIVE: {
+    handler: async ({ userId, showId }) => {
+      await archiveShowOnUser({ userId, showId });
+      return redirect("/tv");
+    },
+    errorCode: "ARCHIVE_SHOW_FAILED",
+  },
+  UNARCHIVE: {
+    handler: async ({ userId, showId }) => {
+      await unarchiveShowOnUser({ userId, showId });
+      return redirect("/tv");
+    },
+    errorCode: "UNARCHIVE_SHOW_FAILED",
+  },
+};
+
 export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
   const formData = await request.formData();
@@ -65,95 +123,17 @@ export async function action({ request }: ActionFunctionArgs) {
   const showId = (formData.get("showId") as string) || "";
   const episodeId = (formData.get("episodeId") as string) || "";
 
-  if (intent === "MARK_WATCHED") {
+  const intentHandler = intentHandlers[intent];
+
+  if (intentHandler) {
     try {
-      await markEpisodeAsWatched({ userId, showId, episodeId });
+      const result = await intentHandler.handler({ userId, showId, episodeId });
+      if (result) {
+        return result;
+      }
     } catch (error) {
       console.error(error);
-
-      return data({ error: "MARKING_EPISODE_FAILED" }, { status: 500 });
-    }
-  }
-
-  if (intent === "MARK_UNWATCHED") {
-    try {
-      await markEpisodeAsUnwatched({ userId, showId, episodeId });
-    } catch (error) {
-      console.error(error);
-
-      return data(
-        { error: "MARKING_EPISODE_UNWATCHED_FAILED" },
-        { status: 500 }
-      );
-    }
-  }
-
-  if (intent === "MARK_IGNORED") {
-    try {
-      await markEpisodeAsIgnored({ userId, showId, episodeId });
-    } catch (error) {
-      console.error(error);
-
-      return data({ error: "MARKING_EPISODE_IGNORED_FAILED" }, { status: 500 });
-    }
-  }
-
-  if (intent === "MARK_UNIGNORED") {
-    try {
-      await markEpisodeAsUnignored({ userId, showId, episodeId });
-    } catch (error) {
-      console.error(error);
-
-      return data(
-        { error: "MARKING_EPISODE_UNIGNORED_FAILED" },
-        { status: 500 }
-      );
-    }
-  }
-
-  if (intent === "MARK_ALL_WATCHED") {
-    try {
-      await markAllEpisodesAsWatched({ userId, showId });
-    } catch (error) {
-      console.error(error);
-
-      return data({ error: "MARKING_ALL_EPISODES_FAILED" }, { status: 500 });
-    }
-  }
-
-  if (intent === "DELETE_SHOW") {
-    try {
-      await removeShowFromUser({ userId, showId });
-
-      return redirect("/tv");
-    } catch (error) {
-      console.error(error);
-
-      return data({ error: "REMOVE_SHOW_FAILED" }, { status: 500 });
-    }
-  }
-
-  if (intent === "ARCHIVE") {
-    try {
-      await archiveShowOnUser({ userId, showId });
-
-      return redirect("/tv");
-    } catch (error) {
-      console.error(error);
-
-      return data({ error: "ARCHIVE_SHOW_FAILED" }, { status: 500 });
-    }
-  }
-
-  if (intent === "UNARCHIVE") {
-    try {
-      await unarchiveShowOnUser({ userId, showId });
-
-      return redirect("/tv");
-    } catch (error) {
-      console.error(error);
-
-      return data({ error: "UNARCHIVE_SHOW_FAILED" }, { status: 500 });
+      return data({ error: intentHandler.errorCode }, { status: 500 });
     }
   }
 
