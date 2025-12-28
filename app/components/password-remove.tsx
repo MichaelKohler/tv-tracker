@@ -18,7 +18,11 @@ export function PasswordRemove({
   const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
-    if (actionData && "intent" in actionData && actionData.intent === "remove-password") {
+    if (
+      actionData &&
+      "intent" in actionData &&
+      actionData.intent === "remove-password"
+    ) {
       setIsRemoving(false);
     }
     if (actionData?.errors?.generic) {
@@ -91,7 +95,7 @@ export function PasswordRemove({
         <button
           type="submit"
           disabled={isRemoving}
-          className="w-full rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700 focus:bg-red-700 disabled:opacity-50"
+          className="rounded bg-mkerror py-2 px-4 text-center text-white hover:bg-mkerror-muted active:bg-mkerror-muted"
         >
           {isRemoving ? "Removing Password..." : "Remove Password"}
         </button>
@@ -103,7 +107,9 @@ export function PasswordRemove({
         {actionData?.done &&
           "intent" in actionData &&
           actionData.intent === "remove-password" && (
-            <p className="mt-2 text-green-600">Password removed successfully!</p>
+            <p className="mt-2 text-green-600">
+              Password removed successfully!
+            </p>
           )}
       </form>
     </>
