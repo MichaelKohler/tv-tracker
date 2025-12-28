@@ -95,7 +95,7 @@ export function PasswordRemove({
         <button
           type="submit"
           disabled={isRemoving}
-          className="rounded bg-mkerror py-2 px-4 text-center text-white hover:bg-mkerror-muted active:bg-mkerror-muted"
+          className="w-full rounded bg-mkerror py-2 px-4 text-center text-white hover:bg-mkerror-muted active:bg-mkerror-muted"
         >
           {isRemoving ? "Removing Password..." : "Remove Password"}
         </button>
