@@ -41,6 +41,11 @@ export function PasswordChangeForm({
       currentPasswordRef.current.value = "";
       newPasswordRef.current.value = "";
       passwordConfirmRef.current.value = "";
+      setIsSubmitting(false);
+    }
+
+    if (actionData?.errors) {
+      setIsSubmitting(false);
     }
   }, [actionData]);
 
