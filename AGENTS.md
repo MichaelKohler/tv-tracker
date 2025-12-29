@@ -43,13 +43,49 @@ Create `.env` file from `.env.example`:
 
 Never override an already existing `.env` file.
 
+### Feature Flags
+
+This project uses [flipt.io](https://flipt.io) for feature flag management, enabling gradual rollouts and A/B testing.
+
+#### Checking Flags in Code
+
+**In loaders/actions (with request object):**
+
+```typescript
+export async function loader({ request }: LoaderFunctionArgs) {
+  const isSearchEnabled = await evaluateBoolean(request, FLAGS.SEARCH);
+}
+```
+
+**In scripts (without request object):**
+
+```typescript
+const shouldFetchFromSource = await evaluateBooleanFromScripts(
+  FLAGS.FETCH_FROM_SOURCE
+);
+```
+
+**For variant flags (A/B testing):**
+
+```typescript
+const variant = await evaluateVariant(request, "experimental-feature");
+```
+
+#### Default Fallback Values
+
+When flipt.io is unreachable, flags fall back to safe defaults defined in `DEFAULT_FLAG_VALUES`:
+
+- Most features default to `false` (disabled) for safety
+- `MAINTENANCE_MODE` defaults to `true` (app available)
+- `SIGNUP_DISABLED` defaults to `false` (signup allowed)
+
 ### Build Commands (Validated Working Order)
 
 ```bash
-npm run typecheck    # TypeScript compilation (~1s)
-npm run lint        # ESLint with cache (~1s)
-npm run test        # Vitest unit tests (~5s, 315 tests)
-npm run build       # Production build (~1.5s)
+npm run typecheck    # TypeScript compilation
+npm run lint        # ESLint with cache
+npm run test        # Vitest unit tests
+npm run build       # Production build
 npm run dev         # Development server with HMR
 npm run validate    # Runs: test --run, lint, typecheck, test:e2e in serial
 ```
@@ -57,7 +93,7 @@ npm run validate    # Runs: test --run, lint, typecheck, test:e2e in serial
 **Build Notes**:
 
 - Source maps enabled in production (shows warning)
-- Build generates ~27 client chunks + SSR bundle
+- Build generates multiple client chunks + SSR bundle
 
 ### E2E Testing (Docker Required)
 
@@ -114,8 +150,8 @@ npm run test:e2e:report    # View test results
 
 1. **ESLint**: Code linting with cache
 2. **TypeScript**: Type checking compilation
-3. **Vitest**: Unit tests (51 files, 315 tests)
-4. **Playwright**: E2E tests (16 tests) with PostgreSQL service
+3. **Vitest**: Unit tests with comprehensive coverage
+4. **Playwright**: E2E tests with PostgreSQL service
 
 Always run these (with `npm run validate`) before telling the user you are done.
 
@@ -152,7 +188,7 @@ Always run "npm test" with `--run`, otherwise the tests will run in watch mode a
 - Use TypeScript for all new files
 - Follow functional components with hooks pattern
 - Use Tailwind CSS for styling
-- Use Remix patterns such as loaders and actions instead of client-side hooks
+- Use React Router patterns such as loaders and actions instead of client-side hooks
 - Use meaningful variable and function names
 - Write self-documenting code without any comments
 - Prefer composition over inheritance
@@ -181,4 +217,6 @@ Always run "npm test" with `--run`, otherwise the tests will run in watch mode a
 
 These instructions are comprehensive and validated through actual command execution. Only perform additional searches if you encounter errors not covered here or if requirements have changed. Focus on the documented workflow to avoid common pitfalls.
 
-**IMPORTANT**: When making changes to the codebase that affect any information in the `AGENT.md` file, you MUST also update that file accordingly. When making changes which make any section of the `README.md` outdated, you MUST also update the `README.md` file.
+## Keeping documentation up to date
+
+**IMPORTANT**: When making changes to the codebase that affect any information in the `AGENTS.md` file, you MUST also update that file accordingly. When making changes which make any section of the `README.md` outdated, you MUST also update the `README.md` file.
