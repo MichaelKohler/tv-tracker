@@ -1,6 +1,7 @@
 import type { Invite } from "@prisma/client";
 
 import { prisma } from "../db.server";
+import { logError } from "../utils/logger.server";
 
 export async function redeemInviteCode(inviteCode: Invite["id"]) {
   const existingInvite = await prisma.invite.findUnique({
@@ -20,7 +21,13 @@ export async function redeemInviteCode(inviteCode: Invite["id"]) {
       },
     });
   } catch (error) {
-    console.error("INVITE_DELETION_ERROR", error);
+    logError(
+      "Failed to delete redeemed invite code",
+      {
+        inviteCode,
+      },
+      error
+    );
   }
 
   return true;

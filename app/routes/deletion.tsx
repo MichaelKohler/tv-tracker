@@ -10,6 +10,7 @@ import {
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { deleteUserByUserId } from "../models/user.server";
 import { requireUserId, logout } from "../session.server";
+import { logError } from "../utils/logger.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const deleteAccountEnabled = await evaluateBoolean(
@@ -28,7 +29,13 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     await deleteUserByUserId(userId);
   } catch (error) {
-    console.error("DELETE_USER_ERROR", error);
+    logError(
+      "Failed to delete user account",
+      {
+        userId,
+      },
+      error
+    );
 
     return data(
       { errors: { deletion: "Could not delete user. Please try again." } },

@@ -26,6 +26,7 @@ import {
   unarchiveShowOnUser,
 } from "../models/show.server";
 import { requireUserId } from "../session.server";
+import { logError } from "../utils/logger.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -132,7 +133,17 @@ export async function action({ request }: ActionFunctionArgs) {
         return result;
       }
     } catch (error) {
-      console.error(error);
+      logError(
+        "Show action failed",
+        {
+          intent,
+          userId,
+          showId,
+          episodeId,
+          errorCode: intentHandler.errorCode,
+        },
+        error
+      );
       return data({ error: intentHandler.errorCode }, { status: 500 });
     }
   }

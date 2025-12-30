@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "crypto";
 import type { User } from "@prisma/client";
 
 import { prisma } from "../db.server";
+import { logError } from "../utils/logger.server";
 import { sendPasswordResetMail } from "./mail.server";
 import { getUserByEmail } from "./user.server";
 
@@ -30,8 +31,14 @@ export async function triggerPasswordReset(email: User["email"]) {
       });
 
       sendPasswordResetMail({ email, token });
-    } catch {
-      console.error("Failed to create password reset entry for email:", email);
+    } catch (error) {
+      logError(
+        "Failed to create password reset entry",
+        {
+          email,
+        },
+        error
+      );
     }
   } else {
     // Simulate the same operations for timing consistency

@@ -13,6 +13,7 @@ import ShowResults from "../components/show-results";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { addShow, searchShows } from "../models/show.server";
 import { requireUserId } from "../session.server";
+import { logError } from "../utils/logger.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
@@ -48,7 +49,14 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     await addShow(userId, showId);
   } catch (error) {
-    console.error(error);
+    logError(
+      "Failed to add show to user's watchlist",
+      {
+        userId,
+        showId,
+      },
+      error
+    );
 
     return data({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
   }
