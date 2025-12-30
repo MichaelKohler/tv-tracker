@@ -10,7 +10,7 @@ import {
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { deleteUserByUserId } from "../models/user.server";
 import { requireUserId, logout } from "../session.server";
-import { logError } from "../utils/logger.server";
+import { logError } from "../logger.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const deleteAccountEnabled = await evaluateBoolean(

@@ -7,7 +7,7 @@ import {
 } from "../models/episode.server";
 import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
-import { logError } from "../utils/logger.server";
+import { logError } from "../logger.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const plexEnabled = await evaluateBoolean(request, FLAGS.PLEX);

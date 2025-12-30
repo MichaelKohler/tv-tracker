@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "crypto";
 import type { User } from "@prisma/client";
 
 import { prisma } from "../db.server";
-import { logError } from "../utils/logger.server";
+import { logError } from "../logger.server";
 import { sendPasswordResetMail } from "./mail.server";
 import { getUserByEmail } from "./user.server";
 

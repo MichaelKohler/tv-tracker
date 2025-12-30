@@ -26,7 +26,7 @@ import {
   unarchiveShowOnUser,
 } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import { logError } from "../utils/logger.server";
+import { logError } from "../logger.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);

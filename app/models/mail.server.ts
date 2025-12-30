@@ -1,7 +1,7 @@
 import type { User, PasswordReset } from "@prisma/client";
 import { createTransport } from "nodemailer";
 
-import { logError, logInfo } from "../utils/logger.server";
+import { logError, logInfo } from "../logger.server";
 
 export async function sendPasswordResetMail({
   email,

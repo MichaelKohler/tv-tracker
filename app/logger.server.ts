@@ -30,6 +30,7 @@ export function logError(
   const timestamp = new Date().toISOString();
   const logData = {
     timestamp,
+    level: "error",
     message,
     ...context,
     ...(error ? { error: formatError(error) } : {}),

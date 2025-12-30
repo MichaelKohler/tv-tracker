@@ -13,7 +13,7 @@ import ShowResults from "../components/show-results";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { addShow, searchShows } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import { logError } from "../utils/logger.server";
+import { logError } from "../logger.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);

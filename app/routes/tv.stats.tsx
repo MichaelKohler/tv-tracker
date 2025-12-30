@@ -15,7 +15,7 @@ import {
   getArchivedShowsCountForUser,
 } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import { logError } from "../utils/logger.server";
+import { logError } from "../logger.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const statsRoute = await evaluateBoolean(request, FLAGS.STATS_ROUTE);
