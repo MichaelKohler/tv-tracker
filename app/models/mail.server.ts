@@ -1,6 +1,8 @@
 import type { User, PasswordReset } from "@prisma/client";
 import { createTransport } from "nodemailer";
 
+import { logError, logInfo } from "../logger.server";
+
 export async function sendPasswordResetMail({
   email,
   token,
@@ -11,7 +13,15 @@ export async function sendPasswordResetMail({
   const { SMTP_HOST, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD } = process.env;
 
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_EMAIL || !SMTP_PASSWORD) {
-    console.error("SMTP_NOT_SET_UP");
+    logInfo("SMTP not configured - password reset email will not be sent", {
+      email,
+      missingConfig: {
+        SMTP_HOST: !SMTP_HOST,
+        SMTP_PORT: !SMTP_PORT,
+        SMTP_EMAIL: !SMTP_EMAIL,
+        SMTP_PASSWORD: !SMTP_PASSWORD,
+      },
+    });
     return;
   }
 
@@ -35,10 +45,16 @@ export async function sendPasswordResetMail({
 
   try {
     await transporter.sendMail(message);
+    logInfo("Password reset email sent successfully", { email });
   } catch (error) {
-    console.error("SEND_MAIL_FAILED", error);
-    return;
+    logError(
+      "Failed to send password reset email",
+      {
+        email,
+        smtpHost: SMTP_HOST,
+        smtpPort: SMTP_PORT,
+      },
+      error
+    );
   }
-
-  console.log("PASSWORD_RESET_MAIL_SENT", email);
 }

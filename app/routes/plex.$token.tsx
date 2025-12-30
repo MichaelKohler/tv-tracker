@@ -7,6 +7,7 @@ import {
 } from "../models/episode.server";
 import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
+import { logError } from "../logger.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const plexEnabled = await evaluateBoolean(request, FLAGS.PLEX);
@@ -54,8 +55,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
       episodeId: episode.id,
       showId: show.id,
     });
-  } catch {
-    // We can ignore errors here.
+  } catch (error) {
+    logError(
+      "Failed to mark episode as watched via Plex webhook",
+      {
+        userId: user.id,
+        showId: show.id,
+        showTitle,
+        episodeId: episode.id,
+        season: parsedPayload.Metadata.parentIndex,
+        episode: parsedPayload.Metadata.index,
+      },
+      error
+    );
   }
 
   return {};

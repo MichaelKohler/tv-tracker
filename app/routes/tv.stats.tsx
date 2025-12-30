@@ -15,6 +15,7 @@ import {
   getArchivedShowsCountForUser,
 } from "../models/show.server";
 import { requireUserId } from "../session.server";
+import { logError } from "../logger.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const statsRoute = await evaluateBoolean(request, FLAGS.STATS_ROUTE);
@@ -29,33 +30,56 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const userId = await requireUserId(request);
 
-  const [
-    totalWatchTime,
-    watchedEpisodesCount,
-    unwatchedEpisodesCount,
-    showsTracked,
-    archivedShowsCount,
-    last12MonthsStats,
-  ] = await Promise.all([
-    getTotalWatchTimeForUser(userId),
-    getWatchedEpisodesCountForUser(userId),
-    getUnwatchedEpisodesCountForUser(userId),
-    getShowsTrackedByUser(userId),
-    getArchivedShowsCountForUser(userId),
-    getLast12MonthsStats(userId),
-  ]);
+  try {
+    const [
+      totalWatchTime,
+      watchedEpisodesCount,
+      unwatchedEpisodesCount,
+      showsTracked,
+      archivedShowsCount,
+      last12MonthsStats,
+    ] = await Promise.all([
+      getTotalWatchTimeForUser(userId),
+      getWatchedEpisodesCountForUser(userId),
+      getUnwatchedEpisodesCountForUser(userId),
+      getShowsTrackedByUser(userId),
+      getArchivedShowsCountForUser(userId),
+      getLast12MonthsStats(userId),
+    ]);
 
-  return {
-    totalWatchTime,
-    watchedEpisodesCount,
-    unwatchedEpisodesCount,
-    showsTracked,
-    archivedShowsCount,
-    last12MonthsStats,
-    features: {
-      statsRoute: true,
-    },
-  };
+    return {
+      totalWatchTime,
+      watchedEpisodesCount,
+      unwatchedEpisodesCount,
+      showsTracked,
+      archivedShowsCount,
+      last12MonthsStats,
+      features: {
+        statsRoute: true,
+      },
+    };
+  } catch (error) {
+    logError(
+      "Failed to load statistics data",
+      {
+        userId,
+      },
+      error
+    );
+
+    return {
+      totalWatchTime: 0,
+      watchedEpisodesCount: 0,
+      unwatchedEpisodesCount: 0,
+      showsTracked: 0,
+      archivedShowsCount: 0,
+      last12MonthsStats: [],
+      features: {
+        statsRoute: true,
+      },
+      error: true,
+    };
+  }
 }
 
 function formatWatchTime(minutes: number): string {
