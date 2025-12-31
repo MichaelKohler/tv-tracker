@@ -15,6 +15,7 @@
     "dev:deps": "docker compose -f docker-compose.dev.yml up -d",
     "dev:deps:stop": "docker compose -f docker-compose.dev.yml stop",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "postinstall": "prisma generate",
     "setup": "prisma generate && prisma db push && prisma db seed",

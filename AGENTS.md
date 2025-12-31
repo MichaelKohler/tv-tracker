@@ -155,6 +155,8 @@ npm run test:e2e:report    # View test results
 
 Always run these (with `npm run validate`) before telling the user you are done.
 
+Additionally please also format the code with `npm run format` as otherwise the GitHub Action will fail.
+
 ### Continuous Integration Requirements
 
 - PostgreSQL database for E2E tests
