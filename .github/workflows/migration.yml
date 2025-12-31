@@ -4,16 +4,16 @@ on:
     branches:
       - main
     paths:
-      - 'prisma/migrations/**'
+      - "prisma/migrations/**"
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch name to checkout'
+        description: "Branch name to checkout"
         required: true
-        default: 'main'
+        default: "main"
         type: string
       database_url:
-        description: 'Database URL to run migrations against'
+        description: "Database URL to run migrations against"
         required: true
         type: string
 permissions:

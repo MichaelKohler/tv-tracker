@@ -15,72 +15,80 @@ import {
   getArchivedShowsCountForUser,
 } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import { logError } from "../logger.server";
+import { logError, logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const statsRoute = await evaluateBoolean(request, FLAGS.STATS_ROUTE);
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    const statsRoute = await evaluateBoolean(request, FLAGS.STATS_ROUTE);
 
-  if (!statsRoute) {
-    return {
-      features: {
-        statsRoute: false,
-      },
-    };
+    if (!statsRoute) {
+      return {
+        features: {
+          statsRoute: false,
+        },
+      };
+    }
+
+    const userId = await requireUserId(request);
+
+    logInfo("Loading statistics data", {});
+
+    try {
+      const [
+        totalWatchTime,
+        watchedEpisodesCount,
+        unwatchedEpisodesCount,
+        showsTracked,
+        archivedShowsCount,
+        last12MonthsStats,
+      ] = await Promise.all([
+        getTotalWatchTimeForUser(userId),
+        getWatchedEpisodesCountForUser(userId),
+        getUnwatchedEpisodesCountForUser(userId),
+        getShowsTrackedByUser(userId),
+        getArchivedShowsCountForUser(userId),
+        getLast12MonthsStats(userId),
+      ]);
+
+      logInfo("Statistics data loaded successfully", {
+        totalWatchTime,
+        watchedEpisodesCount,
+        unwatchedEpisodesCount,
+        showsTracked,
+        archivedShowsCount,
+        monthsWithData: last12MonthsStats.length,
+      });
+
+      return {
+        totalWatchTime,
+        watchedEpisodesCount,
+        unwatchedEpisodesCount,
+        showsTracked,
+        archivedShowsCount,
+        last12MonthsStats,
+        features: {
+          statsRoute: true,
+        },
+      };
+    } catch (error) {
+      logError("Failed to load statistics data", {}, error);
+
+      return {
+        totalWatchTime: 0,
+        watchedEpisodesCount: 0,
+        unwatchedEpisodesCount: 0,
+        showsTracked: 0,
+        archivedShowsCount: 0,
+        last12MonthsStats: [],
+        features: {
+          statsRoute: true,
+        },
+        error: true,
+      };
+    }
   }
-
-  const userId = await requireUserId(request);
-
-  try {
-    const [
-      totalWatchTime,
-      watchedEpisodesCount,
-      unwatchedEpisodesCount,
-      showsTracked,
-      archivedShowsCount,
-      last12MonthsStats,
-    ] = await Promise.all([
-      getTotalWatchTimeForUser(userId),
-      getWatchedEpisodesCountForUser(userId),
-      getUnwatchedEpisodesCountForUser(userId),
-      getShowsTrackedByUser(userId),
-      getArchivedShowsCountForUser(userId),
-      getLast12MonthsStats(userId),
-    ]);
-
-    return {
-      totalWatchTime,
-      watchedEpisodesCount,
-      unwatchedEpisodesCount,
-      showsTracked,
-      archivedShowsCount,
-      last12MonthsStats,
-      features: {
-        statsRoute: true,
-      },
-    };
-  } catch (error) {
-    logError(
-      "Failed to load statistics data",
-      {
-        userId,
-      },
-      error
-    );
-
-    return {
-      totalWatchTime: 0,
-      watchedEpisodesCount: 0,
-      unwatchedEpisodesCount: 0,
-      showsTracked: 0,
-      archivedShowsCount: 0,
-      last12MonthsStats: [],
-      features: {
-        statsRoute: true,
-      },
-      error: true,
-    };
-  }
-}
+);
 
 function formatWatchTime(minutes: number): string {
   const hours = Math.floor(minutes / 60);

@@ -26,38 +26,50 @@ import {
   unarchiveShowOnUser,
 } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import { logError } from "../logger.server";
+import { logError, logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+export const loader = withRequestContext(
+  async ({ request, params }: LoaderFunctionArgs) => {
+    const userId = await requireUserId(request);
 
-  if (!params.show) {
-    throw new Response("Not Found", {
-      status: 404,
+    if (!params.show) {
+      throw new Response("Not Found", {
+        status: 404,
+      });
+    }
+
+    logInfo("Loading show details", {
+      showId: params.show,
     });
-  }
 
-  const showResult = await getShowById(params.show, userId);
+    const showResult = await getShowById(params.show, userId);
 
-  if (!showResult.show) {
-    throw new Response("Not Found", {
-      status: 404,
+    if (!showResult.show) {
+      throw new Response("Not Found", {
+        status: 404,
+      });
+    }
+
+    const [markAllAsWatched, archive] = await Promise.all([
+      evaluateBoolean(request, FLAGS.MARK_ALL_AS_WATCHED),
+      evaluateBoolean(request, FLAGS.ARCHIVE),
+    ]);
+
+    logInfo("Show details loaded successfully", {
+      showId: params.show,
+      episodeCount: showResult.show.episodes.length,
     });
+
+    return {
+      ...showResult,
+      features: {
+        markAllAsWatched,
+        archive,
+      },
+    };
   }
-
-  const [markAllAsWatched, archive] = await Promise.all([
-    evaluateBoolean(request, FLAGS.MARK_ALL_AS_WATCHED),
-    evaluateBoolean(request, FLAGS.ARCHIVE),
-  ]);
-
-  return {
-    ...showResult,
-    features: {
-      markAllAsWatched,
-      archive,
-    },
-  };
-}
+);
 
 interface IntentHandler {
   handler: (params: {
@@ -117,39 +129,55 @@ const intentHandlers: Record<string, IntentHandler> = {
   },
 };
 
-export async function action({ request }: ActionFunctionArgs) {
-  const userId = await requireUserId(request);
-  const formData = await request.formData();
-  const intent = (formData.get("intent") as string) || "";
-  const showId = (formData.get("showId") as string) || "";
-  const episodeId = (formData.get("episodeId") as string) || "";
+export const action = withRequestContext(
+  async ({ request }: ActionFunctionArgs) => {
+    const userId = await requireUserId(request);
+    const formData = await request.formData();
+    const intent = (formData.get("intent") as string) || "";
+    const showId = (formData.get("showId") as string) || "";
+    const episodeId = (formData.get("episodeId") as string) || "";
 
-  const intentHandler = intentHandlers[intent];
+    logInfo("Show action started", {
+      intent,
+      showId,
+      episodeId,
+    });
 
-  if (intentHandler) {
-    try {
-      const result = await intentHandler.handler({ userId, showId, episodeId });
-      if (result) {
-        return result;
-      }
-    } catch (error) {
-      logError(
-        "Show action failed",
-        {
-          intent,
+    const intentHandler = intentHandlers[intent];
+
+    if (intentHandler) {
+      try {
+        const result = await intentHandler.handler({
           userId,
           showId,
           episodeId,
-          errorCode: intentHandler.errorCode,
-        },
-        error
-      );
-      return data({ error: intentHandler.errorCode }, { status: 500 });
+        });
+        logInfo("Show action completed successfully", {
+          intent,
+          showId,
+          episodeId,
+        });
+        if (result) {
+          return result;
+        }
+      } catch (error) {
+        logError(
+          "Show action failed",
+          {
+            intent,
+            showId,
+            episodeId,
+            errorCode: intentHandler.errorCode,
+          },
+          error
+        );
+        return data({ error: intentHandler.errorCode }, { status: 500 });
+      }
     }
-  }
 
-  return { error: "" };
-}
+    return { error: "" };
+  }
+);
 
 export default function TVShow() {
   const { show, watchedEpisodes, ignoredEpisodes, features } =

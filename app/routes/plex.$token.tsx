@@ -7,68 +7,73 @@ import {
 } from "../models/episode.server";
 import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
-import { logError } from "../logger.server";
+import { logError, logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
-export async function action({ request, params }: ActionFunctionArgs) {
-  const plexEnabled = await evaluateBoolean(request, FLAGS.PLEX);
-  if (!plexEnabled) {
-    return {};
-  }
-  const body = await request.formData();
-  const payload = body.get("payload");
-  const parsedPayload = JSON.parse(payload as string);
-  const showTitle = parsedPayload.Metadata.grandparentTitle;
+export const action = withRequestContext(
+  async ({ request, params }: ActionFunctionArgs) => {
+    logInfo("Plex webhook received", { token: params.token });
 
-  const token = params.token;
-  if (!token || !showTitle || parsedPayload.event !== "media.scrobble") {
-    return null;
-  }
+    const plexEnabled = await evaluateBoolean(request, FLAGS.PLEX);
+    if (!plexEnabled) {
+      return {};
+    }
+    const body = await request.formData();
+    const payload = body.get("payload");
+    const parsedPayload = JSON.parse(payload as string);
+    const showTitle = parsedPayload.Metadata.grandparentTitle;
 
-  const user = await getUserByPlexToken(token);
+    const token = params.token;
+    if (!token || !showTitle || parsedPayload.event !== "media.scrobble") {
+      return null;
+    }
 
-  if (!user) {
-    return {};
-  }
+    const user = await getUserByPlexToken(token);
 
-  const show = await getShowByUserIdAndName({
-    userId: user?.id,
-    name: showTitle,
-  });
+    if (!user) {
+      return {};
+    }
 
-  if (!show) {
-    return {};
-  }
-
-  const episode = await getEpisodeByShowIdAndNumbers({
-    showId: show.id,
-    season: parsedPayload.Metadata.parentIndex,
-    episode: parsedPayload.Metadata.index,
-  });
-
-  if (!episode) {
-    return {};
-  }
-
-  try {
-    await markEpisodeAsWatched({
-      userId: user.id,
-      episodeId: episode.id,
-      showId: show.id,
+    const show = await getShowByUserIdAndName({
+      userId: user?.id,
+      name: showTitle,
     });
-  } catch (error) {
-    logError(
-      "Failed to mark episode as watched via Plex webhook",
-      {
-        userId: user.id,
-        showId: show.id,
-        showTitle,
-        episodeId: episode.id,
-        season: parsedPayload.Metadata.parentIndex,
-        episode: parsedPayload.Metadata.index,
-      },
-      error
-    );
-  }
 
-  return {};
-}
+    if (!show) {
+      return {};
+    }
+
+    const episode = await getEpisodeByShowIdAndNumbers({
+      showId: show.id,
+      season: parsedPayload.Metadata.parentIndex,
+      episode: parsedPayload.Metadata.index,
+    });
+
+    if (!episode) {
+      return {};
+    }
+
+    try {
+      await markEpisodeAsWatched({
+        userId: user.id,
+        episodeId: episode.id,
+        showId: show.id,
+      });
+    } catch (error) {
+      logError(
+        "Failed to mark episode as watched via Plex webhook",
+        {
+          userId: user.id,
+          showId: show.id,
+          showTitle,
+          episodeId: episode.id,
+          season: parsedPayload.Metadata.parentIndex,
+          episode: parsedPayload.Metadata.index,
+        },
+        error
+      );
+    }
+
+    return {};
+  }
+);

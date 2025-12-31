@@ -4,6 +4,7 @@ import invariant from "tiny-invariant";
 import type { User } from "./models/user.server";
 import { getUserById } from "./models/user.server";
 import { logError } from "./logger.server";
+import { setUserId } from "./request-context.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -31,6 +32,11 @@ export async function getUserId(
 ): Promise<User["id"] | undefined> {
   const session = await getSession(request);
   const userId = session.get(USER_SESSION_KEY);
+
+  if (userId) {
+    setUserId(userId);
+  }
+
   return userId;
 }
 
@@ -41,9 +47,7 @@ export async function getUser(request: Request) {
   const user = await getUserById(userId);
   if (user) return user;
 
-  logError("User not found despite valid session - forcing logout", {
-    userId,
-  });
+  logError("User not found despite valid session - forcing logout", {});
 
   throw await logout(request);
 }
@@ -66,9 +70,7 @@ export async function requireUser(request: Request) {
   const user = await getUserById(userId);
   if (user) return user;
 
-  logError("User not found despite valid session - forcing logout", {
-    userId,
-  });
+  logError("User not found despite valid session - forcing logout", {});
 
   throw await logout(request);
 }

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { withRequestContext } from "../request-handler.server";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -24,95 +25,115 @@ import {
   validateAndSanitizeEmail,
   getPasswordValidationError,
 } from "../utils";
+import { logInfo } from "../logger.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    logInfo("Join page accessed", {});
 
-  if (userId) {
-    return redirect("/");
-  }
+    const userId = await getUserId(request);
 
-  const signupDisabled = await evaluateBoolean(request, FLAGS.SIGNUP_DISABLED);
+    if (userId) {
+      logInfo("User already logged in, redirecting to home", {});
+      return redirect("/");
+    }
 
-  return {
-    features: {
-      signup: !signupDisabled,
-    },
-  };
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const emailInput = formData.get("email");
-  const passwordInput = formData.get("password");
-  const invite = formData.get("invite");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
-
-  const signupDisabled = await evaluateBoolean(request, FLAGS.SIGNUP_DISABLED);
-
-  const errors = {
-    email: null,
-    password: null,
-    invite: null,
-  };
-
-  const email = validateAndSanitizeEmail(emailInput);
-  if (!email) {
-    return data(
-      { errors: { ...errors, email: "Email is invalid" } },
-      { status: 400 }
+    const signupDisabled = await evaluateBoolean(
+      request,
+      FLAGS.SIGNUP_DISABLED
     );
-  }
 
-  if (typeof passwordInput !== "string") {
-    return data(
-      { errors: { ...errors, password: "Password is required" } },
-      { status: 400 }
+    return {
+      features: {
+        signup: !signupDisabled,
+      },
+    };
+  }
+);
+
+export const action = withRequestContext(
+  async ({ request }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    const emailInput = formData.get("email");
+    const passwordInput = formData.get("password");
+    const invite = formData.get("invite");
+    const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
+
+    logInfo("User signup attempt", { email: emailInput as string });
+
+    const signupDisabled = await evaluateBoolean(
+      request,
+      FLAGS.SIGNUP_DISABLED
     );
-  }
 
-  const passwordError = getPasswordValidationError(passwordInput);
-  if (passwordError) {
-    return data(
-      { errors: { ...errors, password: passwordError } },
-      { status: 400 }
-    );
-  }
+    const errors = {
+      email: null,
+      password: null,
+      invite: null,
+    };
 
-  const existingUser = await getUserByEmail(email);
-  if (existingUser) {
-    return data(
-      { errors: { ...errors, email: "A user already exists with this email" } },
-      { status: 400 }
-    );
-  }
-
-  if (signupDisabled) {
-    if (typeof invite !== "string" || invite.length === 0) {
+    const email = validateAndSanitizeEmail(emailInput);
+    if (!email) {
       return data(
-        { errors: { ...errors, invite: "Invite code is required" } },
+        { errors: { ...errors, email: "Email is invalid" } },
         { status: 400 }
       );
     }
 
-    const validInvite = await redeemInviteCode(invite);
-    if (!validInvite) {
+    if (typeof passwordInput !== "string") {
       return data(
-        { errors: { ...errors, invite: "Invite code is invalid" } },
+        { errors: { ...errors, password: "Password is required" } },
         { status: 400 }
       );
     }
+
+    const passwordError = getPasswordValidationError(passwordInput);
+    if (passwordError) {
+      return data(
+        { errors: { ...errors, password: passwordError } },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await getUserByEmail(email);
+    if (existingUser) {
+      return data(
+        {
+          errors: { ...errors, email: "A user already exists with this email" },
+        },
+        { status: 400 }
+      );
+    }
+
+    if (signupDisabled) {
+      if (typeof invite !== "string" || invite.length === 0) {
+        return data(
+          { errors: { ...errors, invite: "Invite code is required" } },
+          { status: 400 }
+        );
+      }
+
+      const validInvite = await redeemInviteCode(invite);
+      if (!validInvite) {
+        return data(
+          { errors: { ...errors, invite: "Invite code is invalid" } },
+          { status: 400 }
+        );
+      }
+    }
+
+    const user = await createUser(email, passwordInput);
+
+    logInfo("User created successfully", { email, userId: user.id });
+
+    return createUserSession({
+      request,
+      userId: user.id,
+      remember: false,
+      redirectTo,
+    });
   }
-
-  const user = await createUser(email, passwordInput);
-
-  return createUserSession({
-    request,
-    userId: user.id,
-    remember: false,
-    redirectTo,
-  });
-}
+);
 
 export function meta(): ReturnType<MetaFunction> {
   return [

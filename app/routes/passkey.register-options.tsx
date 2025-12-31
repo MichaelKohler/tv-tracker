@@ -9,33 +9,39 @@ import {
   sessionStorage,
   setPasskeyChallenge,
 } from "../session.server";
+import { logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await requireUser(request);
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    logInfo("Passkey registration options requested", {});
 
-  const existingPasskeys = await getPasskeysByUserId(user.id);
+    const user = await requireUser(request);
 
-  const options = await generateRegistrationOptions({
-    rpName: process.env.RP_NAME || "TV Tracker",
-    rpID: process.env.RP_ID || "localhost",
-    userName: user.email,
-    userDisplayName: user.email,
-    attestationType: "none",
-    excludeCredentials: existingPasskeys.map((passkey) => ({
-      id: passkey.credentialId,
-      transports: passkey.transports as AuthenticatorTransport[],
-    })),
-    authenticatorSelection: {
-      residentKey: "preferred",
-      userVerification: "preferred",
-    },
-  });
+    const existingPasskeys = await getPasskeysByUserId(user.id);
 
-  const session = await setPasskeyChallenge(request, options.challenge);
+    const options = await generateRegistrationOptions({
+      rpName: process.env.RP_NAME || "TV Tracker",
+      rpID: process.env.RP_ID || "localhost",
+      userName: user.email,
+      userDisplayName: user.email,
+      attestationType: "none",
+      excludeCredentials: existingPasskeys.map((passkey) => ({
+        id: passkey.credentialId,
+        transports: passkey.transports as AuthenticatorTransport[],
+      })),
+      authenticatorSelection: {
+        residentKey: "preferred",
+        userVerification: "preferred",
+      },
+    });
 
-  return data(options, {
-    headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session),
-    },
-  });
-}
+    const session = await setPasskeyChallenge(request, options.challenge);
+
+    return data(options, {
+      headers: {
+        "Set-Cookie": await sessionStorage.commitSession(session),
+      },
+    });
+  }
+);

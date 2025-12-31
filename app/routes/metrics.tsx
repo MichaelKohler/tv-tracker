@@ -1,9 +1,11 @@
 import { getShowCount, getConnectedShowCount } from "../models/show.server";
+import { withRequestContext } from "../request-handler.server";
 import {
   getEpisodeCount,
   getConnectedEpisodeCount,
 } from "../models/episode.server";
 import { getUserCount } from "../models/user.server";
+import { logInfo } from "../logger.server";
 
 const helpMessage = (metric: string, description: string) =>
   `# HELP ${metric} ${description}`;
@@ -11,7 +13,8 @@ const typeMessage = (metric: string, type: "gauge") =>
   `# TYPE ${metric} ${type}`;
 const metricValue = (metric: string, value: number) => `${metric} ${value}`;
 
-export async function loader() {
+export const loader = withRequestContext(async () => {
+  logInfo("Metrics endpoint accessed", {});
   const [
     showCount,
     connectedShowCount,
@@ -50,4 +53,4 @@ export async function loader() {
   return new Response(metrics.join("\n"), {
     headers: { "Content-Type": "text/plain" },
   });
-}
+});

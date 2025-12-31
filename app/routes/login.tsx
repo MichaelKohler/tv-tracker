@@ -1,4 +1,5 @@
 import * as React from "react";
+import { withRequestContext } from "../request-handler.server";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -18,56 +19,70 @@ import { startAuthentication } from "@simplewebauthn/browser";
 import { verifyLogin } from "../models/user.server";
 import { createUserSession, getUserId } from "../session.server";
 import { safeRedirect, validateAndSanitizeEmail } from "../utils";
+import { logInfo } from "../logger.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
-  return {};
-}
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    logInfo("Login page accessed", {});
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const emailInput = formData.get("email");
-  const passwordInput = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
-  const remember = formData.get("remember");
-
-  const errors = {
-    email: null,
-    password: null,
-  };
-
-  const email = validateAndSanitizeEmail(emailInput);
-  if (!email) {
-    return data(
-      { errors: { ...errors, email: "Email is invalid" } },
-      { status: 400 }
-    );
+    const userId = await getUserId(request);
+    if (userId) {
+      logInfo("User already logged in, redirecting to home", {});
+      return redirect("/");
+    }
+    return {};
   }
+);
 
-  if (typeof passwordInput !== "string" || passwordInput.length === 0) {
-    return data(
-      { errors: { ...errors, password: "Password is required" } },
-      { status: 400 }
-    );
+export const action = withRequestContext(
+  async ({ request }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    const emailInput = formData.get("email");
+    const passwordInput = formData.get("password");
+    const redirectTo = safeRedirect(formData.get("redirectTo"), "/tv");
+    const remember = formData.get("remember");
+
+    logInfo("User login attempt", { email: emailInput as string });
+
+    const errors = {
+      email: null,
+      password: null,
+    };
+
+    const email = validateAndSanitizeEmail(emailInput);
+    if (!email) {
+      return data(
+        { errors: { ...errors, email: "Email is invalid" } },
+        { status: 400 }
+      );
+    }
+
+    if (typeof passwordInput !== "string" || passwordInput.length === 0) {
+      return data(
+        { errors: { ...errors, password: "Password is required" } },
+        { status: 400 }
+      );
+    }
+
+    const user = await verifyLogin(email, passwordInput);
+
+    if (!user) {
+      return data(
+        { errors: { ...errors, email: "Invalid email or password" } },
+        { status: 400 }
+      );
+    }
+
+    logInfo("User logged in successfully", { email, userId: user.id });
+
+    return createUserSession({
+      request,
+      userId: user.id,
+      remember: remember === "on" ? true : false,
+      redirectTo,
+    });
   }
-
-  const user = await verifyLogin(email, passwordInput);
-
-  if (!user) {
-    return data(
-      { errors: { ...errors, email: "Invalid email or password" } },
-      { status: 400 }
-    );
-  }
-
-  return createUserSession({
-    request,
-    userId: user.id,
-    remember: remember === "on" ? true : false,
-    redirectTo,
-  });
-}
+);
 
 export function meta(): ReturnType<MetaFunction> {
   return [

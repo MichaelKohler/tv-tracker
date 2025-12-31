@@ -10,41 +10,51 @@ import {
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { deleteUserByUserId } from "../models/user.server";
 import { requireUserId, logout } from "../session.server";
-import { logError } from "../logger.server";
+import { logError, logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const deleteAccountEnabled = await evaluateBoolean(
-    request,
-    FLAGS.DELETE_ACCOUNT
-  );
-  if (deleteAccountEnabled) {
-    await requireUserId(request);
-  }
-  return { deleteAccountEnabled };
-}
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    logInfo("Account deletion page accessed", {});
 
-export async function action({ request }: ActionFunctionArgs) {
-  const userId = await requireUserId(request);
-
-  try {
-    await deleteUserByUserId(userId);
-  } catch (error) {
-    logError(
-      "Failed to delete user account",
-      {
-        userId,
-      },
-      error
+    const deleteAccountEnabled = await evaluateBoolean(
+      request,
+      FLAGS.DELETE_ACCOUNT
     );
-
-    return data(
-      { errors: { deletion: "Could not delete user. Please try again." } },
-      { status: 500 }
-    );
+    if (deleteAccountEnabled) {
+      await requireUserId(request);
+    }
+    return { deleteAccountEnabled };
   }
+);
 
-  return logout(request);
-}
+export const action = withRequestContext(
+  async ({ request }: ActionFunctionArgs) => {
+    const userId = await requireUserId(request);
+
+    logInfo("Starting account deletion", { userId });
+
+    try {
+      await deleteUserByUserId(userId);
+      logInfo("Account deleted successfully", { userId });
+    } catch (error) {
+      logError(
+        "Failed to delete user account",
+        {
+          userId,
+        },
+        error
+      );
+
+      return data(
+        { errors: { deletion: "Could not delete user. Please try again." } },
+        { status: 500 }
+      );
+    }
+
+    return logout(request);
+  }
+);
 
 export default function DeletionPage() {
   const actionData = useActionData<typeof action>();

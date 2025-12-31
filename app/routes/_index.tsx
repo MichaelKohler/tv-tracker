@@ -6,25 +6,35 @@ import {
 } from "@heroicons/react/24/outline";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link, useLoaderData, redirect } from "react-router";
+import { withRequestContext } from "../request-handler.server";
 
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { getUserId } from "../session.server";
 import { useOptionalUser } from "../utils";
+import { logInfo } from "../logger.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
-  if (userId) {
-    return redirect("/tv");
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    logInfo("Landing page accessed", {});
+
+    const userId = await getUserId(request);
+    if (userId) {
+      logInfo("User already logged in, redirecting to /tv", {});
+      return redirect("/tv");
+    }
+
+    const signupDisabled = await evaluateBoolean(
+      request,
+      FLAGS.SIGNUP_DISABLED
+    );
+
+    return {
+      features: {
+        signup: !signupDisabled,
+      },
+    };
   }
-
-  const signupDisabled = await evaluateBoolean(request, FLAGS.SIGNUP_DISABLED);
-
-  return {
-    features: {
-      signup: !signupDisabled,
-    },
-  };
-}
+);
 
 export default function Index() {
   const user = useOptionalUser();
