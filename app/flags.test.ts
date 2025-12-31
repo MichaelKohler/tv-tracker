@@ -243,10 +243,7 @@ describe("Flags", () => {
       process.env.FLIPT_ENVIRONMENT = "production";
       mockBooleanFn.mockRejectedValue(new Error("Network error"));
 
-      const result = await evaluateBoolean(
-        mockRequest,
-        FLAGS.MAINTENANCE_MODE
-      );
+      const result = await evaluateBoolean(mockRequest, FLAGS.MAINTENANCE_MODE);
 
       expect(result).equal(true);
     });

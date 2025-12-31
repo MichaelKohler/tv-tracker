@@ -1,9 +1,11 @@
 import type { Invite } from "@prisma/client";
 
 import { prisma } from "../db.server";
-import { logError } from "../logger.server";
+import { logError, logInfo } from "../logger.server";
 
 export async function redeemInviteCode(inviteCode: Invite["id"]) {
+  logInfo("Redeeming invite code", { inviteCode });
+
   const existingInvite = await prisma.invite.findUnique({
     where: {
       id: inviteCode,
@@ -19,6 +21,9 @@ export async function redeemInviteCode(inviteCode: Invite["id"]) {
       where: {
         id: inviteCode,
       },
+    });
+    logInfo("Invite code redeemed successfully", {
+      inviteCode,
     });
   } catch (error) {
     logError(

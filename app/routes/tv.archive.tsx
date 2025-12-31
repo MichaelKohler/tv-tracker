@@ -1,21 +1,27 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigation } from "react-router";
+import { withRequestContext } from "../request-handler.server";
 
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { getSortedArchivedShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
+import { logInfo } from "../logger.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
-  const shows = await getSortedArchivedShowsByUserId(userId);
-  const features = {
-    archive: await evaluateBoolean(request, FLAGS.ARCHIVE),
-  };
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    const userId = await requireUserId(request);
+    logInfo("TV archive page accessed", {});
 
-  return { shows, features };
-}
+    const shows = await getSortedArchivedShowsByUserId(userId);
+    const features = {
+      archive: await evaluateBoolean(request, FLAGS.ARCHIVE),
+    };
+
+    return { shows, features };
+  }
+);
 
 function Loader() {
   return (

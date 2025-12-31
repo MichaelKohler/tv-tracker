@@ -2,6 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, useLoaderData, useSearchParams } from "react-router";
 import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
+import { withRequestContext } from "../request-handler.server";
 
 import { DeleteAccount } from "../components/delete-account";
 import { PasskeyList } from "../components/passkey-list";
@@ -29,57 +30,62 @@ import {
   requireUser,
 } from "../session.server";
 import { getPasswordValidationError } from "../utils";
+import { logInfo, logError } from "../logger.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const token = url.searchParams.get("token");
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    const url = new URL(request.url);
+    const token = url.searchParams.get("token");
 
-  if (token) {
-    // We need to short-curcuit everything and allow the change of password
+    if (token) {
+      logInfo("Account page accessed with password reset token", {});
+      // We need to short-curcuit everything and allow the change of password
+      return {
+        webhookUrl: null,
+        passkeys: [],
+        features: {
+          passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
+          passkeyRegistration: false,
+          deleteAccount: false,
+          plex: false,
+        },
+        hasPassword: true,
+      };
+    }
+
+    const user = await requireUser(request);
+    logInfo("Account page accessed", {});
+    const webhookUrl = url.origin + "/plex/" + user.plexToken;
+
+    const features = {
+      passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
+      passkeyRegistration: await evaluateBoolean(
+        request,
+        FLAGS.PASSKEY_REGISTRATION
+      ),
+      deleteAccount: await evaluateBoolean(request, FLAGS.DELETE_ACCOUNT),
+      plex: await evaluateBoolean(request, FLAGS.PLEX),
+    };
+
+    const passkeys = await getPasskeysByUserId(user.id);
+
+    const sanitizedPasskeys = passkeys.map((passkey) => ({
+      id: passkey.id,
+      name: passkey.name,
+      createdAt: passkey.createdAt,
+      lastUsedAt: passkey.lastUsedAt,
+    }));
+
+    const hasPassword = await userHasPassword(user.id);
+
     return {
-      webhookUrl: null,
-      passkeys: [],
-      features: {
-        passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
-        passkeyRegistration: false,
-        deleteAccount: false,
-        plex: false,
-      },
-      hasPassword: true,
+      webhookUrl,
+      passkeys: sanitizedPasskeys,
+      features,
+      hasPassword,
     };
   }
-
-  const user = await requireUser(request);
-  const webhookUrl = url.origin + "/plex/" + user.plexToken;
-
-  const features = {
-    passwordChange: await evaluateBoolean(request, FLAGS.PASSWORD_CHANGE),
-    passkeyRegistration: await evaluateBoolean(
-      request,
-      FLAGS.PASSKEY_REGISTRATION
-    ),
-    deleteAccount: await evaluateBoolean(request, FLAGS.DELETE_ACCOUNT),
-    plex: await evaluateBoolean(request, FLAGS.PLEX),
-  };
-
-  const passkeys = await getPasskeysByUserId(user.id);
-
-  const sanitizedPasskeys = passkeys.map((passkey) => ({
-    id: passkey.id,
-    name: passkey.name,
-    createdAt: passkey.createdAt,
-    lastUsedAt: passkey.lastUsedAt,
-  }));
-
-  const hasPassword = await userHasPassword(user.id);
-
-  return {
-    webhookUrl,
-    passkeys: sanitizedPasskeys,
-    features,
-    hasPassword,
-  };
-}
+);
 
 async function verifyPasskeyCredential(
   request: Request,
@@ -141,163 +147,84 @@ async function verifyPasskeyCredential(
 
     return { success: true };
   } catch (error) {
-    console.error("Passkey verification error:", error);
+    logError("Passkey verification error", {}, error);
     return { success: false, error: "Failed to verify passkey" };
   }
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+export const action = withRequestContext(
+  async ({ request }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    const intent = formData.get("intent");
 
-  const errors = {
-    password: null,
-    newPassword: null,
-    confirmPassword: null,
-    token: null,
-    generic: null,
-    passkey: null,
-  };
+    logInfo("Account action started", { intent: intent as string });
 
-  if (intent === "edit-passkey") {
-    const user = await requireUser(request);
-    const passkeyId = formData.get("passkeyId");
-    const passkeyName = formData.get("passkeyName");
+    const errors = {
+      password: null,
+      newPassword: null,
+      confirmPassword: null,
+      token: null,
+      generic: null,
+      passkey: null,
+    };
 
-    if (typeof passkeyId !== "string" || !passkeyId) {
-      return data(
-        { errors: { ...errors, passkey: "Invalid passkey ID" }, done: false },
-        { status: 400 }
-      );
-    }
+    if (intent === "edit-passkey") {
+      const user = await requireUser(request);
+      const passkeyId = formData.get("passkeyId");
+      const passkeyName = formData.get("passkeyName");
 
-    if (typeof passkeyName !== "string" || passkeyName.trim() === "") {
-      return data(
-        {
-          errors: { ...errors, passkey: "Passkey name is required" },
-          done: false,
-        },
-        { status: 400 }
-      );
-    }
+      if (typeof passkeyId !== "string" || !passkeyId) {
+        return data(
+          { errors: { ...errors, passkey: "Invalid passkey ID" }, done: false },
+          { status: 400 }
+        );
+      }
 
-    try {
-      await updatePasskeyName(passkeyId, user.id, passkeyName.trim());
-      return { done: true, errors, intent: "edit-passkey" };
-    } catch (_error) {
-      return data(
-        {
-          errors: { ...errors, passkey: "Failed to update passkey name" },
-          done: false,
-        },
-        { status: 500 }
-      );
-    }
-  }
-
-  if (intent === "delete-passkey") {
-    const user = await requireUser(request);
-    const passkeyId = formData.get("passkeyId");
-
-    if (typeof passkeyId !== "string" || !passkeyId) {
-      return data(
-        { errors: { ...errors, passkey: "Invalid passkey ID" }, done: false },
-        { status: 400 }
-      );
-    }
-
-    const hasPassword = await userHasPassword(user.id);
-    const passkeys = await getPasskeysByUserId(user.id);
-
-    if (!hasPassword && passkeys.length === 1) {
-      return data(
-        {
-          errors: {
-            ...errors,
-            passkey: "Cannot delete your only passkey without a password set",
+      if (typeof passkeyName !== "string" || passkeyName.trim() === "") {
+        return data(
+          {
+            errors: { ...errors, passkey: "Passkey name is required" },
+            done: false,
           },
-          done: false,
-        },
-        { status: 400 }
-      );
-    }
+          { status: 400 }
+        );
+      }
 
-    try {
-      await deletePasskey(passkeyId, user.id);
-      return { done: true, errors, intent: "delete-passkey" };
-    } catch (_error) {
-      return data(
-        {
-          errors: { ...errors, passkey: "Failed to delete passkey" },
-          done: false,
-        },
-        { status: 500 }
-      );
-    }
-  }
-
-  if (intent === "remove-password") {
-    const user = await requireUser(request);
-
-    const passkeyCredentialString = formData.get("passkeyCredential");
-    if (typeof passkeyCredentialString !== "string" || !passkeyCredentialString) {
-      return data(
-        {
-          errors: { ...errors, generic: "Passkey verification required" },
-          done: false,
-        },
-        { status: 400 }
-      );
-    }
-
-    let passkeyCredential: AuthenticationResponseJSON;
-    try {
-      passkeyCredential = JSON.parse(passkeyCredentialString);
-    } catch {
-      return data(
-        {
-          errors: { ...errors, generic: "Invalid passkey credential" },
-          done: false,
-        },
-        { status: 400 }
-      );
-    }
-
-    const verification = await verifyPasskeyCredential(
-      request,
-      passkeyCredential,
-      user.id
-    );
-
-    if (!verification.success) {
-      return data(
-        {
-          errors: {
-            ...errors,
-            generic: verification.error || "Passkey verification failed",
+      try {
+        await updatePasskeyName(passkeyId, user.id, passkeyName.trim());
+        logInfo("Passkey name updated successfully", { passkeyId });
+        return { done: true, errors, intent: "edit-passkey" };
+      } catch (_error) {
+        return data(
+          {
+            errors: { ...errors, passkey: "Failed to update passkey name" },
+            done: false,
           },
-          done: false,
-        },
-        { status: 400 }
-      );
+          { status: 500 }
+        );
+      }
     }
 
-    try {
-      await removePassword(user.id);
-      await clearPasskeyChallenge(request);
+    if (intent === "delete-passkey") {
+      const user = await requireUser(request);
+      const passkeyId = formData.get("passkeyId");
 
-      return data({ done: true, errors, intent: "remove-password" });
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === "NEED_PASSKEY_BEFORE_REMOVAL"
-      ) {
+      if (typeof passkeyId !== "string" || !passkeyId) {
+        return data(
+          { errors: { ...errors, passkey: "Invalid passkey ID" }, done: false },
+          { status: 400 }
+        );
+      }
+
+      const hasPassword = await userHasPassword(user.id);
+      const passkeys = await getPasskeysByUserId(user.id);
+
+      if (!hasPassword && passkeys.length === 1) {
         return data(
           {
             errors: {
               ...errors,
-              generic:
-                "You need at least one passkey before removing your password",
+              passkey: "Cannot delete your only passkey without a password set",
             },
             done: false,
           },
@@ -305,113 +232,24 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
-      if (
-        error instanceof Error &&
-        error.message === "NO_PASSWORD_TO_REMOVE"
-      ) {
+      try {
+        await deletePasskey(passkeyId, user.id);
+        logInfo("Passkey deleted successfully", { passkeyId });
+        return { done: true, errors, intent: "delete-passkey" };
+      } catch (_error) {
         return data(
           {
-            errors: {
-              ...errors,
-              generic: "You don't have a password set",
-            },
+            errors: { ...errors, passkey: "Failed to delete passkey" },
             done: false,
           },
-          { status: 400 }
+          { status: 500 }
         );
       }
-
-      return data(
-        {
-          errors: { ...errors, generic: "Failed to remove password" },
-          done: false,
-        },
-        { status: 500 }
-      );
     }
-  }
 
-  const currentPassword = formData.get("password");
-  const newPassword = formData.get("newPassword");
-  const confirmPassword = formData.get("confirmPassword");
-  const token = formData.get("token") || "";
+    if (intent === "remove-password") {
+      const user = await requireUser(request);
 
-  if (typeof newPassword !== "string" || newPassword === "") {
-    return data(
-      {
-        errors: { ...errors, newPassword: "New password is required" },
-        done: false,
-      },
-      { status: 400 }
-    );
-  }
-
-  const passwordError = getPasswordValidationError(newPassword);
-  if (passwordError) {
-    return data(
-      {
-        errors: { ...errors, newPassword: passwordError },
-        done: false,
-      },
-      { status: 400 }
-    );
-  }
-
-  if (typeof confirmPassword !== "string" || confirmPassword === "") {
-    return data(
-      {
-        errors: {
-          ...errors,
-          confirmPassword: "Password confirmation is required",
-        },
-        done: false,
-      },
-      { status: 400 }
-    );
-  }
-
-  if (confirmPassword !== newPassword) {
-    return data(
-      {
-        errors: { ...errors, confirmPassword: "Passwords do not match" },
-        done: false,
-      },
-      { status: 400 }
-    );
-  }
-
-  let user: { email: string; id?: string } = { email: "" };
-  if (!token) {
-    // We do not want to go further if there is no token and the
-    // user is not logged in. This check here is crucial to not allow
-    // for password changes without token. We also want to verify
-    // the current password before going on.
-    user = await requireUser(request);
-
-    const hasPassword = await userHasPassword(user.id!);
-
-    if (hasPassword) {
-      if (typeof currentPassword !== "string" || currentPassword === "") {
-        return data(
-          {
-            errors: { ...errors, password: "Current password is required." },
-            done: false,
-          },
-          { status: 400 }
-        );
-      }
-
-      const isValid = await verifyLogin(user.email, currentPassword);
-      if (!isValid) {
-        return data(
-          {
-            errors: { ...errors, password: "Current password is wrong." },
-            done: false,
-          },
-          { status: 400 }
-        );
-      }
-    } else {
       const passkeyCredentialString = formData.get("passkeyCredential");
       if (
         typeof passkeyCredentialString !== "string" ||
@@ -419,10 +257,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ) {
         return data(
           {
-            errors: {
-              ...errors,
-              generic: "Passkey verification required to set password",
-            },
+            errors: { ...errors, generic: "Passkey verification required" },
             done: false,
           },
           { status: 400 }
@@ -445,7 +280,7 @@ export async function action({ request }: ActionFunctionArgs) {
       const verification = await verifyPasskeyCredential(
         request,
         passkeyCredential,
-        user.id!
+        user.id
       );
 
       if (!verification.success) {
@@ -461,19 +296,88 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
-      await clearPasskeyChallenge(request);
-    }
-  }
+      try {
+        await removePassword(user.id);
+        await clearPasskeyChallenge(request);
 
-  try {
-    await changePassword(user.email, newPassword, token.toString());
-  } catch (error) {
-    if (error instanceof Error && error.message === "PASSWORD_RESET_EXPIRED") {
+        logInfo("Password removed successfully", {});
+        return data({ done: true, errors, intent: "remove-password" });
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message === "NEED_PASSKEY_BEFORE_REMOVAL"
+        ) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                generic:
+                  "You need at least one passkey before removing your password",
+              },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        if (
+          error instanceof Error &&
+          error.message === "NO_PASSWORD_TO_REMOVE"
+        ) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                generic: "You don't have a password set",
+              },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        return data(
+          {
+            errors: { ...errors, generic: "Failed to remove password" },
+            done: false,
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    const currentPassword = formData.get("password");
+    const newPassword = formData.get("newPassword");
+    const confirmPassword = formData.get("confirmPassword");
+    const token = formData.get("token") || "";
+
+    if (typeof newPassword !== "string" || newPassword === "") {
+      return data(
+        {
+          errors: { ...errors, newPassword: "New password is required" },
+          done: false,
+        },
+        { status: 400 }
+      );
+    }
+
+    const passwordError = getPasswordValidationError(newPassword);
+    if (passwordError) {
+      return data(
+        {
+          errors: { ...errors, newPassword: passwordError },
+          done: false,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (typeof confirmPassword !== "string" || confirmPassword === "") {
       return data(
         {
           errors: {
             ...errors,
-            token: "Password reset link expired. Please try again.",
+            confirmPassword: "Password confirmation is required",
           },
           done: false,
         },
@@ -481,20 +385,136 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    return data(
-      {
-        errors: {
-          ...errors,
-          generic: "Something went wrong. Please try again.",
+    if (confirmPassword !== newPassword) {
+      return data(
+        {
+          errors: { ...errors, confirmPassword: "Passwords do not match" },
+          done: false,
         },
-        done: false,
-      },
-      { status: 500 }
-    );
-  }
+        { status: 400 }
+      );
+    }
 
-  return { done: true, errors };
-}
+    let user: { email: string; id?: string } = { email: "" };
+    if (!token) {
+      // We do not want to go further if there is no token and the
+      // user is not logged in. This check here is crucial to not allow
+      // for password changes without token. We also want to verify
+      // the current password before going on.
+      user = await requireUser(request);
+
+      const hasPassword = await userHasPassword(user.id!);
+
+      if (hasPassword) {
+        if (typeof currentPassword !== "string" || currentPassword === "") {
+          return data(
+            {
+              errors: { ...errors, password: "Current password is required." },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        const isValid = await verifyLogin(user.email, currentPassword);
+        if (!isValid) {
+          return data(
+            {
+              errors: { ...errors, password: "Current password is wrong." },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+      } else {
+        const passkeyCredentialString = formData.get("passkeyCredential");
+        if (
+          typeof passkeyCredentialString !== "string" ||
+          !passkeyCredentialString
+        ) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                generic: "Passkey verification required to set password",
+              },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        let passkeyCredential: AuthenticationResponseJSON;
+        try {
+          passkeyCredential = JSON.parse(passkeyCredentialString);
+        } catch {
+          return data(
+            {
+              errors: { ...errors, generic: "Invalid passkey credential" },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        const verification = await verifyPasskeyCredential(
+          request,
+          passkeyCredential,
+          user.id!
+        );
+
+        if (!verification.success) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                generic: verification.error || "Passkey verification failed",
+              },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        await clearPasskeyChallenge(request);
+      }
+    }
+
+    try {
+      await changePassword(user.email, newPassword, token.toString());
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === "PASSWORD_RESET_EXPIRED"
+      ) {
+        return data(
+          {
+            errors: {
+              ...errors,
+              token: "Password reset link expired. Please try again.",
+            },
+            done: false,
+          },
+          { status: 400 }
+        );
+      }
+
+      return data(
+        {
+          errors: {
+            ...errors,
+            generic: "Something went wrong. Please try again.",
+          },
+          done: false,
+        },
+        { status: 500 }
+      );
+    }
+
+    logInfo("Password changed successfully", {});
+    return { done: true, errors };
+  }
+);
 
 export default function AccountPage() {
   const { webhookUrl, passkeys, features, hasPassword } =

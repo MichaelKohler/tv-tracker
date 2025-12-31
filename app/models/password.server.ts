@@ -2,11 +2,13 @@ import { createHash, randomUUID } from "crypto";
 import type { User } from "@prisma/client";
 
 import { prisma } from "../db.server";
-import { logError } from "../logger.server";
+import { logError, logInfo } from "../logger.server";
 import { sendPasswordResetMail } from "./mail.server";
 import { getUserByEmail } from "./user.server";
 
 export async function triggerPasswordReset(email: User["email"]) {
+  logInfo("Password reset triggered", { email });
+
   // Always generate a token to maintain consistent timing
   const token = randomUUID();
   const hashedToken = createHash("sha256").update(token).digest("hex");
@@ -29,6 +31,8 @@ export async function triggerPasswordReset(email: User["email"]) {
           token: hashedToken,
         },
       });
+
+      logInfo("Password reset entry created", { email });
 
       sendPasswordResetMail({ email, token });
     } catch (error) {

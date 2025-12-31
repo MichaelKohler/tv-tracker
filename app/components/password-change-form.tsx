@@ -130,90 +130,90 @@ export function PasswordChangeForm({
         )}
 
         <>
-            <div className="my-2">
-              <label
-                htmlFor="newPassword"
-                className="block text-sm font-medium text-mk-text"
-              >
-                New Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="newPassword"
-                  ref={newPasswordRef}
-                  name="newPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  aria-invalid={
-                    actionData?.errors?.newPassword ? true : undefined
-                  }
-                  aria-describedby="new-password-error"
-                  className="w-full rounded border border-mk-text px-2 py-1 text-lg"
-                />
-                {actionData?.errors?.newPassword && (
-                  <p className="pt-1 text-mkerror" id="new-password-error">
-                    {actionData.errors.newPassword}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="my-2">
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-mk-text"
-              >
-                Confirm Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="confirmPassword"
-                  ref={passwordConfirmRef}
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  aria-invalid={
-                    actionData?.errors?.confirmPassword ? true : undefined
-                  }
-                  aria-describedby="confirm-password-error"
-                  className="w-full rounded border border-mk-text px-2 py-1 text-lg"
-                />
-                {actionData?.errors?.confirmPassword && (
-                  <p className="pt-1 text-mkerror" id="confirm-password-error">
-                    {actionData.errors.confirmPassword}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {actionData?.errors?.token && (
-              <p className="pt-1 text-mkerror" id="token-error">
-                {actionData.errors.token}
-              </p>
-            )}
-
-            {actionData?.errors?.generic && (
-              <p className="pt-1 text-mkerror" id="generic-error">
-                {actionData.errors.generic}
-              </p>
-            )}
-
-            {actionData?.done && !("intent" in actionData) && (
-              <p>Your password has been changed.</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="mt-4 w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary disabled:opacity-50"
+          <div className="my-2">
+            <label
+              htmlFor="newPassword"
+              className="block text-sm font-medium text-mk-text"
             >
-              {isSubmitting
-                ? "Processing..."
-                : hasPassword
-                  ? "Change password"
-                  : "Set password"}
-            </button>
-          </>
+              New Password
+            </label>
+            <div className="mt-1">
+              <input
+                id="newPassword"
+                ref={newPasswordRef}
+                name="newPassword"
+                type="password"
+                autoComplete="new-password"
+                aria-invalid={
+                  actionData?.errors?.newPassword ? true : undefined
+                }
+                aria-describedby="new-password-error"
+                className="w-full rounded border border-mk-text px-2 py-1 text-lg"
+              />
+              {actionData?.errors?.newPassword && (
+                <p className="pt-1 text-mkerror" id="new-password-error">
+                  {actionData.errors.newPassword}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="my-2">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-mk-text"
+            >
+              Confirm Password
+            </label>
+            <div className="mt-1">
+              <input
+                id="confirmPassword"
+                ref={passwordConfirmRef}
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                aria-invalid={
+                  actionData?.errors?.confirmPassword ? true : undefined
+                }
+                aria-describedby="confirm-password-error"
+                className="w-full rounded border border-mk-text px-2 py-1 text-lg"
+              />
+              {actionData?.errors?.confirmPassword && (
+                <p className="pt-1 text-mkerror" id="confirm-password-error">
+                  {actionData.errors.confirmPassword}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {actionData?.errors?.token && (
+            <p className="pt-1 text-mkerror" id="token-error">
+              {actionData.errors.token}
+            </p>
+          )}
+
+          {actionData?.errors?.generic && (
+            <p className="pt-1 text-mkerror" id="generic-error">
+              {actionData.errors.generic}
+            </p>
+          )}
+
+          {actionData?.done && !("intent" in actionData) && (
+            <p>Your password has been changed.</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-4 w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary disabled:opacity-50"
+          >
+            {isSubmitting
+              ? "Processing..."
+              : hasPassword
+                ? "Change password"
+                : "Set password"}
+          </button>
+        </>
       </form>
     </>
   );

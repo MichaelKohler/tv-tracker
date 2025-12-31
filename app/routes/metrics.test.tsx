@@ -26,7 +26,12 @@ describe("Metrics", () => {
 
   describe("loader", () => {
     it("loader returns stats", async () => {
-      const result = await loader();
+      // @ts-expect-error - ignoring missing properties for test
+      const result = await loader({
+        request: new Request("http://localhost:8080/metrics"),
+        context: {},
+        params: {},
+      });
       const text = await result.text();
 
       expect(result.headers.get("Content-Type")).toBe("text/plain");

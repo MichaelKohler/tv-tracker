@@ -35,10 +35,7 @@ export function PasskeyList({ passkeys }: PasskeyListProps) {
       <h3 className="text-lg font-semibold mb-4">Your Passkeys</h3>
       <div className="space-y-4">
         {passkeys.map((passkey) => (
-          <div
-            key={passkey.id}
-            className="border border-mk-text rounded p-4"
-          >
+          <div key={passkey.id} className="border border-mk-text rounded p-4">
             {editingPasskeyId === passkey.id ? (
               <Form method="post" className="space-y-2">
                 <input type="hidden" name="intent" value="edit-passkey" />
@@ -128,8 +125,7 @@ export function PasskeyList({ passkeys }: PasskeyListProps) {
                   Created: {new Date(passkey.createdAt).toLocaleDateString()}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Last used:{" "}
-                  {new Date(passkey.lastUsedAt).toLocaleDateString()}
+                  Last used: {new Date(passkey.lastUsedAt).toLocaleDateString()}
                 </p>
               </>
             )}

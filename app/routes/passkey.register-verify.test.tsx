@@ -51,14 +51,17 @@ describe("Passkey Register Verify Route", () => {
   it("should return error if no challenge found", async () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue(undefined);
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: {},
-        name: "My Passkey",
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {},
+          name: "My Passkey",
+        }),
+      }
+    );
 
     const response = await action({
       request,
@@ -70,14 +73,17 @@ describe("Passkey Register Verify Route", () => {
   it("should return error if name is missing", async () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: {},
-        name: "",
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {},
+          name: "",
+        }),
+      }
+    );
 
     const response = await action({
       request,
@@ -89,14 +95,17 @@ describe("Passkey Register Verify Route", () => {
   it("should return error if name is not a string", async () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: {},
-        name: 123,
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {},
+          name: 123,
+        }),
+      }
+    );
 
     const response = await action({
       request,
@@ -113,14 +122,17 @@ describe("Passkey Register Verify Route", () => {
       registrationInfo: undefined as any,
     });
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: { id: "cred-123" },
-        name: "My Passkey",
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: { id: "cred-123" },
+          name: "My Passkey",
+        }),
+      }
+    );
 
     const response = await action({
       request,
@@ -172,14 +184,17 @@ describe("Passkey Register Verify Route", () => {
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: mockCredential,
-        name: "My YubiKey",
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: mockCredential,
+          name: "My YubiKey",
+        }),
+      }
+    );
 
     const response = await action({
       request,
@@ -229,14 +244,17 @@ describe("Passkey Register Verify Route", () => {
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: {},
-        name: "  My iPhone  ",
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {},
+          name: "  My iPhone  ",
+        }),
+      }
+    );
 
     await action({ request } as ActionFunctionArgs);
 
@@ -253,14 +271,17 @@ describe("Passkey Register Verify Route", () => {
       new Error("Verification error")
     );
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: {},
-        name: "My Passkey",
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {},
+          name: "My Passkey",
+        }),
+      }
+    );
 
     const response = await action({
       request,
@@ -293,14 +314,17 @@ describe("Passkey Register Verify Route", () => {
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
-    const request = new Request("http://localhost:3000/passkey/register-verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        credential: {},
-        name: "My Passkey",
-      }),
-    });
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {},
+          name: "My Passkey",
+        }),
+      }
+    );
 
     await action({ request } as ActionFunctionArgs);
 

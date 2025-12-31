@@ -1,10 +1,7 @@
 import type { Show } from "@prisma/client";
 
 import { TV_SEARCH_API_PREFIX, TV_GET_API_PREFIX } from "../constants";
-import type {
-  TVMazeShowResponse,
-  TVMazeSearchResult,
-} from "../types/tvmaze";
+import type { TVMazeShowResponse, TVMazeSearchResult } from "../types/tvmaze";
 
 const FETCH_TIMEOUT_MS = 10000;
 

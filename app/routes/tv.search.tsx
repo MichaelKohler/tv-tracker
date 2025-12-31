@@ -13,56 +13,72 @@ import ShowResults from "../components/show-results";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { addShow, searchShows } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import { logError } from "../logger.server";
+import { logError, logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    const userId = await requireUserId(request);
 
-  const features = {
-    search: await evaluateBoolean(request, FLAGS.SEARCH),
-    addShow: await evaluateBoolean(request, FLAGS.ADD_SHOW),
-  };
+    logInfo("TV search loader accessed", {});
 
-  if (!features.search) {
-    return { shows: [], features };
+    const features = {
+      search: await evaluateBoolean(request, FLAGS.SEARCH),
+      addShow: await evaluateBoolean(request, FLAGS.ADD_SHOW),
+    };
+
+    if (!features.search) {
+      return { shows: [], features };
+    }
+
+    const url = new URL(request.url);
+    const search = new URLSearchParams(url.search);
+    const query = search.get("query");
+
+    const shows = await searchShows(query, userId);
+
+    logInfo("TV search completed", {
+      query,
+      resultsCount: shows.length,
+    });
+
+    return { shows, features };
   }
+);
 
-  const url = new URL(request.url);
-  const search = new URLSearchParams(url.search);
-  const query = search.get("query");
+export const action = withRequestContext(
+  async ({ request }: ActionFunctionArgs) => {
+    const addShowEnabled = await evaluateBoolean(request, FLAGS.ADD_SHOW);
+    if (!addShowEnabled) {
+      return data({ error: "ADDING_SHOW_DISABLED" }, { status: 403 });
+    }
 
-  const shows = await searchShows(query, userId);
+    const userId = await requireUserId(request);
+    const formData = await request.formData();
+    const showId = (formData.get("showId") as string) || "";
 
-  return { shows, features };
-}
+    logInfo("Adding show to watchlist", { showId });
 
-export async function action({ request }: ActionFunctionArgs) {
-  const addShowEnabled = await evaluateBoolean(request, FLAGS.ADD_SHOW);
-  if (!addShowEnabled) {
-    return data({ error: "ADDING_SHOW_DISABLED" }, { status: 403 });
-  }
-
-  const userId = await requireUserId(request);
-  const formData = await request.formData();
-  const showId = (formData.get("showId") as string) || "";
-
-  try {
-    await addShow(userId, showId);
-  } catch (error) {
-    logError(
-      "Failed to add show to user's watchlist",
-      {
-        userId,
+    try {
+      await addShow(userId, showId);
+      logInfo("Show added to watchlist successfully", {
         showId,
-      },
-      error
-    );
+      });
+    } catch (error) {
+      logError(
+        "Failed to add show to user's watchlist",
+        {
+          showId,
+        },
+        error
+      );
 
-    return data({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
+      return data({ error: "ADDING_SHOW_FAILED" }, { status: 500 });
+    }
+
+    return redirect("/tv");
   }
-
-  return redirect("/tv");
-}
+);
 
 export default function TVSearch() {
   const { shows, features } = useLoaderData<typeof loader>();

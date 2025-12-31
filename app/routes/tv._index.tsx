@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { withRequestContext } from "../request-handler.server";
 
 import type { Show } from "@prisma/client";
 import type { LoaderFunctionArgs } from "react-router";
@@ -9,16 +10,21 @@ import Spinner from "../components/spinner";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { getSortedShowsByUserId } from "../models/show.server";
 import { requireUserId } from "../session.server";
+import { logInfo } from "../logger.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
-  const shows = getSortedShowsByUserId(userId);
-  const features = {
-    search: await evaluateBoolean(request, FLAGS.SEARCH),
-  };
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    const userId = await requireUserId(request);
+    logInfo("TV index page accessed", {});
 
-  return { shows, features };
-}
+    const shows = getSortedShowsByUserId(userId);
+    const features = {
+      search: await evaluateBoolean(request, FLAGS.SEARCH),
+    };
+
+    return { shows, features };
+  }
+);
 
 function Loader() {
   return (

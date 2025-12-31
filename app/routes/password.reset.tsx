@@ -1,4 +1,5 @@
 import * as React from "react";
+import { withRequestContext } from "../request-handler.server";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -8,35 +9,47 @@ import { data, Form, redirect, useActionData } from "react-router";
 
 import { triggerPasswordReset } from "../models/password.server";
 import { getUserId } from "../session.server";
+import { logInfo } from "../logger.server";
 import { validateEmail } from "../utils";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
-  // Instead of using the password reset request form for logged in
-  // users, use the change password form directly
-  if (userId) return redirect("/account");
-  return {};
-}
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    logInfo("Password reset page accessed", {});
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const email = formData.get("email");
-
-  const errors = {
-    email: null,
-  };
-
-  if (!validateEmail(email)) {
-    return data(
-      { errors: { email: "Email is invalid" }, done: false },
-      { status: 400 }
-    );
+    const userId = await getUserId(request);
+    // Instead of using the password reset request form for logged in
+    // users, use the change password form directly
+    if (userId) {
+      logInfo("User already logged in, redirecting to account", {});
+      return redirect("/account");
+    }
+    return {};
   }
+);
 
-  triggerPasswordReset(email);
+export const action = withRequestContext(
+  async ({ request }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    const email = formData.get("email");
 
-  return { done: true, errors };
-}
+    logInfo("Password reset requested", { email: email as string });
+
+    const errors = {
+      email: null,
+    };
+
+    if (!validateEmail(email)) {
+      return data(
+        { errors: { email: "Email is invalid" }, done: false },
+        { status: 400 }
+      );
+    }
+
+    triggerPasswordReset(email);
+
+    return { done: true, errors };
+  }
+);
 
 export function meta(): ReturnType<MetaFunction> {
   return [

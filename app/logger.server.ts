@@ -1,3 +1,5 @@
+import { getCorrelationId, getUserId } from "./request-context.server";
+
 type LogContext = Record<string, unknown>;
 
 interface ErrorDetails {
@@ -17,6 +19,7 @@ function formatError(error: unknown): ErrorDetails {
     }
     return details;
   }
+
   return {
     message: String(error),
   };
@@ -27,12 +30,19 @@ export function logError(
   context: LogContext = {},
   error?: unknown
 ): void {
-  const timestamp = new Date().toISOString();
+  const correlationId = getCorrelationId();
+  const userId = getUserId();
+
   const logData = {
-    timestamp,
-    level: "error",
+    meta: {
+      timestamp: new Date().toISOString(),
+      level: "error",
+      correlationId,
+      environment: process.env.ENVIRONMENT_NAME || "development",
+      ...(userId ? { userId } : {}),
+    },
     message,
-    ...context,
+    context,
     ...(error ? { error: formatError(error) } : {}),
   };
 
@@ -40,12 +50,19 @@ export function logError(
 }
 
 export function logInfo(message: string, context: LogContext = {}): void {
-  const timestamp = new Date().toISOString();
+  const correlationId = getCorrelationId();
+  const userId = getUserId();
+
   const logData = {
-    timestamp,
-    level: "info",
+    meta: {
+      timestamp: new Date().toISOString(),
+      level: "info",
+      correlationId,
+      environment: process.env.ENVIRONMENT_NAME || "development",
+      ...(userId ? { userId } : {}),
+    },
     message,
-    ...context,
+    context,
   };
 
   console.log(JSON.stringify(logData, null, 2));
