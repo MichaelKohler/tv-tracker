@@ -6,17 +6,18 @@ Track TV shows you've watched. Note that this is mostly for myself, however feel
 
 ### Prerequisites
 
-- Node.js 22.6 or higher
-- npm 10.8.0 or higher
+- **Node.js 22.11.0** (exact version - use `.nvmrc` with nvm: `nvm use`)
+- npm 10.9.0+ (bundled with Node 22.11.0)
 - Docker (for local PostgreSQL and E2E tests)
 
-**Important**: Please use the specified Node.js and npm versions to avoid package-lock.json compatibility issues between `npm install` and `npm ci`.
+**Critical**: Use the exact Node.js version from `.nvmrc` to avoid package-lock.json compatibility issues. Run `nvm install` to install the version, then `nvm use` to activate it.
 
 ### Setup
 
 This project is based on React Router. It's integrated with Sentry, so please change the DSN in `app/entry.client.tsx` and `app/entry.server.tsx` to reflect your own Sentry project.
 
 ```sh
+nvm use  # Ensures you're using the correct Node version
 npm ci
 npx playwright install
 npm run dev:deps
