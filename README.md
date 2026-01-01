@@ -16,6 +16,8 @@ npm run dev
 
 This starts your app in development mode, rebuilding assets on file changes. The data is stored in a local Postgres instance.
 
+**Note**: Always use `npm ci` to install dependencies. Only use `npm install <package>` when explicitly adding new packages. The project uses npm `overrides` to ensure stable dependency resolution across different npm versions.
+
 The database seed script creates a new user with some data you can use to get started:
 
 - Email: `rachel@remix.run`

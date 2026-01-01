@@ -16,6 +16,14 @@ Use context7 for framework/library documentation.
 
 ## Development Setup & Build Process
 
+### Prerequisites
+
+- **Node.js**: Version 22.6 or higher
+- **npm**: Version 10.8.0 or higher
+- **Docker**: Required for E2E tests and local PostgreSQL
+
+**Important**: This project uses npm `overrides` to ensure stable dependency resolution. Always use `npm ci` for installation. Only use `npm install <package>` when explicitly adding new dependencies.
+
 ### Initial Setup (Required Order)
 
 ```bash
