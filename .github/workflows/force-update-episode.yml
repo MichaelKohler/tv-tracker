@@ -31,6 +31,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨Force Update Episode
         run: npm run update:episode:force

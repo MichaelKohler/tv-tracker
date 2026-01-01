@@ -26,10 +26,12 @@ export const loader = withRequestContext(
       userName: user.email,
       userDisplayName: user.email,
       attestationType: "none",
-      excludeCredentials: existingPasskeys.map((passkey) => ({
-        id: passkey.credentialId,
-        transports: passkey.transports as AuthenticatorTransport[],
-      })),
+      excludeCredentials: existingPasskeys.map(
+        (passkey: (typeof existingPasskeys)[number]) => ({
+          id: passkey.credentialId,
+          transports: passkey.transports as AuthenticatorTransport[],
+        })
+      ),
       authenticatorSelection: {
         residentKey: "preferred",
         userVerification: "preferred",

@@ -212,8 +212,8 @@ describe("Show Model", () => {
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
     vi.mocked(prisma.episodeOnUser.groupBy)
-      // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-      .mockResolvedValueOnce(episodeOnUserData) // watched episodes
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockResolvedValueOnce(episodeOnUserData as any) // watched episodes
       .mockResolvedValueOnce([]); // ignored episodes (none)
     const shows = await getShowsByUserId("userId");
     expect(shows).toStrictEqual([
@@ -303,12 +303,12 @@ describe("Show Model", () => {
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
     vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(
-      // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-      episodeOnUserData
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      episodeOnUserData as any
     );
 
     const shows = await getSortedShowsByUserId("userId");
-    const showNames = shows.map((s) => s.name);
+    const showNames = shows.map((s: (typeof shows)[number]) => s.name);
 
     expect(showNames).toEqual(["a show", "B show", "c show"]);
   });
@@ -332,14 +332,10 @@ describe("Show Model", () => {
     vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue(showOnUser);
     // Mock both watched and ignored episodes
     vi.mocked(prisma.episodeOnUser.findMany)
-      .mockResolvedValueOnce([
-        // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-        { episodeId: "4" },
-      ])
-      .mockResolvedValueOnce([
-        // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-        { episodeId: "5" },
-      ]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockResolvedValueOnce([{ episodeId: "4" } as any])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockResolvedValueOnce([{ episodeId: "5" } as any]);
     const shows = await getShowById("2", "userId");
     expect(shows).toStrictEqual({
       show: {
@@ -401,8 +397,8 @@ describe("Show Model", () => {
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
     vi.mocked(prisma.episodeOnUser.groupBy)
-      // @ts-expect-error .. we can ignore it here as we do not want to mock the full object
-      .mockResolvedValueOnce(episodeOnUserData) // watched episodes
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockResolvedValueOnce(episodeOnUserData as any) // watched episodes
       .mockResolvedValueOnce([]); // ignored episodes (none)
 
     const shows = await getSortedShowsByUserId("userId");

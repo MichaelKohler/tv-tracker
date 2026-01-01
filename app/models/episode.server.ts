@@ -136,7 +136,7 @@ export async function getRecentlyWatchedEpisodes(
   });
 
   const recentlyWatchedEpisodeList = recentlyWatchedEpisodes.map(
-    (episodeMapping) => ({
+    (episodeMapping: (typeof recentlyWatchedEpisodes)[number]) => ({
       ...episodeMapping.episode,
       date: episodeMapping.createdAt,
       show: episodeMapping.show,
@@ -312,12 +312,14 @@ export async function markAllEpisodesAsWatched({
   });
 
   await prisma.episodeOnUser.createMany({
-    data: episodesToMarkAsWatched.map((episode) => ({
-      userId,
-      showId,
-      episodeId: episode.id,
-      ignored: false,
-    })),
+    data: episodesToMarkAsWatched.map(
+      (episode: (typeof episodesToMarkAsWatched)[number]) => ({
+        userId,
+        showId,
+        episodeId: episode.id,
+        ignored: false,
+      })
+    ),
   });
 }
 
@@ -396,9 +398,12 @@ export async function getTotalWatchTimeForUser(userId: User["id"]) {
     },
   });
 
-  return watchedEpisodes.reduce((total, episodeOnUser) => {
-    return total + (episodeOnUser.episode.runtime || 0);
-  }, 0);
+  return watchedEpisodes.reduce(
+    (total: number, episodeOnUser: (typeof watchedEpisodes)[number]) => {
+      return total + (episodeOnUser.episode.runtime || 0);
+    },
+    0
+  );
 }
 
 export async function getWatchedEpisodesCountForUser(userId: User["id"]) {
@@ -488,7 +493,7 @@ export async function getLast12MonthsStats(userId: User["id"]) {
     { episodes: number; runtime: number; shows: Set<string> }
   >();
 
-  watchedEpisodes.forEach((episodeOnUser) => {
+  watchedEpisodes.forEach((episodeOnUser: (typeof watchedEpisodes)[number]) => {
     const monthKey = episodeOnUser.createdAt.toLocaleString("default", {
       month: "long",
       year: "numeric",

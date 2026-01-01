@@ -26,7 +26,10 @@ export const loader = withRequestContext(
     const episodes = await getUpcomingEpisodes(userId);
 
     const groupedEpisodes = episodes.reduce(
-      (acc, episode) => {
+      (
+        acc: Record<string, typeof episodes>,
+        episode: (typeof episodes)[number]
+      ) => {
         const month = new Date(episode.airDate).toLocaleString("default", {
           month: "long",
           year: "numeric",

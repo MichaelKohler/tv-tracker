@@ -120,11 +120,11 @@ describe("User Model", () => {
       updatedAt: now,
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
       password: {
         hash: "foo",
       },
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
     // @ts-expect-error .. compare does return a promise that resolves to a boolean..
     vi.mocked(compare).mockResolvedValue(true);
 
@@ -167,11 +167,11 @@ describe("User Model", () => {
       updatedAt: now,
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
       password: {
         hash: "foo",
       },
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
     // @ts-expect-error .. compare does return a promise that resolves to a boolean..
     vi.mocked(compare).mockResolvedValue(false);
 
@@ -313,11 +313,11 @@ describe("User Model", () => {
       updatedAt: new Date(),
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
       password: {
         hash: "foo",
       },
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     const hasPassword = await userHasPassword("123");
     expect(hasPassword).toBe(true);
@@ -330,9 +330,9 @@ describe("User Model", () => {
       updatedAt: new Date(),
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password is an include and therefore we don't have the type for it..
       password: null,
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     const hasPassword = await userHasPassword("123");
     expect(hasPassword).toBe(false);
@@ -345,7 +345,6 @@ describe("User Model", () => {
       updatedAt: new Date(),
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password and passkeys are includes
       password: {
         hash: "foo",
       },
@@ -355,7 +354,8 @@ describe("User Model", () => {
           name: "My Passkey",
         },
       ],
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     await removePassword("123");
     expect(prisma.password.delete).toBeCalledWith({
@@ -380,10 +380,10 @@ describe("User Model", () => {
       updatedAt: new Date(),
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password and passkeys are includes
       password: null,
       passkeys: [],
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     await expect(() => removePassword("123")).rejects.toThrowError(
       "NO_PASSWORD_TO_REMOVE"
@@ -397,12 +397,12 @@ describe("User Model", () => {
       updatedAt: new Date(),
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-      // @ts-expect-error ... the password and passkeys are includes
       password: {
         hash: "foo",
       },
       passkeys: [],
-    });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     await expect(() => removePassword("123")).rejects.toThrowError(
       "NEED_PASSKEY_BEFORE_REMOVAL"

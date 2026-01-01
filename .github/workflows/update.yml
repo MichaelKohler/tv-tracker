@@ -22,6 +22,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Episodes
         run: npm run update:episodes
@@ -46,6 +48,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Episode Info
         run: npm run update:episodes:info

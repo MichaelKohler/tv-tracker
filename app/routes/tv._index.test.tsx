@@ -76,7 +76,6 @@ describe("TV Index Route", () => {
 
   it("renders page with shows", async () => {
     vi.mocked(useLoaderData<typeof loader>).mockReturnValue({
-      // @ts-expect-error .. we do not need to define the full show info for this..
       shows: Promise.resolve([
         {
           unwatchedEpisodesCount: 3,

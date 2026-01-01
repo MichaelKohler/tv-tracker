@@ -27,6 +27,8 @@ jobs:
 
       - name: 📥 Download deps
         run: npm ci
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Maze ID
         run: npm run update:mazeId

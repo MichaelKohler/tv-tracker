@@ -59,6 +59,7 @@ export default [
     ignores: [
       "**/playwright-report",
       "**/build",
+      "app/generated",
       "public/build",
       "node_modules",
       "playwright-report",
