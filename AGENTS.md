@@ -14,7 +14,7 @@ This is a personal TV show tracking web application. Users can search for TV sho
 
 Use context7 for framework/library documentation.
 
-## Development Setup &Build Process
+## Development Setup & Build Process
 
 ### Prerequisites
 
