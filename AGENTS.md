@@ -18,11 +18,11 @@ Use context7 for framework/library documentation.
 
 ### Prerequisites
 
-- **Node.js**: Version 22.11.0 (exact version - use nvm with `.nvmrc` file)
-- **npm**: Version 10.9.0 or higher (comes with Node 22.11.0)
+- **Node.js**: Version 22.6 or higher
+- **npm**: Version 10.8.0 or higher
 - **Docker**: Required for E2E tests and local PostgreSQL
 
-**Critical**: This project requires the exact Node.js version specified in `.nvmrc` to ensure package-lock.json consistency between local development and CI. Different Node/npm versions will cause `npm install` to modify package-lock.json in incompatible ways. Use `nvm install` or `nvm use` to install/switch to the correct version.
+**Important**: This project uses npm `overrides` to ensure stable dependency resolution. Always use `npm ci` for installation. Only use `npm install <package>` when explicitly adding new dependencies.
 
 ### Initial Setup (Required Order)
 

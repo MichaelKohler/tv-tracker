@@ -4,20 +4,9 @@ Track TV shows you've watched. Note that this is mostly for myself, however feel
 
 ## Development
 
-### Prerequisites
-
-- **Node.js 22.11.0** (exact version - use `.nvmrc` with nvm: `nvm use`)
-- npm 10.9.0+ (bundled with Node 22.11.0)
-- Docker (for local PostgreSQL and E2E tests)
-
-**Critical**: Use the exact Node.js version from `.nvmrc` to avoid package-lock.json compatibility issues. Run `nvm install` to install the version, then `nvm use` to activate it.
-
-### Setup
-
 This project is based on React Router. It's integrated with Sentry, so please change the DSN in `app/entry.client.tsx` and `app/entry.server.tsx` to reflect your own Sentry project.
 
 ```sh
-nvm use  # Ensures you're using the correct Node version
 npm ci
 npx playwright install
 npm run dev:deps
@@ -26,6 +15,8 @@ npm run dev
 ```
 
 This starts your app in development mode, rebuilding assets on file changes. The data is stored in a local Postgres instance.
+
+**Note**: Always use `npm ci` to install dependencies. Only use `npm install <package>` when explicitly adding new packages. The project uses npm `overrides` to ensure stable dependency resolution across different npm versions.
 
 The database seed script creates a new user with some data you can use to get started:
 
