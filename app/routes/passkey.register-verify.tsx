@@ -12,6 +12,7 @@ import {
   sessionStorage,
 } from "../session.server";
 import { logInfo } from "../logger.server";
+import { sendPasskeyCreatedMail } from "../models/mail.server";
 
 export const action = withRequestContext(
   async ({ request }: ActionFunctionArgs) => {
@@ -48,13 +49,19 @@ export const action = withRequestContext(
 
       const { credential: credentialInfo } = verification.registrationInfo;
 
-      await createPasskey({
+      const passkey = await createPasskey({
         userId: user.id,
         credentialId: credentialInfo.id,
         publicKey: new Uint8Array(credentialInfo.publicKey),
         counter: BigInt(credentialInfo.counter),
         transports: credentialInfo.transports || [],
         name: name.trim(),
+      });
+
+      await sendPasskeyCreatedMail({
+        email: user.email,
+        passkeyName: passkey.name,
+        createdAt: passkey.createdAt,
       });
 
       const session = await clearPasskeyChallenge(request);

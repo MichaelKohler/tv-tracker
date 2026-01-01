@@ -8,6 +8,7 @@ import {
   requireUser,
   sessionStorage,
 } from "../session.server";
+import { sendPasskeyCreatedMail } from "../models/mail.server";
 import { action } from "./passkey.register-verify";
 
 vi.mock("../db.server");
@@ -20,6 +21,11 @@ vi.mock("@simplewebauthn/server", async () => ({
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
   createPasskey: vi.fn(),
+}));
+
+vi.mock("../models/mail.server", async () => ({
+  ...(await vi.importActual("../models/mail.server")),
+  sendPasskeyCreatedMail: vi.fn(),
 }));
 
 vi.mock("../session.server", async () => ({
@@ -162,6 +168,8 @@ describe("Passkey Register Verify Route", () => {
       credentialBackedUp: false,
     };
 
+    const mockCreatedAt = new Date("2025-01-01T12:00:00Z");
+
     vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: true,
@@ -176,7 +184,7 @@ describe("Passkey Register Verify Route", () => {
       counter: BigInt(0),
       transports: ["usb", "nfc"],
       name: "My YubiKey",
-      createdAt: new Date(),
+      createdAt: mockCreatedAt,
       updatedAt: new Date(),
       lastUsedAt: new Date(),
     });
@@ -214,6 +222,12 @@ describe("Passkey Register Verify Route", () => {
       counter: BigInt(0),
       transports: ["usb", "nfc"],
       name: "My YubiKey",
+    });
+
+    expect(sendPasskeyCreatedMail).toHaveBeenCalledWith({
+      email: "test@example.com",
+      passkeyName: "My YubiKey",
+      createdAt: mockCreatedAt,
     });
 
     expect(clearPasskeyChallenge).toHaveBeenCalledWith(request);
