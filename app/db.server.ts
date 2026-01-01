@@ -1,10 +1,10 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
-let prisma: PrismaClient;
+let prisma: InstanceType<typeof PrismaClient>;
 
 declare global {
-  var __db__: PrismaClient;
+  var __db__: InstanceType<typeof PrismaClient>;
 }
 
 const adapter = new PrismaPg({

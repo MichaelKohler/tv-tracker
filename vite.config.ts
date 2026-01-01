@@ -1,17 +1,16 @@
 import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
+import { fileURLToPath } from "node:url";
 
 export default defineConfig({
   plugins: [!process.env.VITEST && reactRouter()],
 
   resolve: {
     alias: {
-      "@prisma/client": "./app/generated/prisma/index.js",
+      "@prisma/client": fileURLToPath(
+        new URL("./app/prisma-client.server.ts", import.meta.url)
+      ),
     },
-  },
-
-  ssr: {
-    noExternal: ["@prisma/client"],
   },
 
   build: {

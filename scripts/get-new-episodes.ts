@@ -59,16 +59,17 @@ async function updateEpisodes(showId: Show["mazeId"]) {
     `Found ${existingShow.name} in database, starting update of episodes`
   );
 
-  const existingEpisodesIds = (
-    await prisma.episode.findMany({
-      where: {
-        showId: existingShow.id,
-      },
-      select: {
-        mazeId: true,
-      },
-    })
-  ).map((episode) => episode.mazeId);
+  const existingEpisodes = await prisma.episode.findMany({
+    where: {
+      showId: existingShow.id,
+    },
+    select: {
+      mazeId: true,
+    },
+  });
+  const existingEpisodesIds = existingEpisodes.map(
+    (episode: (typeof existingEpisodes)[number]) => episode.mazeId
+  );
 
   console.log(`Found ${existingEpisodesIds.length} episodes in database`);
 

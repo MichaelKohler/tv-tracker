@@ -10,7 +10,7 @@ async function check() {
     },
   });
   const episodesToCheckIds = episodesToCheck.map(
-    (episode) => episode.episodeId
+    (episode: (typeof episodesToCheck)[number]) => episode.episodeId
   );
   const uniqueEpisodeToCheckIds = [...new Set(episodesToCheckIds)];
   console.log(`Found ${episodesToCheck.length} episodes to potentially update`);
@@ -19,7 +19,9 @@ async function check() {
       id: true,
     },
   });
-  const episodeIds = allEpisodes.map((episode) => episode.id);
+  const episodeIds = allEpisodes.map(
+    (episode: (typeof allEpisodes)[number]) => episode.id
+  );
 
   for (const episodeId of uniqueEpisodeToCheckIds) {
     console.log("-----------------------");

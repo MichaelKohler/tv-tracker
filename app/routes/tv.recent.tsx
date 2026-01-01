@@ -29,7 +29,18 @@ export const loader = withRequestContext(
     const episodes = await getRecentlyWatchedEpisodes(userId, 200);
 
     const groupedEpisodes = episodes.reduce(
-      (acc, episode) => {
+      (
+        acc: Record<
+          string,
+          {
+            episodes: typeof episodes;
+            totalRuntime: number;
+            episodeCount: number;
+            showCount: number;
+          }
+        >,
+        episode: (typeof episodes)[number]
+      ) => {
         const month = new Date(episode.date).toLocaleString("default", {
           month: "long",
           year: "numeric",
@@ -61,9 +72,13 @@ export const loader = withRequestContext(
       >
     );
 
-    Object.values(groupedEpisodes).forEach((group) => {
-      group.showCount = new Set(group.episodes.map((e) => e.show.id)).size;
-    });
+    Object.values(groupedEpisodes).forEach(
+      (group: (typeof groupedEpisodes)[string]) => {
+        group.showCount = new Set(
+          group.episodes.map((e: (typeof episodes)[number]) => e.show.id)
+        ).size;
+      }
+    );
 
     return {
       episodes: groupedEpisodes,

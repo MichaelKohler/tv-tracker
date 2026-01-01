@@ -21,7 +21,7 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@prisma/client": ["./app/generated/prisma"]
+      "@prisma/client": ["./app/prisma-client.server.ts"]
     },
     "skipLibCheck": true,
     "noEmit": true

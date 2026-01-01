@@ -1,11 +1,11 @@
 import { beforeEach } from "vitest";
 import { mockDeep, mockReset } from "vitest-mock-extended";
 
-import type { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaClient } from "../prisma-client.server.js";
 
 beforeEach(() => {
   mockReset(prisma);
 });
 
-const prisma = mockDeep<PrismaClient>();
+const prisma = mockDeep<InstanceType<typeof PrismaClient>>();
 export { prisma };

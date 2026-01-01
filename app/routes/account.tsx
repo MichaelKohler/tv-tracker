@@ -69,12 +69,14 @@ export const loader = withRequestContext(
 
     const passkeys = await getPasskeysByUserId(user.id);
 
-    const sanitizedPasskeys = passkeys.map((passkey) => ({
-      id: passkey.id,
-      name: passkey.name,
-      createdAt: passkey.createdAt,
-      lastUsedAt: passkey.lastUsedAt,
-    }));
+    const sanitizedPasskeys = passkeys.map(
+      (passkey: (typeof passkeys)[number]) => ({
+        id: passkey.id,
+        name: passkey.name,
+        createdAt: passkey.createdAt,
+        lastUsedAt: passkey.lastUsedAt,
+      })
+    );
 
     const hasPassword = await userHasPassword(user.id);
 

@@ -19,16 +19,15 @@ import { SearchResultShow } from "app/types/show";
 // We only want to return currently ongoing shows as we otherwise
 // do not care about new episodes..
 export async function getAllRunningShowIds() {
-  const showIds = (
-    await prisma.show.findMany({
-      select: {
-        mazeId: true,
-      },
-      where: {
-        ended: null,
-      },
-    })
-  ).map((show) => show.mazeId);
+  const shows = await prisma.show.findMany({
+    select: {
+      mazeId: true,
+    },
+    where: {
+      ended: null,
+    },
+  });
+  const showIds = shows.map((show: (typeof shows)[number]) => show.mazeId);
 
   return showIds;
 }
@@ -91,7 +90,9 @@ export async function getShowsByUserId(userId: User["id"], archived = false) {
     return [];
   }
 
-  const showIds = showsOnUser.map((s) => s.showId);
+  const showIds = showsOnUser.map(
+    (s: (typeof showsOnUser)[number]) => s.showId
+  );
 
   const [watchedEpisodesCount, ignoredEpisodesCount] = await Promise.all([
     prisma.episodeOnUser.groupBy({
@@ -132,20 +133,22 @@ export async function getShowsByUserId(userId: User["id"], archived = false) {
     ignoredEpisodesCountMap.set(group.showId, group._count.episodeId);
   }
 
-  const showsToReturn = showsOnUser.map(({ show, showId }) => {
-    const pastEpisodesCount = show._count.episodes;
-    const watchedCount = watchedEpisodesCountMap.get(showId) || 0;
-    const ignoredCount = ignoredEpisodesCountMap.get(showId) || 0;
-    const unwatchedEpisodesCount =
-      pastEpisodesCount - watchedCount - ignoredCount;
+  const showsToReturn = showsOnUser.map(
+    ({ show, showId }: (typeof showsOnUser)[number]) => {
+      const pastEpisodesCount = show._count.episodes;
+      const watchedCount = watchedEpisodesCountMap.get(showId) || 0;
+      const ignoredCount = ignoredEpisodesCountMap.get(showId) || 0;
+      const unwatchedEpisodesCount =
+        pastEpisodesCount - watchedCount - ignoredCount;
 
-    const { _count, ...showData } = show;
+      const { _count, ...showData } = show;
 
-    return {
-      ...showData,
-      unwatchedEpisodesCount,
-    };
-  });
+      return {
+        ...showData,
+        unwatchedEpisodesCount,
+      };
+    }
+  );
 
   return showsToReturn;
 }
@@ -157,7 +160,7 @@ export async function getArchivedShowsByUserId(userId: User["id"]) {
 export async function getSortedArchivedShowsByUserId(userId: User["id"]) {
   const shows = await getArchivedShowsByUserId(userId);
 
-  shows.sort((showA, showB) => {
+  shows.sort((showA: (typeof shows)[number], showB: (typeof shows)[number]) => {
     if (showB.name > showA.name) {
       return -1;
     }
@@ -175,7 +178,7 @@ export async function getSortedArchivedShowsByUserId(userId: User["id"]) {
 export async function getSortedShowsByUserId(userId: User["id"]) {
   const shows = await getShowsByUserId(userId);
 
-  shows.sort((showA, showB) => {
+  shows.sort((showA: (typeof shows)[number], showB: (typeof shows)[number]) => {
     if (showB.unwatchedEpisodesCount > showA.unwatchedEpisodesCount) {
       return 1;
     }
@@ -193,20 +196,21 @@ export async function getSortedShowsByUserId(userId: User["id"]) {
 }
 
 async function getAddedShowsMazeIds(userId: User["id"]) {
-  const addedShowsIds = (
-    await prisma.show.findMany({
-      where: {
-        users: {
-          some: {
-            userId,
-          },
+  const addedShows = await prisma.show.findMany({
+    where: {
+      users: {
+        some: {
+          userId,
         },
       },
-      select: {
-        mazeId: true,
-      },
-    })
-  ).map((show) => show.mazeId);
+    },
+    select: {
+      mazeId: true,
+    },
+  });
+  const addedShowsIds = addedShows.map(
+    (show: (typeof addedShows)[number]) => show.mazeId
+  );
 
   return addedShowsIds;
 }
@@ -285,8 +289,12 @@ export async function getShowById(showId: Show["id"], userId: User["id"]) {
 
   return {
     show,
-    watchedEpisodes: watchedEpisodes.map((episode) => episode.episodeId),
-    ignoredEpisodes: ignoredEpisodes.map((episode) => episode.episodeId),
+    watchedEpisodes: watchedEpisodes.map(
+      (episode: (typeof watchedEpisodes)[number]) => episode.episodeId
+    ),
+    ignoredEpisodes: ignoredEpisodes.map(
+      (episode: (typeof ignoredEpisodes)[number]) => episode.episodeId
+    ),
   };
 }
 
