@@ -14,7 +14,15 @@ This is a personal TV show tracking web application. Users can search for TV sho
 
 Use context7 for framework/library documentation.
 
-## Development Setup & Build Process
+## Development Setup &Build Process
+
+### Prerequisites
+
+- **Node.js**: Version 22.6 or higher
+- **npm**: Version 10.8.0 or higher
+- **Docker**: Required for E2E tests and local PostgreSQL
+
+**Important**: This project requires specific npm and Node.js versions to ensure package-lock.json consistency between local development and CI. Using different versions may cause `npm install` to modify package-lock.json in ways that are incompatible with `npm ci`.
 
 ### Initial Setup (Required Order)
 

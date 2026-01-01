@@ -4,6 +4,16 @@ Track TV shows you've watched. Note that this is mostly for myself, however feel
 
 ## Development
 
+### Prerequisites
+
+- Node.js 22.6 or higher
+- npm 10.8.0 or higher
+- Docker (for local PostgreSQL and E2E tests)
+
+**Important**: Please use the specified Node.js and npm versions to avoid package-lock.json compatibility issues between `npm install` and `npm ci`.
+
+### Setup
+
 This project is based on React Router. It's integrated with Sentry, so please change the DSN in `app/entry.client.tsx` and `app/entry.server.tsx` to reflect your own Sentry project.
 
 ```sh
