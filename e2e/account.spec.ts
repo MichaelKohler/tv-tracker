@@ -105,7 +105,16 @@ test("allows to change password", async ({ page }) => {
   await page
     .getByLabel("Confirm Password")
     .fill("someNewVeryStrongPassword4321");
-  await page.getByRole("button", { name: "Change password" }).click();
+
+  await Promise.all([
+    page.getByRole("button", { name: "Change password" }).click(),
+    page.waitForResponse(
+      (response) =>
+        response.url().includes("/account") &&
+        response.request().method() === "POST"
+    ),
+  ]);
+
   await expect(page.getByText("Your password has been changed.")).toBeVisible();
 
   await page.getByRole("button", { name: "Logout" }).click();
