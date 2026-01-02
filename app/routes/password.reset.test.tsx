@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useActionData } from "react-router";
+import { useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
@@ -8,7 +8,7 @@ import Reset, { action, loader } from "./password.reset";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn().mockReturnValue({}),
+  useNavigation: vi.fn().mockReturnValue({ state: "idle" }),
   useActionData: vi.fn(),
   useLoaderData: vi.fn(),
   Form: ({ children }: { children: React.ReactNode }) => (
@@ -61,6 +61,41 @@ describe("Password Reset Route", () => {
     expect(
       screen.getByText(/An email to reset your password has been sent/)
     ).toBeInTheDocument();
+  });
+
+  it("shows loading state when submitting", () => {
+    vi.mocked(useNavigation).mockReturnValue({
+      state: "submitting",
+    } as ReturnType<typeof useNavigation>);
+
+    render(<Reset />);
+
+    expect(screen.getByText("Sending email...")).toBeInTheDocument();
+  });
+
+  it("disables button when submitting", () => {
+    vi.mocked(useNavigation).mockReturnValue({
+      state: "submitting",
+    } as ReturnType<typeof useNavigation>);
+
+    render(<Reset />);
+
+    const button = screen.getByRole("button");
+    expect(button).toBeDisabled();
+  });
+
+  it("disables button after successful submission", () => {
+    vi.mocked(useActionData).mockReturnValue({
+      errors: {
+        email: null,
+      },
+      done: true,
+    });
+
+    render(<Reset />);
+
+    const button = screen.getByRole("button");
+    expect(button).toBeDisabled();
   });
 
   describe("Loader", () => {
