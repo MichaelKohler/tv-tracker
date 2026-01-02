@@ -31,7 +31,7 @@ describe("mail.server", () => {
   });
 
   describe("sendPasswordResetMail", () => {
-    it("should send password reset email with correct parameters", async () => {
+    it("should send password reset email with correct HTML and text content", async () => {
       mockSendMail.mockResolvedValue({});
 
       await sendPasswordResetMail({
@@ -52,14 +52,37 @@ describe("mail.server", () => {
       expect(mockSendMail).toHaveBeenCalledWith({
         from: "tv-tracker <noreply@example.com>",
         to: "user@example.com <user@example.com>",
-        subject: "Password reset code",
+        subject: "Password Reset Request",
         text: expect.stringContaining("reset-token-123"),
+        html: expect.stringContaining("reset-token-123"),
       });
+
+      const call = mockSendMail.mock.calls[0][0];
+      expect(call.html).toContain("Password Reset Request");
+      expect(call.html).toContain("reset-token-123");
+      expect(call.html).toContain("https://tvtracker.example.com");
+      expect(call.html).toContain("#1f3352");
+      expect(call.text).toContain("reset-token-123");
+      expect(call.text).toContain("https://tvtracker.example.com");
 
       expect(logInfo).toHaveBeenCalledWith(
         "Password reset email sent successfully",
         { email: "user@example.com" }
       );
+    });
+
+    it("should use default origin when RP_ORIGIN is not set", async () => {
+      mockSendMail.mockResolvedValue({});
+      delete process.env.RP_ORIGIN;
+
+      await sendPasswordResetMail({
+        email: "user@example.com",
+        token: "reset-token-123",
+      });
+
+      const call = mockSendMail.mock.calls[0][0];
+      expect(call.html).toContain("http://localhost:5173");
+      expect(call.text).toContain("http://localhost:5173");
     });
 
     it("should log error when email sending fails", async () => {

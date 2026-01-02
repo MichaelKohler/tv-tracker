@@ -10,7 +10,8 @@ export async function sendPasswordResetMail({
   email: User["email"];
   token: PasswordReset["token"];
 }) {
-  const { SMTP_HOST, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD } = process.env;
+  const { SMTP_HOST, SMTP_PORT, SMTP_EMAIL, SMTP_PASSWORD, RP_ORIGIN } =
+    process.env;
 
   if (!SMTP_HOST || !SMTP_PORT || !SMTP_EMAIL || !SMTP_PASSWORD) {
     logInfo("SMTP not configured - password reset email will not be sent", {
@@ -36,11 +37,98 @@ export async function sendPasswordResetMail({
     },
   });
 
+  const origin = RP_ORIGIN || "http://localhost:5173";
+  const resetLink = `${origin}/account?token=${token}`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Password Reset Request</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Raleway', Arial, sans-serif; background-color: #f2faff;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td align="center" style="padding: 40px 0;">
+              <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(31, 51, 82, 0.1);">
+                <!-- Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #1f3352 0%, #23395b 100%); padding: 40px 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; font-family: 'Dosis', Arial, sans-serif;">
+                      Password Reset Request
+                    </h1>
+                  </td>
+                </tr>
+
+                <!-- Content -->
+                <tr>
+                  <td style="padding: 40px 30px;">
+                    <p style="margin: 0 0 20px; color: #2f2f2f; font-size: 16px; line-height: 1.6;">
+                      Someone has requested a password reset for your TV Tracker account.
+                    </p>
+
+                    <table role="presentation" style="width: 100%; border-collapse: collapse; margin: 30px 0; background-color: #f2faff; border-radius: 6px; border-left: 4px solid #9ad6f5;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <p style="margin: 0 0 10px; color: #23395b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Reset Link
+                          </p>
+                          <p style="margin: 0 0 20px;">
+                            <a href="${resetLink}" style="color: #1f3352; font-size: 16px; word-break: break-all; text-decoration: underline;">
+                              ${resetLink}
+                            </a>
+                          </p>
+
+                          <p style="margin: 0 0 10px; color: #23395b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Expiration
+                          </p>
+                          <p style="margin: 0; color: #2f2f2f; font-size: 16px;">
+                            This link will expire in 1 hour
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 30px 0 0; color: #2f2f2f; font-size: 16px; line-height: 1.6;">
+                      If you did not request this password reset, you do not need to take any further action. Your account remains secure.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 30px; background-color: #f2faff; text-align: center; border-radius: 0 0 8px 8px;">
+                    <p style="margin: 0; color: #3a4d6a; font-size: 14px; line-height: 1.6;">
+                      This is an automated security notification from TV Tracker
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+
+  const textContent = `Someone has requested a password reset for your TV Tracker account.
+
+Reset Link: ${resetLink}
+
+This link will expire in 1 hour.
+
+If you did not request this password reset, you do not need to take any further action. Your account remains secure.
+
+This is an automated security notification from TV Tracker.`;
+
   const message = {
     from: `tv-tracker <${process.env.SMTP_EMAIL}>`,
     to: `${email} <${email}>`,
-    subject: "Password reset code",
-    text: `Somebody has requested a password reset for tv-tracker. If this was you, go to /account?token=${token} to reset your password. The link will expire in 1 hour. If this wasn't you, you do not need to take any further action.`,
+    subject: "Password Reset Request",
+    text: textContent,
+    html: htmlContent,
   };
 
   try {
