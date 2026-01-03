@@ -215,16 +215,25 @@ export default function LoginPage() {
               </div>
             )}
           </div>
+
+          <div className="flex items-center justify-between mt-2">
+            <div className="text-center text-sm text-mk-text">
+              Forgot your password?{" "}
+              <Link
+                className="text-mk-text underline"
+                to={{
+                  pathname: "/password/reset",
+                  search: searchParams.toString(),
+                }}
+              >
+                Reset password
+              </Link>
+            </div>
+          </div>
         </div>
 
         <input type="hidden" name="redirectTo" value={redirectTo} />
-        <button
-          type="submit"
-          className="w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
-          disabled={!!navigation.formData}
-        >
-          {navigation.formData ? "Logging in..." : "Log in"}
-        </button>
+
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <input
@@ -253,34 +262,25 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
-
-        <div className="flex items-center justify-between">
-          <div className="text-center text-sm text-mk-text">
-            Forgot your password?{" "}
-            <Link
-              className="text-mk-text underline"
-              to={{
-                pathname: "/password/reset",
-                search: searchParams.toString(),
-              }}
-            >
-              Reset password
-            </Link>
-          </div>
-        </div>
       </Form>
 
-      <div className="mt-6">
-        <button
-          type="button"
-          onClick={handlePasskeyLogin}
-          disabled={isAuthenticating}
-          className="w-full rounded border border-mk-text px-4 py-2 hover:bg-gray-100 disabled:opacity-50"
-        >
-          {isAuthenticating ? "Authenticating..." : "Sign in with Passkey"}
-        </button>
-        {passkeyError && <p className="mt-2 text-mkerror">{passkeyError}</p>}
-      </div>
+      <button
+        type="submit"
+        className="w-full rounded bg-mk px-4 py-2 mt-4 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
+        disabled={!!navigation.formData}
+      >
+        {navigation.formData ? "Logging in..." : "Log in"}
+      </button>
+
+      <button
+        type="button"
+        onClick={handlePasskeyLogin}
+        disabled={isAuthenticating}
+        className="w-full rounded border border-mk-text px-4 py-2 mt-4 hover:bg-gray-100 disabled:opacity-50"
+      >
+        {isAuthenticating ? "Authenticating..." : "Sign in with Passkey"}
+      </button>
+      {passkeyError && <p className="mt-2 text-mkerror">{passkeyError}</p>}
     </main>
   );
 }
