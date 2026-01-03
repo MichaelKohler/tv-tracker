@@ -126,13 +126,18 @@ export default function LoginPage() {
 
       const credential = await startAuthentication(options);
 
+      const rememberCheckbox = document.getElementById(
+        "remember"
+      ) as HTMLInputElement;
+      const remember = rememberCheckbox?.checked ?? false;
+
       const verifyResponse = await fetch("/passkey/login-verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           credential,
           redirectTo,
-          remember: false,
+          remember,
         }),
       });
 
@@ -262,15 +267,15 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
-      </Form>
 
-      <button
-        type="submit"
-        className="w-full rounded bg-mk px-4 py-2 mt-4 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
-        disabled={!!navigation.formData}
-      >
-        {navigation.formData ? "Logging in..." : "Log in"}
-      </button>
+        <button
+          type="submit"
+          className="w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
+          disabled={!!navigation.formData}
+        >
+          {navigation.formData ? "Logging in..." : "Log in"}
+        </button>
+      </Form>
 
       <button
         type="button"
