@@ -10,7 +10,7 @@ This is a personal TV show tracking web application. Users can search for TV sho
 - **Backend**: React Router server functions, Prisma ORM, PostgreSQL
 - **External APIs**: TVMaze API for show/episode data
 - **Testing**: Vitest (unit), Playwright (E2E), React Testing Library
-- **Runtime**: Node.js 22+
+- **Runtime**: Node.js 24+
 
 Use context7 for framework/library documentation.
 
@@ -18,8 +18,8 @@ Use context7 for framework/library documentation.
 
 ### Prerequisites
 
-- **Node.js**: Version 22.6 or higher
-- **npm**: Version 10.8.0 or higher
+- **Node.js**: Version 24.1 or higher
+- **npm**: Version 11.0.0 or higher
 - **Docker**: Required for E2E tests and local PostgreSQL
 
 **Important**: This project uses npm `overrides` to ensure stable dependency resolution. Always use `npm ci` for installation. Only use `npm install <package>` when explicitly adding new dependencies.
@@ -122,7 +122,7 @@ npm run test:e2e:report    # View test results
 
 ### Configuration Files
 
-- `package.json`: Scripts, dependencies, Node.js 22+ requirement
+- `package.json`: Scripts, dependencies, Node.js 24+ requirement
 - `vite.config.ts`: React Router plugin, build config with source maps
 - `vitest.config.ts`: Test config with jsdom, global test utilities
 - `playwright.config.ts`: E2E test config, 30s timeouts, retry on CI
