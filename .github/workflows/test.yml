@@ -78,7 +78,7 @@ jobs:
   playwright:
     name: ⚫️ Playwright
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     services:
       postgres:
