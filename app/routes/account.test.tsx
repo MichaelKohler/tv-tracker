@@ -347,7 +347,6 @@ describe("Account Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.newPassword).toBe("New password is required");
     });
 
@@ -367,7 +366,6 @@ describe("Account Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.confirmPassword).toBe(
         "Password confirmation is required"
       );
@@ -389,7 +387,6 @@ describe("Account Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.confirmPassword).toBe(
         "Passwords do not match"
       );
@@ -411,7 +408,6 @@ describe("Account Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.password).toBe(
         "Current password is required."
       );
@@ -435,7 +431,6 @@ describe("Account Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.password).toBe("Current password is wrong.");
     });
 
@@ -457,7 +452,6 @@ describe("Account Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.generic).toBe(
         "Something went wrong. Please try again."
       );
@@ -483,7 +477,6 @@ describe("Account Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.token).toBe(
         "Password reset link expired. Please try again."
       );

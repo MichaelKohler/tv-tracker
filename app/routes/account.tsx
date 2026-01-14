@@ -195,7 +195,7 @@ export const action = withRequestContext(
       try {
         await updatePasskeyName(passkeyId, user.id, passkeyName.trim());
         logInfo("Passkey name updated successfully", { passkeyId });
-        return { done: true, errors, intent: "edit-passkey" };
+        return data({ done: true, errors, intent: "edit-passkey" });
       } catch (_error) {
         return data(
           {
@@ -237,7 +237,7 @@ export const action = withRequestContext(
       try {
         await deletePasskey(passkeyId, user.id);
         logInfo("Passkey deleted successfully", { passkeyId });
-        return { done: true, errors, intent: "delete-passkey" };
+        return data({ done: true, errors, intent: "delete-passkey" });
       } catch (_error) {
         return data(
           {
@@ -514,7 +514,7 @@ export const action = withRequestContext(
     }
 
     logInfo("Password changed successfully", {});
-    return { done: true, errors };
+    return data({ done: true, errors });
   }
 );
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useActionData, useSubmit } from "react-router";
+import { Form, useActionData, useSubmit } from "react-router";
 import { startAuthentication } from "@simplewebauthn/browser";
 
 import type { action } from "../routes/account";
@@ -90,7 +90,7 @@ export function PasswordChangeForm({
       <h2 className="text-xl font-bold">
         {hasPassword ? "Change Password" : "Set Password"}
       </h2>
-      <form method="post" onSubmit={handleSubmit}>
+      <Form method="post" onSubmit={handleSubmit}>
         {resetToken && <input type="hidden" name="token" value={resetToken} />}
 
         {!resetToken && hasPassword && (
@@ -214,7 +214,7 @@ export function PasswordChangeForm({
                 : "Set password"}
           </button>
         </>
-      </form>
+      </Form>
     </>
   );
 }
