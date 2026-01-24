@@ -494,7 +494,7 @@ export async function getLast12MonthsStats(userId: User["id"]) {
   >();
 
   watchedEpisodes.forEach((episodeOnUser: (typeof watchedEpisodes)[number]) => {
-    const monthKey = episodeOnUser.createdAt.toLocaleString("default", {
+    const monthKey = episodeOnUser.createdAt.toLocaleDateString("en-US", {
       month: "long",
       year: "numeric",
     });
