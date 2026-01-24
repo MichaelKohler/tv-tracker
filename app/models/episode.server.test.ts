@@ -405,6 +405,77 @@ describe("Episode Model", () => {
       showCount: 2,
     });
 
+    vi.useRealTimers();
+  });
+
+  it("getLast12MonthsStats should format January 2026 correctly", async () => {
+    const mockCurrentDate = new Date("2026-01-24");
+    vi.useFakeTimers();
+    vi.setSystemTime(mockCurrentDate);
+
+    const jan2026Date = new Date("2026-01-15");
+    const dec2025Date = new Date("2025-12-20");
+    const mockEpisodesOnUser = [
+      {
+        id: "1",
+        userId: "userId",
+        showId: "showId1",
+        episodeId: "episode1",
+        ignored: false,
+        createdAt: dec2025Date,
+        updatedAt: dec2025Date,
+        episode: { runtime: 30, showId: "showId1" },
+        show: { id: "showId1", name: "Show 1" },
+      },
+      {
+        id: "2",
+        userId: "userId",
+        showId: "showId2",
+        episodeId: "episode2",
+        ignored: false,
+        createdAt: jan2026Date,
+        updatedAt: jan2026Date,
+        episode: { runtime: 45, showId: "showId2" },
+        show: { id: "showId2", name: "Show 2" },
+      },
+      {
+        id: "3",
+        userId: "userId",
+        showId: "showId1",
+        episodeId: "episode3",
+        ignored: false,
+        createdAt: jan2026Date,
+        updatedAt: jan2026Date,
+        episode: { runtime: 60, showId: "showId1" },
+        show: { id: "showId1", name: "Show 1" },
+      },
+    ];
+    vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue(
+      mockEpisodesOnUser
+    );
+
+    const stats = await getLast12MonthsStats("userId");
+    expect(stats).toHaveLength(2);
+
+    const jan2026Stats = stats.find((s) => s.month === "January 2026");
+    const dec2025Stats = stats.find((s) => s.month === "December 2025");
+
+    expect(jan2026Stats).toBeDefined();
+    expect(jan2026Stats).toEqual({
+      month: "January 2026",
+      episodes: 2,
+      runtime: 105,
+      showCount: 2,
+    });
+
+    expect(dec2025Stats).toBeDefined();
+    expect(dec2025Stats).toEqual({
+      month: "December 2025",
+      episodes: 1,
+      runtime: 30,
+      showCount: 1,
+    });
+
     // Cleanup
     vi.useRealTimers();
   });
