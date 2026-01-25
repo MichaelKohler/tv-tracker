@@ -5,6 +5,7 @@ import { render } from "vitest-browser-react";
 import { useOptionalUser } from "../utils";
 import Header from "./header";
 import { useMatches } from "react-router";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const mockFeatures = {
   upcomingRoute: true,
@@ -55,12 +56,22 @@ describe("Header", () => {
       updatedAt: new Date(),
     });
 
-    render(<Header features={mockFeatures} />);
+    render(
+      <VisualTestContainer testid="header">
+        <Header features={mockFeatures} />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
     expect(page.getByText("Account")).toBeInTheDocument();
     expect(page.getByText("Upcoming")).toBeInTheDocument();
     expect(page.getByText("Logout")).toBeInTheDocument();
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("header");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("header");
   });
 
   it("renders header without buttons for logged in user", async () => {

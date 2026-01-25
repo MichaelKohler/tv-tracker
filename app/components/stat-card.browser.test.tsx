@@ -3,13 +3,24 @@ import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 
 import StatCard from "./stat-card";
+import { VisualTestContainer } from "./visual-test-helper";
 
 describe("StatCard", () => {
-  it("renders stat card with title and value", () => {
-    render(<StatCard title="Test Title" value="42" />);
+  it("renders stat card with title and value", async () => {
+    render(
+      <VisualTestContainer testid="stat-card">
+        <StatCard title="Test Title" value="42" />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText("Test Title")).toBeInTheDocument();
     expect(page.getByText("42")).toBeInTheDocument();
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("stat-card");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("stat-card");
   });
 
   it("renders stat card with description", () => {

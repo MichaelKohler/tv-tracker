@@ -7,6 +7,7 @@ import { render } from "vitest-browser-react";
 
 import { testShow } from "../test-utils";
 import ShowTile, { type Props } from "./show-tile";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const show: Props["show"] = {
   ...testShow,
@@ -30,10 +31,20 @@ describe("ShowTile", () => {
   });
 
   it("renders show tile", async () => {
-    render(<ShowTile show={show} />);
+    render(
+      <VisualTestContainer testid="show-tile">
+        <ShowTile show={show} />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText("1")).toBeInTheDocument();
     expect(page.getByText(show.name)).toBeInTheDocument();
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("show-tile");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("show-tile");
   });
 
   it("does not render navigation spinner on different tile", async () => {

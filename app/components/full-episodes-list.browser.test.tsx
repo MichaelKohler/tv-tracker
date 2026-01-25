@@ -5,6 +5,7 @@ import { render } from "vitest-browser-react";
 import type { Episode, Show } from "@prisma/client";
 
 import FullEpisodesList from "./full-episodes-list";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const DEFAULT_EPISODES: (Episode & {
   date: Date;
@@ -16,7 +17,7 @@ const DEFAULT_EPISODES: (Episode & {
     id: "1",
     airDate: new Date(),
     date: new Date(),
-    imageUrl: "https://example.com/image.png",
+    imageUrl: "/episode-fallback.png",
     mazeId: "1",
     name: "Test Episode 1",
     number: 1,
@@ -29,7 +30,7 @@ const DEFAULT_EPISODES: (Episode & {
       updatedAt: new Date(),
       id: "1",
       premiered: new Date(),
-      imageUrl: "https://example.com/image.png",
+      imageUrl: "/episode-fallback.png",
       mazeId: "maze1",
       name: "Test Show 1",
       summary: "Test Summary",
@@ -43,7 +44,7 @@ const DEFAULT_EPISODES: (Episode & {
     id: "2",
     airDate: new Date(),
     date: new Date(),
-    imageUrl: "https://example.com/image.png",
+    imageUrl: "/episode-fallback.png",
     mazeId: "1",
     name: "Test Episode 2",
     number: 2,
@@ -56,7 +57,7 @@ const DEFAULT_EPISODES: (Episode & {
       updatedAt: new Date(),
       id: "1",
       premiered: new Date(),
-      imageUrl: "https://example.com/image.png",
+      imageUrl: "/episode-fallback.png",
       mazeId: "maze1",
       name: "Test Show 2",
       summary: "Test Summary",
@@ -68,7 +69,11 @@ const DEFAULT_EPISODES: (Episode & {
 
 describe("FullEpisodesList", () => {
   it("renders list", async () => {
-    render(<FullEpisodesList episodes={DEFAULT_EPISODES} />);
+    render(
+      <VisualTestContainer testid="full-episodes-list">
+        <FullEpisodesList episodes={DEFAULT_EPISODES} />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText(/Test Episode 1/)).toBeInTheDocument();
     expect(page.getByText(/S01E01/)).toBeInTheDocument();
@@ -83,6 +88,12 @@ describe("FullEpisodesList", () => {
       page.getByText(DEFAULT_EPISODES[1].summary, { exact: true })
     ).toBeInTheDocument();
     expect(page.getByText(DEFAULT_EPISODES[1].show.name)).toBeInTheDocument();
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("full-episodes-list");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("full-episodes-list");
   });
 
   it("does not decode summary", async () => {

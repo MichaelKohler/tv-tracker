@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { testSearchShow } from "../test-utils";
 import ShowResults from "./show-results";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const shows = [
   testSearchShow,
@@ -21,10 +22,20 @@ describe("ShowResults", () => {
   });
 
   it("renders show results", async () => {
-    render(<ShowResults shows={shows} isLoading={false} error={undefined} />);
+    render(
+      <VisualTestContainer testid="show-results">
+        <ShowResults shows={shows} isLoading={false} error={undefined} />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText("tvmaze")).toBeInTheDocument();
     expect(page.getByText("ShowResult").length).toBe(2);
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("show-results");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("show-results");
   });
 
   it("renders spinner while loading results", async () => {

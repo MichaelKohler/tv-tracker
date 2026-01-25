@@ -7,6 +7,7 @@ import { render } from "vitest-browser-react";
 
 import { testEpisode, testEpisode2, testShow } from "../test-utils";
 import ShowHeader from "./show-header";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const DEFAULT_EPISODES = [
   { ...testEpisode, airDate: new Date("2000-01-01") },
@@ -45,11 +46,13 @@ describe("ShowHeader", () => {
 
   it("renders show header", async () => {
     render(
-      <ShowHeader
-        show={show}
-        watchedEpisodes={[]}
-        features={{ markAllAsWatched: true, archive: true }}
-      />
+      <VisualTestContainer testid="show-header">
+        <ShowHeader
+          show={show}
+          watchedEpisodes={[]}
+          features={{ markAllAsWatched: true, archive: true }}
+        />
+      </VisualTestContainer>
     );
 
     expect(page.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
@@ -58,6 +61,12 @@ describe("ShowHeader", () => {
     expect(
       page.getByText(new Date(show.premiered).toLocaleDateString())
     ).toBeInTheDocument();
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("show-header");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("show-header");
     expect(page.getByText("8.5")).toBeInTheDocument();
     expect(
       page.getByText("Mark all aired episodes as watched")

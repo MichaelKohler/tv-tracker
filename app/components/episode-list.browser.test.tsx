@@ -6,6 +6,7 @@ import { render } from "vitest-browser-react";
 
 import { testEpisode, testEpisode2, upcomingEpisode } from "../test-utils";
 import EpisodeList from "./episode-list";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const DEFAULT_EPISODES = [testEpisode, testEpisode2];
 
@@ -24,12 +25,14 @@ describe("EpisodeList", () => {
 
   it("renders episodes", async () => {
     render(
-      <EpisodeList
-        episodes={[...DEFAULT_EPISODES, upcomingEpisode]}
-        watchedEpisodes={[]}
-        ignoredEpisodes={[]}
-        showId="1"
-      />
+      <VisualTestContainer testid="episode-list">
+        <EpisodeList
+          episodes={[...DEFAULT_EPISODES, upcomingEpisode]}
+          watchedEpisodes={[]}
+          ignoredEpisodes={[]}
+          showId="1"
+        />
+      </VisualTestContainer>
     );
 
     expect(page.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
@@ -40,6 +43,12 @@ describe("EpisodeList", () => {
 
     expect(page.getByText("Mark as watched").length).toBe(2); // 3rd episode is upcoming
     expect(page.getByText("Ignore", { exact: true }).length).toBe(3);
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("episode-list");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("episode-list");
   });
 
   it("renders unwatched button if watched", async () => {

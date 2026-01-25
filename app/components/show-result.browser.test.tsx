@@ -6,6 +6,7 @@ import { render } from "vitest-browser-react";
 
 import { testSearchShow } from "../test-utils";
 import ShowResult from "./show-result";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const show = testSearchShow;
 
@@ -28,7 +29,11 @@ describe("ShowResult", () => {
   });
 
   it("renders show result", async () => {
-    render(<ShowResult show={show} features={{ addShow: true }} />);
+    render(
+      <VisualTestContainer testid="show-result">
+        <ShowResult show={show} features={{ addShow: true }} />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText(show.name, { exact: true })).toBeInTheDocument();
     expect(page.getByText(show.summary)).toBeInTheDocument();
@@ -37,6 +42,12 @@ describe("ShowResult", () => {
     ).toBeInTheDocument();
     expect(page.getByText("8.5")).toBeInTheDocument();
     expect(page.getByText("Add Show")).toBeInTheDocument();
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("show-result");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("show-result");
   });
 
   it("does not render add show button with feature disabled", async () => {
