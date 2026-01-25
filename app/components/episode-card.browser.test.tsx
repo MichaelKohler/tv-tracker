@@ -43,7 +43,10 @@ describe("EpisodeCard", () => {
     expect(page.getByText(testShow.name, { exact: false })).toBeInTheDocument();
     expect(page.getByText("S01E01", { exact: false })).toBeInTheDocument();
 
-    expect(page.getByTestId("episode-card")).toBeInTheDocument();
-    expect(page.getByTestId("episode-card")).toMatchScreenshot("episode-card");
+    await document.fonts.ready;
+
+    const element = page.getByTestId("episode-card");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("episode-card");
   });
 });

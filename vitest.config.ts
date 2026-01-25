@@ -43,6 +43,7 @@ export default defineConfig({
                   threshold: 0.2,
                   allowedMismatchedPixelRatio: 0.01,
                 },
+                timeout: 10000,
               },
             },
           },

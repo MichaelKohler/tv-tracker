@@ -44,8 +44,11 @@ describe("EpisodeList", () => {
     expect(page.getByText("Mark as watched").length).toBe(2); // 3rd episode is upcoming
     expect(page.getByText("Ignore", { exact: true }).length).toBe(3);
 
-    expect(page.getByTestId("episode-list")).toBeInTheDocument();
-    expect(page.getByTestId("episode-list")).toMatchScreenshot("episode-list");
+    await document.fonts.ready;
+
+    const element = page.getByTestId("episode-list");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("episode-list");
   });
 
   it("renders unwatched button if watched", async () => {
