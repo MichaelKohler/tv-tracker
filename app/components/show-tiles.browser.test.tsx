@@ -5,6 +5,7 @@ import { render } from "vitest-browser-react";
 
 import { testShow } from "../test-utils";
 import ShowTiles from "./show-tiles";
+import { VisualTestContainer } from "./visual-test-helper";
 
 const shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
   unwatchedEpisodesCount: number;
@@ -33,8 +34,18 @@ describe("ShowTiles", () => {
   });
 
   it("renders result tiles", async () => {
-    render(<ShowTiles shows={shows} />);
+    render(
+      <VisualTestContainer testid="show-tiles">
+        <ShowTiles shows={shows} />
+      </VisualTestContainer>
+    );
 
     expect(page.getByText("ShowTile").length).toBe(2);
+
+    await document.fonts.ready;
+
+    const element = page.getByTestId("show-tiles");
+    expect(element).toBeInTheDocument();
+    await expect(element).toMatchScreenshot("show-tiles");
   });
 });

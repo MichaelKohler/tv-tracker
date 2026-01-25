@@ -75,6 +75,14 @@ jobs:
       - name: ⚡ Run vitest
         run: npm run test
 
+      - name: ⬆️ Upload screenshot test failures
+        uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: vitest-screenshot-failures
+          path: .vitest-attachments/
+          retention-days: 30
+
   playwright:
     name: ⚫️ Playwright
     runs-on: ubuntu-latest
