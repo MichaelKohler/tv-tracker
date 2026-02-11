@@ -30,6 +30,9 @@ Use context7 for framework/library documentation.
 # Always install dependencies first
 npm ci
 
+# Start development dependencies (PostgreSQL in Docker)
+npm run dev:deps     # Required before setup - starts PostgreSQL container
+
 # Database setup (requires DATABASE_URL in .env)
 cp .env.example .env  # Configure DATABASE_URL first
 npm run setup        # Generates Prisma client, pushes schema, seeds DB
@@ -38,7 +41,17 @@ npm run setup        # Generates Prisma client, pushes schema, seeds DB
 npx playwright install
 ```
 
-**Critical**: Always run `npm run setup` after `npm ci` but before any development or testing. This is essential for Prisma client generation and database initialization. Never force-push to the database.
+**Critical**:
+
+- Always run `npm run dev:deps` before `npm run setup` to start the PostgreSQL database container
+- Always run `npm run setup` after `npm ci` but before any development or testing. This is essential for Prisma client generation and database initialization
+- If `npm run setup` fails with "Can't reach database server", run `npm run dev:deps` first
+- Never force-push to the database
+
+**Development dependencies management**:
+
+- Start: `npm run dev:deps` (starts PostgreSQL in Docker)
+- Stop: `npm run dev:deps:stop` (stops the containers)
 
 ### Environment Configuration
 
