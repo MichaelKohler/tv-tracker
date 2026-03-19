@@ -29,7 +29,7 @@ describe("ShowResult", () => {
   });
 
   it("renders show result", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="show-result">
         <ShowResult show={show} features={{ addShow: true }} />
       </VisualTestContainer>
@@ -51,7 +51,7 @@ describe("ShowResult", () => {
   });
 
   it("does not render add show button with feature disabled", async () => {
-    render(<ShowResult show={show} features={{ addShow: false }} />);
+    await render(<ShowResult show={show} features={{ addShow: false }} />);
 
     expect(page.getByText(show.name, { exact: true })).toBeInTheDocument();
     expect(page.getByText("Add Show")).not.toBeInTheDocument();
@@ -75,7 +75,7 @@ describe("ShowResult", () => {
       },
     });
 
-    render(<ShowResult show={show} features={{ addShow: true }} />);
+    await render(<ShowResult show={show} features={{ addShow: true }} />);
 
     expect(page.getByTestId("spinner")).toBeInTheDocument();
     expect(page.getByText(/Add Show/)).not.toBeInTheDocument();
@@ -99,7 +99,7 @@ describe("ShowResult", () => {
       },
     });
 
-    render(<ShowResult show={show} features={{ addShow: true }} />);
+    await render(<ShowResult show={show} features={{ addShow: true }} />);
 
     expect(page.getByTestId("spinner")).not.toBeInTheDocument();
     expect(page.getByText(/Add Show/)).not.toBeInTheDocument();
@@ -123,7 +123,7 @@ describe("ShowResult", () => {
       },
     });
 
-    render(<ShowResult show={show} features={{ addShow: true }} />);
+    await render(<ShowResult show={show} features={{ addShow: true }} />);
 
     expect(page.getByTestId("spinner")).not.toBeInTheDocument();
     expect(page.getByText(/Add Show/)).toBeInTheDocument();

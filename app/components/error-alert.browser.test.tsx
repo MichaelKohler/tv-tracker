@@ -10,7 +10,7 @@ describe("ErrorAlert", () => {
     const title = "Example Title";
     const message = "Example Message";
 
-    render(
+    await render(
       <VisualTestContainer testid="error-alert">
         <ErrorAlert title={title} message={message} />
       </VisualTestContainer>

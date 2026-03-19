@@ -34,7 +34,7 @@ describe("ShowTiles", () => {
   });
 
   it("renders result tiles", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="show-tiles">
         <ShowTiles shows={shows} />
       </VisualTestContainer>

@@ -22,7 +22,7 @@ describe("ShowResults", () => {
   });
 
   it("renders show results", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="show-results">
         <ShowResults shows={shows} isLoading={false} error={undefined} />
       </VisualTestContainer>
@@ -39,19 +39,21 @@ describe("ShowResults", () => {
   });
 
   it("renders spinner while loading results", async () => {
-    render(<ShowResults shows={[]} isLoading={true} error={undefined} />);
+    await render(<ShowResults shows={[]} isLoading={true} error={undefined} />);
 
     expect(page.getByTestId("spinner")).toBeInTheDocument();
   });
 
   it("renders no shows found message", async () => {
-    render(<ShowResults shows={[]} isLoading={false} error={undefined} />);
+    await render(
+      <ShowResults shows={[]} isLoading={false} error={undefined} />
+    );
 
     expect(page.getByText(/No shows found/)).toBeInTheDocument();
   });
 
   it("renders error message", async () => {
-    render(
+    await render(
       <ShowResults shows={[]} isLoading={false} error="ADDING_SHOW_FAILED" />
     );
 

@@ -28,7 +28,7 @@ const mockData = [
 
 describe("MonthlyEpisodesChart", () => {
   it("renders chart title", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="monthly-episodes-chart">
         <MonthlyEpisodesChart data={mockData} />
       </VisualTestContainer>
@@ -42,8 +42,8 @@ describe("MonthlyEpisodesChart", () => {
     await expect(element).toMatchScreenshot("monthly-episodes-chart");
   });
 
-  it("does not render when data is empty", () => {
-    render(<MonthlyEpisodesChart data={[]} />);
+  it("does not render when data is empty", async () => {
+    await render(<MonthlyEpisodesChart data={[]} />);
     expect(
       page.getByText("Episodes Watched Per Month")
     ).not.toBeInTheDocument();
