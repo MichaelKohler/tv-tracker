@@ -34,7 +34,7 @@ describe("EpisodeCard", () => {
       },
     };
 
-    render(
+    await render(
       <VisualTestContainer testid="episode-card">
         <EpisodeCard episode={episode} />
       </VisualTestContainer>

@@ -7,7 +7,7 @@ import { VisualTestContainer } from "./visual-test-helper";
 
 describe("StatCard", () => {
   it("renders stat card with title and value", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="stat-card">
         <StatCard title="Test Title" value="42" />
       </VisualTestContainer>
@@ -23,8 +23,8 @@ describe("StatCard", () => {
     await expect(element).toMatchScreenshot("stat-card");
   });
 
-  it("renders stat card with description", () => {
-    render(
+  it("renders stat card with description", async () => {
+    await render(
       <StatCard
         title="Test Title"
         value="42"
@@ -37,8 +37,8 @@ describe("StatCard", () => {
     expect(page.getByText("This is a test description")).toBeInTheDocument();
   });
 
-  it("renders stat card without description", () => {
-    render(<StatCard title="Test Title" value="42" />);
+  it("renders stat card without description", async () => {
+    await render(<StatCard title="Test Title" value="42" />);
 
     expect(page.getByText("Test Title")).toBeInTheDocument();
     expect(page.getByText("42")).toBeInTheDocument();
@@ -47,8 +47,8 @@ describe("StatCard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("renders numeric values", () => {
-    render(<StatCard title="Count" value={123} />);
+  it("renders numeric values", async () => {
+    await render(<StatCard title="Count" value={123} />);
 
     expect(page.getByText("Count")).toBeInTheDocument();
     expect(page.getByText("123")).toBeInTheDocument();

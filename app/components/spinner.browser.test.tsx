@@ -7,7 +7,7 @@ import { VisualTestContainer } from "./visual-test-helper";
 
 describe("Spinner", () => {
   it("renders spinner", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="spinner-container">
         <Spinner />
       </VisualTestContainer>

@@ -31,7 +31,7 @@ describe("ShowTile", () => {
   });
 
   it("renders show tile", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="show-tile">
         <ShowTile show={show} />
       </VisualTestContainer>
@@ -54,7 +54,7 @@ describe("ShowTile", () => {
       location: { pathname: `/tv/not-this-show` },
     });
 
-    render(<ShowTile show={show} />);
+    await render(<ShowTile show={show} />);
 
     expect(page.getByTestId("spinner")).not.toBeInTheDocument();
   });

@@ -7,7 +7,7 @@ import { VisualTestContainer } from "./visual-test-helper";
 
 describe("Footer", () => {
   it("renders footer", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="footer">
         <Footer />
       </VisualTestContainer>

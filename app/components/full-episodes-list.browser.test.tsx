@@ -69,7 +69,7 @@ const DEFAULT_EPISODES: (Episode & {
 
 describe("FullEpisodesList", () => {
   it("renders list", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="full-episodes-list">
         <FullEpisodesList episodes={DEFAULT_EPISODES} />
       </VisualTestContainer>
@@ -103,7 +103,7 @@ describe("FullEpisodesList", () => {
         summary: "a &lt; b",
       },
     ];
-    render(<FullEpisodesList episodes={episodes} />);
+    await render(<FullEpisodesList episodes={episodes} />);
 
     expect(page.getByText("a &lt; b")).toBeInTheDocument();
   });

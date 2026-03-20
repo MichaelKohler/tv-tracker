@@ -24,7 +24,7 @@ describe("EpisodeList", () => {
   });
 
   it("renders episodes", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="episode-list">
         <EpisodeList
           episodes={[...DEFAULT_EPISODES, upcomingEpisode]}
@@ -52,7 +52,7 @@ describe("EpisodeList", () => {
   });
 
   it("renders unwatched button if watched", async () => {
-    render(
+    await render(
       <EpisodeList
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={["1"]}
@@ -78,7 +78,7 @@ describe("EpisodeList", () => {
         },
       },
     });
-    render(
+    await render(
       <EpisodeList
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
@@ -105,7 +105,7 @@ describe("EpisodeList", () => {
         },
       },
     });
-    render(
+    await render(
       <EpisodeList
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
@@ -119,7 +119,7 @@ describe("EpisodeList", () => {
   });
 
   it("renders ignored episode with unignore button", async () => {
-    render(
+    await render(
       <EpisodeList
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
@@ -134,7 +134,7 @@ describe("EpisodeList", () => {
   });
 
   it("renders ignored episode with grayscale styling", async () => {
-    render(
+    await render(
       <EpisodeList
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
@@ -148,7 +148,7 @@ describe("EpisodeList", () => {
   });
 
   it("renders unignore button if ignored", async () => {
-    render(
+    await render(
       <EpisodeList
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}

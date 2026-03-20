@@ -56,7 +56,7 @@ describe("Header", () => {
       updatedAt: new Date(),
     });
 
-    render(
+    await render(
       <VisualTestContainer testid="header">
         <Header features={mockFeatures} />
       </VisualTestContainer>
@@ -83,7 +83,7 @@ describe("Header", () => {
       updatedAt: new Date(),
     });
 
-    render(<Header renderLoginButtons={false} features={mockFeatures} />);
+    await render(<Header renderLoginButtons={false} features={mockFeatures} />);
 
     expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
     expect(page.getByText("Account")).toBeInTheDocument();
@@ -95,7 +95,7 @@ describe("Header", () => {
   it("renders header for logged out user", async () => {
     vi.mocked(useOptionalUser).mockReturnValue(undefined);
 
-    render(<Header features={mockFeatures} />);
+    await render(<Header features={mockFeatures} />);
 
     expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
     expect(page.getByText("Upcoming")).not.toBeInTheDocument();
@@ -108,7 +108,7 @@ describe("Header", () => {
   it("renders header without buttons for logged out user", async () => {
     vi.mocked(useOptionalUser).mockReturnValue(undefined);
 
-    render(<Header renderLoginButtons={false} features={mockFeatures} />);
+    await render(<Header renderLoginButtons={false} features={mockFeatures} />);
 
     expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
     expect(page.getByText("Upcoming")).not.toBeInTheDocument();
@@ -127,7 +127,7 @@ describe("Header", () => {
       updatedAt: new Date(),
     });
 
-    render(
+    await render(
       <Header
         features={{
           upcomingRoute: false,

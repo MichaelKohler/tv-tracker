@@ -45,7 +45,7 @@ describe("ShowHeader", () => {
   });
 
   it("renders show header", async () => {
-    render(
+    await render(
       <VisualTestContainer testid="show-header">
         <ShowHeader
           show={show}
@@ -75,7 +75,7 @@ describe("ShowHeader", () => {
   });
 
   it("renders watch count correctly", async () => {
-    render(
+    await render(
       <ShowHeader
         show={show}
         watchedEpisodes={["1"]}
@@ -87,7 +87,7 @@ describe("ShowHeader", () => {
   });
 
   it("does not render mark all button if no episodes", async () => {
-    render(
+    await render(
       <ShowHeader
         show={showWithoutEpisodes}
         watchedEpisodes={[]}
@@ -101,7 +101,7 @@ describe("ShowHeader", () => {
   });
 
   it("does not render mark all button if all watched", async () => {
-    render(
+    await render(
       <ShowHeader
         show={show}
         watchedEpisodes={["1", "2"]}
@@ -120,7 +120,7 @@ describe("ShowHeader", () => {
       archived: false,
     };
 
-    render(
+    await render(
       <ShowHeader
         show={notArchivedShow}
         watchedEpisodes={[]}
@@ -137,7 +137,7 @@ describe("ShowHeader", () => {
       archived: true,
     };
 
-    render(
+    await render(
       <ShowHeader
         show={archivedShow}
         watchedEpisodes={[]}
@@ -162,7 +162,7 @@ describe("ShowHeader", () => {
       },
     });
 
-    render(
+    await render(
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
@@ -191,7 +191,7 @@ describe("ShowHeader", () => {
       },
     });
 
-    render(
+    await render(
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
@@ -220,7 +220,7 @@ describe("ShowHeader", () => {
       },
     });
 
-    render(
+    await render(
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
@@ -246,7 +246,7 @@ describe("ShowHeader", () => {
       },
     });
 
-    render(
+    await render(
       <ShowHeader
         show={show}
         watchedEpisodes={[]}
