@@ -15,18 +15,24 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: ⎔ Setup node
         uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: 'pnpm'
 
       - name: 📥 Download deps
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Episodes
-        run: npm run update:episodes
+        run: pnpm run update:episodes
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -41,18 +47,24 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: ⎔ Setup node
         uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: 'pnpm'
 
       - name: 📥 Download deps
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Episode Info
-        run: npm run update:episodes:info
+        run: pnpm run update:episodes:info
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
