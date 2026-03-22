@@ -29,13 +29,17 @@ jobs:
         with:
           ref: ${{ inputs.branch || 'main' }}
 
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: ⎔ Setup node
         uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: "pnpm"
 
       - name: 📥 Download deps
-        run: npm ci
+        run: pnpm install --frozen-lockfile
         env:
           DATABASE_URL: ${{ inputs.database_url || secrets.DATABASE_URL }}
 
