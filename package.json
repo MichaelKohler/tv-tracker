@@ -21,7 +21,7 @@
     "setup": "prisma generate && prisma db push && prisma db seed",
     "start": "react-router-serve ./build/server/index.js",
     "test": "SESSION_SECRET=secret vitest",
-    "test:e2e": "npm run test:e2e:setup && npm run test:e2e:run && npm run test:e2e:teardown",
+    "test:e2e": "pnpm run test:e2e:setup && pnpm run test:e2e:run && pnpm run test:e2e:teardown",
     "test:e2e:report": "playwright show-report",
     "test:e2e:run": "node --env-file=.env.e2e ./node_modules/.bin/playwright test",
     "test:e2e:setup": "docker compose -f docker-compose.e2e.yml up -d && sh -c 'for i in {1..30}; do if node --env-file=.env.e2e ./node_modules/.bin/prisma db push --accept-data-loss 2>/dev/null; then break; fi; echo \"Waiting for PostgreSQL ($i/30)...\"; sleep 2; done' && node --env-file=.env.e2e ./node_modules/.bin/prisma db seed",
@@ -32,7 +32,7 @@
     "update:episodes": "tsx scripts/get-new-episodes.ts",
     "update:episodes:info": "tsx scripts/update-episodes.ts",
     "update:show:status": "tsx scripts/update-show-status.ts",
-    "validate": "npm run test -- --run && npm run lint && npm run typecheck && npm run test:e2e"
+    "validate": "pnpm run test -- --run && pnpm run lint && pnpm run typecheck && pnpm run test:e2e"
   },
   "prettier": {
     "trailingComma": "es5"
@@ -102,5 +102,16 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "@sentry/cli",
+      "bcrypt",
+      "esbuild",
+      "prisma",
+      "unrs-resolver"
+    ]
+  },
+  "packageManager": "pnpm@10.32.1",
   "version": "2.0.0"
 }

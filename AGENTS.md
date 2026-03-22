@@ -19,39 +19,39 @@ Use context7 for framework/library documentation.
 ### Prerequisites
 
 - **Node.js**: Version 24.1 or higher
-- **npm**: Version 11.0.0 or higher
+- **pnpm**: Version 10+ (install via `volta install pnpm`)
 - **Docker**: Required for E2E tests and local PostgreSQL
 
-**Important**: This project uses npm `overrides` to ensure stable dependency resolution. Always use `npm ci` for installation. Only use `npm install <package>` when explicitly adding new dependencies.
+**Important**: This project uses pnpm. Always use `pnpm install` for installation. Only use `pnpm add <package>` when explicitly adding new dependencies.
 
 ### Initial Setup (Required Order)
 
 ```bash
 # Always install dependencies first
-npm ci
+pnpm install
 
 # Start development dependencies (PostgreSQL in Docker)
-npm run dev:deps     # Required before setup - starts PostgreSQL container
+pnpm run dev:deps     # Required before setup - starts PostgreSQL container
 
 # Database setup (requires DATABASE_URL in .env)
 cp .env.example .env  # Configure DATABASE_URL first
-npm run setup        # Generates Prisma client, pushes schema, seeds DB
+pnpm run setup        # Generates Prisma client, pushes schema, seeds DB
 
 # For E2E tests (optional, requires Docker)
-npx playwright install
+pnpm exec playwright install
 ```
 
 **Critical**:
 
-- Always run `npm run dev:deps` before `npm run setup` to start the PostgreSQL database container
-- Always run `npm run setup` after `npm ci` but before any development or testing. This is essential for Prisma client generation and database initialization
-- If `npm run setup` fails with "Can't reach database server", run `npm run dev:deps` first
+- Always run `pnpm run dev:deps` before `pnpm run setup` to start the PostgreSQL database container
+- Always run `pnpm run setup` after `pnpm install` but before any development or testing. This is essential for Prisma client generation and database initialization
+- If `pnpm run setup` fails with "Can't reach database server", run `pnpm run dev:deps` first
 - Never force-push to the database
 
 **Development dependencies management**:
 
-- Start: `npm run dev:deps` (starts PostgreSQL in Docker)
-- Stop: `npm run dev:deps:stop` (stops the containers)
+- Start: `pnpm run dev:deps` (starts PostgreSQL in Docker)
+- Stop: `pnpm run dev:deps:stop` (stops the containers)
 
 ### Environment Configuration
 
@@ -103,12 +103,12 @@ When flipt.io is unreachable, flags fall back to safe defaults defined in `DEFAU
 ### Build Commands (Validated Working Order)
 
 ```bash
-npm run typecheck    # TypeScript compilation
-npm run lint        # ESLint with cache
-npm run test        # Vitest unit tests
-npm run build       # Production build
-npm run dev         # Development server with HMR
-npm run validate    # Runs: test --run, lint, typecheck, test:e2e in serial
+pnpm run typecheck    # TypeScript compilation
+pnpm run lint        # ESLint with cache
+pnpm run test        # Vitest unit tests
+pnpm run build       # Production build
+pnpm run dev         # Development server with HMR
+pnpm run validate    # Runs: test --run, lint, typecheck, test:e2e in serial
 ```
 
 **Build Notes**:
@@ -120,13 +120,13 @@ npm run validate    # Runs: test --run, lint, typecheck, test:e2e in serial
 
 ```bash
 # Full E2E test suite
-npm run test:e2e     # setup → run → teardown
+pnpm run test:e2e     # setup → run → teardown
 
 # Manual E2E control
-npm run test:e2e:setup     # Starts PostgreSQL container, waits up to 60s
-npm run test:e2e:run       # Runs Playwright tests
-npm run test:e2e:teardown  # Cleanup containers
-npm run test:e2e:report    # View test results
+pnpm run test:e2e:setup     # Starts PostgreSQL container, waits up to 60s
+pnpm run test:e2e:run       # Runs Playwright tests
+pnpm run test:e2e:teardown  # Cleanup containers
+pnpm run test:e2e:report    # View test results
 ```
 
 **E2E Requirements**: Docker must be running. Uses `docker-compose.e2e.yml` with PostgreSQL 15 on port 5433.
@@ -174,9 +174,9 @@ npm run test:e2e:report    # View test results
 3. **Vitest**: Unit tests with comprehensive coverage
 4. **Playwright**: E2E tests with PostgreSQL service
 
-Always run these (with `npm run validate`) before telling the user you are done.
+Always run these (with `pnpm run validate`) before telling the user you are done.
 
-Additionally please also format the code with `npm run format` as otherwise the GitHub Action will fail.
+Additionally please also format the code with `pnpm run format` as otherwise the GitHub Action will fail.
 
 ### Continuous Integration Requirements
 
@@ -195,14 +195,14 @@ Additionally please also format the code with `npm run format` as otherwise the 
 - Vitest may display stderr output during tests for intentional error testing scenarios
 - All tests passing with exit code 0 indicates success, regardless of stderr output
 
-Always run "npm test" with `--run`, otherwise the tests will run in watch mode and not return. Also do this when running tests for a single file.
+Always run "pnpm run test" with `--run`, otherwise the tests will run in watch mode and not return. Also do this when running tests for a single file.
 
 ## Common Build Issues & Solutions
 
 ### Database Connection Issues
 
 - **Problem**: Prisma client not generated
-- **Solution**: Run `npm run setup` after `npm ci`
+- **Solution**: Run `pnpm run setup` after `pnpm install`
 - **Problem**: E2E tests fail with database connection
 - **Solution**: Ensure Docker is running, wait for PostgreSQL startup (up to 60s)
 
