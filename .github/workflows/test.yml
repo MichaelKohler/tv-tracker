@@ -92,9 +92,8 @@ jobs:
         if: failure()
         with:
           name: vitest-screenshot-failures
-          path: |
-            app/**/__screenshots__/**/*.actual.png
-            app/**/__screenshots__/**/*.diff.png
+          path: .vitest-attachments/
+          include-hidden-files: true
           retention-days: 30
 
   playwright:
