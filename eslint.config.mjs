@@ -66,7 +66,6 @@ export default [
       "test-results",
       ".react-router",
       "eslint.config.mjs",
-      "postcss.config.mjs",
     ],
   },
 ];
