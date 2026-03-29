@@ -92,7 +92,9 @@ jobs:
         if: failure()
         with:
           name: vitest-screenshot-failures
-          path: .vitest-attachments/
+          path: |
+            app/**/__screenshots__/*.actual.png
+            app/**/__screenshots__/*.diff.png
           retention-days: 30
 
   playwright:
