@@ -1,0 +1,9 @@
+minimumReleaseAge: 1440
+
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - '@sentry/cli'
+  - bcrypt
+  - esbuild
+  - prisma
+  - unrs-resolver
