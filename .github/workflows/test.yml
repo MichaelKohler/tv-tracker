@@ -93,8 +93,8 @@ jobs:
         with:
           name: vitest-screenshot-failures
           path: |
-            app/**/__screenshots__/*.actual.png
-            app/**/__screenshots__/*.diff.png
+            app/**/__screenshots__/**/*.actual.png
+            app/**/__screenshots__/**/*.diff.png
           retention-days: 30
 
   playwright:
