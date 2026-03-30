@@ -3,7 +3,6 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [tailwindcss()],
   test: {
     projects: [
       {
@@ -19,6 +18,7 @@ export default defineConfig({
         },
       },
       {
+        plugins: [tailwindcss()],
         test: {
           include: ["app/**/*.browser.test.{ts,tsx}", "!**/__screenshots__/**"],
           name: "browser",
