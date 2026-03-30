@@ -1,4 +1,5 @@
 import { playwright } from "@vitest/browser-playwright";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
@@ -17,6 +18,7 @@ export default defineConfig({
         },
       },
       {
+        plugins: [tailwindcss()],
         test: {
           include: ["app/**/*.browser.test.{ts,tsx}", "!**/__screenshots__/**"],
           name: "browser",

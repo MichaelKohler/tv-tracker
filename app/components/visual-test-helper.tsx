@@ -1,5 +1,3 @@
-import tailwindStylesheetUrl from "../styles/tailwind.css?url";
-
 export const VisualTestContainer = ({
   children,
   testid,
@@ -7,10 +5,5 @@ export const VisualTestContainer = ({
   children: React.ReactNode;
   testid?: string;
 }) => {
-  return (
-    <div data-testid={testid}>
-      <link rel="stylesheet" href={tailwindStylesheetUrl} />
-      {children}
-    </div>
-  );
+  return <div data-testid={testid}>{children}</div>;
 };

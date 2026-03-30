@@ -49,13 +49,11 @@
     "@sentry/react-router": "^10.45.0",
     "@simplewebauthn/browser": "^13.3.0",
     "@simplewebauthn/server": "^13.3.0",
-    "@tailwindcss/postcss": "^4.2.2",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.3.1",
     "entities": "^8.0.0",
     "isbot": "^5.1.36",
     "nodemailer": "^8.0.3",
-    "postcss": "^8.5.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.13.1",
@@ -69,6 +67,7 @@
     "@playwright/test": "^1.58.2",
     "@react-router/dev": "^7.13.1",
     "@react-router/fs-routes": "^7.13.1",
+    "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -94,13 +93,20 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.1",
-    "vite": "^7.3.1",
+    "vite": "^8.0.3",
     "vitest": "4.1.0",
     "vitest-browser-react": "^2.1.0",
     "vitest-mock-extended": "^3.1.0"
   },
   "engines": {
     "node": ">=24.0.0"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "@react-router/dev>vite": "8"
+      }
+    }
   },
   "packageManager": "pnpm@10.32.1",
   "version": "2.0.0"

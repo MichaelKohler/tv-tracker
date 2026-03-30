@@ -93,6 +93,7 @@ jobs:
         with:
           name: vitest-screenshot-failures
           path: .vitest-attachments/
+          include-hidden-files: true
           retention-days: 30
 
   playwright:

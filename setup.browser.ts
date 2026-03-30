@@ -1,5 +1,6 @@
 import React from "react";
 import { vi } from "vitest";
+import "./app/styles/tailwind.css";
 
 vi.stubGlobal("scrollTo", () => {
   // Mock implementation
