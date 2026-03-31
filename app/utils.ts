@@ -44,7 +44,7 @@ export function useMatchesData(
   return route?.data as Record<string, unknown>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line @typescript-eslint/no-explicit-any
 function isUser(user: any): user is User {
   return !!user && typeof user === "object" && typeof user.email === "string";
 }
@@ -119,7 +119,7 @@ export function sanitizeInput(input: unknown): string {
   }
 
   // Remove null bytes and control characters
-  // eslint-disable-next-line no-control-regex
+  // oxlint-disable-next-line no-control-regex
   return input.replace(/[\x00-\x1F\x7F]/g, "").trim();
 }
 

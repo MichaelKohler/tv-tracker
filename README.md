@@ -7,16 +7,16 @@ Track TV shows you've watched. Note that this is mostly for myself, however feel
 This project is based on React Router. It's integrated with Sentry, so please change the DSN in `app/entry.client.tsx` and `app/entry.server.tsx` to reflect your own Sentry project.
 
 ```sh
-npm ci
-npx playwright install
-npm run dev:deps
-npm run setup
-npm run dev
+vp install
+vp exec playwright install
+vp run dev:deps
+vp run setup
+vp dev
 ```
 
 This starts your app in development mode, rebuilding assets on file changes. The data is stored in a local Postgres instance.
 
-**Note**: Always use `npm ci` to install dependencies. Only use `npm install <package>` when explicitly adding new packages. The project uses npm `overrides` to ensure stable dependency resolution across different npm versions.
+**Note**: Always use `vp install` to install dependencies. Only use `vp add <package>` when explicitly adding new packages.
 
 The database seed script creates a new user with some data you can use to get started:
 
@@ -25,14 +25,14 @@ The database seed script creates a new user with some data you can use to get st
 
 ### Formatting
 
-We use [Prettier](https://prettier.io/) for auto-formatting in this project. It's recommended to install an editor plugin (like the [VSCode Prettier plugin](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)) to get auto-formatting on save. There's also a `npm run format` script you can run to format all files in the project.
+We use [vite-plus](https://github.com/voidzero-dev/vite-plus) (`vp`) for formatting and linting in this project. Run `vp fmt .` to format all files, or `vp check` to check formatting and linting without making changes.
 
 ### Tests
 
-To run all test, use
+To run all tests, use
 
 ```sh
-npm run validate
+vp run validate
 ```
 
 which will run all available tests.

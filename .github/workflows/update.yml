@@ -15,22 +15,15 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v6
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 24
-          cache: "pnpm"
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+          cache: true
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Episodes
-        run: pnpm run update:episodes
+        run: vp run update:episodes
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -38,6 +31,7 @@ jobs:
           FLIPT_URL: ${{ vars.FLIPT_URL }}
           FLIPT_TOKEN: ${{ secrets.FLIPT_TOKEN }}
           FLIPT_ENVIRONMENT: ${{ vars.FLIPT_ENVIRONMENT }}
+
   update-info:
     name: ⬣ Update Episode Info
     runs-on: ubuntu-latest
@@ -45,22 +39,15 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v6
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 24
-          cache: "pnpm"
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+          cache: true
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Episode Info
-        run: pnpm run update:episodes:info
+        run: vp run update:episodes:info
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

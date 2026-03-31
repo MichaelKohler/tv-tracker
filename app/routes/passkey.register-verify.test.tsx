@@ -124,7 +124,7 @@ describe("Passkey Register Verify Route", () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       registrationInfo: undefined as any,
     });
 
@@ -173,7 +173,7 @@ describe("Passkey Register Verify Route", () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: true,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       registrationInfo: mockRegistrationInfo as any,
     });
     vi.mocked(createPasskey).mockResolvedValue({
@@ -188,7 +188,7 @@ describe("Passkey Register Verify Route", () => {
       updatedAt: new Date(),
       lastUsedAt: new Date(),
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -251,10 +251,10 @@ describe("Passkey Register Verify Route", () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: true,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       registrationInfo: mockRegistrationInfo as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -321,10 +321,10 @@ describe("Passkey Register Verify Route", () => {
           counter: 0,
           transports: [],
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 

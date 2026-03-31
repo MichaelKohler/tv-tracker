@@ -22,7 +22,7 @@ describe("mail.server", () => {
 
     vi.mocked(createTransport).mockReturnValue({
       sendMail: mockSendMail,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
   });
 

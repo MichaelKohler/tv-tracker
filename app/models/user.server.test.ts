@@ -123,7 +123,7 @@ describe("User Model", () => {
       password: {
         hash: "foo",
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     // @ts-expect-error .. compare does return a promise that resolves to a boolean..
     vi.mocked(compare).mockResolvedValue(true);
@@ -170,7 +170,7 @@ describe("User Model", () => {
       password: {
         hash: "foo",
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     // @ts-expect-error .. compare does return a promise that resolves to a boolean..
     vi.mocked(compare).mockResolvedValue(false);
@@ -316,7 +316,7 @@ describe("User Model", () => {
       password: {
         hash: "foo",
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const hasPassword = await userHasPassword("123");
@@ -331,7 +331,7 @@ describe("User Model", () => {
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       password: null,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const hasPassword = await userHasPassword("123");
@@ -354,7 +354,7 @@ describe("User Model", () => {
           name: "My Passkey",
         },
       ],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     await removePassword("123");
@@ -382,7 +382,7 @@ describe("User Model", () => {
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       password: null,
       passkeys: [],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     await expect(() => removePassword("123")).rejects.toThrowError(
@@ -401,7 +401,7 @@ describe("User Model", () => {
         hash: "foo",
       },
       passkeys: [],
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     await expect(() => removePassword("123")).rejects.toThrowError(

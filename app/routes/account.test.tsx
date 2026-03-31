@@ -111,7 +111,7 @@ describe("Account Route", () => {
       flash: vi.fn(),
       id: "test-session-id",
       data: {},
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     vi.mocked(changePassword).mockResolvedValue(undefined);
@@ -500,7 +500,7 @@ describe("Account Route", () => {
           context: {},
           params: {},
         })
-      ).rejects.toThrow();
+      ).rejects.toThrow("OH NO");
     });
 
     it("should change password if everything ok", async () => {
@@ -580,7 +580,7 @@ describe("Account Route", () => {
           context: {},
           params: {},
         })
-      ).rejects.toThrow();
+      ).rejects.toThrow("NO_USER");
     });
 
     it("should enable the password change form if there is a token even without a user", async () => {

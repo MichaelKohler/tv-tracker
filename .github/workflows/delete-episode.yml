@@ -24,22 +24,15 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v6
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 24
-          cache: "pnpm"
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+          cache: true
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: 🗑️ Delete Episode
-        run: pnpm run delete:episode
+        run: vp run delete:episode
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

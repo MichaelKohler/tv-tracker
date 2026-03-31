@@ -88,23 +88,23 @@ describe("Episode Model", () => {
 
   it("markEpisodeAsWatched should throw error if user not connected to show", async () => {
     prisma.showOnUser.findFirst.mockResolvedValue(null);
-    await expect(
-      markEpisodeAsWatched({
-        userId: "userId",
-        episodeId: "episodeId",
-        showId: "showId",
-      })
-    ).rejects.toThrow();
+    const error = await markEpisodeAsWatched({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    }).catch((e) => e);
+    expect(error).toBeInstanceOf(Response);
+    expect(error.status).toBe(404);
   });
 
   it("markAllEpisodesAsWatched should throw error if user not connected to show", async () => {
     prisma.showOnUser.findFirst.mockResolvedValue(null);
-    await expect(
-      markAllEpisodesAsWatched({
-        userId: "userId",
-        showId: "showId",
-      })
-    ).rejects.toThrow();
+    const error = await markAllEpisodesAsWatched({
+      userId: "userId",
+      showId: "showId",
+    }).catch((e) => e);
+    expect(error).toBeInstanceOf(Response);
+    expect(error.status).toBe(404);
   });
 
   it("getEpisodesWithMissingInfo should return episodes", async () => {
@@ -531,13 +531,13 @@ describe("Episode Model", () => {
   it("markEpisodeAsIgnored should throw when show not found", async () => {
     prisma.showOnUser.findFirst.mockResolvedValue(null);
 
-    await expect(
-      markEpisodeAsIgnored({
-        userId: "userId",
-        episodeId: "episodeId",
-        showId: "showId",
-      })
-    ).rejects.toThrow();
+    const error = await markEpisodeAsIgnored({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    }).catch((e) => e);
+    expect(error).toBeInstanceOf(Response);
+    expect(error.status).toBe(404);
   });
 
   it("markEpisodeAsUnignored should delete ignored entry", async () => {
@@ -575,13 +575,13 @@ describe("Episode Model", () => {
   it("markEpisodeAsUnignored should throw when show not found", async () => {
     prisma.showOnUser.findFirst.mockResolvedValue(null);
 
-    await expect(
-      markEpisodeAsUnignored({
-        userId: "userId",
-        episodeId: "episodeId",
-        showId: "showId",
-      })
-    ).rejects.toThrow();
+    const error = await markEpisodeAsUnignored({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    }).catch((e) => e);
+    expect(error).toBeInstanceOf(Response);
+    expect(error.status).toBe(404);
   });
 
   it("markEpisodeAsUnignored should throw when episode not ignored", async () => {
@@ -595,12 +595,12 @@ describe("Episode Model", () => {
     });
     prisma.episodeOnUser.findFirst.mockResolvedValue(null);
 
-    await expect(
-      markEpisodeAsUnignored({
-        userId: "userId",
-        episodeId: "episodeId",
-        showId: "showId",
-      })
-    ).rejects.toThrow();
+    const error = await markEpisodeAsUnignored({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    }).catch((e) => e);
+    expect(error).toBeInstanceOf(Response);
+    expect(error.status).toBe(404);
   });
 });

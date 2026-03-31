@@ -20,22 +20,15 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v6
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 24
-          cache: "pnpm"
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+          cache: true
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: ✨ Update Maze ID
-        run: pnpm run update:mazeId
+        run: vp run update:mazeId
         env:
           NODE_ENV: production
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

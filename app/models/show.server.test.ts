@@ -212,7 +212,7 @@ describe("Show Model", () => {
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
     vi.mocked(prisma.episodeOnUser.groupBy)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       .mockResolvedValueOnce(episodeOnUserData as any) // watched episodes
       .mockResolvedValueOnce([]); // ignored episodes (none)
     const shows = await getShowsByUserId("userId");
@@ -303,7 +303,7 @@ describe("Show Model", () => {
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
     vi.mocked(prisma.episodeOnUser.groupBy).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       episodeOnUserData as any
     );
 
@@ -332,9 +332,9 @@ describe("Show Model", () => {
     vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue(showOnUser);
     // Mock both watched and ignored episodes
     vi.mocked(prisma.episodeOnUser.findMany)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       .mockResolvedValueOnce([{ episodeId: "4" } as any])
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       .mockResolvedValueOnce([{ episodeId: "5" } as any]);
     const shows = await getShowById("2", "userId");
     expect(shows).toStrictEqual({
@@ -397,7 +397,7 @@ describe("Show Model", () => {
     ];
     vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
     vi.mocked(prisma.episodeOnUser.groupBy)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       .mockResolvedValueOnce(episodeOnUserData as any) // watched episodes
       .mockResolvedValueOnce([]); // ignored episodes (none)
 
