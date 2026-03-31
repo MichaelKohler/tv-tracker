@@ -2,8 +2,6 @@ import { Form, useNavigation } from "react-router";
 
 import type { Episode, Show } from "@prisma/client";
 
-import Spinner from "./spinner";
-
 interface Props {
   show: Pick<
     Show,
@@ -27,6 +25,17 @@ interface Props {
     markAllAsWatched: boolean;
     archive: boolean;
   };
+}
+
+function InlineSpinner() {
+  return (
+    <span
+      className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-t-current border-gray-300/50"
+      role="status"
+      aria-label="Loading"
+      data-testid="spinner"
+    />
+  );
 }
 
 export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
@@ -73,78 +82,65 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
               <strong>Rating:</strong> {show.rating}
             </p>
           )}
-          {submissionIntent &&
-            (submissionIntent === "MARK_ALL_WATCHED" ||
-              submissionIntent === "DELETE_SHOW") && (
-              <div className="mt-4">
-                <Spinner />
-              </div>
-            )}
           {features.markAllAsWatched &&
             show.episodes &&
             show.episodes.length > 0 &&
-            show.episodes.length !== watchedEpisodes.length &&
-            submissionIntent !== "MARK_ALL_WATCHED" && (
+            show.episodes.length !== watchedEpisodes.length && (
               <Form method="post">
                 <input type="hidden" name="intent" value="MARK_ALL_WATCHED" />
                 <input type="hidden" name="showId" value={show.id} />
                 <button
                   type="submit"
                   disabled={!!navigation.formData}
-                  className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
+                  className="mt-4 flex items-center gap-2 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary disabled:cursor-not-allowed disabled:opacity-70"
                 >
+                  {submissionIntent === "MARK_ALL_WATCHED" ? (
+                    <InlineSpinner />
+                  ) : null}
                   Mark all aired episodes as watched
                 </button>
               </Form>
             )}
-          {submissionIntent &&
-            (submissionIntent === "ARCHIVE" ||
-              submissionIntent === "UNARCHIVE") && (
-              <div className="mt-4">
-                <Spinner />
-              </div>
-            )}
-          {features.archive &&
-            !show.archived &&
-            submissionIntent !== "ARCHIVE" && (
-              <Form method="post">
-                <input type="hidden" name="intent" value="ARCHIVE" />
-                <input type="hidden" name="showId" value={show.id} />
-                <button
-                  type="submit"
-                  disabled={!!navigation.formData}
-                  className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
-                >
-                  Archive
-                </button>
-              </Form>
-            )}
-          {show.archived && submissionIntent !== "UNARCHIVE" && (
+          {features.archive && !show.archived && (
+            <Form method="post">
+              <input type="hidden" name="intent" value="ARCHIVE" />
+              <input type="hidden" name="showId" value={show.id} />
+              <button
+                type="submit"
+                disabled={!!navigation.formData}
+                className="mt-4 flex items-center gap-2 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {submissionIntent === "ARCHIVE" ? <InlineSpinner /> : null}
+                Archive
+              </button>
+            </Form>
+          )}
+          {show.archived && (
             <Form method="post">
               <input type="hidden" name="intent" value="UNARCHIVE" />
               <input type="hidden" name="showId" value={show.id} />
               <button
                 type="submit"
                 disabled={!!navigation.formData}
-                className="mt-4 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary"
+                className="mt-4 flex items-center gap-2 rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary active:bg-mk-tertiary disabled:cursor-not-allowed disabled:opacity-70"
               >
+                {submissionIntent === "UNARCHIVE" ? <InlineSpinner /> : null}
                 Unarchive
               </button>
             </Form>
           )}
-          {submissionIntent !== "DELETE_SHOW" && (
-            <Form method="post">
-              <input type="hidden" name="intent" value="DELETE_SHOW" />
-              <input type="hidden" name="showId" value={show.id} />
-              <button
-                type="submit"
-                disabled={!!navigation.formData}
-                className="mt-4 rounded bg-mkerror px-4 py-2 text-black hover:bg-mkerror-muted active:bg-mkerror-muted"
-              >
-                Remove show
-              </button>
-            </Form>
-          )}
+          <Form method="post">
+            <input type="hidden" name="intent" value="DELETE_SHOW" />
+            <input type="hidden" name="showId" value={show.id} />
+            <button
+              type="submit"
+              disabled={!!navigation.formData}
+              className="mt-4 flex items-center gap-2 rounded bg-mkerror px-4 py-2 text-black hover:bg-mkerror-muted active:bg-mkerror-muted disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {submissionIntent === "DELETE_SHOW" ? <InlineSpinner /> : null}
+              Remove show
+            </button>
+          </Form>
         </div>
       </div>
     </div>

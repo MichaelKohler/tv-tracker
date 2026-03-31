@@ -73,6 +73,9 @@ describe("EpisodeList", () => {
           if (key === "episodeId") {
             return "1";
           }
+          if (key === "intent") {
+            return "MARK_WATCHED";
+          }
 
           return "";
         },
@@ -89,7 +92,8 @@ describe("EpisodeList", () => {
 
     expect(page.getByText(DEFAULT_EPISODES[0].name)).toBeInTheDocument();
     expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(page.getByText("Mark as watched")).not.toBeInTheDocument();
+    const watchedButton = page.getByRole("button", { name: /Mark as watched/ });
+    expect(watchedButton).toBeDisabled();
   });
 
   it("does not render spinner while submitting mark as read for another episode", async () => {
