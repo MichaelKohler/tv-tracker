@@ -1,9 +1,0 @@
-node_modules
-pnpm-lock.yaml
-pnpm-workspace.yaml
-
-/build
-/public/build
-.env
-
-.github/chatmodes

@@ -9,56 +9,22 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    name: ⬣ Format & ESLint
+  check:
+    name: ⬣ vp check
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v6
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 24
-          cache: "pnpm"
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+          cache: true
         env:
           DATABASE_URL: postgresql://user:pass@localhost:5432/db
 
-      - name: 📄 Check format
-        run: pnpm run format:check
-
-      - name: 🔬 Lint
-        run: pnpm run lint
-
-  typecheck:
-    name: ʦ TypeScript
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v6
-
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          cache: "pnpm"
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
-        env:
-          DATABASE_URL: postgresql://user:pass@localhost:5432/db
-
-      - name: 🔎 Type check
-        run: pnpm run typecheck
+      - name: 🔬 Check
+        run: vp check
 
   vitest:
     name: ⚡ Vitest
@@ -67,25 +33,18 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v6
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v6
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 24
-          cache: "pnpm"
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+          cache: true
         env:
           DATABASE_URL: postgresql://user:pass@localhost:5432/db
 
       - name: 🌳 Install Playwright browsers
-        run: pnpm exec playwright install
+        run: vp exec playwright install --with-deps chromium firefox
 
       - name: ⚡ Run vitest
-        run: pnpm run test
+        run: vp test --run
 
       - name: ⬆️ Upload screenshot test failures
         uses: actions/upload-artifact@v6
@@ -121,29 +80,28 @@ jobs:
       - name: 🏄 Copy test env vars
         run: cp .env.example .env
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: 📥 Download deps
-        run: pnpm install --frozen-lockfile
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          cache: true
         env:
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
       - name: 🛠 Setup Database
-        run: pnpm exec prisma db push
+        run: vp exec prisma db push
         env:
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
       - name: 🌱 Seed the Database
-        run: pnpm exec prisma db seed
+        run: vp exec prisma db seed
         env:
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
       - name: ⚙️ Build
-        run: pnpm run build
+        run: vp build
 
       - name: 🌳 Run Playwright tests
-        run: pnpm exec playwright install --with-deps && pnpm run test:e2e:run
+        run: vp exec playwright install --with-deps && vp run test:e2e:run
         env:
           HOME: /root
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable

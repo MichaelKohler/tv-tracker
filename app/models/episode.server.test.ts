@@ -94,7 +94,7 @@ describe("Episode Model", () => {
         episodeId: "episodeId",
         showId: "showId",
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow("foo");
   });
 
   it("markAllEpisodesAsWatched should throw error if user not connected to show", async () => {
@@ -104,7 +104,7 @@ describe("Episode Model", () => {
         userId: "userId",
         showId: "showId",
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow("foo");
   });
 
   it("getEpisodesWithMissingInfo should return episodes", async () => {
@@ -537,7 +537,7 @@ describe("Episode Model", () => {
         episodeId: "episodeId",
         showId: "showId",
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow("foo");
   });
 
   it("markEpisodeAsUnignored should delete ignored entry", async () => {
@@ -581,7 +581,7 @@ describe("Episode Model", () => {
         episodeId: "episodeId",
         showId: "showId",
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow("foo");
   });
 
   it("markEpisodeAsUnignored should throw when episode not ignored", async () => {
@@ -601,6 +601,6 @@ describe("Episode Model", () => {
         episodeId: "episodeId",
         showId: "showId",
       })
-    ).rejects.toThrow();
+    ).rejects.toThrow("foo");
   });
 });
