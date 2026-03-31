@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach } from "vitest";
+import { vi, beforeEach, afterEach } from "vite-plus/test";
 
 // Create hoisted mocks
 const mockVariantFn = vi.hoisted(() => vi.fn());

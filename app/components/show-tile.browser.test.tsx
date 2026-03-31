@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useNavigation } from "react-router";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { page } from "vitest/browser";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
 
 import { testShow } from "../test-utils";

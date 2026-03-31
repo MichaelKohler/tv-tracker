@@ -145,7 +145,7 @@ describe("Passkey Login Verify Route", () => {
     vi.mocked(getPasskeyByCredentialId).mockResolvedValue(mockPasskey);
     vi.mocked(verifyAuthenticationResponse).mockResolvedValue({
       verified: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       authenticationInfo: {} as any,
     });
 
@@ -182,13 +182,13 @@ describe("Passkey Login Verify Route", () => {
       authenticationInfo: {
         newCounter: 10,
         credentialID: new Uint8Array(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(createUserSession).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       Response.redirect("http://localhost:3000/tv") as any
     );
 
@@ -241,13 +241,13 @@ describe("Passkey Login Verify Route", () => {
       authenticationInfo: {
         newCounter: 6,
         credentialID: new Uint8Array(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(createUserSession).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       Response.redirect("http://localhost:3000/tv") as any
     );
 
@@ -280,13 +280,13 @@ describe("Passkey Login Verify Route", () => {
       authenticationInfo: {
         newCounter: 6,
         credentialID: new Uint8Array(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(createUserSession).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       Response.redirect("http://localhost:3000/tv") as any
     );
 
@@ -344,13 +344,13 @@ describe("Passkey Login Verify Route", () => {
       authenticationInfo: {
         newCounter: 6,
         credentialID: new Uint8Array(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(createUserSession).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       Response.redirect("http://localhost:3000/tv") as any
     );
 
@@ -383,13 +383,13 @@ describe("Passkey Login Verify Route", () => {
       authenticationInfo: {
         newCounter: 6,
         credentialID: new Uint8Array(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(createUserSession).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       Response.redirect("http://localhost:3000/tv") as any
     );
 

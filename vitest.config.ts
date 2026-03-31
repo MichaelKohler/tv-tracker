@@ -1,6 +1,6 @@
-import { playwright } from "@vitest/browser-playwright";
+import { playwright } from "vite-plus/test/browser-playwright";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   test: {
@@ -15,6 +15,9 @@ export default defineConfig({
           name: "unit",
           environment: "jsdom",
           globals: true,
+          env: {
+            SESSION_SECRET: "test-secret",
+          },
         },
       },
       {

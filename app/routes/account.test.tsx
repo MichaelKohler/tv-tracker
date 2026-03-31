@@ -111,7 +111,7 @@ describe("Account Route", () => {
       flash: vi.fn(),
       id: "test-session-id",
       data: {},
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     vi.mocked(changePassword).mockResolvedValue(undefined);

@@ -71,7 +71,7 @@ async function fetchEpisode(mazeId: string) {
     }
 
     return await response.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("Failed to update episode", { message: error.message });
 

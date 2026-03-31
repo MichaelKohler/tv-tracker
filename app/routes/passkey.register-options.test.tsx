@@ -65,10 +65,10 @@ describe("Passkey Register Options Route", () => {
 
     vi.mocked(getPasskeysByUserId).mockResolvedValue([]);
     vi.mocked(generateRegistrationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -140,10 +140,10 @@ describe("Passkey Register Options Route", () => {
 
     vi.mocked(getPasskeysByUserId).mockResolvedValue(mockExistingPasskeys);
     vi.mocked(generateRegistrationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -168,10 +168,10 @@ describe("Passkey Register Options Route", () => {
 
     vi.mocked(getPasskeysByUserId).mockResolvedValue([]);
     vi.mocked(generateRegistrationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -191,10 +191,10 @@ describe("Passkey Register Options Route", () => {
 
     vi.mocked(getPasskeysByUserId).mockResolvedValue([]);
     vi.mocked(generateRegistrationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue(
       "session-cookie-value"

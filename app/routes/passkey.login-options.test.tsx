@@ -39,10 +39,10 @@ describe("Passkey Login Options Route", () => {
     };
 
     vi.mocked(generateAuthenticationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -74,10 +74,10 @@ describe("Passkey Login Options Route", () => {
     };
 
     vi.mocked(generateAuthenticationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -97,10 +97,10 @@ describe("Passkey Login Options Route", () => {
     const mockOptions = { challenge: "test-challenge" };
 
     vi.mocked(generateAuthenticationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -118,10 +118,10 @@ describe("Passkey Login Options Route", () => {
     const mockOptions = { challenge: "stored-challenge-789" };
 
     vi.mocked(generateAuthenticationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
@@ -139,10 +139,10 @@ describe("Passkey Login Options Route", () => {
     const mockOptions = { challenge: "test-challenge" };
 
     vi.mocked(generateAuthenticationOptions).mockResolvedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       mockOptions as any
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue(
       "session-cookie-value"

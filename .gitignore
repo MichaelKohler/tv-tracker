@@ -21,6 +21,8 @@ __screenshots__
 /data
 
 .react-router/
+.vite-hooks/
+
 tsconfig.tsbuildinfo
 
 # Sentry
