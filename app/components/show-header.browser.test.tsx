@@ -171,9 +171,10 @@ describe("ShowHeader", () => {
     );
 
     expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(
-      page.getByText(/Mark all aired episodes as watched/)
-    ).not.toBeInTheDocument();
+    const markAllButton = page.getByRole("button", {
+      name: /Mark all aired episodes as watched/,
+    });
+    expect(markAllButton).toBeDisabled();
     expect(page.getByText(/Remove show/)).toBeInTheDocument();
   });
 
@@ -203,7 +204,8 @@ describe("ShowHeader", () => {
     expect(
       page.getByText(/Mark all aired episodes as watched/)
     ).toBeInTheDocument();
-    expect(page.getByText(/Remove show/)).not.toBeInTheDocument();
+    const deleteButton = page.getByRole("button", { name: /Remove show/ });
+    expect(deleteButton).toBeDisabled();
   });
 
   it("renders spinner on archiving", async () => {
@@ -229,7 +231,8 @@ describe("ShowHeader", () => {
     );
 
     expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(page.getByText(/Archive/)).not.toBeInTheDocument();
+    const archiveButton = page.getByRole("button", { name: "Archive" });
+    expect(archiveButton).toBeDisabled();
   });
 
   it("renders spinner on unarchiving", async () => {
@@ -246,15 +249,18 @@ describe("ShowHeader", () => {
       },
     });
 
+    const archivedShow = { ...show, archived: true };
+
     await render(
       <ShowHeader
-        show={show}
+        show={archivedShow}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}
       />
     );
 
     expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(page.getByText(/UnArchive/)).not.toBeInTheDocument();
+    const unarchiveButton = page.getByRole("button", { name: "Unarchive" });
+    expect(unarchiveButton).toBeDisabled();
   });
 });
