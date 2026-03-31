@@ -72,14 +72,9 @@ describe("maze.server", () => {
         "Failed to fetch show with ID 999: Not Found"
       );
 
-      try {
-        await fetchShowWithEmbededEpisodes("999");
-      } catch (error) {
-        expect(error).toBeInstanceOf(TVMazeAPIError);
-        if (error instanceof TVMazeAPIError) {
-          expect(error.statusCode).toBe(404);
-        }
-      }
+      const error = await fetchShowWithEmbededEpisodes("999").catch((e) => e);
+      expect(error).toBeInstanceOf(TVMazeAPIError);
+      expect((error as TVMazeAPIError).statusCode).toBe(404);
     });
 
     it("should throw error on HTTP 500", async () => {
@@ -233,14 +228,9 @@ describe("maze.server", () => {
         'Failed to search for shows with query "test": Not Found'
       );
 
-      try {
-        await fetchSearchResults("test");
-      } catch (error) {
-        expect(error).toBeInstanceOf(TVMazeAPIError);
-        if (error instanceof TVMazeAPIError) {
-          expect(error.statusCode).toBe(404);
-        }
-      }
+      const error = await fetchSearchResults("test").catch((e) => e);
+      expect(error).toBeInstanceOf(TVMazeAPIError);
+      expect((error as TVMazeAPIError).statusCode).toBe(404);
     });
 
     it("should throw error on HTTP 500", async () => {
