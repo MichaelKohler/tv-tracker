@@ -15,6 +15,7 @@ export default defineConfig({
           name: "unit",
           environment: "jsdom",
           globals: true,
+          setupFiles: ["./setup.unit.ts"],
           env: {
             SESSION_SECRET: "test-secret",
           },
