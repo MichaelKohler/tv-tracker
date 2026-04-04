@@ -36,8 +36,7 @@ vi.mock("../utils", async () => ({
   validateEmail: vi.fn(),
 }));
 
-vi.mock("../models/user.server", async () => ({
-  ...(await vi.importActual("../models/user.server")),
+vi.mock("../models/user.server", () => ({
   verifyLogin: vi.fn(),
 }));
 

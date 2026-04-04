@@ -20,12 +20,10 @@ vi.mock("react-router", async () => ({
 
 vi.mock("../db.server");
 
-vi.mock("../flags.server", async () => ({
-  ...(await vi.importActual("../flags.server")),
-  evaluateBoolean: vi.fn(),
-  FLAGS: {
-    DELETE_ACCOUNT: "delete-account",
-  },
+vi.mock("../flags.server");
+
+vi.mock("../models/user.server", () => ({
+  deleteUserByUserId: vi.fn(),
 }));
 
 vi.mock("../session.server", async () => ({

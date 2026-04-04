@@ -15,6 +15,10 @@ vi.mock("react-router", async () => ({
 }));
 
 vi.mock("../db.server");
+vi.mock("../flags.server");
+vi.mock("../models/user.server", () => ({
+  getUserById: vi.fn(),
+}));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
@@ -26,8 +30,12 @@ vi.mock("../components/show-tiles", async () => ({
   default: () => <p>ShowTiles</p>,
 }));
 
-vi.mock("../models/show.server", async () => ({
-  ...(await vi.importActual("../models/show.server")),
+vi.mock("../models/maze.server", () => ({
+  fetchSearchResults: vi.fn(),
+  fetchShowWithEmbededEpisodes: vi.fn(),
+}));
+
+vi.mock("../models/show.server", () => ({
   getArchivedShowsByUserId: vi.fn().mockResolvedValue([]),
 }));
 

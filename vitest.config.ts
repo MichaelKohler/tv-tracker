@@ -13,8 +13,13 @@ export default defineConfig({
             "!**/__screenshots__/**",
           ],
           name: "unit",
+          sequence: { groupOrder: 1 },
           environment: "jsdom",
           globals: true,
+          clearMocks: true,
+          isolate: false,
+          minWorkers: 1,
+          maxWorkers: 1,
           setupFiles: ["./setup.unit.ts"],
           env: {
             SESSION_SECRET: "test-secret",
@@ -26,6 +31,7 @@ export default defineConfig({
         test: {
           include: ["app/**/*.browser.test.{ts,tsx}", "!**/__screenshots__/**"],
           name: "browser",
+          sequence: { groupOrder: 2 },
           setupFiles: ["./setup.browser.ts"],
           browser: {
             provider: playwright(),

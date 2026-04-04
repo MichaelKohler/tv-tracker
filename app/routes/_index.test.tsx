@@ -24,14 +24,11 @@ vi.mock("react-router", async () => ({
 }));
 
 vi.mock("../db.server");
-
-vi.mock("../flags.server", async () => ({
-  ...(await vi.importActual("../flags.server")),
-  FLAGS: {
-    SIGNUP_DISABLED: "signup-disabled",
-  },
-  evaluateBoolean: vi.fn().mockResolvedValue(false),
+vi.mock("../models/user.server", () => ({
+  getUserById: vi.fn(),
 }));
+
+vi.mock("../flags.server");
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
