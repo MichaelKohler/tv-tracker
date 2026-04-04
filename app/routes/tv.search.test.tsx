@@ -5,7 +5,7 @@ import "@testing-library/jest-dom";
 
 import { addShow, searchShows } from "../models/show.server";
 import { requireUserId } from "../session.server";
-import * as flags from "../flags.server";
+import { evaluateBoolean } from "../flags.server";
 import Search, { action, loader } from "./tv.search";
 
 const shows = [
@@ -36,14 +36,26 @@ vi.mock("../components/show-results", async () => ({
   default: () => <p>ShowResults</p>,
 }));
 
-vi.mock("../models/show.server", async () => ({
-  ...(await vi.importActual("../models/show.server")),
+vi.mock("../flags.server");
+
+vi.mock("../models/maze.server", () => ({
+  fetchSearchResults: vi.fn(),
+  fetchShowWithEmbededEpisodes: vi.fn(),
+}));
+
+vi.mock("../models/show.server", () => ({
   addShow: vi.fn(),
   searchShows: vi.fn(),
 }));
 
-vi.mock("../session.server");
+vi.mock("../session.server", async () => ({
+  ...(await vi.importActual("../session.server")),
+  requireUserId: vi.fn(),
+}));
 vi.mock("../db.server");
+vi.mock("../models/user.server", () => ({
+  getUserById: vi.fn(),
+}));
 
 describe("TV Show Search Route", () => {
   beforeEach(() => {
@@ -119,7 +131,7 @@ describe("TV Show Search Route", () => {
   });
 
   it("loader should search and return shows", async () => {
-    vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
@@ -133,7 +145,7 @@ describe("TV Show Search Route", () => {
   });
 
   it("loader should not search with feature disabled", async () => {
-    vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(false);
+    vi.mocked(evaluateBoolean).mockResolvedValue(false);
     // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
@@ -146,7 +158,7 @@ describe("TV Show Search Route", () => {
   });
 
   it("loader should search shows with query", async () => {
-    vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     // @ts-expect-error .. ignore unstable_pattern for example
     await loader({
       request: new Request("http://localhost:8080/tv/search?query=fooQuery"),
@@ -158,7 +170,7 @@ describe("TV Show Search Route", () => {
   });
 
   it("loader should search and return if no found show", async () => {
-    vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(searchShows).mockResolvedValue([]);
 
     // @ts-expect-error .. ignore unstable_pattern for example
@@ -173,7 +185,7 @@ describe("TV Show Search Route", () => {
   });
 
   it("action should return redirect if everything ok", async () => {
-    vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     const formData = new FormData();
     formData.append("showId", "1");
 
@@ -191,7 +203,7 @@ describe("TV Show Search Route", () => {
   });
 
   it("action should not add show with feature disabled", async () => {
-    vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(false);
+    vi.mocked(evaluateBoolean).mockResolvedValue(false);
     const formData = new FormData();
     formData.append("showId", "1");
 
@@ -211,7 +223,7 @@ describe("TV Show Search Route", () => {
   });
 
   it("action should return error if adding failed", async () => {
-    vi.spyOn(flags, "evaluateBoolean").mockResolvedValue(true);
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(addShow).mockRejectedValue(new Error("OH_NO"));
 
     const formData = new FormData();

@@ -2,7 +2,7 @@ import { useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
-import * as flags from "../flags.server";
+import { evaluateBoolean } from "../flags.server";
 import TVStats, { loader } from "./tv.stats";
 
 vi.mock("react-router", async () => ({
@@ -12,10 +12,7 @@ vi.mock("react-router", async () => ({
 
 vi.mock("../db.server");
 
-vi.mock("../flags.server", async () => ({
-  ...(await vi.importActual("../flags.server")),
-  evaluateBoolean: vi.fn(),
-}));
+vi.mock("../flags.server");
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
@@ -23,16 +20,19 @@ vi.mock("../session.server", async () => ({
   getUserId: vi.fn().mockResolvedValue("123"),
 }));
 
-vi.mock("../models/episode.server", async () => ({
-  ...(await vi.importActual("../models/episode.server")),
+vi.mock("../models/episode.server", () => ({
   getTotalWatchTimeForUser: vi.fn().mockResolvedValue(150),
   getWatchedEpisodesCountForUser: vi.fn().mockResolvedValue(25),
   getUnwatchedEpisodesCountForUser: vi.fn().mockResolvedValue(5),
   getLast12MonthsStats: vi.fn().mockResolvedValue([]),
 }));
 
-vi.mock("../models/show.server", async () => ({
-  ...(await vi.importActual("../models/show.server")),
+vi.mock("../models/maze.server", () => ({
+  fetchSearchResults: vi.fn(),
+  fetchShowWithEmbededEpisodes: vi.fn(),
+}));
+
+vi.mock("../models/show.server", () => ({
   getShowsTrackedByUser: vi.fn().mockResolvedValue(10),
   getArchivedShowsCountForUser: vi.fn().mockResolvedValue(2),
 }));
@@ -185,7 +185,7 @@ describe("TVStats Route", () => {
 
   describe("loader", () => {
     it("should return feature flags", async () => {
-      vi.mocked(flags.evaluateBoolean).mockResolvedValue(true);
+      vi.mocked(evaluateBoolean).mockResolvedValue(true);
 
       // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
@@ -198,7 +198,7 @@ describe("TVStats Route", () => {
     });
 
     it("should return feature flags when disabled", async () => {
-      vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+      vi.mocked(evaluateBoolean).mockResolvedValue(false);
 
       // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({

@@ -3,17 +3,19 @@ import "@testing-library/jest-dom";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import type { Episode, Show } from "@prisma/client";
 
-import * as flags from "../flags.server";
+import { evaluateBoolean } from "../flags.server";
 import { getUpcomingEpisodes } from "../models/episode.server";
 import TVUpcoming, { loader } from "./tv.upcoming";
 
-vi.mock("../flags.server", async () => ({
-  ...(await vi.importActual("../flags.server")),
-  evaluateBoolean: vi.fn(),
-}));
+vi.mock("../flags.server");
 
 vi.mock("../db.server");
-vi.mock("../models/episode.server");
+vi.mock("../models/user.server", () => ({
+  getUserById: vi.fn(),
+}));
+vi.mock("../models/episode.server", () => ({
+  getUpcomingEpisodes: vi.fn(),
+}));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
@@ -88,7 +90,7 @@ const renderComponent = (loaderFn: typeof loader) => {
 
 describe("TVUpcoming", () => {
   beforeEach(() => {
-    vi.mocked(flags.evaluateBoolean).mockResolvedValue(true);
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(getUpcomingEpisodes).mockResolvedValue(mockEpisodes);
   });
 
@@ -111,7 +113,7 @@ describe("TVUpcoming", () => {
   });
 
   it("renders unavailable message when feature is disabled", async () => {
-    vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+    vi.mocked(evaluateBoolean).mockResolvedValue(false);
     renderComponent(loader);
     await waitFor(() => {
       expect(
@@ -142,7 +144,7 @@ describe("TVUpcoming", () => {
     });
 
     it("should return empty episodes when feature is disabled", async () => {
-      vi.mocked(flags.evaluateBoolean).mockResolvedValue(false);
+      vi.mocked(evaluateBoolean).mockResolvedValue(false);
 
       // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({

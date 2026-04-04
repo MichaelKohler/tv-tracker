@@ -1,4 +1,4 @@
-import { AuthenticationStrategy, FliptClient } from "@flipt-io/flipt";
+import type { AuthenticationStrategy, FliptClient } from "@flipt-io/flipt";
 
 import { getUserId } from "./session.server";
 
@@ -14,17 +14,23 @@ class BasicAuthenticationStrategy implements AuthenticationStrategy {
   }
 }
 
-const authStrategy = new BasicAuthenticationStrategy(
-  process.env.FLIPT_TOKEN || ""
-);
+let _fliptClient: FliptClient | null = null;
 
-const fliptClient = new FliptClient({
-  url: process.env.FLIPT_URL || "",
-  authenticationStrategy: authStrategy,
-  headers: {
-    "X-Flipt-Environment": process.env.FLIPT_ENVIRONMENT || "",
-  },
-});
+async function getFliptClient(): Promise<FliptClient> {
+  if (!_fliptClient) {
+    const { FliptClient } = await import("@flipt-io/flipt");
+    _fliptClient = new FliptClient({
+      url: process.env.FLIPT_URL || "",
+      authenticationStrategy: new BasicAuthenticationStrategy(
+        process.env.FLIPT_TOKEN || ""
+      ),
+      headers: {
+        "X-Flipt-Environment": process.env.FLIPT_ENVIRONMENT || "",
+      },
+    });
+  }
+  return _fliptClient;
+}
 
 export const FLAGS = {
   // Maintenance mode is inverted, as by default we set all feature flags to true
@@ -68,7 +74,9 @@ export async function evaluateVariant(request: Request, flag: string) {
   try {
     const userId = await getUserId(request);
 
-    const variantEvaluationResponse = await fliptClient.evaluation.variant({
+    const variantEvaluationResponse = await (
+      await getFliptClient()
+    ).evaluation.variant({
       namespaceKey: "default",
       flagKey: flag,
       entityId: userId || "",
@@ -94,7 +102,9 @@ export async function evaluateBoolean(request: Request, flag: string) {
   try {
     const userId = await getUserId(request);
 
-    const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
+    const booleanEvaluationResponse = await (
+      await getFliptClient()
+    ).evaluation.boolean({
       namespaceKey: "default",
       flagKey: flag,
       entityId: userId || "",
@@ -115,7 +125,9 @@ export async function evaluateBoolean(request: Request, flag: string) {
 
 export async function evaluateBooleanFromScripts(flag: string) {
   try {
-    const booleanEvaluationResponse = await fliptClient.evaluation.boolean({
+    const booleanEvaluationResponse = await (
+      await getFliptClient()
+    ).evaluation.boolean({
       namespaceKey: "default",
       flagKey: flag,
       entityId: "scripts",

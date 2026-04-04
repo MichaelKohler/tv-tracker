@@ -9,16 +9,17 @@ import { getUserByPlexToken } from "../models/user.server";
 import { action } from "./plex.$token";
 
 vi.mock("../db.server");
-vi.mock("../flags.server", async () => ({
-  ...(await vi.importActual("../flags.server")),
-  evaluateBoolean: vi.fn(),
-  FLAGS: {
-    PLEX: "plex",
-  },
+vi.mock("../flags.server");
+vi.mock("../models/episode.server", () => ({
+  getEpisodeByShowIdAndNumbers: vi.fn(),
+  markEpisodeAsWatched: vi.fn(),
 }));
-vi.mock("../models/episode.server");
-vi.mock("../models/show.server");
-vi.mock("../models/user.server");
+vi.mock("../models/show.server", () => ({
+  getShowByUserIdAndName: vi.fn(),
+}));
+vi.mock("../models/user.server", () => ({
+  getUserByPlexToken: vi.fn(),
+}));
 
 // Use consistent mock objects that match the structure from other tests
 const mockUser = {

@@ -35,13 +35,7 @@ vi.mock("react-router", async () => ({
 
 vi.mock("../db.server");
 
-vi.mock("../flags.server", async () => ({
-  ...(await vi.importActual("../flags.server")),
-  FLAGS: {
-    SIGNUP_DISABLED: "signup-disabled",
-  },
-  evaluateBoolean: vi.fn().mockResolvedValue(false),
-}));
+vi.mock("../flags.server");
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
@@ -54,8 +48,7 @@ vi.mock("../utils", async () => ({
   validateEmail: vi.fn(),
 }));
 
-vi.mock("../models/user.server", async () => ({
-  ...(await vi.importActual("../models/user.server")),
+vi.mock("../models/user.server", () => ({
   createUser: vi.fn(),
   getUserByEmail: vi.fn(),
 }));

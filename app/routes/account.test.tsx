@@ -34,19 +34,9 @@ vi.mock("react-router", async () => ({
 
 vi.mock("../db.server");
 
-vi.mock("../flags.server", async () => ({
-  ...(await vi.importActual("../flags.server")),
-  evaluateBoolean: vi.fn(),
-  FLAGS: {
-    PASSWORD_CHANGE: "password-change",
-    DELETE_ACCOUNT: "delete-account",
-    PLEX: "plex",
-    PASSKEY_REGISTRATION: "passkey-registration",
-  },
-}));
+vi.mock("../flags.server");
 
-vi.mock("../models/user.server", async () => ({
-  ...(await vi.importActual("../models/user.server")),
+vi.mock("../models/user.server", () => ({
   changePassword: vi.fn(),
   userHasPassword: vi.fn(),
   verifyLogin: vi.fn(),

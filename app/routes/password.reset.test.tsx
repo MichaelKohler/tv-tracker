@@ -17,6 +17,12 @@ vi.mock("react-router", async () => ({
 }));
 
 vi.mock("../db.server");
+vi.mock("../models/password.server", () => ({
+  triggerPasswordReset: vi.fn(),
+}));
+vi.mock("../models/user.server", () => ({
+  getUserById: vi.fn(),
+}));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),

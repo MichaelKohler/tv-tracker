@@ -23,8 +23,7 @@ vi.mock("../models/passkey.server", async () => ({
   createPasskey: vi.fn(),
 }));
 
-vi.mock("../models/mail.server", async () => ({
-  ...(await vi.importActual("../models/mail.server")),
+vi.mock("../models/mail.server", () => ({
   sendPasskeyCreatedMail: vi.fn(),
 }));
 

@@ -2,20 +2,22 @@ import { loader } from "./metrics";
 
 vi.mock("../db.server");
 
-vi.mock("../models/show.server", async () => ({
-  ...(await vi.importActual("../models/show.server")),
+vi.mock("../models/maze.server", () => ({
+  fetchSearchResults: vi.fn(),
+  fetchShowWithEmbededEpisodes: vi.fn(),
+}));
+
+vi.mock("../models/show.server", () => ({
   getShowCount: vi.fn().mockResolvedValue(55),
   getConnectedShowCount: vi.fn().mockResolvedValue(53),
 }));
 
-vi.mock("../models/episode.server", async () => ({
-  ...(await vi.importActual("../models/episode.server")),
+vi.mock("../models/episode.server", () => ({
   getEpisodeCount: vi.fn().mockResolvedValue(2000),
   getConnectedEpisodeCount: vi.fn().mockResolvedValue(1500),
 }));
 
-vi.mock("../models/user.server", async () => ({
-  ...(await vi.importActual("../models/user.server")),
+vi.mock("../models/user.server", () => ({
   getUserCount: vi.fn().mockResolvedValue(5),
 }));
 

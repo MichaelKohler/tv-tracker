@@ -2,8 +2,13 @@ import { createTransport } from "nodemailer";
 import { sendPasskeyCreatedMail, sendPasswordResetMail } from "./mail.server";
 import { logInfo, logError } from "../logger.server";
 
-vi.mock("nodemailer");
-vi.mock("../logger.server");
+vi.mock("nodemailer", () => ({
+  createTransport: vi.fn(),
+}));
+vi.mock("../logger.server", () => ({
+  logInfo: vi.fn(),
+  logError: vi.fn(),
+}));
 
 describe("mail.server", () => {
   const originalEnv = process.env;
