@@ -98,10 +98,36 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
       - name: ⚙️ Build
-        run: vp build
+        run: vp run build
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
-      - name: 🌳 Run Playwright tests
-        run: vp exec playwright install --with-deps && vp run test:e2e:run
+      - name: 🌳 Install Playwright browsers
+        run: vp exec playwright install --with-deps chromium firefox
+        env:
+          HOME: /root
+
+      - name: 🚀 Start server
+        run: vp run start > /tmp/server.log 2>&1 &
+        env:
+          HOME: /root
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
+          PORT: 5173
+          SESSION_SECRET: super-duper-s3cret
+          NODE_ENV: production
+          FLIPT_URL: ""
+          FLIPT_TOKEN: ""
+          FLIPT_ENVIRONMENT: ""
+
+      - name: ⏳ Wait for server
+        run: vp exec wait-on http://localhost:5173 --timeout 30000
+
+      - name: 📋 Server startup log
+        if: failure()
+        run: cat /tmp/server.log
+
+      - name: 🎭 Run Playwright tests
+        run: vp run test:e2e:run
         env:
           HOME: /root
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable

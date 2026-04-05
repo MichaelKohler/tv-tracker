@@ -75,7 +75,8 @@
     "typescript": "^5.9.3",
     "vite-plus": "catalog:",
     "vitest-browser-react": "^2.1.0",
-    "vitest-mock-extended": "^3.1.0"
+    "vitest-mock-extended": "^3.1.0",
+    "wait-on": "^9.0.4"
   },
   "engines": {
     "node": ">=24.0.0"

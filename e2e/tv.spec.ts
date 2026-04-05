@@ -15,11 +15,8 @@ test("allows TV flows", async ({ page }) => {
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
 
-  // Wait for the form submission and navigation
-  await Promise.all([
-    page.getByLabel("Password").press("Enter"),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByLabel("Password").press("Enter");
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 
@@ -42,10 +39,8 @@ test("allows TV flows", async ({ page }) => {
   ).toBeVisible();
 
   // Add show and wait for navigation back to TV page
-  await Promise.all([
-    page.getByRole("button", { name: "Add Show" }).nth(0).click(),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByRole("button", { name: "Add Show" }).nth(0).click();
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 
@@ -59,14 +54,28 @@ test("allows TV flows", async ({ page }) => {
 
   await page.getByText("Mark as watched").nth(0).click();
   await page.getByText("Mark as not watched").nth(0).click();
+  // Wait for MARK_UNWATCHED loader: ep0 is now unwatched, so no "Mark as not watched"
+  // buttons remain. This confirms the component has re-rendered with settled data
+  // before we click "Mark all", avoiding a stale-element click.
+  await expect(page.getByText("Mark as not watched")).not.toBeVisible();
 
   await page.getByText("Mark all aired episodes as watched").click();
-  await expect(page.getByText("Mark as not watched").nth(0)).toBeVisible();
+  // Wait for MARK_ALL_WATCHED loader: all episodes are watched, so "Mark as not
+  // watched" buttons appear. This confirms the action + loader completed successfully.
+  await expect(page.getByText("Mark as not watched").first()).toBeVisible();
   await page.getByText("Mark as not watched").nth(0).click();
 
-  await expect(page.getByRole("button", { name: "Archive" })).toBeVisible();
+  // Wait for MARK_UNWATCHED loader: first episode transitions back to "Mark as watched",
+  // confirming the component has re-rendered with fresh data before clicking "Remove show".
+  await expect(
+    page
+      .getByRole("listitem")
+      .first()
+      .getByRole("button", { name: "Mark as watched" })
+  ).toBeVisible();
 
-  await page.getByText("Remove show").click();
+  await page.getByRole("button", { name: "Remove show" }).click();
+  await expect(page).toHaveURL("/tv");
   await expect(
     page.getByText("You have not added any shows yet")
   ).toBeVisible();
