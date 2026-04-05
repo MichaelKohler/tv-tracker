@@ -16,11 +16,8 @@ test("allows signup and login", async ({ page }) => {
 
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
 
-  // Wait for the form submission and navigation
-  await Promise.all([
-    page.getByLabel("Password").press("Enter"),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByLabel("Password").press("Enter");
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 
@@ -32,11 +29,8 @@ test("allows signup and login", async ({ page }) => {
 
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
 
-  // Wait for the form submission and navigation
-  await Promise.all([
-    page.getByRole("button", { name: "Log in" }).click(),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByRole("button", { name: "Log in" }).click();
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 });
@@ -56,11 +50,8 @@ test("allows to delete account", async ({ page }) => {
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
 
-  // Wait for the form submission and navigation
-  await Promise.all([
-    page.getByLabel("Password").press("Enter"),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByLabel("Password").press("Enter");
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 
@@ -89,11 +80,8 @@ test("allows to change password", async ({ page }) => {
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
 
-  // Wait for the form submission and navigation
-  await Promise.all([
-    page.getByLabel("Password").press("Enter"),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByLabel("Password").press("Enter");
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 
@@ -123,11 +111,8 @@ test("allows to change password", async ({ page }) => {
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("someNewVeryStrongPassword4321");
 
-  // Wait for the form submission and navigation
-  await Promise.all([
-    page.getByRole("button", { name: "Log in" }).click(),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByRole("button", { name: "Log in" }).click();
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 });
@@ -141,11 +126,8 @@ test("recognizes not matching password", async ({ page }) => {
   await page.getByLabel("Email address").press("Tab");
   await page.getByLabel("Password").fill("somePasswordIsVeryStrong123");
 
-  // Wait for the form submission and navigation
-  await Promise.all([
-    page.getByLabel("Password").press("Enter"),
-    page.waitForURL("/tv"),
-  ]);
+  await page.getByLabel("Password").press("Enter");
+  await expect(page).toHaveURL("/tv");
 
   await expect(page.getByText("Your shows")).toBeVisible();
 

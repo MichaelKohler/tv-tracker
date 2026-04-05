@@ -99,9 +99,26 @@ jobs:
 
       - name: ⚙️ Build
         run: vp build
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
-      - name: 🌳 Run Playwright tests
-        run: vp exec playwright install --with-deps && vp run test:e2e:run
+      - name: 🌳 Install Playwright browsers
+        run: vp exec playwright install --with-deps chromium firefox
+        env:
+          HOME: /root
+
+      - name: 🚀 Start server
+        run: vp run start > /tmp/server.log 2>&1 &
+        env:
+          HOME: /root
+          DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
+          PORT: 5173
+
+      - name: ⏳ Wait for server
+        run: npx --yes wait-on http://localhost:5173 --timeout 30000
+
+      - name: 🎭 Run Playwright tests
+        run: vp run test:e2e:run
         env:
           HOME: /root
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
