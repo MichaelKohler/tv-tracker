@@ -20,8 +20,22 @@ export const action = withRequestContext(
     }
     const body = await request.formData();
     const payload = body.get("payload");
-    const parsedPayload = JSON.parse(payload as string);
-    const showTitle = parsedPayload.Metadata.grandparentTitle;
+    let parsedPayload: {
+      event?: string;
+      Metadata?: {
+        grandparentTitle?: string;
+        parentIndex?: number;
+        index?: number;
+      };
+    };
+
+    try {
+      parsedPayload = JSON.parse(payload as string);
+    } catch {
+      return {};
+    }
+
+    const showTitle = parsedPayload.Metadata?.grandparentTitle;
 
     const token = params.token;
     if (!token || !showTitle || parsedPayload.event !== "media.scrobble") {

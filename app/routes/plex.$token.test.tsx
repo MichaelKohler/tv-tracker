@@ -240,6 +240,42 @@ describe("Plex token route", () => {
     expect(response).toEqual({});
   });
 
+  it("returns empty object for malformed JSON payload", async () => {
+    const formData = new FormData();
+    formData.append("payload", "not valid json {{");
+
+    // @ts-expect-error .. ignore unstable_pattern for example
+    const response = await action({
+      request: new Request("http://localhost:8080/plex/token123", {
+        method: "POST",
+        body: formData,
+      }),
+      params: { token: "token123" },
+      context: {},
+    } as ActionFunctionArgs);
+
+    expect(getUserByPlexToken).not.toHaveBeenCalled();
+    expect(response).toEqual({});
+  });
+
+  it("returns null for payload missing Metadata", async () => {
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify({ event: "media.scrobble" }));
+
+    // @ts-expect-error .. ignore unstable_pattern for example
+    const response = await action({
+      request: new Request("http://localhost:8080/plex/token123", {
+        method: "POST",
+        body: formData,
+      }),
+      params: { token: "token123" },
+      context: {},
+    } as ActionFunctionArgs);
+
+    expect(getUserByPlexToken).not.toHaveBeenCalled();
+    expect(response).toBeNull();
+  });
+
   it("returns empty object when marking as watched throws", async () => {
     vi.mocked(markEpisodeAsWatched).mockRejectedValue(new Error("DB error"));
 
