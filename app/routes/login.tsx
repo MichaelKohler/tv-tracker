@@ -21,6 +21,15 @@ import { createUserSession, getUserId } from "../session.server";
 import { safeRedirect, validateAndSanitizeEmail } from "../utils";
 import { logInfo } from "../logger.server";
 
+function clientSafeRedirect(
+  to: string | null,
+  defaultRedirect = "/tv"
+): string {
+  if (!to || typeof to !== "string") return defaultRedirect;
+  if (!to.startsWith("/") || to.startsWith("//")) return defaultRedirect;
+  return to;
+}
+
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {
     logInfo("Login page accessed", {});
@@ -146,7 +155,7 @@ export default function LoginPage() {
         throw new Error(result.error || "Authentication failed");
       }
 
-      window.location.href = redirectTo;
+      window.location.href = clientSafeRedirect(redirectTo);
     } catch (error) {
       const errorMessages: Record<string, string> = {
         NotAllowedError: "Authentication canceled or timed out",
