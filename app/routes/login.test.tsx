@@ -4,6 +4,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import { verifyLogin } from "../models/user.server";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 import Login, { action, loader } from "./login";
@@ -41,6 +42,13 @@ vi.mock("../models/user.server", () => ({
 }));
 
 vi.mock("../db.server");
+
+vi.mock("../rate-limiter.server", () => ({
+  checkRateLimit: vi
+    .fn()
+    .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
+  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+}));
 
 vi.mock("@simplewebauthn/browser", async () => ({
   ...(await vi.importActual("@simplewebauthn/browser")),
@@ -266,6 +274,62 @@ describe("Login Route", () => {
 
     // @ts-expect-error : we do not actually have a real response here..
     expect(response.data.errors.password).toBe("Password is required");
+  });
+
+  it("action should return 429 when rate limited", async () => {
+    vi.mocked(checkRateLimit).mockReturnValueOnce({
+      limited: true,
+      retryAfterSeconds: 900,
+    });
+
+    const formData = new FormData();
+    formData.append("email", "foo@example.com");
+    formData.append("password", "foo");
+
+    // @ts-expect-error .. ignore unstable_pattern for example
+    const response = await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    });
+
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.init?.status).toBe(429);
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.data.errors.email).toBe(
+      "Too many login attempts. Please try again later."
+    );
+  });
+
+  it("action should use IP-based key for rate limiting", async () => {
+    vi.mocked(getClientIp).mockReturnValue("10.0.0.1");
+    vi.mocked(validateEmail).mockReturnValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+    });
+
+    const formData = new FormData();
+    formData.append("email", "foo@example.com");
+    formData.append("password", "foo");
+
+    // @ts-expect-error .. ignore unstable_pattern for example
+    await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: {},
+      params: {},
+    });
+
+    expect(checkRateLimit).toHaveBeenCalledWith("login:10.0.0.1", 5, 900_000);
   });
 
   it("action should return error if verifyLogin fails", async () => {

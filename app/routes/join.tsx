@@ -19,6 +19,7 @@ import {
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import { redeemInviteCode } from "../models/invite.server";
 import { createUser, getUserByEmail } from "../models/user.server";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { getUserId, createUserSession } from "../session.server";
 import {
   safeRedirect,
@@ -61,16 +62,34 @@ export const action = withRequestContext(
 
     logInfo("User signup attempt", { email: emailInput as string });
 
-    const signupDisabled = await evaluateBoolean(
-      request,
-      FLAGS.SIGNUP_DISABLED
-    );
-
     const errors = {
       email: null,
       password: null,
       invite: null,
     };
+
+    const ip = getClientIp(request);
+    const { limited, retryAfterSeconds } = checkRateLimit(
+      `signup:${ip}`,
+      10,
+      60 * 60 * 1000
+    );
+    if (limited) {
+      return data(
+        {
+          errors: {
+            ...errors,
+            email: "Too many signup attempts. Please try again later.",
+          },
+        },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+      );
+    }
+
+    const signupDisabled = await evaluateBoolean(
+      request,
+      FLAGS.SIGNUP_DISABLED
+    );
 
     const email = validateAndSanitizeEmail(emailInput);
     if (!email) {

@@ -3,6 +3,7 @@ import { useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import Reset, { action, loader } from "./password.reset";
 
@@ -19,6 +20,11 @@ vi.mock("react-router", async () => ({
 vi.mock("../db.server");
 vi.mock("../models/password.server", () => ({
   triggerPasswordReset: vi.fn(),
+}));
+vi.mock("../rate-limiter.server", () => ({
+  checkRateLimit: vi
+    .fn()
+    .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
 }));
 vi.mock("../models/user.server", () => ({
   getUserById: vi.fn(),
@@ -138,6 +144,53 @@ describe("Password Reset Route", () => {
 
       // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.email).toBe("Email is invalid");
+    });
+
+    it("should return 429 silently when rate limited", async () => {
+      vi.mocked(checkRateLimit).mockReturnValueOnce({
+        limited: true,
+        retryAfterSeconds: 3600,
+      });
+
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      const response = await action({
+        request: new Request("http://localhost:8080/password/reset", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.init?.status).toBe(429);
+      // done: true so UI behaves identically to a successful submission (no enumeration)
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data.done).toBe(true);
+    });
+
+    it("should use email-based key for rate limiting", async () => {
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      await action({
+        request: new Request("http://localhost:8080/password/reset", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      expect(checkRateLimit).toHaveBeenCalledWith(
+        "password-reset:foo@example.com",
+        3,
+        3_600_000
+      );
     });
   });
 });

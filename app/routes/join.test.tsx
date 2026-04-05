@@ -11,6 +11,7 @@ import "@testing-library/jest-dom";
 import * as invite from "../models/invite.server";
 import { evaluateBoolean } from "../flags.server";
 import { createUser, getUserByEmail } from "../models/user.server";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 import Join, { action, loader } from "./join";
@@ -34,6 +35,13 @@ vi.mock("react-router", async () => ({
 }));
 
 vi.mock("../db.server");
+
+vi.mock("../rate-limiter.server", () => ({
+  checkRateLimit: vi
+    .fn()
+    .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
+  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+}));
 
 vi.mock("../flags.server");
 
@@ -239,6 +247,68 @@ describe("Join Route", () => {
 
       // @ts-expect-error .. seems we do not actually have the right type due to mocking..
       expect(response.redirectTo).toBe("/customRedirectLocation");
+    });
+
+    it("should return 429 when rate limited", async () => {
+      vi.mocked(checkRateLimit).mockReturnValueOnce({
+        limited: true,
+        retryAfterSeconds: 3600,
+      });
+
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+      formData.append("password", "foofoofoo");
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      const response = await action({
+        request: new Request("http://localhost:8080/join", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.init?.status).toBe(429);
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data.errors.email).toBe(
+        "Too many signup attempts. Please try again later."
+      );
+    });
+
+    it("should use IP-based key for rate limiting", async () => {
+      vi.mocked(getClientIp).mockReturnValue("10.0.0.2");
+      vi.mocked(evaluateBoolean).mockResolvedValue(false);
+      vi.mocked(validateEmail).mockReturnValue(true);
+      vi.mocked(getUserByEmail).mockResolvedValue(null);
+      vi.mocked(createUser).mockResolvedValue({
+        id: "123",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        email: "foo@example.com",
+        plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      });
+
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+      formData.append("password", "foofoofoo");
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      await action({
+        request: new Request("http://localhost:8080/join", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      expect(checkRateLimit).toHaveBeenCalledWith(
+        "signup:10.0.0.2",
+        10,
+        3_600_000
+      );
     });
 
     it("should return error if email is invalid", async () => {

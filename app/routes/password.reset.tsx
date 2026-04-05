@@ -14,6 +14,7 @@ import {
 } from "react-router";
 
 import { triggerPasswordReset } from "../models/password.server";
+import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { logInfo } from "../logger.server";
 import { validateEmail } from "../utils";
@@ -48,6 +49,21 @@ export const action = withRequestContext(
       return data(
         { errors: { email: "Email is invalid" }, done: false },
         { status: 400 }
+      );
+    }
+
+    const { limited, retryAfterSeconds } = checkRateLimit(
+      `password-reset:${email}`,
+      3,
+      60 * 60 * 1000
+    );
+    if (limited) {
+      return data(
+        {
+          errors: { email: null },
+          done: true,
+        },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
       );
     }
 
