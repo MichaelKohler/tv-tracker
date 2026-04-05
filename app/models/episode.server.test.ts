@@ -252,6 +252,13 @@ describe("Episode Model", () => {
   });
 
   it("markEpisodeAsUnwatched should remove entry", async () => {
+    prisma.showOnUser.findFirst.mockResolvedValue({
+      id: "1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      showId: "showId",
+      userId: "userId",
+    });
     await markEpisodeAsUnwatched({
       userId: "userId",
       episodeId: "episodeId",
@@ -264,6 +271,17 @@ describe("Episode Model", () => {
         episodeId: "episodeId",
       },
     });
+  });
+
+  it("markEpisodeAsUnwatched should throw when user does not own show", async () => {
+    prisma.showOnUser.findFirst.mockResolvedValue(null);
+    const error = await markEpisodeAsUnwatched({
+      userId: "userId",
+      episodeId: "episodeId",
+      showId: "showId",
+    }).catch((e) => e);
+    expect(error).toBeInstanceOf(Response);
+    expect(error.status).toBe(404);
   });
 
   it("markAllEpisodesAsWatched should add entry for not yet watched episodes", async () => {
