@@ -203,6 +203,21 @@ describe("maze.server", () => {
       );
     });
 
+    it("should URL-encode special characters in the search query", async () => {
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => [],
+      });
+
+      await fetchSearchResults("batman & robin");
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        "https://api.tvmaze.com/search/shows?q=batman%20%26%20robin",
+        expect.objectContaining({ signal: expect.any(AbortSignal) })
+      );
+    });
+
     it("should successfully fetch empty search results", async () => {
       mockFetch.mockResolvedValue({
         ok: true,

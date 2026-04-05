@@ -88,7 +88,7 @@ export async function fetchShowWithEmbededEpisodes(
 export async function fetchSearchResults(
   query: string
 ): Promise<TVMazeSearchResult[]> {
-  const url = `${TV_SEARCH_API_PREFIX}${query}`;
+  const url = `${TV_SEARCH_API_PREFIX}${encodeURIComponent(query)}`;
 
   const response = await fetchWithTimeout(url);
 
