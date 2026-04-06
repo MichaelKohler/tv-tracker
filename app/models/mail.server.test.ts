@@ -233,6 +233,22 @@ describe("mail.server", () => {
       );
     });
 
+    it("should strip HTML tags from passkeyName to prevent XSS", async () => {
+      mockSendMail.mockResolvedValue({});
+
+      const createdAt = new Date("2025-01-01T12:00:00Z");
+
+      await sendPasskeyCreatedMail({
+        email: "user@example.com",
+        passkeyName: '<script>alert("xss")</script>My Key',
+        createdAt,
+      });
+
+      const call = mockSendMail.mock.calls[0][0];
+      expect(call.html).not.toContain("<script>");
+      expect(call.html).toContain("My Key");
+    });
+
     it("should format date correctly in email content", async () => {
       mockSendMail.mockResolvedValue({});
 

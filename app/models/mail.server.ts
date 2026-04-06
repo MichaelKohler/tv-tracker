@@ -1,5 +1,6 @@
 import type { User, PasswordReset, Passkey } from "@prisma/client";
 import { createTransport } from "nodemailer";
+import striptags from "striptags";
 
 import { logError, logInfo } from "../logger.server";
 
@@ -226,7 +227,7 @@ export async function sendPasskeyCreatedMail({
                             Passkey Name
                           </p>
                           <p style="margin: 0 0 20px; color: #2f2f2f; font-size: 18px; font-weight: 600;">
-                            ${passkeyName}
+                            ${striptags(passkeyName)}
                           </p>
 
                           <p style="margin: 0 0 10px; color: #23395b; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
