@@ -198,6 +198,7 @@ export async function markEpisodeAsUnwatched({
   episodeId: Episode["id"];
   showId: Show["id"];
 }) {
+  await verifyUserOwnsShow({ userId, showId });
   await prisma.episodeOnUser.deleteMany({
     where: {
       userId,
