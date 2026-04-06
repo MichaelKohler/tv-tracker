@@ -1,10 +1,18 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { sessionStorage, setPasskeyChallenge } from "../session.server";
 import { loader } from "./passkey.login-options";
 
 vi.mock("../db.server");
+
+vi.mock("../rate-limiter.server", () => ({
+  checkRateLimit: vi
+    .fn()
+    .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
+  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+}));
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
@@ -132,6 +140,46 @@ describe("Passkey Login Options Route", () => {
       "stored-challenge-789"
     );
     expect(sessionStorage.commitSession).toHaveBeenCalledWith(mockSession);
+  });
+
+  it("should return 429 when rate limited", async () => {
+    vi.mocked(checkRateLimit).mockReturnValueOnce({
+      limited: true,
+      retryAfterSeconds: 900,
+    });
+
+    const response = await loader({
+      request: mockRequest,
+    } as LoaderFunctionArgs);
+
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.init?.status).toBe(429);
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.data.error).toBe(
+      "Too many requests. Please try again later."
+    );
+    expect(generateAuthenticationOptions).not.toHaveBeenCalled();
+  });
+
+  it("should use IP-based key for rate limiting", async () => {
+    vi.mocked(getClientIp).mockReturnValue("10.0.0.3");
+
+    const mockSession = { id: "session-123" };
+    vi.mocked(generateAuthenticationOptions).mockResolvedValue(
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+      { challenge: "test" } as any
+    );
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(setPasskeyChallenge).mockResolvedValue(mockSession as any);
+    vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
+
+    await loader({ request: mockRequest } as LoaderFunctionArgs);
+
+    expect(checkRateLimit).toHaveBeenCalledWith(
+      "passkey-login:10.0.0.3",
+      10,
+      900_000
+    );
   });
 
   it("should return response with session cookie header", async () => {

@@ -5,6 +5,7 @@ import {
   getPasskeyByCredentialId,
   updatePasskeyCounter,
 } from "../models/passkey.server";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import {
   clearPasskeyChallenge,
   createUserSession,
@@ -13,6 +14,13 @@ import {
 import { action } from "./passkey.login-verify";
 
 vi.mock("../db.server");
+
+vi.mock("../rate-limiter.server", () => ({
+  checkRateLimit: vi
+    .fn()
+    .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
+  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+}));
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
@@ -62,6 +70,49 @@ describe("Passkey Login Verify Route", () => {
     vi.clearAllMocks();
     process.env.RP_ORIGIN = "http://localhost:5173";
     process.env.RP_ID = "localhost";
+  });
+
+  it("should return 429 when rate limited", async () => {
+    vi.mocked(checkRateLimit).mockReturnValueOnce({
+      limited: true,
+      retryAfterSeconds: 900,
+    });
+
+    const request = new Request("http://localhost:3000/passkey/login-verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential: { id: "cred-123" } }),
+    });
+
+    const response = await action({ request } as ActionFunctionArgs);
+
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.init?.status).toBe(429);
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.data.error).toBe(
+      "Too many requests. Please try again later."
+    );
+    expect(getPasskeyChallenge).not.toHaveBeenCalled();
+  });
+
+  it("should use IP-based key for rate limiting", async () => {
+    vi.mocked(getClientIp).mockReturnValue("10.0.0.4");
+    vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+    vi.mocked(getPasskeyByCredentialId).mockResolvedValue(null);
+
+    const request = new Request("http://localhost:3000/passkey/login-verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential: { id: "cred-123" } }),
+    });
+
+    await action({ request } as ActionFunctionArgs);
+
+    expect(checkRateLimit).toHaveBeenCalledWith(
+      "passkey-verify:10.0.0.4",
+      5,
+      900_000
+    );
   });
 
   it("should return error if no challenge found", async () => {

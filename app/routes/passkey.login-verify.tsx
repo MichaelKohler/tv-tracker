@@ -8,6 +8,7 @@ import {
   getPasskeyByCredentialId,
   updatePasskeyCounter,
 } from "../models/passkey.server";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import {
   clearPasskeyChallenge,
   createUserSession,
@@ -20,6 +21,19 @@ import { logInfo } from "../logger.server";
 export const action = withRequestContext(
   async ({ request }: ActionFunctionArgs) => {
     logInfo("Passkey login verification started", {});
+
+    const ip = getClientIp(request);
+    const { limited, retryAfterSeconds } = checkRateLimit(
+      `passkey-verify:${ip}`,
+      5,
+      15 * 60 * 1000
+    );
+    if (limited) {
+      return data(
+        { error: "Too many requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+      );
+    }
 
     const challenge = await getPasskeyChallenge(request);
 

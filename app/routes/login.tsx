@@ -17,6 +17,7 @@ import {
 import { startAuthentication } from "@simplewebauthn/browser";
 
 import { verifyLogin } from "../models/user.server";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { createUserSession, getUserId } from "../session.server";
 import { safeRedirect, validateAndSanitizeEmail } from "../utils";
 import { logInfo } from "../logger.server";
@@ -57,6 +58,24 @@ export const action = withRequestContext(
       email: null,
       password: null,
     };
+
+    const ip = getClientIp(request);
+    const { limited, retryAfterSeconds } = checkRateLimit(
+      `login:${ip}`,
+      5,
+      15 * 60 * 1000
+    );
+    if (limited) {
+      return data(
+        {
+          errors: {
+            ...errors,
+            email: "Too many login attempts. Please try again later.",
+          },
+        },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+      );
+    }
 
     const email = validateAndSanitizeEmail(emailInput);
     if (!email) {
