@@ -21,6 +21,7 @@ export const sessionStorage = createCookieSessionStorage({
 
 const USER_SESSION_KEY = "userId";
 const PASSKEY_CHALLENGE_KEY = "passkeyChallenge";
+const PASSKEY_REAUTH_CHALLENGE_KEY = "passkeyReauthChallenge";
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
@@ -124,5 +125,27 @@ export async function getPasskeyChallenge(
 export async function clearPasskeyChallenge(request: Request) {
   const session = await getSession(request);
   session.unset(PASSKEY_CHALLENGE_KEY);
+  return session;
+}
+
+export async function setPasskeyReauthChallenge(
+  request: Request,
+  challenge: string
+) {
+  const session = await getSession(request);
+  session.set(PASSKEY_REAUTH_CHALLENGE_KEY, challenge);
+  return session;
+}
+
+export async function getPasskeyReauthChallenge(
+  request: Request
+): Promise<string | undefined> {
+  const session = await getSession(request);
+  return session.get(PASSKEY_REAUTH_CHALLENGE_KEY);
+}
+
+export async function clearPasskeyReauthChallenge(request: Request) {
+  const session = await getSession(request);
+  session.unset(PASSKEY_REAUTH_CHALLENGE_KEY);
   return session;
 }

@@ -1,4 +1,8 @@
+import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
+import { verifyAuthenticationResponse } from "@simplewebauthn/server";
+
 import { prisma } from "../db.server";
+import { logError } from "../logger.server";
 
 export async function getPasskeysByUserId(userId: string) {
   return prisma.passkey.findMany({
@@ -74,4 +78,63 @@ export async function getPasskeyByCredentialId(credentialId: string) {
     where: { credentialId },
     include: { user: true },
   });
+}
+
+export async function verifyPasskeyAuthentication(
+  credentialJSON: AuthenticationResponseJSON,
+  expectedChallenge: string,
+  userId: string
+): Promise<{ success: boolean; error?: string }> {
+  if (!credentialJSON || !credentialJSON.id) {
+    return { success: false, error: "Invalid credential" };
+  }
+
+  try {
+    const passkey = await getPasskeyByCredentialId(credentialJSON.id);
+
+    if (!passkey) {
+      return { success: false, error: "Passkey not found" };
+    }
+
+    if (passkey.userId !== userId) {
+      return { success: false, error: "Passkey does not belong to user" };
+    }
+
+    const verification = await verifyAuthenticationResponse({
+      response: credentialJSON,
+      expectedChallenge,
+      expectedOrigin: process.env.RP_ORIGIN || "http://localhost:5173",
+      expectedRPID: process.env.RP_ID || "localhost",
+      credential: {
+        id: passkey.credentialId,
+        publicKey: new Uint8Array(passkey.publicKey),
+        counter: Number(passkey.counter),
+        transports: passkey.transports as
+          | (
+              | "ble"
+              | "cable"
+              | "hybrid"
+              | "internal"
+              | "nfc"
+              | "smart-card"
+              | "usb"
+            )[]
+          | undefined,
+      },
+    });
+
+    if (!verification.verified) {
+      return { success: false, error: "Verification failed" };
+    }
+
+    await updatePasskeyCounter(
+      passkey.id,
+      BigInt(verification.authenticationInfo.newCounter)
+    );
+
+    return { success: true };
+  } catch (error) {
+    logError("Passkey authentication verification error", {}, error);
+    return { success: false, error: "Failed to verify passkey" };
+  }
 }

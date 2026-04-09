@@ -1,7 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, useLoaderData, useSearchParams } from "react-router";
 import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
-import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 import { withRequestContext } from "../request-handler.server";
 
 import { DeleteAccount } from "../components/delete-account";
@@ -13,10 +12,9 @@ import { PlexWebhook } from "../components/plex-webhook";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import {
   deletePasskey,
-  getPasskeyByCredentialId,
   getPasskeysByUserId,
-  updatePasskeyCounter,
   updatePasskeyName,
+  verifyPasskeyAuthentication,
 } from "../models/passkey.server";
 import {
   changePassword,
@@ -30,7 +28,7 @@ import {
   requireUser,
 } from "../session.server";
 import { getPasswordValidationError } from "../utils";
-import { logInfo, logError } from "../logger.server";
+import { logInfo } from "../logger.server";
 
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {
@@ -100,58 +98,7 @@ async function verifyPasskeyCredential(
     return { success: false, error: "No challenge found" };
   }
 
-  if (!credentialJSON || !credentialJSON.id) {
-    return { success: false, error: "Invalid credential" };
-  }
-
-  try {
-    const passkey = await getPasskeyByCredentialId(credentialJSON.id);
-
-    if (!passkey) {
-      return { success: false, error: "Passkey not found" };
-    }
-
-    if (passkey.userId !== userId) {
-      return { success: false, error: "Passkey does not belong to user" };
-    }
-
-    const verification = await verifyAuthenticationResponse({
-      response: credentialJSON,
-      expectedChallenge: challenge,
-      expectedOrigin: process.env.RP_ORIGIN || "http://localhost:5173",
-      expectedRPID: process.env.RP_ID || "localhost",
-      credential: {
-        id: passkey.credentialId,
-        publicKey: new Uint8Array(passkey.publicKey),
-        counter: Number(passkey.counter),
-        transports: passkey.transports as
-          | (
-              | "ble"
-              | "cable"
-              | "hybrid"
-              | "internal"
-              | "nfc"
-              | "smart-card"
-              | "usb"
-            )[]
-          | undefined,
-      },
-    });
-
-    if (!verification.verified) {
-      return { success: false, error: "Verification failed" };
-    }
-
-    await updatePasskeyCounter(
-      passkey.id,
-      BigInt(verification.authenticationInfo.newCounter)
-    );
-
-    return { success: true };
-  } catch (error) {
-    logError("Passkey verification error", {}, error);
-    return { success: false, error: "Failed to verify passkey" };
-  }
+  return verifyPasskeyAuthentication(credentialJSON, challenge, userId);
 }
 
 export const action = withRequestContext(
@@ -537,7 +484,11 @@ export default function AccountPage() {
         hasPasskeys={passkeys.length > 0}
       />
 
-      <PasskeyRegistration isEnabled={features.passkeyRegistration} />
+      <PasskeyRegistration
+        isEnabled={features.passkeyRegistration}
+        hasPassword={hasPassword}
+        hasPasskeys={passkeys.length > 0}
+      />
 
       <PasskeyList passkeys={passkeys} />
 

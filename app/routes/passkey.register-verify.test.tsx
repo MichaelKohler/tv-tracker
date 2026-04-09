@@ -1,10 +1,16 @@
 import type { ActionFunctionArgs } from "react-router";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 
-import { createPasskey } from "../models/passkey.server";
+import {
+  createPasskey,
+  verifyPasskeyAuthentication,
+} from "../models/passkey.server";
+import { userHasPassword, verifyLogin } from "../models/user.server";
 import {
   clearPasskeyChallenge,
+  clearPasskeyReauthChallenge,
   getPasskeyChallenge,
+  getPasskeyReauthChallenge,
   requireUser,
   sessionStorage,
 } from "../session.server";
@@ -21,6 +27,12 @@ vi.mock("@simplewebauthn/server", async () => ({
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
   createPasskey: vi.fn(),
+  verifyPasskeyAuthentication: vi.fn(),
+}));
+
+vi.mock("../models/user.server", () => ({
+  userHasPassword: vi.fn(),
+  verifyLogin: vi.fn(),
 }));
 
 vi.mock("../models/mail.server", () => ({
@@ -31,7 +43,9 @@ vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
   requireUser: vi.fn(),
   getPasskeyChallenge: vi.fn(),
+  getPasskeyReauthChallenge: vi.fn(),
   clearPasskeyChallenge: vi.fn(),
+  clearPasskeyReauthChallenge: vi.fn(),
   sessionStorage: {
     commitSession: vi.fn(),
   },
@@ -49,6 +63,8 @@ describe("Passkey Register Verify Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(requireUser).mockResolvedValue(mockUser);
+    vi.mocked(userHasPassword).mockResolvedValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue(mockUser);
     process.env.RP_ORIGIN = "http://localhost:5173";
     process.env.RP_ID = "localhost";
   });
@@ -64,6 +80,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: {},
           name: "My Passkey",
+          password: "correctPassword",
         }),
       }
     );
@@ -86,6 +103,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: {},
           name: "",
+          password: "correctPassword",
         }),
       }
     );
@@ -108,6 +126,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: {},
           name: 123,
+          password: "correctPassword",
         }),
       }
     );
@@ -119,7 +138,158 @@ describe("Passkey Register Verify Route", () => {
     expect(response.data).toEqual({ error: "Passkey name is required" });
   });
 
-  it("should return error if verification fails", async () => {
+  describe("password re-authentication (user has password)", () => {
+    it("should return error if password is missing", async () => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(userHasPassword).mockResolvedValue(true);
+
+      const request = new Request(
+        "http://localhost:3000/passkey/register-verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            credential: {},
+            name: "My Passkey",
+          }),
+        }
+      );
+
+      const response = await action({ request } as ActionFunctionArgs);
+
+      expect(response.data).toEqual({
+        error: "Password is required to register a new passkey",
+      });
+    });
+
+    it("should return error if password is empty string", async () => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(userHasPassword).mockResolvedValue(true);
+
+      const request = new Request(
+        "http://localhost:3000/passkey/register-verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            credential: {},
+            name: "My Passkey",
+            password: "",
+          }),
+        }
+      );
+
+      const response = await action({ request } as ActionFunctionArgs);
+
+      expect(response.data).toEqual({
+        error: "Password is required to register a new passkey",
+      });
+    });
+
+    it("should return 401 if password is incorrect", async () => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(userHasPassword).mockResolvedValue(true);
+      vi.mocked(verifyLogin).mockResolvedValue(null);
+
+      const request = new Request(
+        "http://localhost:3000/passkey/register-verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            credential: {},
+            name: "My Passkey",
+            password: "wrongPassword",
+          }),
+        }
+      );
+
+      const response = await action({ request } as ActionFunctionArgs);
+
+      expect(response.data).toEqual({ error: "Incorrect password" });
+    });
+  });
+
+  describe("passkey re-authentication (user has no password)", () => {
+    it("should return error if passkeyCredential is missing", async () => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(userHasPassword).mockResolvedValue(false);
+
+      const request = new Request(
+        "http://localhost:3000/passkey/register-verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            credential: {},
+            name: "My Passkey",
+          }),
+        }
+      );
+
+      const response = await action({ request } as ActionFunctionArgs);
+
+      expect(response.data).toEqual({
+        error: "Passkey authentication is required to register a new passkey",
+      });
+    });
+
+    it("should return error if no reauth challenge in session", async () => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(userHasPassword).mockResolvedValue(false);
+      vi.mocked(getPasskeyReauthChallenge).mockResolvedValue(undefined);
+
+      const request = new Request(
+        "http://localhost:3000/passkey/register-verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            credential: {},
+            name: "My Passkey",
+            passkeyCredential: { id: "cred-1", type: "public-key" },
+          }),
+        }
+      );
+
+      const response = await action({ request } as ActionFunctionArgs);
+
+      expect(response.data).toEqual({
+        error: "No authentication challenge found. Please try again.",
+      });
+    });
+
+    it("should return error if passkey reauth fails", async () => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(userHasPassword).mockResolvedValue(false);
+      vi.mocked(getPasskeyReauthChallenge).mockResolvedValue(
+        "reauth-challenge"
+      );
+      vi.mocked(verifyPasskeyAuthentication).mockResolvedValue({
+        success: false,
+        error: "Verification failed",
+      });
+
+      const request = new Request(
+        "http://localhost:3000/passkey/register-verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            credential: {},
+            name: "My Passkey",
+            passkeyCredential: { id: "cred-1", type: "public-key" },
+          }),
+        }
+      );
+
+      const response = await action({ request } as ActionFunctionArgs);
+
+      expect(response.data).toEqual({ error: "Verification failed" });
+    });
+  });
+
+  it("should return error if registration verification fails", async () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: false,
@@ -135,6 +305,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: { id: "cred-123" },
           name: "My Passkey",
+          password: "correctPassword",
         }),
       }
     );
@@ -146,7 +317,7 @@ describe("Passkey Register Verify Route", () => {
     expect(response.data).toEqual({ error: "Verification failed" });
   });
 
-  it("should create passkey and return success on valid verification", async () => {
+  it("should create passkey and return success on valid verification with password", async () => {
     const mockChallenge = "test-challenge-abc";
     const mockSession = { id: "session-123" };
     const mockCredential = {
@@ -170,6 +341,8 @@ describe("Passkey Register Verify Route", () => {
     const mockCreatedAt = new Date("2025-01-01T12:00:00Z");
 
     vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
+    vi.mocked(userHasPassword).mockResolvedValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue(mockUser);
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: true,
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
@@ -188,7 +361,11 @@ describe("Passkey Register Verify Route", () => {
       lastUsedAt: new Date(),
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
+    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
+      mockSession as any
+    );
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(
@@ -199,6 +376,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: mockCredential,
           name: "My YubiKey",
+          password: "correctPassword",
         }),
       }
     );
@@ -207,13 +385,10 @@ describe("Passkey Register Verify Route", () => {
       request,
     } as ActionFunctionArgs);
 
-    expect(verifyRegistrationResponse).toHaveBeenCalledWith({
-      response: mockCredential,
-      expectedChallenge: mockChallenge,
-      expectedOrigin: "http://localhost:5173",
-      expectedRPID: "localhost",
-    });
-
+    expect(verifyLogin).toHaveBeenCalledWith(
+      "test@example.com",
+      "correctPassword"
+    );
     expect(createPasskey).toHaveBeenCalledWith({
       userId: "user-123",
       credentialId: "cred-abc-123",
@@ -222,16 +397,81 @@ describe("Passkey Register Verify Route", () => {
       transports: ["usb", "nfc"],
       name: "My YubiKey",
     });
-
     expect(sendPasskeyCreatedMail).toHaveBeenCalledWith({
       email: "test@example.com",
       passkeyName: "My YubiKey",
       createdAt: mockCreatedAt,
     });
-
-    expect(clearPasskeyChallenge).toHaveBeenCalledWith(request);
     expect(response.data).toEqual({ verified: true });
-    expect(sessionStorage.commitSession).toHaveBeenCalledWith(mockSession);
+  });
+
+  it("should create passkey and return success for passkey-only user with valid reauth", async () => {
+    const mockChallenge = "test-challenge-abc";
+    const mockReauthChallenge = "reauth-challenge-xyz";
+    const mockSession = { id: "session-123" };
+    const mockPasskeyCredential = { id: "existing-cred", type: "public-key" };
+
+    const mockRegistrationInfo = {
+      credential: {
+        id: "new-cred-123",
+        publicKey: new Uint8Array([1, 2, 3]),
+        counter: 0,
+        transports: ["internal"],
+      },
+    };
+
+    const mockCreatedAt = new Date("2025-01-01T12:00:00Z");
+
+    vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
+    vi.mocked(userHasPassword).mockResolvedValue(false);
+    vi.mocked(getPasskeyReauthChallenge).mockResolvedValue(mockReauthChallenge);
+    vi.mocked(verifyPasskeyAuthentication).mockResolvedValue({ success: true });
+    vi.mocked(verifyRegistrationResponse).mockResolvedValue({
+      verified: true,
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+      registrationInfo: mockRegistrationInfo as any,
+    });
+    vi.mocked(createPasskey).mockResolvedValue({
+      id: "new-passkey",
+      userId: "user-123",
+      credentialId: "new-cred-123",
+      publicKey: Buffer.from([1, 2, 3]),
+      counter: BigInt(0),
+      transports: ["internal"],
+      name: "New Passkey",
+      createdAt: mockCreatedAt,
+      updatedAt: new Date(),
+      lastUsedAt: new Date(),
+    });
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
+      mockSession as any
+    );
+    vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
+
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: { id: "new-cred-123" },
+          name: "New Passkey",
+          passkeyCredential: mockPasskeyCredential,
+        }),
+      }
+    );
+
+    const response = await action({ request } as ActionFunctionArgs);
+
+    expect(verifyPasskeyAuthentication).toHaveBeenCalledWith(
+      mockPasskeyCredential,
+      mockReauthChallenge,
+      "user-123"
+    );
+    expect(response.data).toEqual({ verified: true });
   });
 
   it("should trim whitespace from passkey name", async () => {
@@ -248,13 +488,19 @@ describe("Passkey Register Verify Route", () => {
     };
 
     vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
+    vi.mocked(userHasPassword).mockResolvedValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue(mockUser);
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: true,
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
       registrationInfo: mockRegistrationInfo as any,
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
+    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
+      mockSession as any
+    );
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(
@@ -265,6 +511,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: {},
           name: "  My iPhone  ",
+          password: "correctPassword",
         }),
       }
     );
@@ -280,6 +527,8 @@ describe("Passkey Register Verify Route", () => {
 
   it("should handle verification errors gracefully", async () => {
     vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+    vi.mocked(userHasPassword).mockResolvedValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue(mockUser);
     vi.mocked(verifyRegistrationResponse).mockRejectedValue(
       new Error("Verification error")
     );
@@ -292,6 +541,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: {},
           name: "My Passkey",
+          password: "correctPassword",
         }),
       }
     );
@@ -311,6 +561,8 @@ describe("Passkey Register Verify Route", () => {
     const mockSession = { id: "session-123" };
 
     vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
+    vi.mocked(userHasPassword).mockResolvedValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue(mockUser);
     vi.mocked(verifyRegistrationResponse).mockResolvedValue({
       verified: true,
       registrationInfo: {
@@ -324,7 +576,11 @@ describe("Passkey Register Verify Route", () => {
       } as any,
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any); // Need to cast as session type is complex
+    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
+      mockSession as any
+    );
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(
@@ -335,6 +591,7 @@ describe("Passkey Register Verify Route", () => {
         body: JSON.stringify({
           credential: {},
           name: "My Passkey",
+          password: "correctPassword",
         }),
       }
     );

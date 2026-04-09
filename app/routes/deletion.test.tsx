@@ -5,7 +5,8 @@ import "@testing-library/jest-dom";
 
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import * as user from "../models/user.server";
-import { requireUserId } from "../session.server";
+import * as passkeyModel from "../models/passkey.server";
+import { requireUser } from "../session.server";
 import Deletion, { action, loader } from "./deletion";
 
 vi.mock("react-router", async () => ({
@@ -13,9 +14,14 @@ vi.mock("react-router", async () => ({
   useNavigation: vi.fn().mockReturnValue({}),
   useActionData: vi.fn(),
   useLoaderData: vi.fn(),
-  Form: ({ children }: { children: React.ReactNode }) => (
-    <form>{children}</form>
-  ),
+  useSubmit: vi.fn().mockReturnValue(vi.fn()),
+  Form: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => <form {...props}>{children}</form>,
 }));
 
 vi.mock("../db.server");
@@ -24,11 +30,26 @@ vi.mock("../flags.server");
 
 vi.mock("../models/user.server", () => ({
   deleteUserByUserId: vi.fn(),
+  userHasPassword: vi.fn().mockResolvedValue(true),
+  verifyLogin: vi.fn(),
+}));
+
+vi.mock("../models/passkey.server", () => ({
+  getPasskeysByUserId: vi.fn().mockResolvedValue([]),
+  verifyPasskeyAuthentication: vi.fn(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUserId: vi.fn().mockResolvedValue("123"),
+  requireUser: vi.fn().mockResolvedValue({
+    id: "123",
+    email: "foo@example.com",
+    plexToken: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }),
+  getPasskeyReauthChallenge: vi.fn().mockResolvedValue("test-challenge"),
+  clearPasskeyReauthChallenge: vi.fn().mockResolvedValue({}),
 }));
 
 describe("Account Deletion Route", () => {
@@ -37,6 +58,8 @@ describe("Account Deletion Route", () => {
 
     vi.mocked(useLoaderData).mockReturnValue({
       deleteAccountEnabled: true,
+      hasPassword: true,
+      hasPasskeys: false,
     });
 
     vi.spyOn(user, "deleteUserByUserId").mockResolvedValue({
@@ -46,22 +69,59 @@ describe("Account Deletion Route", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+
+    vi.spyOn(user, "userHasPassword").mockResolvedValue(true);
+    vi.spyOn(user, "verifyLogin").mockResolvedValue({
+      id: "123",
+      email: "foo@example.com",
+      plexToken: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    vi.mocked(requireUser).mockResolvedValue({
+      id: "123",
+      email: "foo@example.com",
+      plexToken: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   });
 
-  it("renders deletion form if feature is enabled", () => {
+  it("renders deletion form with password field if feature is enabled", () => {
     render(<Deletion />);
 
     expect(
       screen.getByText(/Are you sure you want to delete your account/)
     ).toBeInTheDocument();
+    expect(screen.getByLabelText("Confirm with password")).toBeInTheDocument();
     expect(
       screen.getByText(/Delete my account and all data/)
     ).toBeInTheDocument();
   });
 
+  it("renders passkey delete button when user has passkeys", () => {
+    vi.mocked(useLoaderData).mockReturnValue({
+      deleteAccountEnabled: true,
+      hasPassword: false,
+      hasPasskeys: true,
+    });
+
+    render(<Deletion />);
+
+    expect(
+      screen.getByText(/Delete my account with passkey/)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Confirm with password")
+    ).not.toBeInTheDocument();
+  });
+
   it("renders message if feature is disabled", () => {
     vi.mocked(useLoaderData).mockReturnValue({
       deleteAccountEnabled: false,
+      hasPassword: false,
+      hasPasskeys: false,
     });
 
     render(<Deletion />);
@@ -76,10 +136,11 @@ describe("Account Deletion Route", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders error message for deletion", () => {
+  it("renders deletion error message", () => {
     vi.mocked(useActionData).mockReturnValue({
       errors: {
         deletion: "DELETION_ERROR",
+        password: null,
       },
     });
 
@@ -88,9 +149,23 @@ describe("Account Deletion Route", () => {
     expect(screen.getByText("DELETION_ERROR")).toBeInTheDocument();
   });
 
+  it("renders password error message", () => {
+    vi.mocked(useActionData).mockReturnValue({
+      errors: {
+        deletion: null,
+        password: "PASSWORD_ERROR",
+      },
+    });
+
+    render(<Deletion />);
+
+    expect(screen.getByText("PASSWORD_ERROR")).toBeInTheDocument();
+  });
+
   describe("loader", () => {
     it("should call evaluateBoolean", async () => {
       vi.mocked(evaluateBoolean).mockResolvedValue(true);
+      vi.spyOn(passkeyModel, "getPasskeysByUserId").mockResolvedValue([]);
 
       // @ts-expect-error .. ignore unstable_pattern for example
       await loader({
@@ -104,16 +179,70 @@ describe("Account Deletion Route", () => {
         FLAGS.DELETE_ACCOUNT
       );
     });
+
+    it("should return feature disabled state without requiring user", async () => {
+      vi.mocked(evaluateBoolean).mockResolvedValue(false);
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      const result = await loader({
+        request: new Request("http://localhost:8080/deletion"),
+        context: {},
+        params: {},
+      });
+
+      expect(result.deleteAccountEnabled).toBe(false);
+      expect(result.hasPassword).toBe(false);
+      expect(result.hasPasskeys).toBe(false);
+    });
+
+    it("should return hasPassword and hasPasskeys when feature is enabled", async () => {
+      vi.mocked(evaluateBoolean).mockResolvedValue(true);
+      vi.spyOn(user, "userHasPassword").mockResolvedValue(true);
+      vi.spyOn(passkeyModel, "getPasskeysByUserId").mockResolvedValue([
+        {
+          id: "pk-1",
+          userId: "123",
+          credentialId: "cred-1",
+          publicKey: Buffer.from("key"),
+          counter: BigInt(0),
+          transports: [],
+          name: "YubiKey",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastUsedAt: new Date(),
+        },
+      ]);
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      const result = await loader({
+        request: new Request("http://localhost:8080/deletion"),
+        context: {},
+        params: {},
+      });
+
+      expect(result.hasPassword).toBe(true);
+      expect(result.hasPasskeys).toBe(true);
+    });
   });
 
   describe("action", () => {
-    it("should delete user and logout if everything ok", async () => {
-      vi.mocked(requireUserId).mockResolvedValue("123");
+    it("should delete user and logout if password is correct", async () => {
+      vi.spyOn(user, "verifyLogin").mockResolvedValue({
+        id: "123",
+        email: "foo@example.com",
+        plexToken: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const formData = new FormData();
+      formData.append("password", "correctPassword");
 
       // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
+          body: formData,
         }),
         context: {},
         params: {},
@@ -122,16 +251,61 @@ describe("Account Deletion Route", () => {
       expect(user.deleteUserByUserId).toBeCalledWith("123");
     });
 
-    it("should return error if user can not be deleted", async () => {
-      vi.mocked(requireUserId).mockResolvedValue("123");
-      vi.mocked(user.deleteUserByUserId).mockRejectedValue(
-        new Error("OH_NO_DELETION_ERROR")
-      );
+    it("should return error if password field is empty", async () => {
+      const formData = new FormData();
+      formData.append("password", "");
 
       // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data.errors.password).toBe(
+        "Password is required to confirm account deletion."
+      );
+      expect(user.deleteUserByUserId).not.toBeCalled();
+    });
+
+    it("should return error if password is incorrect", async () => {
+      vi.spyOn(user, "verifyLogin").mockResolvedValue(null);
+
+      const formData = new FormData();
+      formData.append("password", "wrongPassword");
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      const response = await action({
+        request: new Request("http://localhost:8080/deletion", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data.errors.password).toBe("Incorrect password.");
+      expect(user.deleteUserByUserId).not.toBeCalled();
+    });
+
+    it("should return error if user can not be deleted", async () => {
+      vi.spyOn(user, "deleteUserByUserId").mockRejectedValue(
+        new Error("OH_NO_DELETION_ERROR")
+      );
+
+      const formData = new FormData();
+      formData.append("password", "correctPassword");
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      const response = await action({
+        request: new Request("http://localhost:8080/deletion", {
+          method: "POST",
+          body: formData,
         }),
         context: {},
         params: {},
@@ -141,6 +315,59 @@ describe("Account Deletion Route", () => {
       expect(response.data.errors.deletion).toBe(
         "Could not delete user. Please try again."
       );
+    });
+
+    it("should delete user via passkey credential if provided", async () => {
+      vi.spyOn(user, "userHasPassword").mockResolvedValue(false);
+      vi.spyOn(passkeyModel, "verifyPasskeyAuthentication").mockResolvedValue({
+        success: true,
+      });
+
+      const formData = new FormData();
+      formData.append(
+        "passkeyCredential",
+        JSON.stringify({ id: "cred-1", type: "public-key" })
+      );
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      await action({
+        request: new Request("http://localhost:8080/deletion", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      expect(user.deleteUserByUserId).toBeCalledWith("123");
+    });
+
+    it("should return error if passkey authentication fails", async () => {
+      vi.spyOn(user, "userHasPassword").mockResolvedValue(false);
+      vi.spyOn(passkeyModel, "verifyPasskeyAuthentication").mockResolvedValue({
+        success: false,
+        error: "Verification failed",
+      });
+
+      const formData = new FormData();
+      formData.append(
+        "passkeyCredential",
+        JSON.stringify({ id: "cred-1", type: "public-key" })
+      );
+
+      // @ts-expect-error .. ignore unstable_pattern for example
+      const response = await action({
+        request: new Request("http://localhost:8080/deletion", {
+          method: "POST",
+          body: formData,
+        }),
+        context: {},
+        params: {},
+      });
+
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data.errors.deletion).toBe("Verification failed");
+      expect(user.deleteUserByUserId).not.toBeCalled();
     });
   });
 });

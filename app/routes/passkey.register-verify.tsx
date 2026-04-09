@@ -1,13 +1,22 @@
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import type { RegistrationResponseJSON } from "@simplewebauthn/browser";
+import type {
+  AuthenticationResponseJSON,
+  RegistrationResponseJSON,
+} from "@simplewebauthn/browser";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { withRequestContext } from "../request-handler.server";
 
-import { createPasskey } from "../models/passkey.server";
+import {
+  createPasskey,
+  verifyPasskeyAuthentication,
+} from "../models/passkey.server";
+import { userHasPassword, verifyLogin } from "../models/user.server";
 import {
   clearPasskeyChallenge,
+  clearPasskeyReauthChallenge,
   getPasskeyChallenge,
+  getPasskeyReauthChallenge,
   requireUser,
   sessionStorage,
 } from "../session.server";
@@ -26,13 +35,62 @@ export const action = withRequestContext(
     }
 
     const body = await request.json();
-    const { credential, name } = body as {
+    const { credential, name, password, passkeyCredential } = body as {
       credential: RegistrationResponseJSON;
       name: string;
+      password?: string;
+      passkeyCredential?: AuthenticationResponseJSON;
     };
 
     if (!name || typeof name !== "string" || name.trim() === "") {
       return data({ error: "Passkey name is required" }, { status: 400 });
+    }
+
+    const hasPassword = await userHasPassword(user.id);
+
+    if (hasPassword) {
+      if (!password || typeof password !== "string" || password.trim() === "") {
+        return data(
+          { error: "Password is required to register a new passkey" },
+          { status: 400 }
+        );
+      }
+
+      const isValid = await verifyLogin(user.email, password);
+      if (!isValid) {
+        return data({ error: "Incorrect password" }, { status: 401 });
+      }
+    } else {
+      if (!passkeyCredential) {
+        return data(
+          {
+            error:
+              "Passkey authentication is required to register a new passkey",
+          },
+          { status: 400 }
+        );
+      }
+
+      const reauthChallenge = await getPasskeyReauthChallenge(request);
+      if (!reauthChallenge) {
+        return data(
+          { error: "No authentication challenge found. Please try again." },
+          { status: 400 }
+        );
+      }
+
+      const verification = await verifyPasskeyAuthentication(
+        passkeyCredential,
+        reauthChallenge,
+        user.id
+      );
+
+      if (!verification.success) {
+        return data(
+          { error: verification.error || "Passkey authentication failed" },
+          { status: 400 }
+        );
+      }
     }
 
     try {
@@ -65,6 +123,7 @@ export const action = withRequestContext(
       });
 
       const session = await clearPasskeyChallenge(request);
+      await clearPasskeyReauthChallenge(request);
 
       return data(
         { verified: true },
