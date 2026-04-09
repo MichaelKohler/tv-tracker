@@ -66,6 +66,9 @@ test("allows to delete account", async ({ page }) => {
     page.getByText("Are you sure you want to delete your account?")
   ).toBeVisible();
   await page
+    .getByLabel("Confirm with password")
+    .fill("somePasswordIsVeryStrong123");
+  await page
     .getByRole("button", { name: "Delete my account and all data" })
     .click();
   await expect(page.getByText("What have you watched?")).toBeVisible();
