@@ -73,7 +73,7 @@
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite-plus": "catalog:",
+    "vite-plus": "^0.1.14",
     "vitest-browser-react": "^2.1.0",
     "vitest-mock-extended": "^3.1.0",
     "wait-on": "^9.0.4"
