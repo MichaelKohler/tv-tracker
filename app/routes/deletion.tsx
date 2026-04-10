@@ -1,17 +1,23 @@
-import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
-import { startAuthentication } from "@simplewebauthn/browser";
 import {
-  data,
   Form,
+  data,
   useActionData,
   useLoaderData,
   useNavigation,
   useSubmit,
 } from "react-router";
+import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
+import { startAuthentication } from "@simplewebauthn/browser";
+import { useState } from "react";
 
-import { evaluateBoolean, FLAGS } from "../flags.server";
+import { FLAGS, evaluateBoolean } from "../flags.server";
+import {
+  clearPasskeyReauthChallenge,
+  getPasskeyReauthChallenge,
+  logout,
+  requireUser,
+} from "../session.server";
 import {
   deleteUserByUserId,
   userHasPassword,
@@ -21,12 +27,6 @@ import {
   getPasskeysByUserId,
   verifyPasskeyAuthentication,
 } from "../models/passkey.server";
-import {
-  requireUser,
-  logout,
-  getPasskeyReauthChallenge,
-  clearPasskeyReauthChallenge,
-} from "../session.server";
 import { logError, logInfo } from "../logger.server";
 import { withRequestContext } from "../request-handler.server";
 

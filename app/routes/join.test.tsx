@@ -1,5 +1,5 @@
+import "@testing-library/jest-dom";
 import * as React from "react";
-import type { Navigation } from "react-router";
 import {
   redirect,
   useActionData,
@@ -7,17 +7,17 @@ import {
   useNavigation,
 } from "react-router";
 import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import type { Navigation } from "react-router";
 
+import * as invite from "../models/invite.server";
+import Join, { action, loader } from "./join";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
+import { createUser, getUserByEmail } from "../models/user.server";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
-import * as invite from "../models/invite.server";
 import { evaluateBoolean } from "../flags.server";
-import { createUser, getUserByEmail } from "../models/user.server";
-import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
-import Join, { action, loader } from "./join";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),

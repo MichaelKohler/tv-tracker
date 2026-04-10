@@ -1,7 +1,7 @@
+import "@testing-library/jest-dom";
 import * as React from "react";
 import { redirect, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
 
 import type { User } from "../models/user.server";
 import { evaluateBoolean } from "../flags.server";

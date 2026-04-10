@@ -1,19 +1,19 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  Form,
   data,
   redirect,
   useActionData,
   useLoaderData,
-  useSearchParams,
   useNavigation,
-  Form,
+  useSearchParams,
 } from "react-router";
 
-import ShowResults from "../components/show-results";
-import { evaluateBoolean, FLAGS } from "../flags.server";
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import { addShow, searchShows } from "../models/show.server";
-import { requireUserId } from "../session.server";
 import { logError, logInfo } from "../logger.server";
+import ShowResults from "../components/show-results";
+import { requireUserId } from "../session.server";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(

@@ -1,12 +1,12 @@
 import * as React from "react";
-import { useNavigation } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
+import { useNavigation } from "react-router";
 
-import { testSearchShow } from "../test-utils";
 import ShowResult from "./show-result";
 import { VisualTestContainer } from "./visual-test-helper";
+import { testSearchShow } from "../test-utils";
 
 const show = testSearchShow;
 

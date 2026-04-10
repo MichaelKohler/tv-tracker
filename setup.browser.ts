@@ -1,5 +1,6 @@
 import React from "react";
 import { vi } from "vite-plus/test";
+
 import "./app/styles/tailwind.css";
 
 vi.stubGlobal("scrollTo", () => {

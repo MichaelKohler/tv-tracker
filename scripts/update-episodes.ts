@@ -1,10 +1,10 @@
 import type { Episode } from "@prisma/client";
 import striptags from "striptags";
 
+import { FLAGS, evaluateBooleanFromScripts } from "../app/flags.server";
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
-import { prisma } from "../app/db.server";
-import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
 import { getEpisodesWithMissingInfo } from "../app/models/episode.server";
+import { prisma } from "../app/db.server";
 
 async function update() {
   const fetchFromSource = await evaluateBooleanFromScripts(

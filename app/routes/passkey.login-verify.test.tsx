@@ -1,19 +1,19 @@
 import type { ActionFunctionArgs } from "react-router";
+import type { Passkey } from "@prisma/client";
 import type { VerifiedAuthenticationResponse } from "@simplewebauthn/server";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 
-import type { Passkey } from "@prisma/client";
-import type { RateLimitResult } from "../rate-limiter.server";
-import {
-  getPasskeyByCredentialId,
-  updatePasskeyCounter,
-} from "../models/passkey.server";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import {
   clearPasskeyChallenge,
   createUserSession,
   getPasskeyChallenge,
 } from "../session.server";
+import {
+  getPasskeyByCredentialId,
+  updatePasskeyCounter,
+} from "../models/passkey.server";
+import type { RateLimitResult } from "../rate-limiter.server";
 import { action } from "./passkey.login-verify";
 
 vi.mock("../db.server");

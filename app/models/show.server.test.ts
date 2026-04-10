@@ -1,28 +1,28 @@
-import type { Show, ShowOnUser, Episode } from "@prisma/client";
-import { prisma } from "../db.server";
-import {
-  fetchSearchResults,
-  fetchShowWithEmbededEpisodes,
-} from "./maze.server";
+import type { Episode, Show, ShowOnUser } from "@prisma/client";
 import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
 import {
   addShow,
   archiveShowOnUser,
   getAllRunningShowIds,
+  getArchivedShowsCountForUser,
   getConnectedShowCount,
   getShowById,
   getShowByUserIdAndName,
   getShowCount,
   getShowsByUserId,
+  getShowsTrackedByUser,
+  getSortedArchivedShowsByUserId,
   getSortedShowsByUserId,
   prepareShow,
   removeShowFromUser,
   searchShows,
   unarchiveShowOnUser,
-  getShowsTrackedByUser,
-  getArchivedShowsCountForUser,
-  getSortedArchivedShowsByUserId,
 } from "./show.server";
+import {
+  fetchSearchResults,
+  fetchShowWithEmbededEpisodes,
+} from "./maze.server";
+import { prisma } from "../db.server";
 
 vi.mock("../db.server");
 

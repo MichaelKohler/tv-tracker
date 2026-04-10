@@ -1,9 +1,9 @@
 import type { Show } from "@prisma/client";
 
+import { FLAGS, evaluateBooleanFromScripts } from "../app/flags.server";
+import { getAllRunningShowIds, prepareShow } from "../app/models/show.server";
 import { TV_GET_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
-import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
-import { getAllRunningShowIds, prepareShow } from "../app/models/show.server";
 
 async function update() {
   const fetchFromSource = await evaluateBooleanFromScripts(

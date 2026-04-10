@@ -1,16 +1,15 @@
-import { Suspense } from "react";
-import { withRequestContext } from "../request-handler.server";
-
-import type { Show } from "@prisma/client";
+import { Await, Form, useLoaderData, useNavigation } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
-import { Await, useLoaderData, useNavigation, Form } from "react-router";
+import type { Show } from "@prisma/client";
+import { Suspense } from "react";
 
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
-import { evaluateBoolean, FLAGS } from "../flags.server";
 import { getSortedShowsByUserId } from "../models/show.server";
-import { requireUserId } from "../session.server";
 import { logInfo } from "../logger.server";
+import { requireUserId } from "../session.server";
+import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {

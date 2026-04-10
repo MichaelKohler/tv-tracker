@@ -1,13 +1,13 @@
-import * as React from "react";
-import type { Navigation } from "react-router";
-import { useActionData, useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import * as React from "react";
+import { render, screen } from "@testing-library/react";
+import { useActionData, useLoaderData } from "react-router";
+import type { Navigation } from "react-router";
 
 import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
-import type { User } from "../models/user.server";
 import { testEpisode, testShow } from "../test-utils";
 import TVShow from "./tv.$show";
+import type { User } from "../models/user.server";
 import type { loader } from "./tv.$show";
 
 vi.mock("react-router", async () => ({

@@ -1,10 +1,10 @@
 import {
-  padNumber,
-  validateEmail,
-  validatePassword,
   getPasswordValidationError,
+  padNumber,
   sanitizeInput,
   validateAndSanitizeEmail,
+  validateEmail,
+  validatePassword,
 } from "./utils";
 
 describe("Utility Functions", () => {

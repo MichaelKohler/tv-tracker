@@ -1,10 +1,10 @@
 import { createHash, randomUUID } from "crypto";
 import type { User } from "@prisma/client";
 
-import { prisma } from "../db.server";
 import { logError, logInfo } from "../logger.server";
-import { sendPasswordResetMail } from "./mail.server";
 import { getUserByEmail } from "./user.server";
+import { prisma } from "../db.server";
+import { sendPasswordResetMail } from "./mail.server";
 
 export async function triggerPasswordReset(email: User["email"]) {
   logInfo("Password reset triggered", { email });

@@ -1,21 +1,21 @@
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 
-import StatCard from "../components/stat-card";
-import MonthlyEpisodesChart from "../components/monthly-episodes-chart";
-import { evaluateBoolean, FLAGS } from "../flags.server";
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
-  getTotalWatchTimeForUser,
-  getWatchedEpisodesCountForUser,
-  getUnwatchedEpisodesCountForUser,
-  getLast12MonthsStats,
-} from "../models/episode.server";
-import {
-  getShowsTrackedByUser,
   getArchivedShowsCountForUser,
+  getShowsTrackedByUser,
 } from "../models/show.server";
-import { requireUserId } from "../session.server";
+import {
+  getLast12MonthsStats,
+  getTotalWatchTimeForUser,
+  getUnwatchedEpisodesCountForUser,
+  getWatchedEpisodesCountForUser,
+} from "../models/episode.server";
 import { logError, logInfo } from "../logger.server";
+import MonthlyEpisodesChart from "../components/monthly-episodes-chart";
+import StatCard from "../components/stat-card";
+import { requireUserId } from "../session.server";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(

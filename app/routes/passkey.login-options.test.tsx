@@ -2,9 +2,9 @@ import type { LoaderFunctionArgs } from "react-router";
 import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
-import type { RateLimitResult } from "../rate-limiter.server";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { sessionStorage, setPasskeyChallenge } from "../session.server";
+import type { RateLimitResult } from "../rate-limiter.server";
 import { loader } from "./passkey.login-options";
 
 vi.mock("../db.server");

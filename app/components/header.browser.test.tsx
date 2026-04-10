@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
-
-import { useOptionalUser } from "../utils";
-import Header from "./header";
 import { useMatches } from "react-router";
+
+import Header from "./header";
 import { VisualTestContainer } from "./visual-test-helper";
+import { useOptionalUser } from "../utils";
 
 const mockFeatures = {
   upcomingRoute: true,

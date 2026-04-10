@@ -1,19 +1,19 @@
 import type { Show, User } from "@prisma/client";
-
 import striptags from "striptags";
+
+import {
+  TVMazeEpisodeResponse,
+  TVMazeSearchResult,
+  TVMazeShowResponse,
+} from "../types/tvmaze";
+import { SearchResultShow } from "../types/show";
 import { prisma } from "../db.server";
-import { decodeHtmlEntities } from "./html-entities.server";
 
 import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
 } from "./maze.server";
-import {
-  TVMazeShowResponse,
-  TVMazeEpisodeResponse,
-  TVMazeSearchResult,
-} from "app/types/tvmaze";
-import { SearchResultShow } from "app/types/show";
+import { decodeHtmlEntities } from "./html-entities.server";
 
 // Used to update the episodes of shows in the GitHub action
 // We only want to return currently ongoing shows as we otherwise

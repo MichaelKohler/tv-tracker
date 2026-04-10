@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
 
-import { logout } from "../session.server";
 import { action, loader } from "./logout";
+import { logout } from "../session.server";
 
 vi.mock("../db.server");
 

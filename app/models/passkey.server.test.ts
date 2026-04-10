@@ -1,4 +1,3 @@
-import { prisma } from "../__mocks__/db.server";
 import {
   createPasskey,
   deletePasskey,
@@ -6,6 +5,7 @@ import {
   updatePasskeyCounter,
   updatePasskeyName,
 } from "./passkey.server";
+import { prisma } from "../__mocks__/db.server";
 
 vi.mock("../db.server");
 

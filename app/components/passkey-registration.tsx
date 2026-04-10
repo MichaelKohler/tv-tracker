@@ -1,4 +1,4 @@
-import { useState, useRef, type FormEvent } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import {
   startAuthentication,
   startRegistration,

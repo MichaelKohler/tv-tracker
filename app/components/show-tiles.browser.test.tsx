@@ -1,11 +1,11 @@
-import type { Show } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import type { Show } from "@prisma/client";
 import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
 
-import { testShow } from "../test-utils";
 import ShowTiles from "./show-tiles";
 import { VisualTestContainer } from "./visual-test-helper";
+import { testShow } from "../test-utils";
 
 const shows: (Pick<Show, "id" | "name" | "imageUrl"> & {
   unwatchedEpisodesCount: number;

@@ -1,16 +1,16 @@
-import * as React from "react";
-import type { Navigation } from "react-router";
-import { useLoaderData, useNavigation, useSearchParams } from "react-router";
-import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import * as React from "react";
+import { render, screen } from "@testing-library/react";
+import { useLoaderData, useNavigation, useSearchParams } from "react-router";
+import type { Navigation } from "react-router";
 
-import type { SearchResultShow } from "../types/show";
-import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
-import type { User } from "../models/user.server";
-import { addShow, searchShows } from "../models/show.server";
-import { requireUserId } from "../session.server";
-import { evaluateBoolean } from "../flags.server";
 import Search, { action, loader } from "./tv.search";
+import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
+import { addShow, searchShows } from "../models/show.server";
+import type { SearchResultShow } from "../types/show";
+import type { User } from "../models/user.server";
+import { evaluateBoolean } from "../flags.server";
+import { requireUserId } from "../session.server";
 
 const shows = [
   {

@@ -1,10 +1,10 @@
-import { useLoaderData } from "react-router";
-import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { render, screen } from "@testing-library/react";
+import { useLoaderData } from "react-router";
 
 import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
-import { evaluateBoolean } from "../flags.server";
 import TVStats, { loader } from "./tv.stats";
+import { evaluateBoolean } from "../flags.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
