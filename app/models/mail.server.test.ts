@@ -1,18 +1,19 @@
+import type { Transporter } from "nodemailer";
 import { createTransport } from "nodemailer";
 import { sendPasskeyCreatedMail, sendPasswordResetMail } from "./mail.server";
 import { logInfo, logError } from "../logger.server";
 
 vi.mock("nodemailer", () => ({
-  createTransport: vi.fn(),
+  createTransport: vi.fn<() => Transporter>(),
 }));
 vi.mock("../logger.server", () => ({
-  logInfo: vi.fn(),
-  logError: vi.fn(),
+  logInfo: vi.fn<() => void>(),
+  logError: vi.fn<() => void>(),
 }));
 
 describe("mail.server", () => {
   const originalEnv = process.env;
-  const mockSendMail = vi.fn();
+  const mockSendMail = vi.fn<() => Promise<unknown>>();
 
   beforeEach(() => {
     vi.clearAllMocks();

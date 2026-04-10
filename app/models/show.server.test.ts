@@ -4,6 +4,7 @@ import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
 } from "./maze.server";
+import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
 import {
   addShow,
   archiveShowOnUser,
@@ -27,8 +28,8 @@ vi.mock("../db.server");
 
 vi.mock("./maze.server", async () => ({
   ...(await vi.importActual("./maze.server")),
-  fetchSearchResults: vi.fn(),
-  fetchShowWithEmbededEpisodes: vi.fn(),
+  fetchSearchResults: vi.fn<() => Promise<TVMazeSearchResult[]>>(),
+  fetchShowWithEmbededEpisodes: vi.fn<() => Promise<TVMazeShowResponse>>(),
 }));
 
 const EPISODE4: Episode = {

@@ -1,9 +1,12 @@
 import * as React from "react";
+import type { Navigation, SubmitFunction } from "react-router";
 import { useActionData, useLoaderData, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
+import type { Passkey } from "@prisma/client";
+import type { User } from "../models/user.server";
 import { evaluateBoolean } from "../flags.server";
 import { getPasskeysByUserId } from "../models/passkey.server";
 import {
@@ -16,14 +19,16 @@ import Account, { action, loader } from "./account";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn().mockReturnValue({}),
-  useActionData: vi.fn(),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useActionData: vi.fn<() => unknown>(),
   useLoaderData: vi
-    .fn()
+    .fn<() => unknown>()
     .mockReturnValue({ webhookUrl: "http://webhook.example" }),
-  useSearchParams: vi.fn(),
-  useRevalidator: vi.fn().mockReturnValue({ revalidate: vi.fn() }),
-  useSubmit: vi.fn().mockReturnValue(vi.fn()),
+  useSearchParams: vi.fn<() => unknown>(),
+  useRevalidator: vi
+    .fn<() => { revalidate: () => void; state: string }>()
+    .mockReturnValue({ revalidate: vi.fn<() => void>(), state: "idle" }),
+  useSubmit: vi.fn<() => SubmitFunction>().mockReturnValue(vi.fn<() => void>()),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -37,25 +42,25 @@ vi.mock("../db.server");
 vi.mock("../flags.server");
 
 vi.mock("../models/user.server", () => ({
-  changePassword: vi.fn(),
-  userHasPassword: vi.fn(),
-  verifyLogin: vi.fn(),
+  changePassword: vi.fn<() => Promise<void>>(),
+  userHasPassword: vi.fn<() => Promise<boolean>>(),
+  verifyLogin: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  getSession: vi.fn(),
-  requireUser: vi.fn(),
+  getSession: vi.fn<() => Promise<unknown>>(),
+  requireUser: vi.fn<() => Promise<User>>(),
   sessionStorage: {
-    commitSession: vi.fn(),
+    commitSession: vi.fn<() => Promise<string>>(),
   },
 }));
 
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
-  deletePasskey: vi.fn(),
-  getPasskeysByUserId: vi.fn(),
-  updatePasskeyName: vi.fn(),
+  deletePasskey: vi.fn<() => Promise<Passkey>>(),
+  getPasskeysByUserId: vi.fn<() => Promise<Passkey[]>>(),
+  updatePasskeyName: vi.fn<() => Promise<Passkey>>(),
 }));
 
 describe("Account Route", () => {
@@ -94,11 +99,11 @@ describe("Account Route", () => {
     vi.mocked(userHasPassword).mockResolvedValue(true);
 
     vi.mocked(getSession).mockResolvedValue({
-      get: vi.fn().mockReturnValue(null),
-      unset: vi.fn(),
-      has: vi.fn(),
-      set: vi.fn(),
-      flash: vi.fn(),
+      get: vi.fn<() => string | undefined>().mockReturnValue(undefined),
+      unset: vi.fn<() => void>(),
+      has: vi.fn<() => boolean>(),
+      set: vi.fn<() => void>(),
+      flash: vi.fn<() => void>(),
       id: "test-session-id",
       data: {},
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any

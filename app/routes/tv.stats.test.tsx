@@ -2,12 +2,13 @@ import { useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
 import { evaluateBoolean } from "../flags.server";
 import TVStats, { loader } from "./tv.stats";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useLoaderData: vi.fn(),
+  useLoaderData: vi.fn<() => unknown>(),
 }));
 
 vi.mock("../db.server");
@@ -16,25 +17,35 @@ vi.mock("../flags.server");
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUserId: vi.fn().mockResolvedValue("123"),
-  getUserId: vi.fn().mockResolvedValue("123"),
+  requireUserId: vi.fn<() => Promise<string>>().mockResolvedValue("123"),
+  getUserId: vi
+    .fn<() => Promise<string | undefined>>()
+    .mockResolvedValue("123"),
 }));
 
 vi.mock("../models/episode.server", () => ({
-  getTotalWatchTimeForUser: vi.fn().mockResolvedValue(150),
-  getWatchedEpisodesCountForUser: vi.fn().mockResolvedValue(25),
-  getUnwatchedEpisodesCountForUser: vi.fn().mockResolvedValue(5),
-  getLast12MonthsStats: vi.fn().mockResolvedValue([]),
+  getTotalWatchTimeForUser: vi
+    .fn<() => Promise<number>>()
+    .mockResolvedValue(150),
+  getWatchedEpisodesCountForUser: vi
+    .fn<() => Promise<number>>()
+    .mockResolvedValue(25),
+  getUnwatchedEpisodesCountForUser: vi
+    .fn<() => Promise<number>>()
+    .mockResolvedValue(5),
+  getLast12MonthsStats: vi.fn<() => Promise<unknown[]>>().mockResolvedValue([]),
 }));
 
 vi.mock("../models/maze.server", () => ({
-  fetchSearchResults: vi.fn(),
-  fetchShowWithEmbededEpisodes: vi.fn(),
+  fetchSearchResults: vi.fn<() => Promise<TVMazeSearchResult[]>>(),
+  fetchShowWithEmbededEpisodes: vi.fn<() => Promise<TVMazeShowResponse>>(),
 }));
 
 vi.mock("../models/show.server", () => ({
-  getShowsTrackedByUser: vi.fn().mockResolvedValue(10),
-  getArchivedShowsCountForUser: vi.fn().mockResolvedValue(2),
+  getShowsTrackedByUser: vi.fn<() => Promise<number>>().mockResolvedValue(10),
+  getArchivedShowsCountForUser: vi
+    .fn<() => Promise<number>>()
+    .mockResolvedValue(2),
 }));
 
 describe("TVStats Route", () => {

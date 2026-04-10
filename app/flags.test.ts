@@ -1,9 +1,9 @@
 import { vi, beforeEach, afterEach } from "vite-plus/test";
 
 // Create hoisted mocks
-const mockVariantFn = vi.hoisted(() => vi.fn());
-const mockBooleanFn = vi.hoisted(() => vi.fn());
-const mockGetUserId = vi.hoisted(() => vi.fn());
+const mockVariantFn = vi.hoisted(() => vi.fn<() => unknown>());
+const mockBooleanFn = vi.hoisted(() => vi.fn<() => unknown>());
+const mockGetUserId = vi.hoisted(() => vi.fn<() => unknown>());
 
 // Mock the Flipt module
 vi.mock("@flipt-io/flipt", async () => ({

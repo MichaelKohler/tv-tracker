@@ -1,8 +1,11 @@
 import * as React from "react";
+import type { Navigation, SubmitFunction } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { Passkey } from "@prisma/client";
+import type { User } from "../models/user.server";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import * as user from "../models/user.server";
 import * as passkeyModel from "../models/passkey.server";
@@ -11,10 +14,10 @@ import Deletion, { action, loader } from "./deletion";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn().mockReturnValue({}),
-  useActionData: vi.fn(),
-  useLoaderData: vi.fn(),
-  useSubmit: vi.fn().mockReturnValue(vi.fn()),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useActionData: vi.fn<() => unknown>(),
+  useLoaderData: vi.fn<() => unknown>(),
+  useSubmit: vi.fn<() => SubmitFunction>().mockReturnValue(vi.fn<() => void>()),
   Form: ({
     children,
     ...props
@@ -29,27 +32,32 @@ vi.mock("../db.server");
 vi.mock("../flags.server");
 
 vi.mock("../models/user.server", () => ({
-  deleteUserByUserId: vi.fn(),
-  userHasPassword: vi.fn().mockResolvedValue(true),
-  verifyLogin: vi.fn(),
+  deleteUserByUserId: vi.fn<() => Promise<User>>(),
+  userHasPassword: vi.fn<() => Promise<boolean>>().mockResolvedValue(true),
+  verifyLogin: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../models/passkey.server", () => ({
-  getPasskeysByUserId: vi.fn().mockResolvedValue([]),
-  verifyPasskeyAuthentication: vi.fn(),
+  getPasskeysByUserId: vi.fn<() => Promise<Passkey[]>>().mockResolvedValue([]),
+  verifyPasskeyAuthentication:
+    vi.fn<() => Promise<{ success: boolean; error?: string }>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUser: vi.fn().mockResolvedValue({
+  requireUser: vi.fn<() => Promise<User>>().mockResolvedValue({
     id: "123",
     email: "foo@example.com",
     plexToken: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   }),
-  getPasskeyReauthChallenge: vi.fn().mockResolvedValue("test-challenge"),
-  clearPasskeyReauthChallenge: vi.fn().mockResolvedValue({}),
+  getPasskeyReauthChallenge: vi
+    .fn<() => Promise<string | undefined>>()
+    .mockResolvedValue("test-challenge"),
+  clearPasskeyReauthChallenge: vi
+    .fn<() => Promise<unknown>>()
+    .mockResolvedValue({}),
 }));
 
 describe("Account Deletion Route", () => {

@@ -7,7 +7,7 @@ vi.mock("../db.server");
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  logout: vi.fn(),
+  logout: vi.fn<() => Promise<Response>>(),
 }));
 
 describe("Logout route", () => {

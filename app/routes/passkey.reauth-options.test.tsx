@@ -1,6 +1,8 @@
 import type { LoaderFunctionArgs } from "react-router";
+import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
+import type { User } from "../models/user.server";
 import {
   requireUser,
   sessionStorage,
@@ -12,16 +14,17 @@ vi.mock("../db.server");
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
-  generateAuthenticationOptions: vi.fn(),
+  generateAuthenticationOptions:
+    vi.fn<() => Promise<PublicKeyCredentialRequestOptionsJSON>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUser: vi.fn(),
+  requireUser: vi.fn<() => Promise<User>>(),
   sessionStorage: {
-    commitSession: vi.fn(),
+    commitSession: vi.fn<() => Promise<string>>(),
   },
-  setPasskeyReauthChallenge: vi.fn(),
+  setPasskeyReauthChallenge: vi.fn<() => Promise<unknown>>(),
 }));
 
 describe("Passkey Reauth Options Route", () => {

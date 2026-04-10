@@ -1,24 +1,27 @@
+import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
 import { loader } from "./metrics";
 
 vi.mock("../db.server");
 
 vi.mock("../models/maze.server", () => ({
-  fetchSearchResults: vi.fn(),
-  fetchShowWithEmbededEpisodes: vi.fn(),
+  fetchSearchResults: vi.fn<() => Promise<TVMazeSearchResult[]>>(),
+  fetchShowWithEmbededEpisodes: vi.fn<() => Promise<TVMazeShowResponse>>(),
 }));
 
 vi.mock("../models/show.server", () => ({
-  getShowCount: vi.fn().mockResolvedValue(55),
-  getConnectedShowCount: vi.fn().mockResolvedValue(53),
+  getShowCount: vi.fn<() => Promise<number>>().mockResolvedValue(55),
+  getConnectedShowCount: vi.fn<() => Promise<number>>().mockResolvedValue(53),
 }));
 
 vi.mock("../models/episode.server", () => ({
-  getEpisodeCount: vi.fn().mockResolvedValue(2000),
-  getConnectedEpisodeCount: vi.fn().mockResolvedValue(1500),
+  getEpisodeCount: vi.fn<() => Promise<number>>().mockResolvedValue(2000),
+  getConnectedEpisodeCount: vi
+    .fn<() => Promise<number>>()
+    .mockResolvedValue(1500),
 }));
 
 vi.mock("../models/user.server", () => ({
-  getUserCount: vi.fn().mockResolvedValue(5),
+  getUserCount: vi.fn<() => Promise<number>>().mockResolvedValue(5),
 }));
 
 describe("Metrics", () => {

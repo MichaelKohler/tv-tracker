@@ -1,14 +1,17 @@
 import * as React from "react";
+import type { Navigation } from "react-router";
 import { useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
+import type { User } from "../models/user.server";
 import Index, { type loader } from "./tv._index";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn().mockReturnValue({}),
-  useLoaderData: vi.fn(),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useLoaderData: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -17,12 +20,12 @@ vi.mock("react-router", async () => ({
 vi.mock("../db.server");
 vi.mock("../flags.server");
 vi.mock("../models/user.server", () => ({
-  getUserById: vi.fn(),
+  getUserById: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUserId: vi.fn().mockResolvedValue("123"),
+  requireUserId: vi.fn<() => Promise<string>>().mockResolvedValue("123"),
 }));
 
 vi.mock("../components/show-tiles", async () => ({
@@ -31,12 +34,14 @@ vi.mock("../components/show-tiles", async () => ({
 }));
 
 vi.mock("../models/maze.server", () => ({
-  fetchSearchResults: vi.fn(),
-  fetchShowWithEmbededEpisodes: vi.fn(),
+  fetchSearchResults: vi.fn<() => Promise<TVMazeSearchResult[]>>(),
+  fetchShowWithEmbededEpisodes: vi.fn<() => Promise<TVMazeShowResponse>>(),
 }));
 
 vi.mock("../models/show.server", () => ({
-  getSortedShowsByUserId: vi.fn().mockResolvedValue([]),
+  getSortedShowsByUserId: vi
+    .fn<() => Promise<unknown[]>>()
+    .mockResolvedValue([]),
 }));
 
 describe("TV Index Route", () => {

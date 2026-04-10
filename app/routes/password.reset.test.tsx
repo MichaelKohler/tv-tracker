@@ -1,17 +1,20 @@
 import * as React from "react";
+import type { Navigation } from "react-router";
 import { useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { RateLimitResult } from "../rate-limiter.server";
+import type { User } from "../models/user.server";
 import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import Reset, { action, loader } from "./password.reset";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn().mockReturnValue({ state: "idle" }),
-  useActionData: vi.fn(),
-  useLoaderData: vi.fn(),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({ state: "idle" }),
+  useActionData: vi.fn<() => unknown>(),
+  useLoaderData: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -19,20 +22,22 @@ vi.mock("react-router", async () => ({
 
 vi.mock("../db.server");
 vi.mock("../models/password.server", () => ({
-  triggerPasswordReset: vi.fn(),
+  triggerPasswordReset: vi.fn<() => Promise<void>>(),
 }));
 vi.mock("../rate-limiter.server", () => ({
   checkRateLimit: vi
-    .fn()
+    .fn<() => RateLimitResult>()
     .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
 }));
 vi.mock("../models/user.server", () => ({
-  getUserById: vi.fn(),
+  getUserById: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  getUserId: vi.fn().mockResolvedValue(undefined),
+  getUserId: vi
+    .fn<() => Promise<string | undefined>>()
+    .mockResolvedValue(undefined),
 }));
 
 describe("Password Reset Route", () => {

@@ -1,6 +1,9 @@
 import type { ActionFunctionArgs } from "react-router";
+import type { VerifiedRegistrationResponse } from "@simplewebauthn/server";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 
+import type { Passkey } from "@prisma/client";
+import type { User } from "../models/user.server";
 import {
   createPasskey,
   verifyPasskeyAuthentication,
@@ -21,33 +24,35 @@ vi.mock("../db.server");
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
-  verifyRegistrationResponse: vi.fn(),
+  verifyRegistrationResponse:
+    vi.fn<() => Promise<VerifiedRegistrationResponse>>(),
 }));
 
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
-  createPasskey: vi.fn(),
-  verifyPasskeyAuthentication: vi.fn(),
+  createPasskey: vi.fn<() => Promise<Passkey>>(),
+  verifyPasskeyAuthentication:
+    vi.fn<() => Promise<{ success: boolean; error?: string }>>(),
 }));
 
 vi.mock("../models/user.server", () => ({
-  userHasPassword: vi.fn(),
-  verifyLogin: vi.fn(),
+  userHasPassword: vi.fn<() => Promise<boolean>>(),
+  verifyLogin: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../models/mail.server", () => ({
-  sendPasskeyCreatedMail: vi.fn(),
+  sendPasskeyCreatedMail: vi.fn<() => Promise<void>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUser: vi.fn(),
-  getPasskeyChallenge: vi.fn(),
-  getPasskeyReauthChallenge: vi.fn(),
-  clearPasskeyChallenge: vi.fn(),
-  clearPasskeyReauthChallenge: vi.fn(),
+  requireUser: vi.fn<() => Promise<User>>(),
+  getPasskeyChallenge: vi.fn<() => Promise<string | undefined>>(),
+  getPasskeyReauthChallenge: vi.fn<() => Promise<string | undefined>>(),
+  clearPasskeyChallenge: vi.fn<() => Promise<unknown>>(),
+  clearPasskeyReauthChallenge: vi.fn<() => Promise<unknown>>(),
   sessionStorage: {
-    commitSession: vi.fn(),
+    commitSession: vi.fn<() => Promise<string>>(),
   },
 }));
 
