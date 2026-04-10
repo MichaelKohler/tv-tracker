@@ -140,7 +140,7 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
       vite-plus:
-        specifier: ^0.1.15
+        specifier: ^0.1.16
         version: 0.1.16(@opentelemetry/api@1.9.1)(@types/node@25.5.0)(jiti@2.6.1)(jsdom@29.0.1)(tsx@4.21.0)(typescript@6.0.2)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0))
       vitest-browser-react:
         specifier: ^2.1.0
