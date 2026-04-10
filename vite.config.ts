@@ -4,36 +4,27 @@ import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  staged: {
-    "*": "vp check --fix",
+  build: {
+    sourcemap: true,
+    commonjsOptions: {
+      include: [/app\/generated\/prisma/, /node_modules/],
+    },
+  },
+  fmt: {
+    trailingComma: "es5",
+    printWidth: 80,
+    sortPackageJson: false,
+    ignorePatterns: [
+      "node_modules",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "/build",
+      "/public/build",
+      ".env",
+      ".github/chatmodes",
+    ],
   },
   lint: {
-    plugins: [
-      "eslint",
-      "jsx-a11y",
-      "import",
-      "oxc",
-      "promise",
-      "react",
-      "react-perf",
-      "typescript",
-      "unicorn",
-      "vitest",
-    ],
-    rules: {
-      "import/default": "error",
-      "import/export": "error",
-      "import/first": ["error", "absolute-first"],
-      "import/no-cycle": "error",
-      "import/no-duplicates": "error",
-      "import/no-empty-named-blocks": "error",
-      "sort-imports": [
-        "error",
-        {
-          allowSeparatedGroups: true,
-        },
-      ],
-    },
     categories: {
       correctness: "warn",
     },
@@ -60,20 +51,32 @@ export default defineConfig({
       ".react-router",
       "eslint.config.mjs",
     ],
-  },
-  fmt: {
-    trailingComma: "es5",
-    printWidth: 80,
-    sortPackageJson: false,
-    ignorePatterns: [
-      "node_modules",
-      "pnpm-lock.yaml",
-      "pnpm-workspace.yaml",
-      "/build",
-      "/public/build",
-      ".env",
-      ".github/chatmodes",
+    plugins: [
+      "eslint",
+      "jsx-a11y",
+      "import",
+      "oxc",
+      "promise",
+      "react",
+      "react-perf",
+      "typescript",
+      "unicorn",
+      "vitest",
     ],
+    rules: {
+      "import/default": "error",
+      "import/export": "error",
+      "import/first": ["error", "absolute-first"],
+      "import/no-cycle": "error",
+      "import/no-duplicates": "error",
+      "import/no-empty-named-blocks": "error",
+      "sort-imports": [
+        "error",
+        {
+          allowSeparatedGroups: true,
+        },
+      ],
+    },
   },
   plugins: [tailwindcss(), !process.env.VITEST && reactRouter()],
   resolve: {
@@ -83,10 +86,7 @@ export default defineConfig({
       ),
     },
   },
-  build: {
-    sourcemap: true,
-    commonjsOptions: {
-      include: [/app\/generated\/prisma/, /node_modules/],
-    },
+  staged: {
+    "*": "vp check --fix",
   },
 });
