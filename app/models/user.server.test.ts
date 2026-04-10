@@ -17,18 +17,26 @@ import {
 
 vi.mock("bcrypt", async () => ({
   ...(await vi.importActual("bcrypt")),
-  compare: vi.fn().mockResolvedValue(true),
-  hash: vi.fn().mockResolvedValue("testHash"),
+  compare: vi.fn<() => Promise<boolean>>().mockResolvedValue(true),
+  hash: vi.fn<() => Promise<string>>().mockResolvedValue("testHash"),
 }));
 
 vi.mock("crypto", async () => ({
   ...(await vi.importActual("crypto")),
   default: {
-    createHash: vi.fn().mockReturnValue({
-      update: vi.fn().mockReturnValue({
-        digest: vi.fn().mockReturnValue("testHashedToken"),
+    createHash: vi
+      .fn<
+        () => {
+          update: (data: string) => { digest: (encoding: string) => string };
+        }
+      >()
+      .mockReturnValue({
+        update: vi
+          .fn<() => { digest: (encoding: string) => string }>()
+          .mockReturnValue({
+            digest: vi.fn<() => string>().mockReturnValue("testHashedToken"),
+          }),
       }),
-    }),
   },
 }));
 

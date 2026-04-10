@@ -1,6 +1,9 @@
 import type { ActionFunctionArgs } from "react-router";
+import type { VerifiedAuthenticationResponse } from "@simplewebauthn/server";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 
+import type { Passkey } from "@prisma/client";
+import type { RateLimitResult } from "../rate-limiter.server";
 import {
   getPasskeyByCredentialId,
   updatePasskeyCounter,
@@ -17,29 +20,31 @@ vi.mock("../db.server");
 
 vi.mock("../rate-limiter.server", () => ({
   checkRateLimit: vi
-    .fn()
+    .fn<() => RateLimitResult>()
     .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
-  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+  getClientIp: vi.fn<() => string>().mockReturnValue("127.0.0.1"),
 }));
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
-  verifyAuthenticationResponse: vi.fn(),
+  verifyAuthenticationResponse:
+    vi.fn<() => Promise<VerifiedAuthenticationResponse>>(),
 }));
 
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
-  getPasskeyByCredentialId: vi.fn(),
-  updatePasskeyCounter: vi.fn(),
+  getPasskeyByCredentialId:
+    vi.fn<() => Promise<(Passkey & { user: unknown }) | null>>(),
+  updatePasskeyCounter: vi.fn<() => Promise<Passkey>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  getPasskeyChallenge: vi.fn(),
-  clearPasskeyChallenge: vi.fn(),
-  createUserSession: vi.fn(),
+  getPasskeyChallenge: vi.fn<() => Promise<string | undefined>>(),
+  clearPasskeyChallenge: vi.fn<() => Promise<unknown>>(),
+  createUserSession: vi.fn<() => Promise<Response>>(),
   sessionStorage: {
-    commitSession: vi.fn(),
+    commitSession: vi.fn<() => Promise<string>>(),
   },
 }));
 

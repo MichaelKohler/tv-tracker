@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
+import type { User } from "../models/user.server";
 import { evaluateBoolean, FLAGS } from "../flags.server";
 import {
   getEpisodeByShowIdAndNumbers,
@@ -11,14 +12,15 @@ import { action } from "./plex.$token";
 vi.mock("../db.server");
 vi.mock("../flags.server");
 vi.mock("../models/episode.server", () => ({
-  getEpisodeByShowIdAndNumbers: vi.fn(),
-  markEpisodeAsWatched: vi.fn(),
+  getEpisodeByShowIdAndNumbers: vi.fn<() => Promise<{ id: string } | null>>(),
+  markEpisodeAsWatched: vi.fn<() => Promise<unknown>>(),
 }));
 vi.mock("../models/show.server", () => ({
-  getShowByUserIdAndName: vi.fn(),
+  getShowByUserIdAndName:
+    vi.fn<() => Promise<{ id: string; name: string } | null>>(),
 }));
 vi.mock("../models/user.server", () => ({
-  getUserByPlexToken: vi.fn(),
+  getUserByPlexToken: vi.fn<() => Promise<User | null>>(),
 }));
 
 // Use consistent mock objects that match the structure from other tests

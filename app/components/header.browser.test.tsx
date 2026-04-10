@@ -17,12 +17,12 @@ const mockFeatures = {
 
 vi.mock("../utils", async () => ({
   ...(await vi.importActual("../utils")),
-  useOptionalUser: vi.fn(),
+  useOptionalUser: vi.fn<() => unknown>(),
 }));
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useMatches: vi.fn(),
+  useMatches: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),

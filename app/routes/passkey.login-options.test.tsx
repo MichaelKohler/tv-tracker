@@ -1,6 +1,8 @@
 import type { LoaderFunctionArgs } from "react-router";
+import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
+import type { RateLimitResult } from "../rate-limiter.server";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { sessionStorage, setPasskeyChallenge } from "../session.server";
 import { loader } from "./passkey.login-options";
@@ -9,22 +11,23 @@ vi.mock("../db.server");
 
 vi.mock("../rate-limiter.server", () => ({
   checkRateLimit: vi
-    .fn()
+    .fn<() => RateLimitResult>()
     .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
-  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+  getClientIp: vi.fn<() => string>().mockReturnValue("127.0.0.1"),
 }));
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
-  generateAuthenticationOptions: vi.fn(),
+  generateAuthenticationOptions:
+    vi.fn<() => Promise<PublicKeyCredentialRequestOptionsJSON>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
   sessionStorage: {
-    commitSession: vi.fn(),
+    commitSession: vi.fn<() => Promise<string>>(),
   },
-  setPasskeyChallenge: vi.fn(),
+  setPasskeyChallenge: vi.fn<() => Promise<unknown>>(),
 }));
 
 describe("Passkey Login Options Route", () => {

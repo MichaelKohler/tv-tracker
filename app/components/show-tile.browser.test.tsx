@@ -16,7 +16,7 @@ const show: Props["show"] = {
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn(),
+  useNavigation: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),

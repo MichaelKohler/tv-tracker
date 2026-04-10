@@ -4,7 +4,7 @@ import {
   TVMazeAPIError,
 } from "./maze.server";
 
-const mockFetch = vi.fn();
+const mockFetch = vi.fn<() => Promise<Response>>();
 global.fetch = mockFetch;
 
 describe("maze.server", () => {

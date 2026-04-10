@@ -3,6 +3,7 @@ import "@testing-library/jest-dom";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import type { Episode, Show } from "@prisma/client";
 
+import type { User } from "../models/user.server";
 import { evaluateBoolean } from "../flags.server";
 import { getRecentlyWatchedEpisodes } from "../models/episode.server";
 import TVRecent, { loader } from "./tv.recent";
@@ -11,15 +12,15 @@ vi.mock("../flags.server");
 
 vi.mock("../db.server");
 vi.mock("../models/user.server", () => ({
-  getUserById: vi.fn(),
+  getUserById: vi.fn<() => Promise<User | null>>(),
 }));
 vi.mock("../models/episode.server", () => ({
-  getRecentlyWatchedEpisodes: vi.fn(),
+  getRecentlyWatchedEpisodes: vi.fn<() => Promise<unknown[]>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUserId: vi.fn().mockResolvedValue("123"),
+  requireUserId: vi.fn<() => Promise<string>>().mockResolvedValue("123"),
 }));
 
 vi.mock("../components/upcoming-episodes-list", async () => ({

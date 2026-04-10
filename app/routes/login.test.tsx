@@ -1,8 +1,12 @@
 import * as React from "react";
+import type { Navigation } from "react-router";
 import { redirect, useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { AuthenticationResponseJSON } from "@simplewebauthn/types";
+import type { RateLimitResult } from "../rate-limiter.server";
+import type { User } from "../models/user.server";
 import { verifyLogin } from "../models/user.server";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
@@ -11,9 +15,9 @@ import Login, { action, loader } from "./login";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn().mockReturnValue({}),
-  useActionData: vi.fn(),
-  useSearchParams: vi.fn().mockReturnValue([
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useActionData: vi.fn<() => unknown>(),
+  useSearchParams: vi.fn<() => unknown>().mockReturnValue([
     {
       get: () => "dummySearchParamValue..",
     },
@@ -28,31 +32,33 @@ vi.mock("react-router", async () => ({
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  getUserId: vi.fn(),
-  createUserSession: vi.fn().mockImplementation((arg) => arg),
+  getUserId: vi.fn<() => Promise<string | undefined>>(),
+  createUserSession: vi
+    .fn<() => Promise<Response>>()
+    .mockImplementation((arg) => arg),
 }));
 
 vi.mock("../utils", async () => ({
   ...(await vi.importActual("../utils")),
-  validateEmail: vi.fn(),
+  validateEmail: vi.fn<() => boolean>(),
 }));
 
 vi.mock("../models/user.server", () => ({
-  verifyLogin: vi.fn(),
+  verifyLogin: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../db.server");
 
 vi.mock("../rate-limiter.server", () => ({
   checkRateLimit: vi
-    .fn()
+    .fn<() => RateLimitResult>()
     .mockReturnValue({ limited: false, retryAfterSeconds: 0 }),
-  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+  getClientIp: vi.fn<() => string>().mockReturnValue("127.0.0.1"),
 }));
 
 vi.mock("@simplewebauthn/browser", async () => ({
   ...(await vi.importActual("@simplewebauthn/browser")),
-  startAuthentication: vi.fn(),
+  startAuthentication: vi.fn<() => Promise<AuthenticationResponseJSON>>(),
 }));
 
 describe("Login Route", () => {

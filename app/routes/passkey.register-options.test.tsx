@@ -1,6 +1,9 @@
 import type { LoaderFunctionArgs } from "react-router";
+import type { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/types";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
+import type { Passkey } from "@prisma/client";
+import type { User } from "../models/user.server";
 import { getPasskeysByUserId } from "../models/passkey.server";
 import {
   requireUser,
@@ -13,21 +16,22 @@ vi.mock("../db.server");
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
-  generateRegistrationOptions: vi.fn(),
+  generateRegistrationOptions:
+    vi.fn<() => Promise<PublicKeyCredentialCreationOptionsJSON>>(),
 }));
 
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
-  getPasskeysByUserId: vi.fn(),
+  getPasskeysByUserId: vi.fn<() => Promise<Passkey[]>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUser: vi.fn(),
+  requireUser: vi.fn<() => Promise<User>>(),
   sessionStorage: {
-    commitSession: vi.fn(),
+    commitSession: vi.fn<() => Promise<string>>(),
   },
-  setPasskeyChallenge: vi.fn(),
+  setPasskeyChallenge: vi.fn<() => Promise<unknown>>(),
 }));
 
 describe("Passkey Register Options Route", () => {

@@ -1,8 +1,12 @@
 import * as React from "react";
+import type { Navigation } from "react-router";
 import { useLoaderData, useNavigation, useSearchParams } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { SearchResultShow } from "../types/show";
+import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
+import type { User } from "../models/user.server";
 import { addShow, searchShows } from "../models/show.server";
 import { requireUserId } from "../session.server";
 import { evaluateBoolean } from "../flags.server";
@@ -22,10 +26,10 @@ const shows = [
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn(),
-  useActionData: vi.fn(),
-  useLoaderData: vi.fn(),
-  useSearchParams: vi.fn(),
+  useNavigation: vi.fn<() => Navigation>(),
+  useActionData: vi.fn<() => unknown>(),
+  useLoaderData: vi.fn<() => unknown>(),
+  useSearchParams: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -39,22 +43,22 @@ vi.mock("../components/show-results", async () => ({
 vi.mock("../flags.server");
 
 vi.mock("../models/maze.server", () => ({
-  fetchSearchResults: vi.fn(),
-  fetchShowWithEmbededEpisodes: vi.fn(),
+  fetchSearchResults: vi.fn<() => Promise<TVMazeSearchResult[]>>(),
+  fetchShowWithEmbededEpisodes: vi.fn<() => Promise<TVMazeShowResponse>>(),
 }));
 
 vi.mock("../models/show.server", () => ({
-  addShow: vi.fn(),
-  searchShows: vi.fn(),
+  addShow: vi.fn<() => Promise<unknown>>(),
+  searchShows: vi.fn<() => Promise<SearchResultShow[]>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUserId: vi.fn(),
+  requireUserId: vi.fn<() => Promise<string>>(),
 }));
 vi.mock("../db.server");
 vi.mock("../models/user.server", () => ({
-  getUserById: vi.fn(),
+  getUserById: vi.fn<() => Promise<User | null>>(),
 }));
 
 describe("TV Show Search Route", () => {

@@ -1,19 +1,22 @@
 import * as React from "react";
+import type { Navigation } from "react-router";
 import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
+import type { User } from "../models/user.server";
 import { testEpisode, testShow } from "../test-utils";
 import TVShow from "./tv.$show";
 import type { loader } from "./tv.$show";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useCatch: vi.fn().mockReturnValue({ status: 404 }),
-  useNavigation: vi.fn().mockReturnValue({}),
-  useActionData: vi.fn(),
-  useLoaderData: vi.fn().mockReturnValue({}),
-  useSearchParams: vi.fn(),
+  useCatch: vi.fn<() => unknown>().mockReturnValue({ status: 404 }),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useActionData: vi.fn<() => unknown>(),
+  useLoaderData: vi.fn<() => unknown>().mockReturnValue({}),
+  useSearchParams: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -25,24 +28,24 @@ vi.mock("../components/episode-list", async () => ({
 }));
 
 vi.mock("../models/maze.server", () => ({
-  fetchSearchResults: vi.fn(),
-  fetchShowWithEmbededEpisodes: vi.fn(),
+  fetchSearchResults: vi.fn<() => Promise<TVMazeSearchResult[]>>(),
+  fetchShowWithEmbededEpisodes: vi.fn<() => Promise<TVMazeShowResponse>>(),
 }));
 
 vi.mock("../models/show.server", () => ({
-  getShowById: vi.fn(),
-  removeShowFromUser: vi.fn(),
+  getShowById: vi.fn<() => Promise<unknown>>(),
+  removeShowFromUser: vi.fn<() => Promise<unknown>>(),
 }));
 
 vi.mock("../db.server");
 vi.mock("../flags.server");
 vi.mock("../models/user.server", () => ({
-  getUserById: vi.fn(),
+  getUserById: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  requireUserId: vi.fn().mockResolvedValue("123"),
+  requireUserId: vi.fn<() => Promise<string>>().mockResolvedValue("123"),
 }));
 
 describe("TVShow Route", () => {

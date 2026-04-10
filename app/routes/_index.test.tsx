@@ -3,6 +3,7 @@ import { redirect, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
+import type { User } from "../models/user.server";
 import { evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
 import { useOptionalUser } from "../utils";
@@ -11,13 +12,15 @@ import Index, { loader } from "./_index";
 
 vi.mock("@react-router/node", async () => ({
   ...(await vi.importActual("@react-router/node")),
-  json: vi.fn().mockImplementation((arg) => arg),
+  json: vi.fn<(data: unknown) => unknown>().mockImplementation((arg) => arg),
 }));
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  redirect: vi.fn(),
-  useLoaderData: vi.fn().mockReturnValue({ features: { signup: true } }),
+  redirect: vi.fn<() => Response>(),
+  useLoaderData: vi
+    .fn<() => unknown>()
+    .mockReturnValue({ features: { signup: true } }),
   Link: ({ children }: { children: React.ReactNode }) => (
     <span>{children}</span>
   ),
@@ -25,19 +28,19 @@ vi.mock("react-router", async () => ({
 
 vi.mock("../db.server");
 vi.mock("../models/user.server", () => ({
-  getUserById: vi.fn(),
+  getUserById: vi.fn<() => Promise<User | null>>(),
 }));
 
 vi.mock("../flags.server");
 
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
-  getUserId: vi.fn(),
+  getUserId: vi.fn<() => Promise<string | undefined>>(),
 }));
 
 vi.mock("../utils", async () => ({
   ...(await vi.importActual("../utils")),
-  useOptionalUser: vi.fn().mockReturnValue(null),
+  useOptionalUser: vi.fn<() => User | undefined>().mockReturnValue(undefined),
 }));
 
 describe("Index Route", () => {
