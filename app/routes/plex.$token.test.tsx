@@ -1,13 +1,14 @@
 import type { ActionFunctionArgs } from "react-router";
-import type { User } from "../models/user.server";
-import { evaluateBoolean, FLAGS } from "../flags.server";
+
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   getEpisodeByShowIdAndNumbers,
   markEpisodeAsWatched,
 } from "../models/episode.server";
+import type { User } from "../models/user.server";
+import { action } from "./plex.$token";
 import { getShowByUserIdAndName } from "../models/show.server";
 import { getUserByPlexToken } from "../models/user.server";
-import { action } from "./plex.$token";
 
 vi.mock("../db.server");
 vi.mock("../flags.server");

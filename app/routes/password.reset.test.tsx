@@ -1,14 +1,14 @@
-import * as React from "react";
-import type { Navigation } from "react-router";
-import { useActionData, useNavigation } from "react-router";
-import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import * as React from "react";
+import { render, screen } from "@testing-library/react";
+import { useActionData, useNavigation } from "react-router";
+import type { Navigation } from "react-router";
 
+import Reset, { action, loader } from "./password.reset";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
 import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
-import Reset, { action, loader } from "./password.reset";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),

@@ -1,7 +1,8 @@
 import type { Transporter } from "nodemailer";
 import { createTransport } from "nodemailer";
+
+import { logError, logInfo } from "../logger.server";
 import { sendPasskeyCreatedMail, sendPasswordResetMail } from "./mail.server";
-import { logInfo, logError } from "../logger.server";
 
 vi.mock("nodemailer", () => ({
   createTransport: vi.fn<() => Transporter>(),

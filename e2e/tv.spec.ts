@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");

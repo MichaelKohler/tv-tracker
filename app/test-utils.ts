@@ -1,4 +1,4 @@
-import type { Show, Episode } from "@prisma/client";
+import type { Episode, Show } from "@prisma/client";
 import type { SearchResultShow } from "./types/show";
 
 export const testShow: Show = {

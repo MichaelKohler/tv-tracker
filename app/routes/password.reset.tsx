@@ -1,23 +1,23 @@
 import * as React from "react";
-import { withRequestContext } from "../request-handler.server";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
 } from "react-router";
 import {
-  data,
   Form,
+  data,
   redirect,
   useActionData,
   useNavigation,
 } from "react-router";
 
-import { triggerPasswordReset } from "../models/password.server";
 import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { logInfo } from "../logger.server";
+import { triggerPasswordReset } from "../models/password.server";
 import { validateEmail } from "../utils";
+import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {

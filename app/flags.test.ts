@@ -1,4 +1,4 @@
-import { vi, beforeEach, afterEach } from "vite-plus/test";
+import { afterEach, beforeEach, vi } from "vite-plus/test";
 
 // Create hoisted mocks
 const mockVariantFn = vi.hoisted(() => vi.fn<() => unknown>());
@@ -35,6 +35,7 @@ vi.mock("./session.server", async () => ({
 }));
 
 // Import after mocking the flipt client
+// oxlint-disable-next-line eslint-plugin-import(first)
 import {
   FLAGS,
   DEFAULT_FLAG_VALUES,

@@ -4,29 +4,29 @@ import {
   isRouteErrorResponse,
   redirect,
   useActionData,
-  useRouteError,
   useLoaderData,
+  useRouteError,
 } from "react-router";
 
-import ErrorAlert from "../components/error-alert";
-import EpisodeList from "../components/episode-list";
-import ShowHeader from "../components/show-header";
 import { FLAGS, evaluateBoolean } from "../flags.server";
-import {
-  markEpisodeAsWatched,
-  markAllEpisodesAsWatched,
-  markEpisodeAsUnwatched,
-  markEpisodeAsIgnored,
-  markEpisodeAsUnignored,
-} from "../models/episode.server";
 import {
   archiveShowOnUser,
   getShowById,
   removeShowFromUser,
   unarchiveShowOnUser,
 } from "../models/show.server";
-import { requireUserId } from "../session.server";
 import { logError, logInfo } from "../logger.server";
+import {
+  markAllEpisodesAsWatched,
+  markEpisodeAsIgnored,
+  markEpisodeAsUnignored,
+  markEpisodeAsUnwatched,
+  markEpisodeAsWatched,
+} from "../models/episode.server";
+import EpisodeList from "../components/episode-list";
+import ErrorAlert from "../components/error-alert";
+import ShowHeader from "../components/show-header";
+import { requireUserId } from "../session.server";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(

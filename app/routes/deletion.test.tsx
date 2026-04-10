@@ -1,16 +1,16 @@
+import "@testing-library/jest-dom";
 import * as React from "react";
 import type { Navigation, SubmitFunction } from "react-router";
-import { useActionData, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
-
+import { useActionData, useLoaderData } from "react-router";
 import type { Passkey } from "@prisma/client";
-import type { User } from "../models/user.server";
-import { evaluateBoolean, FLAGS } from "../flags.server";
-import * as user from "../models/user.server";
+
 import * as passkeyModel from "../models/passkey.server";
-import { requireUser } from "../session.server";
+import * as user from "../models/user.server";
 import Deletion, { action, loader } from "./deletion";
+import { FLAGS, evaluateBoolean } from "../flags.server";
+import type { User } from "../models/user.server";
+import { requireUser } from "../session.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),

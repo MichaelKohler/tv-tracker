@@ -1,8 +1,8 @@
 import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 
-import { prisma } from "../db.server";
 import { logError } from "../logger.server";
+import { prisma } from "../db.server";
 
 export async function getPasskeysByUserId(userId: string) {
   return prisma.passkey.findMany({

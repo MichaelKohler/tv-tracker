@@ -1,13 +1,8 @@
 import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
 import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
+import { data } from "react-router";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
-import { withRequestContext } from "../request-handler.server";
 
-import {
-  getPasskeyByCredentialId,
-  updatePasskeyCounter,
-} from "../models/passkey.server";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import {
   clearPasskeyChallenge,
@@ -15,8 +10,13 @@ import {
   getPasskeyChallenge,
   sessionStorage,
 } from "../session.server";
-import { safeRedirect } from "../utils";
+import {
+  getPasskeyByCredentialId,
+  updatePasskeyCounter,
+} from "../models/passkey.server";
 import { logInfo } from "../logger.server";
+import { safeRedirect } from "../utils";
+import { withRequestContext } from "../request-handler.server";
 
 export const action = withRequestContext(
   async ({ request }: ActionFunctionArgs) => {

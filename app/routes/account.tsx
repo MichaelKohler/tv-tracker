@@ -1,21 +1,8 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, useLoaderData, useSearchParams } from "react-router";
 import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
-import { withRequestContext } from "../request-handler.server";
 
-import { DeleteAccount } from "../components/delete-account";
-import { PasskeyList } from "../components/passkey-list";
-import { PasskeyRegistration } from "../components/passkey-registration";
-import { PasswordChangeForm } from "../components/password-change-form";
-import { PasswordRemove } from "../components/password-remove";
-import { PlexWebhook } from "../components/plex-webhook";
-import { evaluateBoolean, FLAGS } from "../flags.server";
-import {
-  deletePasskey,
-  getPasskeysByUserId,
-  updatePasskeyName,
-  verifyPasskeyAuthentication,
-} from "../models/passkey.server";
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   changePassword,
   removePassword,
@@ -27,8 +14,21 @@ import {
   getPasskeyChallenge,
   requireUser,
 } from "../session.server";
+import {
+  deletePasskey,
+  getPasskeysByUserId,
+  updatePasskeyName,
+  verifyPasskeyAuthentication,
+} from "../models/passkey.server";
+import { DeleteAccount } from "../components/delete-account";
+import { PasskeyList } from "../components/passkey-list";
+import { PasskeyRegistration } from "../components/passkey-registration";
+import { PasswordChangeForm } from "../components/password-change-form";
+import { PasswordRemove } from "../components/password-remove";
+import { PlexWebhook } from "../components/plex-webhook";
 import { getPasswordValidationError } from "../utils";
 import { logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {

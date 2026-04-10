@@ -1,4 +1,4 @@
-import type { User, PasswordReset, Passkey } from "@prisma/client";
+import type { Passkey, PasswordReset, User } from "@prisma/client";
 import { createTransport } from "nodemailer";
 import striptags from "striptags";
 

@@ -1,13 +1,13 @@
-import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigation } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { withRequestContext } from "../request-handler.server";
 
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import ShowTiles from "../components/show-tiles";
 import Spinner from "../components/spinner";
-import { evaluateBoolean, FLAGS } from "../flags.server";
 import { getSortedArchivedShowsByUserId } from "../models/show.server";
-import { requireUserId } from "../session.server";
 import { logInfo } from "../logger.server";
+import { requireUserId } from "../session.server";
 
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {

@@ -1,12 +1,12 @@
-import { render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { createMemoryRouter, RouterProvider } from "react-router";
 import type { Episode, Show } from "@prisma/client";
+import { RouterProvider, createMemoryRouter } from "react-router";
+import { render, screen, waitFor } from "@testing-library/react";
 
+import TVRecent, { loader } from "./tv.recent";
 import type { User } from "../models/user.server";
 import { evaluateBoolean } from "../flags.server";
 import { getRecentlyWatchedEpisodes } from "../models/episode.server";
-import TVRecent, { loader } from "./tv.recent";
 
 vi.mock("../flags.server");
 

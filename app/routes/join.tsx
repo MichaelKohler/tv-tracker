@@ -1,32 +1,32 @@
 import * as React from "react";
-import { withRequestContext } from "../request-handler.server";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
 } from "react-router";
 import {
-  data,
   Form,
   Link,
+  data,
   redirect,
   useActionData,
   useLoaderData,
-  useSearchParams,
   useNavigation,
+  useSearchParams,
 } from "react-router";
 
-import { evaluateBoolean, FLAGS } from "../flags.server";
-import { redeemInviteCode } from "../models/invite.server";
-import { createUser, getUserByEmail } from "../models/user.server";
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
-import { getUserId, createUserSession } from "../session.server";
+import { createUser, getUserByEmail } from "../models/user.server";
+import { createUserSession, getUserId } from "../session.server";
 import {
+  getPasswordValidationError,
   safeRedirect,
   validateAndSanitizeEmail,
-  getPasswordValidationError,
 } from "../utils";
 import { logInfo } from "../logger.server";
+import { redeemInviteCode } from "../models/invite.server";
+import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {

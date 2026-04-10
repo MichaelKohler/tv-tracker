@@ -1,7 +1,7 @@
 import type { Invite } from "@prisma/client";
 
-import { prisma } from "../db.server";
 import { logError, logInfo } from "../logger.server";
+import { prisma } from "../db.server";
 
 export async function redeemInviteCode(inviteCode: Invite["id"]) {
   logInfo("Redeeming invite code", { inviteCode });

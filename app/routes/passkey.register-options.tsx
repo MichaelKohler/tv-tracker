@@ -1,14 +1,14 @@
+import type { AuthenticatorTransport } from "@simplewebauthn/browser";
 import type { LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
-import type { AuthenticatorTransport } from "@simplewebauthn/browser";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
-import { getPasskeysByUserId } from "../models/passkey.server";
 import {
   requireUser,
   sessionStorage,
   setPasskeyChallenge,
 } from "../session.server";
+import { getPasskeysByUserId } from "../models/passkey.server";
 import { logInfo } from "../logger.server";
 import { withRequestContext } from "../request-handler.server";
 

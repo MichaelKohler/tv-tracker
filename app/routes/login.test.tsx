@@ -1,17 +1,18 @@
+import "@testing-library/jest-dom";
 import * as React from "react";
-import type { Navigation } from "react-router";
 import { redirect, useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import type { Navigation } from "react-router";
 
 import type { AuthenticationResponseJSON } from "@simplewebauthn/types";
+
+import Login, { action, loader } from "./login";
+import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
-import { verifyLogin } from "../models/user.server";
-import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
-import Login, { action, loader } from "./login";
+import { verifyLogin } from "../models/user.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),

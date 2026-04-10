@@ -17,11 +17,11 @@ import {
 } from "react-router";
 import React from "react";
 
+import { FLAGS, evaluateBoolean } from "./flags.server";
 import Footer from "./components/footer";
 import Header from "./components/header";
-import { evaluateBoolean, FLAGS } from "./flags.server";
-import tailwindStylesheetUrl from "./styles/tailwind.css?url";
 import { getUser } from "./session.server";
+import tailwindStylesheetUrl from "./styles/tailwind.css?url";
 
 export function headers(): ReturnType<HeadersFunction> {
   return {

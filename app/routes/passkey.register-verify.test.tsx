@@ -1,14 +1,8 @@
 import type { ActionFunctionArgs } from "react-router";
+import type { Passkey } from "@prisma/client";
 import type { VerifiedRegistrationResponse } from "@simplewebauthn/server";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 
-import type { Passkey } from "@prisma/client";
-import type { User } from "../models/user.server";
-import {
-  createPasskey,
-  verifyPasskeyAuthentication,
-} from "../models/passkey.server";
-import { userHasPassword, verifyLogin } from "../models/user.server";
 import {
   clearPasskeyChallenge,
   clearPasskeyReauthChallenge,
@@ -17,8 +11,14 @@ import {
   requireUser,
   sessionStorage,
 } from "../session.server";
-import { sendPasskeyCreatedMail } from "../models/mail.server";
+import {
+  createPasskey,
+  verifyPasskeyAuthentication,
+} from "../models/passkey.server";
+import { userHasPassword, verifyLogin } from "../models/user.server";
+import type { User } from "../models/user.server";
 import { action } from "./passkey.register-verify";
+import { sendPasskeyCreatedMail } from "../models/mail.server";
 
 vi.mock("../db.server");
 

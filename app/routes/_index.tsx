@@ -4,14 +4,14 @@ import {
   EyeIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
+import { Link, redirect, useLoaderData } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
-import { Link, useLoaderData, redirect } from "react-router";
-import { withRequestContext } from "../request-handler.server";
 
-import { evaluateBoolean, FLAGS } from "../flags.server";
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
-import { useOptionalUser } from "../utils";
 import { logInfo } from "../logger.server";
+import { useOptionalUser } from "../utils";
+import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {

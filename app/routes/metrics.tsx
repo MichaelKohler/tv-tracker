@@ -1,11 +1,11 @@
-import { getShowCount, getConnectedShowCount } from "../models/show.server";
-import { withRequestContext } from "../request-handler.server";
 import {
-  getEpisodeCount,
   getConnectedEpisodeCount,
+  getEpisodeCount,
 } from "../models/episode.server";
+import { getConnectedShowCount, getShowCount } from "../models/show.server";
 import { getUserCount } from "../models/user.server";
 import { logInfo } from "../logger.server";
+import { withRequestContext } from "../request-handler.server";
 
 const helpMessage = (metric: string, description: string) =>
   `# HELP ${metric} ${description}`;

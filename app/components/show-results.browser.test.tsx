@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
 
-import { testSearchShow } from "../test-utils";
 import ShowResults from "./show-results";
 import { VisualTestContainer } from "./visual-test-helper";
+import { testSearchShow } from "../test-utils";
 
 const shows = [
   testSearchShow,

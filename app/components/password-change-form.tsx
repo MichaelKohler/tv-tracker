@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Form, useActionData, useSubmit } from "react-router";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { startAuthentication } from "@simplewebauthn/browser";
 
 import type { action } from "../routes/account";

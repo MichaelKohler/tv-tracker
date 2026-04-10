@@ -2,12 +2,12 @@ import type { LoaderFunctionArgs } from "react-router";
 import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
-import type { User } from "../models/user.server";
 import {
   requireUser,
   sessionStorage,
   setPasskeyReauthChallenge,
 } from "../session.server";
+import type { User } from "../models/user.server";
 import { loader } from "./passkey.reauth-options";
 
 vi.mock("../db.server");

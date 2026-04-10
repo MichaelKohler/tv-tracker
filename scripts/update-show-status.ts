@@ -1,9 +1,9 @@
 import type { Show } from "@prisma/client";
 
+import { FLAGS, evaluateBooleanFromScripts } from "../app/flags.server";
+import type { TVMazeShowResponse } from "../app/types/tvmaze";
 import { TV_GET_API_PREFIX } from "../app/constants";
 import { prisma } from "../app/db.server";
-import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
-import type { TVMazeShowResponse } from "../app/types/tvmaze";
 
 async function updateShowStatuses() {
   console.log("Starting show status update process...");

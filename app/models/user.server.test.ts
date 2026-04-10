@@ -1,6 +1,5 @@
 import { compare } from "bcrypt";
 
-import { prisma } from "../__mocks__/db.server";
 import {
   changePassword,
   createUser,
@@ -14,6 +13,7 @@ import {
   userHasPassword,
   verifyLogin,
 } from "./user.server";
+import { prisma } from "../__mocks__/db.server";
 
 vi.mock("bcrypt", async () => ({
   ...(await vi.importActual("bcrypt")),

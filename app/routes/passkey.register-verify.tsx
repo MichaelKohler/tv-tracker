@@ -1,17 +1,12 @@
-import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
 import type {
   AuthenticationResponseJSON,
   RegistrationResponseJSON,
 } from "@simplewebauthn/browser";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { withRequestContext } from "../request-handler.server";
 
-import {
-  createPasskey,
-  verifyPasskeyAuthentication,
-} from "../models/passkey.server";
-import { userHasPassword, verifyLogin } from "../models/user.server";
 import {
   clearPasskeyChallenge,
   clearPasskeyReauthChallenge,
@@ -20,6 +15,11 @@ import {
   requireUser,
   sessionStorage,
 } from "../session.server";
+import {
+  createPasskey,
+  verifyPasskeyAuthentication,
+} from "../models/passkey.server";
+import { userHasPassword, verifyLogin } from "../models/user.server";
 import { logInfo } from "../logger.server";
 import { sendPasskeyCreatedMail } from "../models/mail.server";
 

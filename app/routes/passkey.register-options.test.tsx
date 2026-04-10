@@ -1,15 +1,15 @@
 import type { LoaderFunctionArgs } from "react-router";
+import type { Passkey } from "@prisma/client";
 import type { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/types";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
-import type { Passkey } from "@prisma/client";
-import type { User } from "../models/user.server";
-import { getPasskeysByUserId } from "../models/passkey.server";
 import {
   requireUser,
   sessionStorage,
   setPasskeyChallenge,
 } from "../session.server";
+import type { User } from "../models/user.server";
+import { getPasskeysByUserId } from "../models/passkey.server";
 import { loader } from "./passkey.register-options";
 
 vi.mock("../db.server");

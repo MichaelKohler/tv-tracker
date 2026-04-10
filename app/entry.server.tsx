@@ -1,10 +1,11 @@
+// oxlint-disable eslint-plugin-import(first)
 import "./instrumentation.server";
 
-import { createReadableStreamFromReadable } from "@react-router/node";
 import * as Sentry from "@sentry/react-router";
+import { createReadableStreamFromReadable } from "@react-router/node";
 
-import { renderToPipeableStream } from "react-dom/server";
 import { ServerRouter } from "react-router";
+import { renderToPipeableStream } from "react-dom/server";
 
 import { runWithRequestContext } from "./request-context.server";
 

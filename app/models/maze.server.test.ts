@@ -1,7 +1,7 @@
 import {
-  fetchShowWithEmbededEpisodes,
-  fetchSearchResults,
   TVMazeAPIError,
+  fetchSearchResults,
+  fetchShowWithEmbededEpisodes,
 } from "./maze.server";
 
 const mockFetch = vi.fn<() => Promise<Response>>();

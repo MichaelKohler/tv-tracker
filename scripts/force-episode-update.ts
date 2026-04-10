@@ -1,11 +1,11 @@
 import type { Episode, Show } from "@prisma/client";
 import striptags from "striptags";
 
-import { TV_EPISODE_API_PREFIX } from "../app/constants";
-import { prisma } from "../app/db.server";
-import { evaluateBooleanFromScripts, FLAGS } from "../app/flags.server";
+import { FLAGS, evaluateBooleanFromScripts } from "../app/flags.server";
 import { type TVMazeEpisodeResponse } from "../app/types/tvmaze";
+import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { fetchShowWithEmbededEpisodes } from "../app/models/maze.server";
+import { prisma } from "../app/db.server";
 
 async function updateEpisode(
   showName: Show["name"],
