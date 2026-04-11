@@ -133,8 +133,9 @@ describe("User Model", () => {
       },
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
-    // @ts-expect-error .. compare does return a promise that resolves to a boolean..
-    vi.mocked(compare).mockResolvedValue(true);
+    vi.mocked(
+      compare as (data: string | Buffer, encrypted: string) => Promise<boolean>
+    ).mockResolvedValue(true);
 
     const user = await verifyLogin("foo@example.com", "foo");
     expect(user).toStrictEqual({
@@ -180,8 +181,9 @@ describe("User Model", () => {
       },
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
-    // @ts-expect-error .. compare does return a promise that resolves to a boolean..
-    vi.mocked(compare).mockResolvedValue(false);
+    vi.mocked(
+      compare as (data: string | Buffer, encrypted: string) => Promise<boolean>
+    ).mockResolvedValue(false);
 
     const user = await verifyLogin("foo@example.com", "foo");
     expect(user).toBeNull();

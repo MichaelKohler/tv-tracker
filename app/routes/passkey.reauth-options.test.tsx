@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
-import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
+import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/server";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
 import {

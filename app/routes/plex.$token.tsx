@@ -38,7 +38,13 @@ export const action = withRequestContext(
     const showTitle = parsedPayload.Metadata?.grandparentTitle;
 
     const token = params.token;
-    if (!token || !showTitle || parsedPayload.event !== "media.scrobble") {
+    const metadata = parsedPayload.Metadata;
+    if (
+      !token ||
+      !showTitle ||
+      !metadata ||
+      parsedPayload.event !== "media.scrobble"
+    ) {
       return null;
     }
 
@@ -57,10 +63,14 @@ export const action = withRequestContext(
       return {};
     }
 
+    if (metadata.parentIndex === undefined || metadata.index === undefined) {
+      return {};
+    }
+
     const episode = await getEpisodeByShowIdAndNumbers({
       showId: show.id,
-      season: parsedPayload.Metadata.parentIndex,
-      episode: parsedPayload.Metadata.index,
+      season: metadata.parentIndex,
+      episode: metadata.index,
     });
 
     if (!episode) {
@@ -81,8 +91,8 @@ export const action = withRequestContext(
           showId: show.id,
           showTitle,
           episodeId: episode.id,
-          season: parsedPayload.Metadata.parentIndex,
-          episode: parsedPayload.Metadata.index,
+          season: metadata.parentIndex,
+          episode: metadata.index,
         },
         error
       );

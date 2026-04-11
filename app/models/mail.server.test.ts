@@ -14,7 +14,8 @@ vi.mock("../logger.server", () => ({
 
 describe("mail.server", () => {
   const originalEnv = process.env;
-  const mockSendMail = vi.fn<() => Promise<unknown>>();
+  const mockSendMail =
+    vi.fn<(options: Record<string, unknown>) => Promise<unknown>>();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -64,7 +65,7 @@ describe("mail.server", () => {
         html: expect.stringContaining("reset-token-123"),
       });
 
-      const call = mockSendMail.mock.calls[0][0];
+      const call = mockSendMail.mock.calls[0]![0]!;
       expect(call.html).toContain("Password Reset Request");
       expect(call.html).toContain("reset-token-123");
       expect(call.html).toContain("https://tvtracker.example.com");
@@ -87,7 +88,7 @@ describe("mail.server", () => {
         token: "reset-token-123",
       });
 
-      const call = mockSendMail.mock.calls[0][0];
+      const call = mockSendMail.mock.calls[0]![0]!;
       expect(call.html).toContain("http://localhost:5173");
       expect(call.text).toContain("http://localhost:5173");
     });
@@ -160,7 +161,7 @@ describe("mail.server", () => {
         html: expect.stringContaining("My YubiKey"),
       });
 
-      const call = mockSendMail.mock.calls[0][0];
+      const call = mockSendMail.mock.calls[0]![0]!;
       expect(call.html).toContain("New Passkey Added");
       expect(call.html).toContain("My YubiKey");
       expect(call.html).toContain("https://tvtracker.example.com");
@@ -186,7 +187,7 @@ describe("mail.server", () => {
         createdAt,
       });
 
-      const call = mockSendMail.mock.calls[0][0];
+      const call = mockSendMail.mock.calls[0]![0]!;
       expect(call.html).toContain("http://localhost:5173");
       expect(call.text).toContain("http://localhost:5173");
     });
@@ -246,7 +247,7 @@ describe("mail.server", () => {
         createdAt,
       });
 
-      const call = mockSendMail.mock.calls[0][0];
+      const call = mockSendMail.mock.calls[0]![0]!;
       expect(call.html).not.toContain("<script>");
       expect(call.html).toContain("My Key");
     });
@@ -262,7 +263,7 @@ describe("mail.server", () => {
         createdAt,
       });
 
-      const call = mockSendMail.mock.calls[0][0];
+      const call = mockSendMail.mock.calls[0]![0]!;
       const expectedDate = createdAt.toLocaleString("en-US", {
         dateStyle: "full",
         timeStyle: "long",

@@ -1,6 +1,6 @@
 import { Form, useNavigation } from "react-router";
 
-import type { SearchResultShow } from "app/types/show";
+import type { SearchResultShow } from "../types/show";
 
 import Spinner from "./spinner";
 

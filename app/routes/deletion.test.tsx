@@ -14,10 +14,12 @@ import { requireUser } from "../session.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({} as Navigation),
   useActionData: vi.fn<() => unknown>(),
   useLoaderData: vi.fn<() => unknown>(),
-  useSubmit: vi.fn<() => SubmitFunction>().mockReturnValue(vi.fn<() => void>()),
+  useSubmit: vi
+    .fn<() => SubmitFunction>()
+    .mockReturnValue(vi.fn<() => void>() as unknown as SubmitFunction),
   Form: ({
     children,
     ...props
@@ -48,7 +50,7 @@ vi.mock("../session.server", async () => ({
   requireUser: vi.fn<() => Promise<User>>().mockResolvedValue({
     id: "123",
     email: "foo@example.com",
-    plexToken: null,
+    plexToken: "00000000-0000-0000-0000-000000000000",
     createdAt: new Date(),
     updatedAt: new Date(),
   }),
@@ -82,7 +84,7 @@ describe("Account Deletion Route", () => {
     vi.spyOn(user, "verifyLogin").mockResolvedValue({
       id: "123",
       email: "foo@example.com",
-      plexToken: null,
+      plexToken: "00000000-0000-0000-0000-000000000000",
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -90,7 +92,7 @@ describe("Account Deletion Route", () => {
     vi.mocked(requireUser).mockResolvedValue({
       id: "123",
       email: "foo@example.com",
-      plexToken: null,
+      plexToken: "00000000-0000-0000-0000-000000000000",
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -238,7 +240,7 @@ describe("Account Deletion Route", () => {
       vi.spyOn(user, "verifyLogin").mockResolvedValue({
         id: "123",
         email: "foo@example.com",
-        plexToken: null,
+        plexToken: "00000000-0000-0000-0000-000000000000",
         createdAt: new Date(),
         updatedAt: new Date(),
       });

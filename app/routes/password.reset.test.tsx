@@ -12,7 +12,16 @@ import { getUserId } from "../session.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn<() => Navigation>().mockReturnValue({ state: "idle" }),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({
+    state: "idle",
+    location: undefined,
+    formMethod: undefined,
+    formAction: undefined,
+    formEncType: undefined,
+    formData: undefined,
+    json: undefined,
+    text: undefined,
+  } as Navigation),
   useActionData: vi.fn<() => unknown>(),
   useLoaderData: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (

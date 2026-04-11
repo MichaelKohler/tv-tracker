@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router";
-import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/types";
+import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/server";
 import { generateAuthenticationOptions } from "@simplewebauthn/server";
 
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
@@ -155,7 +155,6 @@ describe("Passkey Login Options Route", () => {
       request: mockRequest,
     } as LoaderFunctionArgs);
 
-    // @ts-expect-error : we do not actually have a real response here..
     expect(response.init?.status).toBe(429);
     // @ts-expect-error : we do not actually have a real response here..
     expect(response.data.error).toBe(

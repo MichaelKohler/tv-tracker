@@ -298,7 +298,8 @@ export const action = withRequestContext(
     const currentPassword = formData.get("password");
     const newPassword = formData.get("newPassword");
     const confirmPassword = formData.get("confirmPassword");
-    const token = formData.get("token") || "";
+    const rawToken = formData.get("token");
+    const token = typeof rawToken === "string" ? rawToken : "";
 
     if (typeof newPassword !== "string" || newPassword === "") {
       return data(
@@ -430,7 +431,7 @@ export const action = withRequestContext(
     }
 
     try {
-      await changePassword(user.email, newPassword, token.toString());
+      await changePassword(user.email, newPassword, token);
     } catch (error) {
       if (
         error instanceof Error &&

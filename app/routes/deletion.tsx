@@ -222,7 +222,7 @@ export default function DeletionPage() {
 
       const formData = new FormData();
       formData.append("passkeyCredential", JSON.stringify(credential));
-      submit(formData, { method: "post" });
+      void submit(formData, { method: "post" });
     } catch {
       setIsAuthenticating(false);
       setPasskeyError("Passkey authentication failed. Please try again.");

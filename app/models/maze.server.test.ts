@@ -4,8 +4,8 @@ import {
   fetchShowWithEmbededEpisodes,
 } from "./maze.server";
 
-const mockFetch = vi.fn<() => Promise<Response>>();
-global.fetch = mockFetch;
+const mockFetch = vi.fn<() => Promise<Partial<Response>>>();
+global.fetch = mockFetch as unknown as typeof fetch;
 
 describe("maze.server", () => {
   beforeEach(() => {

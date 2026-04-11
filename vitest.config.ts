@@ -18,7 +18,6 @@ export default defineConfig({
           globals: true,
           clearMocks: true,
           isolate: false,
-          minWorkers: 1,
           maxWorkers: 1,
           setupFiles: ["./setup.unit.ts"],
           env: {
@@ -49,6 +48,7 @@ export default defineConfig({
               },
             ],
             expect: {
+              // @ts-expect-error - pixelmatch comparator types are populated at runtime
               toMatchScreenshot: {
                 comparatorName: "pixelmatch",
                 comparatorOptions: {

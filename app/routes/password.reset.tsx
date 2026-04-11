@@ -67,7 +67,7 @@ export const action = withRequestContext(
       );
     }
 
-    triggerPasswordReset(email);
+    void triggerPasswordReset(email);
 
     return { done: true, errors };
   }

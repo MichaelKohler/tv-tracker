@@ -4,7 +4,7 @@ import { redirect, useActionData, useNavigation } from "react-router";
 import { render, screen } from "@testing-library/react";
 import type { Navigation } from "react-router";
 
-import type { AuthenticationResponseJSON } from "@simplewebauthn/types";
+import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 
 import Login, { action, loader } from "./login";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
@@ -16,7 +16,7 @@ import { verifyLogin } from "../models/user.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({} as Navigation),
   useActionData: vi.fn<() => unknown>(),
   useSearchParams: vi.fn<() => unknown>().mockReturnValue([
     {
@@ -36,7 +36,9 @@ vi.mock("../session.server", async () => ({
   getUserId: vi.fn<() => Promise<string | undefined>>(),
   createUserSession: vi
     .fn<() => Promise<Response>>()
-    .mockImplementation((arg) => arg),
+    .mockImplementation(
+      ((arg: unknown) => arg) as unknown as () => Promise<Response>
+    ),
 }));
 
 vi.mock("../utils", async () => ({
@@ -84,8 +86,9 @@ describe("Login Route", () => {
   });
 
   it("renders logging in on button while submitting form", () => {
-    // @ts-expect-error .. we do not need to define the full FormData impl
-    vi.mocked(useNavigation).mockReturnValue({ formData: {} });
+    vi.mocked(useNavigation).mockReturnValue({
+      formData: {} as FormData,
+    } as Navigation);
 
     render(<Login />);
 

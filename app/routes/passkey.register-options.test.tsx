@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import type { Passkey } from "@prisma/client";
-import type { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/types";
+import type { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/server";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
 import {

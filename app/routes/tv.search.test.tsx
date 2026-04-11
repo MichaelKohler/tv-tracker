@@ -1,8 +1,13 @@
 import "@testing-library/jest-dom";
 import * as React from "react";
+import {
+  type Navigation,
+  type SetURLSearchParams,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router";
 import { render, screen } from "@testing-library/react";
-import { useLoaderData, useNavigation, useSearchParams } from "react-router";
-import type { Navigation } from "react-router";
 
 import Search, { action, loader } from "./tv.search";
 import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
@@ -77,10 +82,8 @@ describe("TV Show Search Route", () => {
     });
 
     vi.mocked(useSearchParams).mockReturnValue([
-      // @ts-expect-error .. we don't need the full API
-      {
-        get: () => "",
-      },
+      { get: () => "" } as unknown as URLSearchParams,
+      vi.fn<() => void>() as unknown as SetURLSearchParams,
     ]);
 
     vi.mocked(useLoaderData).mockReturnValue({
@@ -122,10 +125,8 @@ describe("TV Show Search Route", () => {
 
   it("renders passed search query", () => {
     vi.mocked(useSearchParams).mockReturnValue([
-      // @ts-expect-error .. we don't need the full API
-      {
-        get: () => "fooQuery",
-      },
+      { get: () => "fooQuery" } as unknown as URLSearchParams,
+      vi.fn<() => void>() as unknown as SetURLSearchParams,
     ]);
 
     render(<Search />);

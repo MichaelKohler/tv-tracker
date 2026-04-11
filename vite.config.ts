@@ -51,6 +51,10 @@ export default defineConfig({
       ".react-router",
       "eslint.config.mjs",
     ],
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
     plugins: [
       "eslint",
       "jsx-a11y",

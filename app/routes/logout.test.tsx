@@ -16,7 +16,7 @@ describe("Logout route", () => {
   });
 
   it("returns redirect from loader", async () => {
-    const response = await loader();
+    const response = loader();
 
     expect(response).toStrictEqual(redirect("/"));
   });

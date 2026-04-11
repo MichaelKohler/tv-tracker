@@ -82,7 +82,7 @@ export function PasskeyRegistration({
       setPasskeyName("");
       setPassword("");
       setShowPasskeyForm(false);
-      revalidator.revalidate();
+      void revalidator.revalidate();
     } catch (error) {
       const errorMessages: Record<string, string> = {
         NotAllowedError: "Registration canceled or timed out",
