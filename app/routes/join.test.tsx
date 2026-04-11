@@ -21,7 +21,7 @@ import { validateEmail } from "../utils";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({} as Navigation),
   useActionData: vi.fn<() => unknown>(),
   useLoaderData: vi.fn<() => unknown>(),
   useSearchParams: vi.fn<() => unknown>().mockReturnValue([
@@ -53,7 +53,9 @@ vi.mock("../session.server", async () => ({
   getUserId: vi.fn<() => Promise<string | undefined>>(),
   createUserSession: vi
     .fn<() => Promise<Response>>()
-    .mockImplementation((arg) => arg),
+    .mockImplementation(
+      ((arg: unknown) => arg) as unknown as () => Promise<Response>
+    ),
 }));
 
 vi.mock("../utils", async () => ({
@@ -101,8 +103,9 @@ describe("Join Route", () => {
   });
 
   it("renders creating account on button while submitting form", () => {
-    // @ts-expect-error .. we do not need to define the full FormData impl
-    vi.mocked(useNavigation).mockReturnValue({ formData: {} });
+    vi.mocked(useNavigation).mockReturnValue({
+      formData: {} as FormData,
+    } as Navigation);
 
     render(<Join />);
 

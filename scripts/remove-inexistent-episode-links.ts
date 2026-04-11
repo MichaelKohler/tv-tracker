@@ -25,19 +25,19 @@ async function check() {
 
   for (const episodeId of uniqueEpisodeToCheckIds) {
     console.log("-----------------------");
-    console.log(`Triggering check of ${episodeId}`);
+    console.log(`Triggering check of ${String(episodeId)}`);
 
     if (!episodeIds.includes(episodeId)) {
-      console.log(`Episode ${episodeId} does not exist`);
+      console.log(`Episode ${String(episodeId)} does not exist`);
       await prisma.episodeOnUser.deleteMany({
         where: {
           episodeId,
         },
       });
-      console.log(`Deleted watched episodes ${episodeId}`);
+      console.log(`Deleted watched episodes ${String(episodeId)}`);
     }
 
-    console.log(`Finished check of ${episodeId}`);
+    console.log(`Finished check of ${String(episodeId)}`);
     console.log("-----------------------");
     console.log("");
   }

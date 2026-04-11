@@ -10,7 +10,7 @@ import type { User } from "../models/user.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({} as Navigation),
   useLoaderData: vi.fn<() => unknown>(),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>

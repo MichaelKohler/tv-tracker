@@ -12,7 +12,9 @@ import Index, { loader } from "./_index";
 
 vi.mock("@react-router/node", async () => ({
   ...(await vi.importActual("@react-router/node")),
-  json: vi.fn<(data: unknown) => unknown>().mockImplementation((arg) => arg),
+  json: vi
+    .fn<(data: unknown) => unknown>()
+    .mockImplementation((arg: unknown) => arg),
 }));
 
 vi.mock("react-router", async () => ({

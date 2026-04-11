@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom";
 import * as React from "react";
-import type { Navigation, SubmitFunction } from "react-router";
+import type {
+  Navigation,
+  SetURLSearchParams,
+  SubmitFunction,
+} from "react-router";
 import { render, screen } from "@testing-library/react";
 import { useActionData, useLoaderData, useSearchParams } from "react-router";
 import type { Passkey } from "@prisma/client";
@@ -19,7 +23,7 @@ import { getPasskeysByUserId } from "../models/passkey.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({} as Navigation),
   useActionData: vi.fn<() => unknown>(),
   useLoaderData: vi
     .fn<() => unknown>()
@@ -28,7 +32,9 @@ vi.mock("react-router", async () => ({
   useRevalidator: vi
     .fn<() => { revalidate: () => void; state: string }>()
     .mockReturnValue({ revalidate: vi.fn<() => void>(), state: "idle" }),
-  useSubmit: vi.fn<() => SubmitFunction>().mockReturnValue(vi.fn<() => void>()),
+  useSubmit: vi
+    .fn<() => SubmitFunction>()
+    .mockReturnValue(vi.fn<() => void>() as unknown as SubmitFunction),
   Form: ({ children }: { children: React.ReactNode }) => (
     <form>{children}</form>
   ),
@@ -80,10 +86,8 @@ describe("Account Route", () => {
     });
 
     vi.mocked(useSearchParams).mockReturnValue([
-      // @ts-expect-error we do not want to specify all methods of URLSearchParams
-      {
-        get: () => null,
-      },
+      { get: () => null } as unknown as URLSearchParams,
+      vi.fn<() => void>() as unknown as SetURLSearchParams,
     ]);
 
     vi.mocked(requireUser).mockResolvedValue({
@@ -314,10 +318,8 @@ describe("Account Route", () => {
 
   it("renders without current password input if token is passed", () => {
     vi.mocked(useSearchParams).mockReturnValue([
-      // @ts-expect-error we do not want to specify all methods of URLSearchParams
-      {
-        get: () => "someToken",
-      },
+      { get: () => "someToken" } as unknown as URLSearchParams,
+      vi.fn<() => void>() as unknown as SetURLSearchParams,
     ]);
 
     render(<Account />);

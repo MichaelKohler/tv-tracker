@@ -1,4 +1,4 @@
-import type { SearchResultShow } from "app/types/show";
+import type { SearchResultShow } from "../types/show";
 
 import ErrorAlert from "./error-alert";
 import ShowResult from "./show-result";

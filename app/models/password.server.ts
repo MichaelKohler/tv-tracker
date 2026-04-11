@@ -34,7 +34,7 @@ export async function triggerPasswordReset(email: User["email"]) {
 
       logInfo("Password reset entry created", { email });
 
-      sendPasswordResetMail({ email, token });
+      void sendPasswordResetMail({ email, token });
     } catch (error) {
       logError(
         "Failed to create password reset entry",

@@ -56,7 +56,7 @@ export function PasswordRemove({
       formData.append("intent", "remove-password");
       formData.append("passkeyCredential", JSON.stringify(credential));
 
-      submit(formData, { method: "post" });
+      void submit(formData, { method: "post" });
     } catch (error) {
       setIsRemoving(false);
       console.error("Passkey authentication failed:", error);

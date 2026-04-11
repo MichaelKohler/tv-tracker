@@ -13,7 +13,7 @@ import type { loader } from "./tv.$show";
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
   useCatch: vi.fn<() => unknown>().mockReturnValue({ status: 404 }),
-  useNavigation: vi.fn<() => Navigation>().mockReturnValue({}),
+  useNavigation: vi.fn<() => Navigation>().mockReturnValue({} as Navigation),
   useActionData: vi.fn<() => unknown>(),
   useLoaderData: vi.fn<() => unknown>().mockReturnValue({}),
   useSearchParams: vi.fn<() => unknown>(),

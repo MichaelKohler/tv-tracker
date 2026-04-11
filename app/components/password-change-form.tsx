@@ -69,7 +69,7 @@ export function PasswordChangeForm({
       const credential = await startAuthentication(options);
 
       formData.append("passkeyCredential", JSON.stringify(credential));
-      submit(formData, { method: "post" });
+      void submit(formData, { method: "post" });
     } catch (error) {
       setIsSubmitting(false);
       console.error("Passkey authentication failed:", error);
