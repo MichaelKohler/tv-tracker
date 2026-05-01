@@ -314,7 +314,7 @@ describe("Join Route", () => {
 
       expect(checkRateLimit).toHaveBeenCalledWith(
         "signup:10.0.0.2",
-        10,
+        process.env.CI ? 30 : 10,
         3_600_000
       );
     });
