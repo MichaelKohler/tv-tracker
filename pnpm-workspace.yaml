@@ -1,12 +1,4 @@
 minimumReleaseAge: 1440
-
-onlyBuiltDependencies:
-  - '@prisma/engines'
-  - '@sentry/cli'
-  - bcrypt
-  - esbuild
-  - prisma
-  - unrs-resolver
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest
@@ -30,3 +22,11 @@ minimumReleaseAgeExclude:
   - '@oxlint-tsgolint/*'
   - oxfmt
   - '@oxfmt/*'
+shamefullyHoist: true
+allowBuilds:
+  '@prisma/engines': true
+  '@sentry/cli': true
+  bcrypt: true
+  esbuild: true
+  prisma: true
+  unrs-resolver: true

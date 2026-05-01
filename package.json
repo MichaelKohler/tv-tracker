@@ -81,13 +81,6 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "@react-router/dev>vite": "8"
-      }
-    }
-  },
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@11.0.3",
   "version": "2.0.0"
 }
