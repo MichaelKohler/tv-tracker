@@ -5,7 +5,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "react-router build && mkdir -p build/server/generated/prisma && cp -r app/generated/prisma build/server/generated/",
+    "build": "prisma generate && react-router build && mkdir -p build/server/generated/prisma && cp -r app/generated/prisma build/server/generated/",
     "delete:episode": "tsx scripts/delete-episode.ts",
     "delete:season": "tsx scripts/delete-season.ts",
     "delete:episode:id": "tsx scripts/delete-episode-by-id.ts",
@@ -81,13 +81,6 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "@react-router/dev>vite": "8"
-      }
-    }
-  },
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@11.0.3",
   "version": "2.0.0"
 }

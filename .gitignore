@@ -28,3 +28,4 @@ tsconfig.tsbuildinfo
 # Sentry
 .sentryclirc
 .env.sentry-build-plugin
+package-lock.json

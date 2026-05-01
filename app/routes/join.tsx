@@ -68,10 +68,11 @@ export const action = withRequestContext(
       invite: null,
     };
 
+    const SIGNUP_RATE_LIMIT_PER_HOUR = process.env.CI ? 30 : 10;
     const ip = getClientIp(request);
     const { limited, retryAfterSeconds } = checkRateLimit(
       `signup:${ip}`,
-      10,
+      SIGNUP_RATE_LIMIT_PER_HOUR,
       60 * 60 * 1000
     );
     if (limited) {

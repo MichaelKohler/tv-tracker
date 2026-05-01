@@ -63,14 +63,28 @@ test("allows TV flows", async ({ page }) => {
   // Wait for MARK_ALL_WATCHED loader: all episodes are watched, so "Mark as not
   // watched" buttons appear. This confirms the action + loader completed successfully.
   await expect(page.getByText("Mark as not watched").first()).toBeVisible();
-  await page.getByText("Mark as not watched").nth(0).click();
 
-  // Wait for MARK_UNWATCHED loader: first episode transitions back to "Mark as watched",
-  // confirming the component has re-rendered with fresh data before clicking "Remove show".
+  // Identify the first "Mark as not watched" episode by its name so we can
+  // verify the same episode transitions back to "Mark as watched" after the click.
+  const firstWatchedEpisodeItem = page
+    .getByRole("listitem")
+    .filter({ has: page.getByRole("button", { name: "Mark as not watched" }) })
+    .first();
+  await expect(firstWatchedEpisodeItem).toBeVisible();
+  const episodeName = await firstWatchedEpisodeItem
+    .locator("strong")
+    .first()
+    .textContent();
+  expect(episodeName).toBeTruthy();
+  await firstWatchedEpisodeItem
+    .getByRole("button", { name: "Mark as not watched" })
+    .click();
+
+  // Wait for MARK_UNWATCHED loader: the same episode transitions back to "Mark as watched".
   await expect(
     page
       .getByRole("listitem")
-      .first()
+      .filter({ has: page.locator("strong", { hasText: episodeName ?? "" }) })
       .getByRole("button", { name: "Mark as watched" })
   ).toBeVisible();
 
