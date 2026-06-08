@@ -35,7 +35,7 @@ vi.mock("./session.server", async () => ({
 }));
 
 // Import after mocking the flipt client
-// oxlint-disable-next-line eslint-plugin-import(first)
+// oxlint-disable-next-line import/first
 import {
   FLAGS,
   DEFAULT_FLAG_VALUES,
