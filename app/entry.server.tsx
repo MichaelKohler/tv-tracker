@@ -1,4 +1,4 @@
-// oxlint-disable eslint-plugin-import(first)
+// oxlint-disable import/first
 import "./instrumentation.server";
 
 import * as Sentry from "@sentry/react-router";
