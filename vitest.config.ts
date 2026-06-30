@@ -48,7 +48,6 @@ export default defineConfig({
               },
             ],
             expect: {
-              // @ts-expect-error - pixelmatch comparator types are populated at runtime
               toMatchScreenshot: {
                 comparatorName: "pixelmatch",
                 comparatorOptions: {
