@@ -55,8 +55,12 @@ describe("ShowHeader", () => {
       </VisualTestContainer>
     );
 
-    await expect.element(page.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
-    await expect.element(page.getByRole("heading", { name: show.name })).toBeInTheDocument();
+    await expect.element(
+      page.getByText(/Watched 0 of 2 aired episodes/)
+    ).toBeInTheDocument();
+    await expect.element(
+      page.getByRole("heading", { name: show.name })
+    ).toBeInTheDocument();
     await expect.element(page.getByText(show.summary)).toBeInTheDocument();
     await expect.element(
       page.getByText(new Date(show.premiered).toLocaleDateString())
@@ -83,7 +87,9 @@ describe("ShowHeader", () => {
       />
     );
 
-    await expect.element(page.getByText(/Watched 1 of 2 aired episodes/)).toBeInTheDocument();
+    await expect.element(
+      page.getByText(/Watched 1 of 2 aired episodes/)
+    ).toBeInTheDocument();
   });
 
   it("does not render mark all button if no episodes", async () => {

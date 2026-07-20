@@ -34,7 +34,9 @@ describe("StatCard", () => {
 
     await expect.element(page.getByText("Test Title")).toBeInTheDocument();
     await expect.element(page.getByText("42")).toBeInTheDocument();
-    await expect.element(page.getByText("This is a test description")).toBeInTheDocument();
+    await expect.element(
+      page.getByText("This is a test description")
+    ).toBeInTheDocument();
   });
 
   it("renders stat card without description", async () => {

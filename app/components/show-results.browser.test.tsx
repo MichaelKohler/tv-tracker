@@ -57,7 +57,9 @@ describe("ShowResults", () => {
       <ShowResults shows={[]} isLoading={false} error="ADDING_SHOW_FAILED" />
     );
 
-    await expect.element(page.getByText(/Adding show failed/)).toBeInTheDocument();
+    await expect.element(
+      page.getByText(/Adding show failed/)
+    ).toBeInTheDocument();
     await expect.element(
       page.getByText(/There was an error while adding the show/)
     ).toBeInTheDocument();

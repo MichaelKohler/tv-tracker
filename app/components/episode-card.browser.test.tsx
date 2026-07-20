@@ -40,8 +40,12 @@ describe("EpisodeCard", () => {
       </VisualTestContainer>
     );
 
-    await expect.element(page.getByText(testShow.name, { exact: false })).toBeInTheDocument();
-    await expect.element(page.getByText("S01E01", { exact: false })).toBeInTheDocument();
+    await expect.element(
+      page.getByText(testShow.name, { exact: false })
+    ).toBeInTheDocument();
+    await expect.element(
+      page.getByText("S01E01", { exact: false })
+    ).toBeInTheDocument();
 
     await document.fonts.ready;
 

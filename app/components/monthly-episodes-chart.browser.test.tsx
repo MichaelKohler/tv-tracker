@@ -33,7 +33,9 @@ describe("MonthlyEpisodesChart", () => {
         <MonthlyEpisodesChart data={mockData} />
       </VisualTestContainer>
     );
-    await expect.element(page.getByText("Episodes Watched Per Month")).toBeInTheDocument();
+    await expect.element(
+      page.getByText("Episodes Watched Per Month")
+    ).toBeInTheDocument();
 
     await document.fonts.ready;
 

@@ -35,7 +35,9 @@ describe("ShowResult", () => {
       </VisualTestContainer>
     );
 
-    await expect.element(page.getByText(show.name, { exact: true })).toBeInTheDocument();
+    await expect.element(
+      page.getByText(show.name, { exact: true })
+    ).toBeInTheDocument();
     await expect.element(page.getByText(show.summary)).toBeInTheDocument();
     await expect.element(
       page.getByText(new Date(show.premiered).toLocaleDateString())
@@ -53,7 +55,9 @@ describe("ShowResult", () => {
   it("does not render add show button with feature disabled", async () => {
     await render(<ShowResult show={show} features={{ addShow: false }} />);
 
-    await expect.element(page.getByText(show.name, { exact: true })).toBeInTheDocument();
+    await expect.element(
+      page.getByText(show.name, { exact: true })
+    ).toBeInTheDocument();
     await expect.element(page.getByText("Add Show")).not.toBeInTheDocument();
   });
 
