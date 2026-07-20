@@ -77,21 +77,21 @@ describe("FullEpisodesList", () => {
 
     await expect.element(page.getByText(/Test Episode 1/)).toBeInTheDocument();
     await expect.element(page.getByText(/S01E01/)).toBeInTheDocument();
-    await expect.element(
-      page.getByText(DEFAULT_EPISODES[0].summary, { exact: true })
-    ).toBeInTheDocument();
-    await expect.element(
-      page.getByText(DEFAULT_EPISODES[0].show.name)
-    ).toBeInTheDocument();
+    await expect
+      .element(page.getByText(DEFAULT_EPISODES[0].summary, { exact: true }))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByText(DEFAULT_EPISODES[0].show.name))
+      .toBeInTheDocument();
 
     await expect.element(page.getByText(/Test Episode 2/)).toBeInTheDocument();
     await expect.element(page.getByText(/S01E02/)).toBeInTheDocument();
-    await expect.element(
-      page.getByText(DEFAULT_EPISODES[1].summary, { exact: true })
-    ).toBeInTheDocument();
-    await expect.element(
-      page.getByText(DEFAULT_EPISODES[1].show.name)
-    ).toBeInTheDocument();
+    await expect
+      .element(page.getByText(DEFAULT_EPISODES[1].summary, { exact: true }))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByText(DEFAULT_EPISODES[1].show.name))
+      .toBeInTheDocument();
 
     await document.fonts.ready;
 

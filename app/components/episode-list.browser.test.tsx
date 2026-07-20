@@ -65,12 +65,12 @@ describe("EpisodeList", () => {
       />
     );
 
-    await expect.element(
-      page.getByText("Mark as not watched")
-    ).toBeInTheDocument();
-    await expect.element(
-      page.getByText("Ignore", { exact: true })
-    ).not.toBeInTheDocument();
+    await expect
+      .element(page.getByText("Mark as not watched"))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByText("Ignore", { exact: true }))
+      .not.toBeInTheDocument();
   });
 
   it("renders spinner while submitting mark as read", async () => {
@@ -98,9 +98,9 @@ describe("EpisodeList", () => {
       />
     );
 
-    await expect.element(
-      page.getByText(DEFAULT_EPISODES[0].name)
-    ).toBeInTheDocument();
+    await expect
+      .element(page.getByText(DEFAULT_EPISODES[0].name))
+      .toBeInTheDocument();
     await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
     const watchedButton = page.getByRole("button", { name: /Mark as watched/ });
     await expect.element(watchedButton).toBeDisabled();
@@ -146,9 +146,9 @@ describe("EpisodeList", () => {
     await expect
       .element(page.getByText("Mark as watched"))
       .not.toBeInTheDocument();
-    await expect.element(
-      page.getByText("Ignore", { exact: true })
-    ).not.toBeInTheDocument();
+    await expect
+      .element(page.getByText("Ignore", { exact: true }))
+      .not.toBeInTheDocument();
   });
 
   it("renders ignored episode with grayscale styling", async () => {
@@ -179,8 +179,8 @@ describe("EpisodeList", () => {
     await expect
       .element(page.getByText("Mark as watched"))
       .not.toBeInTheDocument();
-    await expect.element(
-      page.getByText("Ignore", { exact: true })
-    ).not.toBeInTheDocument();
+    await expect
+      .element(page.getByText("Ignore", { exact: true }))
+      .not.toBeInTheDocument();
   });
 });

@@ -33,9 +33,9 @@ describe("MonthlyEpisodesChart", () => {
         <MonthlyEpisodesChart data={mockData} />
       </VisualTestContainer>
     );
-    await expect.element(
-      page.getByText("Episodes Watched Per Month")
-    ).toBeInTheDocument();
+    await expect
+      .element(page.getByText("Episodes Watched Per Month"))
+      .toBeInTheDocument();
 
     await document.fonts.ready;
 
@@ -46,8 +46,8 @@ describe("MonthlyEpisodesChart", () => {
 
   it("does not render when data is empty", async () => {
     await render(<MonthlyEpisodesChart data={[]} />);
-    await expect.element(
-      page.getByText("Episodes Watched Per Month")
-    ).not.toBeInTheDocument();
+    await expect
+      .element(page.getByText("Episodes Watched Per Month"))
+      .not.toBeInTheDocument();
   });
 });
