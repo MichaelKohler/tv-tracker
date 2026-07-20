@@ -40,13 +40,17 @@ describe("EpisodeCard", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText(testShow.name, { exact: false })).toBeInTheDocument();
-    expect(page.getByText("S01E01", { exact: false })).toBeInTheDocument();
+    await expect
+      .element(page.getByText(testShow.name, { exact: false }))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByText("S01E01", { exact: false }))
+      .toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("episode-card");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("episode-card");
   });
 });

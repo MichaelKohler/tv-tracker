@@ -28,20 +28,20 @@ describe("ShowResults", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText("tvmaze")).toBeInTheDocument();
+    await expect.element(page.getByText("tvmaze")).toBeInTheDocument();
     expect(page.getByText("ShowResult").length).toBe(2);
 
     await document.fonts.ready;
 
     const element = page.getByTestId("show-results");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("show-results");
   });
 
   it("renders spinner while loading results", async () => {
     await render(<ShowResults shows={[]} isLoading={true} error={undefined} />);
 
-    expect(page.getByTestId("spinner")).toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
   });
 
   it("renders no shows found message", async () => {
@@ -49,7 +49,7 @@ describe("ShowResults", () => {
       <ShowResults shows={[]} isLoading={false} error={undefined} />
     );
 
-    expect(page.getByText(/No shows found/)).toBeInTheDocument();
+    await expect.element(page.getByText(/No shows found/)).toBeInTheDocument();
   });
 
   it("renders error message", async () => {
@@ -57,9 +57,11 @@ describe("ShowResults", () => {
       <ShowResults shows={[]} isLoading={false} error="ADDING_SHOW_FAILED" />
     );
 
-    expect(page.getByText(/Adding show failed/)).toBeInTheDocument();
-    expect(
-      page.getByText(/There was an error while adding the show/)
-    ).toBeInTheDocument();
+    await expect
+      .element(page.getByText(/Adding show failed/))
+      .toBeInTheDocument();
+    await expect
+      .element(page.getByText(/There was an error while adding the show/))
+      .toBeInTheDocument();
   });
 });

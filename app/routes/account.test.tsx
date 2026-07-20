@@ -497,7 +497,7 @@ describe("Account Route", () => {
           context: {},
           params: {},
         })
-      ).rejects.toThrow("OH NO");
+      ).rejects.toHaveProperty("message", expect.stringContaining("OH NO"));
     });
 
     it("should change password if everything ok", async () => {
@@ -577,7 +577,7 @@ describe("Account Route", () => {
           context: {},
           params: {},
         })
-      ).rejects.toThrow("NO_USER");
+      ).rejects.toHaveProperty("message", expect.stringContaining("NO_USER"));
     });
 
     it("should enable the password change form if there is a token even without a user", async () => {

@@ -33,19 +33,21 @@ describe("MonthlyEpisodesChart", () => {
         <MonthlyEpisodesChart data={mockData} />
       </VisualTestContainer>
     );
-    expect(page.getByText("Episodes Watched Per Month")).toBeInTheDocument();
+    await expect
+      .element(page.getByText("Episodes Watched Per Month"))
+      .toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("monthly-episodes-chart");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("monthly-episodes-chart");
   });
 
   it("does not render when data is empty", async () => {
     await render(<MonthlyEpisodesChart data={[]} />);
-    expect(
-      page.getByText("Episodes Watched Per Month")
-    ).not.toBeInTheDocument();
+    await expect
+      .element(page.getByText("Episodes Watched Per Month"))
+      .not.toBeInTheDocument();
   });
 });

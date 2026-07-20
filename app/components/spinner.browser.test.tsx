@@ -13,12 +13,12 @@ describe("Spinner", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByTestId("spinner")).toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("spinner-container");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("spinner");
   });
 });

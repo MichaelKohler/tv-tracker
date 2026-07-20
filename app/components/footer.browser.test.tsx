@@ -13,13 +13,13 @@ describe("Footer", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText("Open Source")).toBeInTheDocument();
-    expect(page.getByText(/Michael Kohler/)).toBeInTheDocument();
+    await expect.element(page.getByText("Open Source")).toBeInTheDocument();
+    await expect.element(page.getByText(/Michael Kohler/)).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("footer");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("footer");
   });
 });

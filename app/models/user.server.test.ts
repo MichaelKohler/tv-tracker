@@ -196,8 +196,9 @@ describe("User Model", () => {
   });
 
   it("changePassword should throw error if no email or token passed", async () => {
-    await expect(() => changePassword("", "foo", "")).rejects.toThrowError(
-      "NO_EMAIL_OR_TOKEN_PASSED"
+    await expect(() => changePassword("", "foo", "")).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("NO_EMAIL_OR_TOKEN_PASSED")
     );
   });
 
@@ -228,14 +229,20 @@ describe("User Model", () => {
     prisma.user.findUnique.mockResolvedValue(null);
     await expect(() =>
       changePassword("foo@example.com", "foo", "")
-    ).rejects.toThrowError("USER_NOT_FOUND");
+    ).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("USER_NOT_FOUND")
+    );
   });
 
   it("changePassword should throw error if no token reset found", async () => {
     prisma.passwordReset.findUnique.mockResolvedValue(null);
     await expect(() =>
       changePassword("", "foo", "someToken")
-    ).rejects.toThrowError("PASSWORD_RESET_EXPIRED");
+    ).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("PASSWORD_RESET_EXPIRED")
+    );
   });
 
   it("changePassword should throw error if token reset expired", async () => {
@@ -247,7 +254,10 @@ describe("User Model", () => {
     });
     await expect(() =>
       changePassword("", "foo", "someToken")
-    ).rejects.toThrowError("PASSWORD_RESET_EXPIRED");
+    ).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("PASSWORD_RESET_EXPIRED")
+    );
   });
 
   it("changePassword should change password with reset token", async () => {
@@ -378,8 +388,9 @@ describe("User Model", () => {
   it("removePassword should throw error when user not found", async () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
-    await expect(() => removePassword("123")).rejects.toThrowError(
-      "USER_NOT_FOUND"
+    await expect(() => removePassword("123")).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("USER_NOT_FOUND")
     );
   });
 
@@ -395,8 +406,9 @@ describe("User Model", () => {
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    await expect(() => removePassword("123")).rejects.toThrowError(
-      "NO_PASSWORD_TO_REMOVE"
+    await expect(() => removePassword("123")).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("NO_PASSWORD_TO_REMOVE")
     );
   });
 
@@ -414,8 +426,9 @@ describe("User Model", () => {
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    await expect(() => removePassword("123")).rejects.toThrowError(
-      "NEED_PASSKEY_BEFORE_REMOVAL"
+    await expect(() => removePassword("123")).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("NEED_PASSKEY_BEFORE_REMOVAL")
     );
   });
 });

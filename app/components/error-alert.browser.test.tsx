@@ -16,13 +16,13 @@ describe("ErrorAlert", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText(title)).toBeInTheDocument();
-    expect(page.getByText(message)).toBeInTheDocument();
+    await expect.element(page.getByText(title)).toBeInTheDocument();
+    await expect.element(page.getByText(message)).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("error-alert");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("error-alert");
   });
 });
