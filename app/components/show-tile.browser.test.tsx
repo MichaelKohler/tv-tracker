@@ -37,13 +37,13 @@ describe("ShowTile", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText("1")).toBeInTheDocument();
-    expect(page.getByText(show.name)).toBeInTheDocument();
+    await expect.element(page.getByText("1")).toBeInTheDocument();
+    await expect.element(page.getByText(show.name)).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("show-tile");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("show-tile");
   });
 
@@ -56,6 +56,6 @@ describe("ShowTile", () => {
 
     await render(<ShowTile show={show} />);
 
-    expect(page.getByTestId("spinner")).not.toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).not.toBeInTheDocument();
   });
 });

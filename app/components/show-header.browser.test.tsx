@@ -55,23 +55,23 @@ describe("ShowHeader", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
-    expect(page.getByRole("heading", { name: show.name })).toBeInTheDocument();
-    expect(page.getByText(show.summary)).toBeInTheDocument();
-    expect(
+    await expect.element(page.getByText(/Watched 0 of 2 aired episodes/)).toBeInTheDocument();
+    await expect.element(page.getByRole("heading", { name: show.name })).toBeInTheDocument();
+    await expect.element(page.getByText(show.summary)).toBeInTheDocument();
+    await expect.element(
       page.getByText(new Date(show.premiered).toLocaleDateString())
     ).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("show-header");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("show-header");
-    expect(page.getByText("8.5")).toBeInTheDocument();
-    expect(
+    await expect.element(page.getByText("8.5")).toBeInTheDocument();
+    await expect.element(
       page.getByText("Mark all aired episodes as watched")
     ).toBeInTheDocument();
-    expect(page.getByText("Remove show")).toBeInTheDocument();
+    await expect.element(page.getByText("Remove show")).toBeInTheDocument();
   });
 
   it("renders watch count correctly", async () => {
@@ -83,7 +83,7 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(page.getByText(/Watched 1 of 2 aired episodes/)).toBeInTheDocument();
+    await expect.element(page.getByText(/Watched 1 of 2 aired episodes/)).toBeInTheDocument();
   });
 
   it("does not render mark all button if no episodes", async () => {
@@ -95,7 +95,7 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(
+    await expect.element(
       page.getByText("Mark all aired episodes as watched")
     ).not.toBeInTheDocument();
   });
@@ -109,7 +109,7 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(
+    await expect.element(
       page.getByText("Mark all aired episodes as watched")
     ).not.toBeInTheDocument();
   });
@@ -128,7 +128,7 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(page.getByText("Archive")).toBeInTheDocument();
+    await expect.element(page.getByText("Archive")).toBeInTheDocument();
   });
 
   it("renders unarchive button if not archived", async () => {
@@ -145,7 +145,7 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(page.getByText("UnArchive")).toBeInTheDocument();
+    await expect.element(page.getByText("UnArchive")).toBeInTheDocument();
   });
 
   it("renders spinner on mark all watched", async () => {
@@ -170,12 +170,12 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(page.getByTestId("spinner")).toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
     const markAllButton = page.getByRole("button", {
       name: /Mark all aired episodes as watched/,
     });
-    expect(markAllButton).toBeDisabled();
-    expect(page.getByText(/Remove show/)).toBeInTheDocument();
+    await expect.element(markAllButton).toBeDisabled();
+    await expect.element(page.getByText(/Remove show/)).toBeInTheDocument();
   });
 
   it("renders spinner on remove show", async () => {
@@ -200,12 +200,12 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(
+    await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
+    await expect.element(
       page.getByText(/Mark all aired episodes as watched/)
     ).toBeInTheDocument();
     const deleteButton = page.getByRole("button", { name: /Remove show/ });
-    expect(deleteButton).toBeDisabled();
+    await expect.element(deleteButton).toBeDisabled();
   });
 
   it("renders spinner on archiving", async () => {
@@ -230,9 +230,9 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(page.getByTestId("spinner")).toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
     const archiveButton = page.getByRole("button", { name: "Archive" });
-    expect(archiveButton).toBeDisabled();
+    await expect.element(archiveButton).toBeDisabled();
   });
 
   it("renders spinner on unarchiving", async () => {
@@ -259,8 +259,8 @@ describe("ShowHeader", () => {
       />
     );
 
-    expect(page.getByTestId("spinner")).toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
     const unarchiveButton = page.getByRole("button", { name: "Unarchive" });
-    expect(unarchiveButton).toBeDisabled();
+    await expect.element(unarchiveButton).toBeDisabled();
   });
 });

@@ -75,24 +75,24 @@ describe("FullEpisodesList", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText(/Test Episode 1/)).toBeInTheDocument();
-    expect(page.getByText(/S01E01/)).toBeInTheDocument();
-    expect(
+    await expect.element(page.getByText(/Test Episode 1/)).toBeInTheDocument();
+    await expect.element(page.getByText(/S01E01/)).toBeInTheDocument();
+    await expect.element(
       page.getByText(DEFAULT_EPISODES[0].summary, { exact: true })
     ).toBeInTheDocument();
-    expect(page.getByText(DEFAULT_EPISODES[0].show.name)).toBeInTheDocument();
+    await expect.element(page.getByText(DEFAULT_EPISODES[0].show.name)).toBeInTheDocument();
 
-    expect(page.getByText(/Test Episode 2/)).toBeInTheDocument();
-    expect(page.getByText(/S01E02/)).toBeInTheDocument();
-    expect(
+    await expect.element(page.getByText(/Test Episode 2/)).toBeInTheDocument();
+    await expect.element(page.getByText(/S01E02/)).toBeInTheDocument();
+    await expect.element(
       page.getByText(DEFAULT_EPISODES[1].summary, { exact: true })
     ).toBeInTheDocument();
-    expect(page.getByText(DEFAULT_EPISODES[1].show.name)).toBeInTheDocument();
+    await expect.element(page.getByText(DEFAULT_EPISODES[1].show.name)).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("full-episodes-list");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("full-episodes-list");
   });
 
@@ -105,6 +105,6 @@ describe("FullEpisodesList", () => {
     ];
     await render(<FullEpisodesList episodes={episodes} />);
 
-    expect(page.getByText("a &lt; b")).toBeInTheDocument();
+    await expect.element(page.getByText("a &lt; b")).toBeInTheDocument();
   });
 });

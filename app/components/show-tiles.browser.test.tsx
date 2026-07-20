@@ -45,7 +45,7 @@ describe("ShowTiles", () => {
     await document.fonts.ready;
 
     const element = page.getByTestId("show-tiles");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("show-tiles");
   });
 });

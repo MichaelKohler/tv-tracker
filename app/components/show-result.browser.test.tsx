@@ -35,26 +35,26 @@ describe("ShowResult", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText(show.name, { exact: true })).toBeInTheDocument();
-    expect(page.getByText(show.summary)).toBeInTheDocument();
-    expect(
+    await expect.element(page.getByText(show.name, { exact: true })).toBeInTheDocument();
+    await expect.element(page.getByText(show.summary)).toBeInTheDocument();
+    await expect.element(
       page.getByText(new Date(show.premiered).toLocaleDateString())
     ).toBeInTheDocument();
-    expect(page.getByText("8.5")).toBeInTheDocument();
-    expect(page.getByText("Add Show")).toBeInTheDocument();
+    await expect.element(page.getByText("8.5")).toBeInTheDocument();
+    await expect.element(page.getByText("Add Show")).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("show-result");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("show-result");
   });
 
   it("does not render add show button with feature disabled", async () => {
     await render(<ShowResult show={show} features={{ addShow: false }} />);
 
-    expect(page.getByText(show.name, { exact: true })).toBeInTheDocument();
-    expect(page.getByText("Add Show")).not.toBeInTheDocument();
+    await expect.element(page.getByText(show.name, { exact: true })).toBeInTheDocument();
+    await expect.element(page.getByText("Add Show")).not.toBeInTheDocument();
   });
 
   it("renders spinner on adding show", async () => {
@@ -77,8 +77,8 @@ describe("ShowResult", () => {
 
     await render(<ShowResult show={show} features={{ addShow: true }} />);
 
-    expect(page.getByTestId("spinner")).toBeInTheDocument();
-    expect(page.getByText(/Add Show/)).not.toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
+    await expect.element(page.getByText(/Add Show/)).not.toBeInTheDocument();
   });
 
   it("does not render spinner or button on adding another show", async () => {
@@ -101,8 +101,8 @@ describe("ShowResult", () => {
 
     await render(<ShowResult show={show} features={{ addShow: true }} />);
 
-    expect(page.getByTestId("spinner")).not.toBeInTheDocument();
-    expect(page.getByText(/Add Show/)).not.toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).not.toBeInTheDocument();
+    await expect.element(page.getByText(/Add Show/)).not.toBeInTheDocument();
   });
 
   it("does not render spinner on other action", async () => {
@@ -125,7 +125,7 @@ describe("ShowResult", () => {
 
     await render(<ShowResult show={show} features={{ addShow: true }} />);
 
-    expect(page.getByTestId("spinner")).not.toBeInTheDocument();
-    expect(page.getByText(/Add Show/)).toBeInTheDocument();
+    await expect.element(page.getByTestId("spinner")).not.toBeInTheDocument();
+    await expect.element(page.getByText(/Add Show/)).toBeInTheDocument();
   });
 });

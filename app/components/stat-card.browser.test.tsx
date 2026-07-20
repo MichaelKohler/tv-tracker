@@ -13,13 +13,13 @@ describe("StatCard", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText("Test Title")).toBeInTheDocument();
-    expect(page.getByText("42")).toBeInTheDocument();
+    await expect.element(page.getByText("Test Title")).toBeInTheDocument();
+    await expect.element(page.getByText("42")).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("stat-card");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("stat-card");
   });
 
@@ -32,17 +32,17 @@ describe("StatCard", () => {
       />
     );
 
-    expect(page.getByText("Test Title")).toBeInTheDocument();
-    expect(page.getByText("42")).toBeInTheDocument();
-    expect(page.getByText("This is a test description")).toBeInTheDocument();
+    await expect.element(page.getByText("Test Title")).toBeInTheDocument();
+    await expect.element(page.getByText("42")).toBeInTheDocument();
+    await expect.element(page.getByText("This is a test description")).toBeInTheDocument();
   });
 
   it("renders stat card without description", async () => {
     await render(<StatCard title="Test Title" value="42" />);
 
-    expect(page.getByText("Test Title")).toBeInTheDocument();
-    expect(page.getByText("42")).toBeInTheDocument();
-    expect(
+    await expect.element(page.getByText("Test Title")).toBeInTheDocument();
+    await expect.element(page.getByText("42")).toBeInTheDocument();
+    await expect.element(
       page.getByText("This is a test description")
     ).not.toBeInTheDocument();
   });
@@ -50,7 +50,7 @@ describe("StatCard", () => {
   it("renders numeric values", async () => {
     await render(<StatCard title="Count" value={123} />);
 
-    expect(page.getByText("Count")).toBeInTheDocument();
-    expect(page.getByText("123")).toBeInTheDocument();
+    await expect.element(page.getByText("Count")).toBeInTheDocument();
+    await expect.element(page.getByText("123")).toBeInTheDocument();
   });
 });

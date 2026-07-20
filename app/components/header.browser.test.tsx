@@ -62,15 +62,15 @@ describe("Header", () => {
       </VisualTestContainer>
     );
 
-    expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
-    expect(page.getByText("Account")).toBeInTheDocument();
-    expect(page.getByText("Upcoming")).toBeInTheDocument();
-    expect(page.getByText("Logout")).toBeInTheDocument();
+    await expect.element(page.getByText("TV", { exact: true })).toBeInTheDocument();
+    await expect.element(page.getByText("Account")).toBeInTheDocument();
+    await expect.element(page.getByText("Upcoming")).toBeInTheDocument();
+    await expect.element(page.getByText("Logout")).toBeInTheDocument();
 
     await document.fonts.ready;
 
     const element = page.getByTestId("header");
-    expect(element).toBeInTheDocument();
+    await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("header");
   });
 
@@ -85,11 +85,11 @@ describe("Header", () => {
 
     await render(<Header renderLoginButtons={false} features={mockFeatures} />);
 
-    expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
-    expect(page.getByText("Account")).toBeInTheDocument();
-    expect(page.getByText("Upcoming")).toBeInTheDocument();
-    expect(page.getByText("Archive")).toBeInTheDocument();
-    expect(page.getByText("Logout")).not.toBeInTheDocument();
+    await expect.element(page.getByText("TV", { exact: true })).toBeInTheDocument();
+    await expect.element(page.getByText("Account")).toBeInTheDocument();
+    await expect.element(page.getByText("Upcoming")).toBeInTheDocument();
+    await expect.element(page.getByText("Archive")).toBeInTheDocument();
+    await expect.element(page.getByText("Logout")).not.toBeInTheDocument();
   });
 
   it("renders header for logged out user", async () => {
@@ -97,12 +97,12 @@ describe("Header", () => {
 
     await render(<Header features={mockFeatures} />);
 
-    expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
-    expect(page.getByText("Upcoming")).not.toBeInTheDocument();
-    expect(page.getByText("Account")).not.toBeInTheDocument();
-    expect(page.getByText("Archive")).not.toBeInTheDocument();
-    expect(page.getByText("Log In")).toBeInTheDocument();
-    expect(page.getByText("Sign up")).toBeInTheDocument();
+    await expect.element(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
+    await expect.element(page.getByText("Upcoming")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Account")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Archive")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Log In")).toBeInTheDocument();
+    await expect.element(page.getByText("Sign up")).toBeInTheDocument();
   });
 
   it("renders header without buttons for logged out user", async () => {
@@ -110,12 +110,12 @@ describe("Header", () => {
 
     await render(<Header renderLoginButtons={false} features={mockFeatures} />);
 
-    expect(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
-    expect(page.getByText("Upcoming")).not.toBeInTheDocument();
-    expect(page.getByText("Account")).not.toBeInTheDocument();
-    expect(page.getByText("Archive")).not.toBeInTheDocument();
-    expect(page.getByText("Log In")).not.toBeInTheDocument();
-    expect(page.getByText("Sign Up")).not.toBeInTheDocument();
+    await expect.element(page.getByText("TV", { exact: true })).not.toBeInTheDocument();
+    await expect.element(page.getByText("Upcoming")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Account")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Archive")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Log In")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Sign Up")).not.toBeInTheDocument();
   });
 
   it("hides links when features are disabled", async () => {
@@ -139,10 +139,10 @@ describe("Header", () => {
       />
     );
 
-    expect(page.getByText("TV", { exact: true })).toBeInTheDocument();
-    expect(page.getByText("Upcoming")).not.toBeInTheDocument();
-    expect(page.getByText("Recently watched")).not.toBeInTheDocument();
-    expect(page.getByText("Archive")).not.toBeInTheDocument();
-    expect(page.getByText("Stats")).not.toBeInTheDocument();
+    await expect.element(page.getByText("TV", { exact: true })).toBeInTheDocument();
+    await expect.element(page.getByText("Upcoming")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Recently watched")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Archive")).not.toBeInTheDocument();
+    await expect.element(page.getByText("Stats")).not.toBeInTheDocument();
   });
 });
