@@ -102,6 +102,7 @@ describe("EpisodeList", () => {
       page.getByText(DEFAULT_EPISODES[0].name)
     ).toBeInTheDocument();
     await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
+    const watchedButton = page.getByRole("button", { name: /Mark as watched/ });
     await expect.element(watchedButton).toBeDisabled();
   });
 
