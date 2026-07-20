@@ -68,8 +68,9 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("999")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("999")).rejects.toThrow(
-        "Failed to fetch show with ID 999: Not Found"
+      await expect(fetchShowWithEmbededEpisodes("999")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Failed to fetch show with ID 999: Not Found")
       );
 
       const error = await fetchShowWithEmbededEpisodes("999").catch((e) => e);
@@ -88,8 +89,11 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
-        "Failed to fetch show with ID 123: Internal Server Error"
+      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining(
+          "Failed to fetch show with ID 123: Internal Server Error"
+        )
       );
     });
 
@@ -99,8 +103,9 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
-        "Network error while fetching URL"
+      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Network error while fetching URL")
       );
     });
 
@@ -116,8 +121,9 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
-        "Failed to parse JSON response from URL"
+      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Failed to parse JSON response from URL")
       );
     });
 
@@ -130,8 +136,9 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
-        "Request timeout after 10000ms"
+      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Request timeout after 10000ms")
       );
     });
 
@@ -145,8 +152,9 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
-        "Invalid response format for show with ID 123"
+      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Invalid response format for show with ID 123")
       );
     });
 
@@ -160,8 +168,9 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
-        "Invalid response format for show with ID 123"
+      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Invalid response format for show with ID 123")
       );
     });
 
@@ -175,8 +184,9 @@ describe("maze.server", () => {
       await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
         TVMazeAPIError
       );
-      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toThrow(
-        "Invalid response format for show with ID 123"
+      await expect(fetchShowWithEmbededEpisodes("123")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Invalid response format for show with ID 123")
       );
     });
   });
@@ -239,8 +249,11 @@ describe("maze.server", () => {
       });
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        'Failed to search for shows with query "test": Not Found'
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining(
+          'Failed to search for shows with query "test": Not Found'
+        )
       );
 
       const error = await fetchSearchResults("test").catch((e) => e);
@@ -257,8 +270,11 @@ describe("maze.server", () => {
       });
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        'Failed to search for shows with query "test": Internal Server Error'
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining(
+          'Failed to search for shows with query "test": Internal Server Error'
+        )
       );
     });
 
@@ -266,8 +282,9 @@ describe("maze.server", () => {
       mockFetch.mockRejectedValue(new Error("Network error"));
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        "Network error while fetching URL"
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Network error while fetching URL")
       );
     });
 
@@ -281,8 +298,9 @@ describe("maze.server", () => {
       });
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        "Failed to parse JSON response from URL"
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Failed to parse JSON response from URL")
       );
     });
 
@@ -293,8 +311,9 @@ describe("maze.server", () => {
       mockFetch.mockRejectedValue(abortError);
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        "Request timeout after 10000ms"
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining("Request timeout after 10000ms")
       );
     });
 
@@ -306,8 +325,11 @@ describe("maze.server", () => {
       });
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        'Invalid response format for search query "test": expected array'
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining(
+          'Invalid response format for search query "test": expected array'
+        )
       );
     });
 
@@ -319,8 +341,11 @@ describe("maze.server", () => {
       });
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        'Invalid response format for search query "test": expected array'
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining(
+          'Invalid response format for search query "test": expected array'
+        )
       );
     });
 
@@ -332,8 +357,11 @@ describe("maze.server", () => {
       });
 
       await expect(fetchSearchResults("test")).rejects.toThrow(TVMazeAPIError);
-      await expect(fetchSearchResults("test")).rejects.toThrow(
-        'Invalid response format for search query "test": expected array'
+      await expect(fetchSearchResults("test")).rejects.toHaveProperty(
+        "message",
+        expect.stringContaining(
+          'Invalid response format for search query "test": expected array'
+        )
       );
     });
   });

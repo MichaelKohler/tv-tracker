@@ -51,7 +51,10 @@ describe("Passkey Reauth Options Route", () => {
 
     await expect(() =>
       loader({ request: mockRequest } as LoaderFunctionArgs)
-    ).rejects.toThrow("Not authenticated");
+    ).rejects.toHaveProperty(
+      "message",
+      expect.stringContaining("Not authenticated")
+    );
   });
 
   it("should return authentication options and set reauth challenge in session", async () => {
