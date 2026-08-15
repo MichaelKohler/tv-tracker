@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-import { expect, test, type Page } from "@playwright/test";
+import { type Page, expect, test } from "@playwright/test";
 
 const PASSWORD = "somePasswordIsVeryStrong123";
 
