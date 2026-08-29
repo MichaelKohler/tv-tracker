@@ -1,8 +1,12 @@
 import "@testing-library/jest-dom";
 import * as React from "react";
 import type { Navigation, SubmitFunction } from "react-router";
+import {
+  RouterContextProvider,
+  useActionData,
+  useLoaderData,
+} from "react-router";
 import { render, screen } from "@testing-library/react";
-import { useActionData, useLoaderData } from "react-router";
 import type { Passkey } from "@prisma/client";
 
 import * as passkeyModel from "../models/passkey.server";
@@ -177,10 +181,11 @@ describe("Account Deletion Route", () => {
       vi.mocked(evaluateBoolean).mockResolvedValue(true);
       vi.spyOn(passkeyModel, "getPasskeysByUserId").mockResolvedValue([]);
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       await loader({
         request: new Request("http://localhost:8080/deletion"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -193,10 +198,11 @@ describe("Account Deletion Route", () => {
     it("should return feature disabled state without requiring user", async () => {
       vi.mocked(evaluateBoolean).mockResolvedValue(false);
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/deletion"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -223,10 +229,11 @@ describe("Account Deletion Route", () => {
         },
       ]);
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/deletion"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -248,13 +255,14 @@ describe("Account Deletion Route", () => {
       const formData = new FormData();
       formData.append("password", "correctPassword");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -265,13 +273,14 @@ describe("Account Deletion Route", () => {
       const formData = new FormData();
       formData.append("password", "");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -288,13 +297,14 @@ describe("Account Deletion Route", () => {
       const formData = new FormData();
       formData.append("password", "wrongPassword");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -311,13 +321,14 @@ describe("Account Deletion Route", () => {
       const formData = new FormData();
       formData.append("password", "correctPassword");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -339,13 +350,14 @@ describe("Account Deletion Route", () => {
         JSON.stringify({ id: "cred-1", type: "public-key" })
       );
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -365,13 +377,14 @@ describe("Account Deletion Route", () => {
         JSON.stringify({ id: "cred-1", type: "public-key" })
       );
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/deletion", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 

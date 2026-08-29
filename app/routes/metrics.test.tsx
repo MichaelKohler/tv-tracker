@@ -1,3 +1,5 @@
+import { RouterContextProvider } from "react-router";
+
 import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
 import { loader } from "./metrics";
 
@@ -31,10 +33,11 @@ describe("Metrics", () => {
 
   describe("loader", () => {
     it("loader returns stats", async () => {
-      // @ts-expect-error - ignoring missing properties for test
       const result = await loader({
         request: new Request("http://localhost:8080/metrics"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
       const text = await result.text();

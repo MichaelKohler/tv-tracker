@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom";
 import type { Episode, Show } from "@prisma/client";
-import { RouterProvider, createMemoryRouter } from "react-router";
+import {
+  RouterContextProvider,
+  RouterProvider,
+  createMemoryRouter,
+} from "react-router";
 import { render, screen, waitFor } from "@testing-library/react";
 
 import TVRecent, { loader } from "./tv.recent";
@@ -127,10 +131,11 @@ describe("TVRecent", () => {
 
   describe("loader", () => {
     it("should return recently watched episodes when feature is enabled", async () => {
-      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/recent"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -147,10 +152,11 @@ describe("TVRecent", () => {
     it("should return empty episodes when feature is disabled", async () => {
       vi.mocked(evaluateBoolean).mockResolvedValue(false);
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/recent"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 

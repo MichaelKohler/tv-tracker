@@ -40,7 +40,6 @@ describe("Header", () => {
         id: "foo",
         pathname: "/",
         params: {},
-        data: {},
         handle: {},
         loaderData: {},
       },

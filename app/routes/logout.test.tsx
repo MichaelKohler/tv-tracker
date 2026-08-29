@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { RouterContextProvider, redirect } from "react-router";
 
 import { action, loader } from "./logout";
 import { logout } from "../session.server";
@@ -22,13 +22,14 @@ describe("Logout route", () => {
   });
 
   it("should logout user", async () => {
-    // @ts-expect-error .. ignore unstable_pattern for example
     await action({
       request: new Request("http://localhost:8080/logout", {
         method: "POST",
         body: null,
       }),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 

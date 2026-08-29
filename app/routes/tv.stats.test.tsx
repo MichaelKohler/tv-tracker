@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
+import { RouterContextProvider, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
-import { useLoaderData } from "react-router";
 
 import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
 import TVStats, { loader } from "./tv.stats";
@@ -198,10 +198,11 @@ describe("TVStats Route", () => {
     it("should return feature flags", async () => {
       vi.mocked(evaluateBoolean).mockResolvedValue(true);
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/upcoming"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -211,10 +212,11 @@ describe("TVStats Route", () => {
     it("should return feature flags when disabled", async () => {
       vi.mocked(evaluateBoolean).mockResolvedValue(false);
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/tv/upcoming"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
