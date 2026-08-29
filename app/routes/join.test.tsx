@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import * as React from "react";
 import {
+  RouterContextProvider,
   redirect,
   useActionData,
   useLoaderData,
@@ -163,10 +164,11 @@ describe("Join Route", () => {
     it("redirects if there is a user", async () => {
       vi.mocked(getUserId).mockResolvedValue("123");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await loader({
         request: new Request("http://localhost:8080/join"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -176,10 +178,11 @@ describe("Join Route", () => {
     it("returns features if there is no user", async () => {
       vi.mocked(getUserId).mockResolvedValue(undefined);
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const result = await loader({
         request: new Request("http://localhost:8080/join"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -209,13 +212,14 @@ describe("Join Route", () => {
       formData.append("email", "foo@example.com");
       formData.append("password", "foofoofoo");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -243,13 +247,14 @@ describe("Join Route", () => {
       formData.append("password", "foofoofoo");
       formData.append("redirectTo", "/customRedirectLocation");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -267,13 +272,14 @@ describe("Join Route", () => {
       formData.append("email", "foo@example.com");
       formData.append("password", "foofoofoo");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -302,13 +308,14 @@ describe("Join Route", () => {
       formData.append("email", "foo@example.com");
       formData.append("password", "foofoofoo");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -328,13 +335,14 @@ describe("Join Route", () => {
       formData.append("email", "invalid");
       formData.append("password", "foofoofoo");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -351,13 +359,14 @@ describe("Join Route", () => {
       formData.append("email", "foo@example.com");
       formData.append("password", "");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -374,13 +383,14 @@ describe("Join Route", () => {
       formData.append("email", "foo@example.com");
       formData.append("password", "short");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -406,13 +416,14 @@ describe("Join Route", () => {
       formData.append("email", "already-existing@example.com");
       formData.append("password", "foofoofoo");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -432,13 +443,14 @@ describe("Join Route", () => {
       formData.append("email", "foo@example.com");
       formData.append("password", "foofoofoo");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -459,13 +471,14 @@ describe("Join Route", () => {
       formData.append("password", "foofoofoo");
       formData.append("invite", "someInviteCode");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/join", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 

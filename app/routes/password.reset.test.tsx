@@ -1,7 +1,11 @@
 import "@testing-library/jest-dom";
 import * as React from "react";
+import {
+  RouterContextProvider,
+  useActionData,
+  useNavigation,
+} from "react-router";
 import { render, screen } from "@testing-library/react";
-import { useActionData, useNavigation } from "react-router";
 import type { Navigation } from "react-router";
 
 import Reset, { action, loader } from "./password.reset";
@@ -128,10 +132,11 @@ describe("Password Reset Route", () => {
     it("redirects if there is a user", async () => {
       vi.mocked(getUserId).mockResolvedValue("123");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await loader({
         request: new Request("http://localhost:8080/password/reset"),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -146,13 +151,14 @@ describe("Password Reset Route", () => {
       const formData = new FormData();
       formData.append("email", "");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/reset", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -169,13 +175,14 @@ describe("Password Reset Route", () => {
       const formData = new FormData();
       formData.append("email", "foo@example.com");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       const response = await action({
         request: new Request("http://localhost:8080/password/reset", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 
@@ -190,13 +197,14 @@ describe("Password Reset Route", () => {
       const formData = new FormData();
       formData.append("email", "foo@example.com");
 
-      // @ts-expect-error .. ignore unstable_pattern for example
       await action({
         request: new Request("http://localhost:8080/password/reset", {
           method: "POST",
           body: formData,
         }),
-        context: {},
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
         params: {},
       });
 

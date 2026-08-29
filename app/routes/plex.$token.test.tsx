@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
+import { RouterContextProvider } from "react-router";
 
 import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
@@ -87,14 +88,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).toHaveBeenCalledWith("token123");
@@ -125,14 +127,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(response).toEqual({});
@@ -146,14 +149,15 @@ describe("Plex token route", () => {
       JSON.stringify(createPlexPayload({ event: "media.play" }))
     );
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).not.toHaveBeenCalled();
@@ -170,7 +174,9 @@ describe("Plex token route", () => {
         body: formData,
       }),
       params: {},
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).not.toHaveBeenCalled();
@@ -183,14 +189,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).toHaveBeenCalledWith("token123");
@@ -204,14 +211,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).toHaveBeenCalledWith("token123");
@@ -226,14 +234,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).toHaveBeenCalledWith("token123");
@@ -247,14 +256,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", "not valid json {{");
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).not.toHaveBeenCalled();
@@ -265,14 +275,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify({ event: "media.scrobble" }));
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(getUserByPlexToken).not.toHaveBeenCalled();
@@ -285,14 +296,15 @@ describe("Plex token route", () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/plex/token123", {
         method: "POST",
         body: formData,
       }),
       params: { token: "token123" },
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
     } as ActionFunctionArgs);
 
     expect(markEpisodeAsWatched).toHaveBeenCalled();

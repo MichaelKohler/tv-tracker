@@ -2,6 +2,7 @@ import "@testing-library/jest-dom";
 import * as React from "react";
 import {
   type Navigation,
+  RouterContextProvider,
   type SetURLSearchParams,
   useLoaderData,
   useNavigation,
@@ -137,10 +138,11 @@ describe("TV Show Search Route", () => {
 
   it("loader should search and return shows", async () => {
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
-    // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 
@@ -151,10 +153,11 @@ describe("TV Show Search Route", () => {
 
   it("loader should not search with feature disabled", async () => {
     vi.mocked(evaluateBoolean).mockResolvedValue(false);
-    // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 
@@ -164,10 +167,11 @@ describe("TV Show Search Route", () => {
 
   it("loader should search shows with query", async () => {
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
-    // @ts-expect-error .. ignore unstable_pattern for example
     await loader({
       request: new Request("http://localhost:8080/tv/search?query=fooQuery"),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 
@@ -178,10 +182,11 @@ describe("TV Show Search Route", () => {
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(searchShows).mockResolvedValue([]);
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const result = await loader({
       request: new Request("http://localhost:8080/tv/search"),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 
@@ -194,13 +199,14 @@ describe("TV Show Search Route", () => {
     const formData = new FormData();
     formData.append("showId", "1");
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     await action({
       request: new Request("http://localhost:8080/tv/search", {
         method: "POST",
         body: formData,
       }),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 
@@ -212,13 +218,14 @@ describe("TV Show Search Route", () => {
     const formData = new FormData();
     formData.append("showId", "1");
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/tv/search", {
         method: "POST",
         body: formData,
       }),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 
@@ -234,13 +241,14 @@ describe("TV Show Search Route", () => {
     const formData = new FormData();
     formData.append("showId", "1");
 
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await action({
       request: new Request("http://localhost:8080/tv/search", {
         method: "POST",
         body: formData,
       }),
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
     // @ts-expect-error -- response is a DataResponse, which has a data property

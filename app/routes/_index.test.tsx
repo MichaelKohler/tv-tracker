@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import * as React from "react";
-import { redirect, useLoaderData } from "react-router";
+import { RouterContextProvider, redirect, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 
 import type { User } from "../models/user.server";
@@ -91,10 +91,11 @@ describe("Index Route", () => {
   it("loaders returns signup flag", async () => {
     vi.mocked(evaluateBoolean).mockResolvedValue(true); // signup disabled
     const request = new Request("http://localhost");
-    // @ts-expect-error .. ignore unstable_pattern for example
     const response = await loader({
       request,
-      context: {},
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
       params: {},
     });
 
@@ -108,8 +109,13 @@ describe("Index Route", () => {
   it("loader redirects to /tv if logged in", async () => {
     vi.mocked(getUserId).mockResolvedValue("user-id");
     const request = new Request("http://localhost");
-    // @ts-expect-error .. ignore unstable_pattern for example
-    await loader({ request, context: {}, params: {} });
+    await loader({
+      request,
+      context: new RouterContextProvider(),
+      url: new URL(request.url),
+      pattern: "",
+      params: {},
+    });
 
     expect(redirect).toHaveBeenCalledWith("/tv");
   });
