@@ -4,6 +4,7 @@ catalog:
   vite-plus: latest
 overrides:
   vite: 'catalog:'
+  deepmerge-ts: '>=7.1.6'
 peerDependencyRules:
   allowAny:
     - vite
