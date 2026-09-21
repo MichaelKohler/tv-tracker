@@ -1,13 +1,12 @@
-import type {
-  AuthenticationResponseJSON,
-  RegistrationResponseJSON as BrowserRegistrationResponseJSON,
+import { type ActionFunctionArgs, data } from "react-router";
+import {
+  type AuthenticationResponseJSON,
+  type RegistrationResponseJSON,
 } from "@simplewebauthn/browser";
 import {
   type RegistrationResponseJSON as ServerRegistrationResponseJSON,
   verifyRegistrationResponse,
 } from "@simplewebauthn/server";
-import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
 import { withRequestContext } from "../request-handler.server";
 
 import {
@@ -26,17 +25,6 @@ import { userHasPassword, verifyLogin } from "../models/user.server";
 import { logInfo } from "../logger.server";
 import { sendPasskeyCreatedMail } from "../models/mail.server";
 
-const toServerRegistrationResponse = (
-  credential: BrowserRegistrationResponseJSON
-): ServerRegistrationResponseJSON => ({
-  ...credential,
-  response: {
-    ...credential.response,
-    transports: credential.response
-      ?.transports as ServerRegistrationResponseJSON["response"]["transports"],
-  },
-});
-
 export const action = withRequestContext(
   async ({ request }: ActionFunctionArgs) => {
     logInfo("Passkey registration verification started", {});
@@ -50,7 +38,7 @@ export const action = withRequestContext(
 
     const body = await request.json();
     const { credential, name, password, passkeyCredential } = body as {
-      credential: BrowserRegistrationResponseJSON;
+      credential: RegistrationResponseJSON & ServerRegistrationResponseJSON;
       name: string;
       password?: string;
       passkeyCredential?: AuthenticationResponseJSON;
@@ -109,7 +97,7 @@ export const action = withRequestContext(
 
     try {
       const verification = await verifyRegistrationResponse({
-        response: toServerRegistrationResponse(credential),
+        response: credential,
         expectedChallenge: challenge,
         expectedOrigin: process.env.RP_ORIGIN || "http://localhost:5173",
         expectedRPID: process.env.RP_ID || "localhost",
