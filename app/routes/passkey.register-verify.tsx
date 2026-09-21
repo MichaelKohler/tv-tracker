@@ -1,10 +1,12 @@
-import type {
-  AuthenticationResponseJSON,
-  RegistrationResponseJSON,
+import { type ActionFunctionArgs, data } from "react-router";
+import {
+  type AuthenticationResponseJSON,
+  type RegistrationResponseJSON,
 } from "@simplewebauthn/browser";
-import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
-import { verifyRegistrationResponse } from "@simplewebauthn/server";
+import {
+  type RegistrationResponseJSON as ServerRegistrationResponseJSON,
+  verifyRegistrationResponse,
+} from "@simplewebauthn/server";
 import { withRequestContext } from "../request-handler.server";
 
 import {
@@ -36,7 +38,7 @@ export const action = withRequestContext(
 
     const body = await request.json();
     const { credential, name, password, passkeyCredential } = body as {
-      credential: RegistrationResponseJSON;
+      credential: RegistrationResponseJSON & ServerRegistrationResponseJSON;
       name: string;
       password?: string;
       passkeyCredential?: AuthenticationResponseJSON;
