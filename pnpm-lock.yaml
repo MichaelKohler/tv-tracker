@@ -40,8 +40,8 @@ importers:
         specifier: ^10.74.0
         version: 10.74.0(@opentelemetry/core@2.10.0(@opentelemetry/api@1.9.1))(@react-router/node@8.3.1(react-router@8.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(typescript@7.0.2))(react-router@8.3.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)(rollup@4.62.4)(supports-color@7.2.0)
       '@simplewebauthn/browser':
-        specifier: ^13.3.0
-        version: 13.3.0
+        specifier: ^14.0.0
+        version: 14.0.0
       '@simplewebauthn/server':
         specifier: ^14.0.1
         version: 14.0.2
@@ -1492,8 +1492,8 @@ packages:
     resolution: {integrity: sha512-fFJgCxs5hDyAm9BbZJ+LbA+LK2tjX5OoD0v0ARU4StR6KQmGUduoPs69yJ9AfqZ0om3Rlp5JDliiwFcNkasORA==}
     engines: {node: '>= 18'}
 
-  '@simplewebauthn/browser@13.3.0':
-    resolution: {integrity: sha512-BE/UWv6FOToAdVk0EokzkqQQDOWtNydYlY6+OrmiZ5SCNmb41VehttboTetUM3T/fr6EAFYVXjz4My2wg230rQ==}
+  '@simplewebauthn/browser@14.0.0':
+    resolution: {integrity: sha512-1odWVqeEBTl7lJ9zMKLEsmTlnyrDO5iRcTvfMKKk1WThUnp/i8JJdffdj2icP+tty159s4PgwE3BiMoEW9NFow==}
 
   '@simplewebauthn/server@14.0.2':
     resolution: {integrity: sha512-g+m/xv9/8FRWsDY22CwsTYRzt3WwS9fJrR3P7eY3Ti01FXH5FQ36Xn55v6D+5tb6VajlqOj4hywP/Vxsb6a3Sg==}
@@ -5293,7 +5293,7 @@ snapshots:
       - supports-color
       - webpack
 
-  '@simplewebauthn/browser@13.3.0': {}
+  '@simplewebauthn/browser@14.0.0': {}
 
   '@simplewebauthn/server@14.0.2':
     dependencies:
