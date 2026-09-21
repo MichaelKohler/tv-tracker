@@ -611,7 +611,7 @@ describe("Passkey Register Verify Route", () => {
     );
   });
 
-  it("should filter unsupported credential transports before verification", async () => {
+  it("should pass credential transports to registration verification", async () => {
     const mockChallenge = "test-challenge";
     const mockSession = { id: "session-123" };
 
@@ -649,7 +649,7 @@ describe("Passkey Register Verify Route", () => {
             rawId: "cred-123",
             type: "public-key",
             response: {
-              transports: ["usb", "internal", "invalid-transport"],
+              transports: ["usb", "hybrid"],
             },
           },
           name: "My Passkey",
@@ -664,7 +664,7 @@ describe("Passkey Register Verify Route", () => {
       expect.objectContaining({
         response: expect.objectContaining({
           response: expect.objectContaining({
-            transports: ["usb", "internal"],
+            transports: ["usb", "hybrid"],
           }),
         }),
       })

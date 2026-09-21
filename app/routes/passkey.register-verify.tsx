@@ -2,13 +2,12 @@ import type {
   AuthenticationResponseJSON,
   RegistrationResponseJSON as BrowserRegistrationResponseJSON,
 } from "@simplewebauthn/browser";
-import type {
-  AuthenticatorTransportFuture,
-  RegistrationResponseJSON as ServerRegistrationResponseJSON,
+import {
+  type RegistrationResponseJSON as ServerRegistrationResponseJSON,
+  verifyRegistrationResponse,
 } from "@simplewebauthn/server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { withRequestContext } from "../request-handler.server";
 
 import {
@@ -27,30 +26,14 @@ import { userHasPassword, verifyLogin } from "../models/user.server";
 import { logInfo } from "../logger.server";
 import { sendPasskeyCreatedMail } from "../models/mail.server";
 
-const authenticatorTransports: AuthenticatorTransportFuture[] = [
-  "ble",
-  "cable",
-  "hybrid",
-  "internal",
-  "nfc",
-  "smart-card",
-  "usb",
-];
-
-const isAuthenticatorTransportFuture = (
-  transport: string
-): transport is AuthenticatorTransportFuture =>
-  authenticatorTransports.includes(transport as AuthenticatorTransportFuture);
-
 const toServerRegistrationResponse = (
   credential: BrowserRegistrationResponseJSON
 ): ServerRegistrationResponseJSON => ({
   ...credential,
   response: {
     ...credential.response,
-    transports: credential.response?.transports?.filter(
-      isAuthenticatorTransportFuture
-    ),
+    transports: credential.response
+      ?.transports as ServerRegistrationResponseJSON["response"]["transports"],
   },
 });
 
