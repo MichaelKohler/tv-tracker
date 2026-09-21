@@ -28,7 +28,6 @@ export async function sendPasswordResetMail({
   }
 
   const transporter = createTransport({
-    // @ts-expect-error .. for some reason host does not exist on the type
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: false,
@@ -174,7 +173,6 @@ export async function sendPasskeyCreatedMail({
   }
 
   const transporter = createTransport({
-    // @ts-expect-error .. for some reason host does not exist on the type
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: false,
