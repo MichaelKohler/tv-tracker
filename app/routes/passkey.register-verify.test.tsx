@@ -610,4 +610,64 @@ describe("Passkey Register Verify Route", () => {
       })
     );
   });
+
+  it("should filter unsupported credential transports before verification", async () => {
+    const mockChallenge = "test-challenge";
+    const mockSession = { id: "session-123" };
+
+    vi.mocked(getPasskeyChallenge).mockResolvedValue(mockChallenge);
+    vi.mocked(userHasPassword).mockResolvedValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue(mockUser);
+    vi.mocked(verifyRegistrationResponse).mockResolvedValue({
+      verified: true,
+      registrationInfo: {
+        credential: {
+          id: "cred-123",
+          publicKey: new Uint8Array([1, 2, 3]),
+          counter: 0,
+          transports: [],
+        },
+        // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any,
+    });
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
+    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
+      mockSession as any
+    );
+    vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
+
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {
+            id: "cred-123",
+            rawId: "cred-123",
+            type: "public-key",
+            response: {
+              transports: ["usb", "internal", "invalid-transport"],
+            },
+          },
+          name: "My Passkey",
+          password: "correctPassword",
+        }),
+      }
+    );
+
+    await action({ request } as ActionFunctionArgs);
+
+    expect(verifyRegistrationResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        response: expect.objectContaining({
+          response: expect.objectContaining({
+            transports: ["usb", "internal"],
+          }),
+        }),
+      })
+    );
+  });
 });
