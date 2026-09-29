@@ -30,15 +30,21 @@ function parseEndDate(rawEndDate: string): Date | null {
 
 async function updateEndDate(showName: Show["name"], endDate: Date | null) {
   console.log(`Fetching show ${showName} from DB..`);
-  const show = await prisma.show.findFirst({
+  const shows = await prisma.show.findMany({
     where: {
       name: showName,
     },
   });
 
-  if (!show) {
+  if (shows.length === 0) {
     throw new Error("EXISTING_SHOW_NOT_FOUND");
   }
+
+  if (shows.length > 1) {
+    throw new Error(`MULTIPLE_SHOWS_FOUND: ${showName}`);
+  }
+
+  const show = shows[0];
 
   console.log(`Current end date: ${formatDate(show.ended)}`);
 
