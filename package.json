@@ -26,6 +26,7 @@
     "update:episodes": "tsx scripts/get-new-episodes.ts",
     "update:episodes:info": "tsx scripts/update-episodes.ts",
     "update:show:status": "tsx scripts/update-show-status.ts",
+    "update:show:endDate": "tsx scripts/update-end-date.ts",
     "validate": "vp check && vp test && pnpm run test:e2e"
   },
   "dependencies": {
