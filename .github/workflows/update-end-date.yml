@@ -1,0 +1,36 @@
+name: 📅 Update End Date
+
+on:
+  workflow_dispatch:
+    inputs:
+      showName:
+        description: "Show Name"
+        required: true
+        default: ""
+      endDate:
+        description: "End Date (YYYY-MM-DD, leave empty to remove the end date)"
+        required: false
+        default: ""
+
+jobs:
+  update:
+    name: ⬣ Update End Date
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v7
+
+      - name: 🛠 Setup vp
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          cache: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: ✨ Update End Date
+        run: vp run update:show:endDate
+        env:
+          NODE_ENV: production
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TV_SHOW_NAME: ${{ github.event.inputs.showName }}
+          TV_SHOW_END_DATE: ${{ github.event.inputs.endDate }}
