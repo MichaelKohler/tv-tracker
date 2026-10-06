@@ -62,8 +62,10 @@ describe("ShowHeader", () => {
       .element(page.getByRole("heading", { name: show.name }))
       .toBeInTheDocument();
     await expect.element(page.getByText(show.summary)).toBeInTheDocument();
+
+    const premieredDate = new Date(show.premiered).toLocaleDateString();
     await expect
-      .element(page.getByText(new Date(show.premiered).toLocaleDateString()))
+      .element(page.getByText(new RegExp(`Started:.*${premieredDate}`)))
       .toBeInTheDocument();
 
     await document.fonts.ready;
@@ -71,7 +73,7 @@ describe("ShowHeader", () => {
     const element = page.getByTestId("show-header");
     await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("show-header");
-    await expect.element(page.getByText("8.5")).toBeInTheDocument();
+    await expect.element(page.getByText(/Rating:.*8\.5/)).toBeInTheDocument();
     await expect
       .element(page.getByText("Mark all aired episodes as watched"))
       .toBeInTheDocument();
@@ -151,7 +153,7 @@ describe("ShowHeader", () => {
       />
     );
 
-    await expect.element(page.getByText("UnArchive")).toBeInTheDocument();
+    await expect.element(page.getByText("Unarchive")).toBeInTheDocument();
   });
 
   it("renders spinner on mark all watched", async () => {
@@ -237,7 +239,7 @@ describe("ShowHeader", () => {
     );
 
     await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
-    const archiveButton = page.getByRole("button", { name: "Archive" });
+    const archiveButton = page.getByRole("button", { name: /Archive/ });
     await expect.element(archiveButton).toBeDisabled();
   });
 
@@ -266,7 +268,7 @@ describe("ShowHeader", () => {
     );
 
     await expect.element(page.getByTestId("spinner")).toBeInTheDocument();
-    const unarchiveButton = page.getByRole("button", { name: "Unarchive" });
+    const unarchiveButton = page.getByRole("button", { name: /Unarchive/ });
     await expect.element(unarchiveButton).toBeDisabled();
   });
 });

@@ -39,10 +39,12 @@ describe("ShowResult", () => {
       .element(page.getByText(show.name, { exact: true }))
       .toBeInTheDocument();
     await expect.element(page.getByText(show.summary)).toBeInTheDocument();
+
+    const premieredDate = new Date(show.premiered).toLocaleDateString();
     await expect
-      .element(page.getByText(new Date(show.premiered).toLocaleDateString()))
+      .element(page.getByText(new RegExp(`Started:.*${premieredDate}`)))
       .toBeInTheDocument();
-    await expect.element(page.getByText("8.5")).toBeInTheDocument();
+    await expect.element(page.getByText(/Rating:.*8\.5/)).toBeInTheDocument();
     await expect.element(page.getByText("Add Show")).toBeInTheDocument();
 
     await document.fonts.ready;
