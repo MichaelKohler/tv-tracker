@@ -21,24 +21,27 @@ vi.mock("bcrypt", async () => ({
   hash: vi.fn<() => Promise<string>>().mockResolvedValue("testHash"),
 }));
 
-vi.mock("crypto", async () => ({
-  ...(await vi.importActual("crypto")),
-  default: {
-    createHash: vi
-      .fn<
-        () => {
-          update: (data: string) => { digest: (encoding: string) => string };
-        }
-      >()
-      .mockReturnValue({
-        update: vi
-          .fn<() => { digest: (encoding: string) => string }>()
-          .mockReturnValue({
-            digest: vi.fn<() => string>().mockReturnValue("testHashedToken"),
-          }),
-      }),
-  },
-}));
+vi.mock("crypto", async () => {
+  const createHash = vi
+    .fn<
+      () => {
+        update: (data: string) => { digest: (encoding: string) => string };
+      }
+    >()
+    .mockReturnValue({
+      update: vi
+        .fn<() => { digest: (encoding: string) => string }>()
+        .mockReturnValue({
+          digest: vi.fn<() => string>().mockReturnValue("testHashedToken"),
+        }),
+    });
+
+  return {
+    ...(await vi.importActual("crypto")),
+    createHash,
+    default: { createHash },
+  };
+});
 
 vi.mock("../db.server");
 

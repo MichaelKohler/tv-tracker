@@ -1,17 +1,18 @@
 minimumReleaseAge: 1440
+strictPeerDependencies: true
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@latest
-  vite-plus: latest
+  vite: npm:@voidzero-dev/vite-plus-core@1.2.0
+  vite-plus: 1.2.0
+  '@vitest/browser-playwright': 5.0.4
+  '@vitest/coverage-v8': 5.0.4
 overrides:
   vite: 'catalog:'
   deepmerge-ts: '>=7.1.6'
 peerDependencyRules:
   allowAny:
     - vite
-    - vitest
   allowedVersions:
     vite: '*'
-    vitest: '*'
 minimumReleaseAgeExclude:
   - vite-plus
   - '@voidzero-dev/*'
