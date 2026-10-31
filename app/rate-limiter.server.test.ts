@@ -75,34 +75,41 @@ describe("rate-limiter.server", () => {
   });
 
   describe("getClientIp", () => {
-    it("returns x-forwarded-for header when present", () => {
+    it("returns x-vercel-forwarded-for header when present", () => {
       const request = new Request("http://localhost/", {
-        headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
+        headers: { "x-vercel-forwarded-for": "1.2.3.4" },
       });
 
       expect(getClientIp(request)).toBe("1.2.3.4");
     });
 
-    it("returns cf-connecting-ip when x-forwarded-for is absent", () => {
+    it("ignores x-forwarded-for and cf-connecting-ip when x-vercel-forwarded-for is present", () => {
       const request = new Request("http://localhost/", {
-        headers: { "cf-connecting-ip": "9.10.11.12" },
+        headers: {
+          "x-vercel-forwarded-for": "1.2.3.4",
+          "x-forwarded-for": "5.6.7.8",
+          "cf-connecting-ip": "9.10.11.12",
+        },
       });
 
-      expect(getClientIp(request)).toBe("9.10.11.12");
+      expect(getClientIp(request)).toBe("1.2.3.4");
+    });
+
+    it("returns unknown when only other IP headers are present", () => {
+      const request = new Request("http://localhost/", {
+        headers: {
+          "x-forwarded-for": "5.6.7.8",
+          "cf-connecting-ip": "9.10.11.12",
+        },
+      });
+
+      expect(getClientIp(request)).toBe("unknown");
     });
 
     it("returns unknown when no IP headers are present", () => {
       const request = new Request("http://localhost/");
 
       expect(getClientIp(request)).toBe("unknown");
-    });
-
-    it("uses the first IP from x-forwarded-for chain", () => {
-      const request = new Request("http://localhost/", {
-        headers: { "x-forwarded-for": "  10.0.0.1  , 10.0.0.2" },
-      });
-
-      expect(getClientIp(request)).toBe("10.0.0.1");
     });
   });
 });
