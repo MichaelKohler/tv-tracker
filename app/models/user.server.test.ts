@@ -3,6 +3,7 @@ import { compare } from "bcrypt";
 import {
   changePassword,
   createUser,
+  createUserWithInvite,
   deleteUserByEmail,
   deleteUserByUserId,
   getUserByEmail,
@@ -102,6 +103,71 @@ describe("User Model", () => {
           },
         },
       },
+    });
+  });
+
+  describe("createUserWithInvite", () => {
+    beforeEach(() => {
+      prisma.$transaction.mockImplementation((callback: unknown) =>
+        (callback as (client: typeof prisma) => Promise<unknown>)(prisma)
+      );
+    });
+
+    it("should consume the invite and create the user", async () => {
+      const createdUser = {
+        id: "123",
+        email: "foo@example.com",
+        plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      prisma.invite.deleteMany.mockResolvedValue({ count: 1 });
+      prisma.user.create.mockResolvedValue(createdUser);
+
+      const user = await createUserWithInvite(
+        "foo@example.com",
+        "foo",
+        "invite-1"
+      );
+
+      expect(user).toBe(createdUser);
+      expect(prisma.invite.deleteMany).toBeCalledWith({
+        where: { id: "invite-1" },
+      });
+      expect(prisma.user.create).toBeCalledWith({
+        data: {
+          email: "foo@example.com",
+          password: {
+            create: {
+              hash: "testHash",
+            },
+          },
+        },
+      });
+    });
+
+    it("should return null without creating a user if the invite is not available", async () => {
+      prisma.invite.deleteMany.mockResolvedValue({ count: 0 });
+
+      const user = await createUserWithInvite(
+        "foo@example.com",
+        "foo",
+        "invite-1"
+      );
+
+      expect(user).toBeNull();
+      expect(prisma.user.create).not.toBeCalled();
+    });
+
+    it("should run invite deletion and user creation in one transaction that fails together", async () => {
+      prisma.invite.deleteMany.mockResolvedValue({ count: 1 });
+      prisma.user.create.mockRejectedValue(new Error("oh no"));
+
+      await expect(
+        createUserWithInvite("foo@example.com", "foo", "invite-1")
+      ).rejects.toThrow("oh no");
+
+      expect(prisma.$transaction).toHaveBeenCalledOnce();
     });
   });
 

@@ -17,7 +17,11 @@ import {
 
 import { FLAGS, evaluateBoolean } from "../flags.server";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
-import { createUser, getUserByEmail } from "../models/user.server";
+import {
+  createUser,
+  createUserWithInvite,
+  getUserByEmail,
+} from "../models/user.server";
 import { createUserSession, getUserId } from "../session.server";
 import {
   getPasswordValidationError,
@@ -25,7 +29,6 @@ import {
   validateAndSanitizeEmail,
 } from "../utils";
 import { logInfo } from "../logger.server";
-import { redeemInviteCode } from "../models/invite.server";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
@@ -125,24 +128,24 @@ export const action = withRequestContext(
       );
     }
 
-    if (signupDisabled) {
-      if (typeof invite !== "string" || invite.length === 0) {
-        return data(
-          { errors: { ...errors, invite: "Invite code is required" } },
-          { status: 400 }
-        );
-      }
-
-      const validInvite = await redeemInviteCode(invite);
-      if (!validInvite) {
-        return data(
-          { errors: { ...errors, invite: "Invite code is invalid" } },
-          { status: 400 }
-        );
-      }
+    if (signupDisabled && (typeof invite !== "string" || invite.length === 0)) {
+      return data(
+        { errors: { ...errors, invite: "Invite code is required" } },
+        { status: 400 }
+      );
     }
 
-    const user = await createUser(email, passwordInput);
+    const user =
+      signupDisabled && typeof invite === "string"
+        ? await createUserWithInvite(email, passwordInput, invite)
+        : await createUser(email, passwordInput);
+
+    if (!user) {
+      return data(
+        { errors: { ...errors, invite: "Invite code is invalid" } },
+        { status: 400 }
+      );
+    }
 
     logInfo("User created successfully", { email, userId: user.id });
 
