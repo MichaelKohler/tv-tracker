@@ -11,6 +11,7 @@ import {
   sessionStorage,
 } from "../session.server";
 import {
+  consumePasskeyChallenge,
   getPasskeyByCredentialId,
   updatePasskeyCounter,
 } from "../models/passkey.server";
@@ -84,6 +85,10 @@ export const action = withRequestContext(
 
       if (!verification.verified) {
         return data({ error: "Verification failed" }, { status: 400 });
+      }
+
+      if (!(await consumePasskeyChallenge(challenge))) {
+        return data({ error: "Challenge already used" }, { status: 400 });
       }
 
       await updatePasskeyCounter(

@@ -10,6 +10,7 @@ import {
   getPasskeyChallenge,
 } from "../session.server";
 import {
+  consumePasskeyChallenge,
   getPasskeyByCredentialId,
   updatePasskeyCounter,
 } from "../models/passkey.server";
@@ -33,6 +34,7 @@ vi.mock("@simplewebauthn/server", async () => ({
 
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
+  consumePasskeyChallenge: vi.fn<() => Promise<boolean>>(),
   getPasskeyByCredentialId:
     vi.fn<() => Promise<(Passkey & { user: unknown }) | null>>(),
   updatePasskeyCounter: vi.fn<() => Promise<Passkey>>(),
@@ -73,6 +75,7 @@ describe("Passkey Login Verify Route", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(consumePasskeyChallenge).mockResolvedValue(true);
     process.env.RP_ORIGIN = "http://localhost:5173";
     process.env.RP_ID = "localhost";
   });

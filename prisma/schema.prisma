@@ -151,3 +151,10 @@ model Passkey {
   @@index([userId])
   @@index([credentialId])
 }
+
+model UsedPasskeyChallenge {
+  challenge  String   @id
+  usedAt     DateTime @default(now())
+
+  @@index([usedAt])
+}

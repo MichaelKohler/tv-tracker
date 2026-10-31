@@ -17,6 +17,7 @@ import {
   getPasskeyReauthChallenge,
   logout,
   requireUser,
+  sessionStorage,
 } from "../session.server";
 import {
   deleteUserByUserId,
@@ -114,7 +115,7 @@ export const action = withRequestContext(
         );
       }
 
-      await clearPasskeyReauthChallenge(request);
+      const session = await clearPasskeyReauthChallenge(request);
 
       try {
         await deleteUserByUserId(user.id);
@@ -128,7 +129,12 @@ export const action = withRequestContext(
               password: null,
             },
           },
-          { status: 500 }
+          {
+            status: 500,
+            headers: {
+              "Set-Cookie": await sessionStorage.commitSession(session),
+            },
+          }
         );
       }
 
