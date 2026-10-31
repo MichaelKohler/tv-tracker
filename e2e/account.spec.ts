@@ -48,6 +48,27 @@ test("allows signup and login", async ({ page }) => {
   await expect(page.getByText("Your shows")).toBeVisible();
 });
 
+test("stays on the app when login redirectTo points to another origin", async ({
+  page,
+}) => {
+  const email = `${faker.internet.username()}@example.com`;
+
+  await signUp(page, email);
+
+  await page.getByRole("button", { name: "Logout" }).click();
+  await expect(
+    page.getByRole("main").getByRole("link", { name: "Log In" })
+  ).toBeVisible();
+
+  await page.goto("/login?redirectTo=/%5Cevil.com");
+  await page.getByLabel("Email address").fill(email);
+  await page.getByLabel("Password").fill(PASSWORD);
+  await page.getByRole("button", { name: "Log in" }).click();
+
+  await expect(page).toHaveURL("/tv");
+  await expect(page.getByText("Your shows")).toBeVisible();
+});
+
 test("allows going from signup to login", async ({ page }) => {
   await page.getByRole("main").getByRole("link", { name: "Sign up" }).click();
 
