@@ -388,6 +388,86 @@ describe("Login Route", () => {
     expect(checkRateLimit).toHaveBeenCalledWith("login:10.0.0.1", 5, 900_000);
   });
 
+  it("action should use normalized email as key for account rate limiting", async () => {
+    vi.mocked(verifyLogin).mockResolvedValue(null);
+
+    const formData = new FormData();
+    formData.append("email", "Foo@Example.com");
+    formData.append("password", "foo");
+
+    await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+      params: {},
+    });
+
+    expect(checkRateLimit).toHaveBeenCalledWith(
+      "login-account:foo@example.com",
+      20,
+      900_000
+    );
+  });
+
+  it("action should return 429 without verifying the password when the account is rate limited", async () => {
+    vi.mocked(checkRateLimit)
+      .mockReturnValueOnce({ limited: false, retryAfterSeconds: 0 })
+      .mockReturnValueOnce({ limited: true, retryAfterSeconds: 600 });
+
+    const formData = new FormData();
+    formData.append("email", "foo@example.com");
+    formData.append("password", "foo");
+
+    const response = await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+      params: {},
+    });
+
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.init?.status).toBe(429);
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.init?.headers["Retry-After"]).toBe("600");
+    // @ts-expect-error : we do not actually have a real response here..
+    expect(response.data.errors.email).toBe(
+      "Too many login attempts. Please try again later."
+    );
+    expect(verifyLogin).not.toHaveBeenCalled();
+  });
+
+  it("action should not count invalid submissions against the account limit", async () => {
+    const formData = new FormData();
+    formData.append("email", "foo@example.com");
+    formData.append("password", "");
+
+    await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+      params: {},
+    });
+
+    expect(checkRateLimit).toHaveBeenCalledTimes(1);
+    expect(checkRateLimit).not.toHaveBeenCalledWith(
+      "login-account:foo@example.com",
+      20,
+      900_000
+    );
+  });
+
   it("action should return error if verifyLogin fails", async () => {
     vi.mocked(getUserId).mockResolvedValue(undefined);
     vi.mocked(validateEmail).mockReturnValue(true);

@@ -50,14 +50,8 @@ export const action = withRequestContext(
       password: null,
     };
 
-    const ip = getClientIp(request);
-    const { limited, retryAfterSeconds } = checkRateLimit(
-      `login:${ip}`,
-      5,
-      15 * 60 * 1000
-    );
-    if (limited) {
-      return data(
+    const tooManyAttempts = (retryAfterSeconds: number) =>
+      data(
         {
           errors: {
             ...errors,
@@ -66,6 +60,11 @@ export const action = withRequestContext(
         },
         { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
       );
+
+    const ip = getClientIp(request);
+    const ipLimit = checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
+    if (ipLimit.limited) {
+      return tooManyAttempts(ipLimit.retryAfterSeconds);
     }
 
     const email = validateAndSanitizeEmail(emailInput);
@@ -81,6 +80,15 @@ export const action = withRequestContext(
         { errors: { ...errors, password: "Password is required" } },
         { status: 400 }
       );
+    }
+
+    const accountLimit = checkRateLimit(
+      `login-account:${email}`,
+      20,
+      15 * 60 * 1000
+    );
+    if (accountLimit.limited) {
+      return tooManyAttempts(accountLimit.retryAfterSeconds);
     }
 
     const user = await verifyLogin(email, passwordInput);
