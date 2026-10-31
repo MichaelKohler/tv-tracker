@@ -1,7 +1,8 @@
-import type { Password, User } from "@prisma/client";
+import type { Invite, Password, User } from "@prisma/client";
 import { compare, hash } from "bcrypt";
 import { createHash } from "crypto";
 
+import type { Prisma } from "../generated/prisma";
 import { prisma } from "../db.server";
 
 export type { User } from "@prisma/client";
@@ -25,18 +26,44 @@ export async function getUserByPlexToken(plexToken: User["plexToken"]) {
   return prisma.user.findUnique({ where: { plexToken } });
 }
 
+function buildNewUserData(email: User["email"], hashedPassword: string) {
+  return {
+    email,
+    password: {
+      create: {
+        hash: hashedPassword,
+      },
+    },
+  };
+}
+
 export async function createUser(email: User["email"], password: string) {
   const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
   return prisma.user.create({
-    data: {
-      email,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
-    },
+    data: buildNewUserData(email, hashedPassword),
+  });
+}
+
+export async function createUserWithInvite(
+  email: User["email"],
+  password: string,
+  inviteCode: Invite["id"]
+) {
+  const hashedPassword = await hash(password, BCRYPT_ROUNDS);
+
+  return prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+    const { count } = await transaction.invite.deleteMany({
+      where: { id: inviteCode },
+    });
+
+    if (count === 0) {
+      return null;
+    }
+
+    return transaction.user.create({
+      data: buildNewUserData(email, hashedPassword),
+    });
   });
 }
 

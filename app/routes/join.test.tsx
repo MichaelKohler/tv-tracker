@@ -10,10 +10,13 @@ import {
 import { render, screen } from "@testing-library/react";
 import type { Navigation } from "react-router";
 
-import * as invite from "../models/invite.server";
 import Join, { action, loader } from "./join";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
-import { createUser, getUserByEmail } from "../models/user.server";
+import {
+  createUser,
+  createUserWithInvite,
+  getUserByEmail,
+} from "../models/user.server";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
 import { evaluateBoolean } from "../flags.server";
@@ -66,6 +69,7 @@ vi.mock("../utils", async () => ({
 
 vi.mock("../models/user.server", () => ({
   createUser: vi.fn<() => Promise<User>>(),
+  createUserWithInvite: vi.fn<() => Promise<User | null>>(),
   getUserByEmail: vi.fn<() => Promise<User | null>>(),
 }));
 
@@ -464,7 +468,7 @@ describe("Join Route", () => {
       vi.mocked(validateEmail).mockReturnValue(true);
       vi.mocked(getUserByEmail).mockResolvedValue(null);
 
-      vi.spyOn(invite, "redeemInviteCode").mockResolvedValue(false);
+      vi.mocked(createUserWithInvite).mockResolvedValue(null);
 
       const formData = new FormData();
       formData.append("email", "foo@example.com");
@@ -484,6 +488,46 @@ describe("Join Route", () => {
 
       // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.invite).toBe("Invite code is invalid");
+      expect(createUser).not.toHaveBeenCalled();
+    });
+
+    it("should create the user through the invite if signup is disabled", async () => {
+      vi.mocked(getUserId).mockResolvedValue(undefined);
+      vi.mocked(evaluateBoolean).mockResolvedValue(true); // signup is disabled
+      vi.mocked(validateEmail).mockReturnValue(true);
+      vi.mocked(getUserByEmail).mockResolvedValue(null);
+      vi.mocked(createUserWithInvite).mockResolvedValue({
+        id: "123",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        email: "foo@example.com",
+        plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      });
+
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+      formData.append("password", "foofoofoo");
+      formData.append("invite", "someInviteCode");
+
+      const response = await action({
+        request: new Request("http://localhost:8080/join", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      expect(createUserWithInvite).toHaveBeenCalledWith(
+        "foo@example.com",
+        "foofoofoo",
+        "someInviteCode"
+      );
+      expect(createUser).not.toHaveBeenCalled();
+      // @ts-expect-error .. seems we do not actually have the right type due to mocking..
+      expect(response.redirectTo).toBe("/tv");
     });
   });
 });
