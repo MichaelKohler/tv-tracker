@@ -26,6 +26,9 @@ async function registerPasskey(page: Page, name: string) {
 }
 
 test.beforeEach(async ({ page }) => {
+  await page.setExtraHTTPHeaders({
+    "x-vercel-forwarded-for": faker.internet.ipv4(),
+  });
   await page.goto("/");
 });
 
