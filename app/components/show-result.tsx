@@ -35,10 +35,12 @@ export default function ShowResult({ show, features }: Props) {
               show.imageUrl ? "pl-10" : ""
             } py-3 pr-10`}
           >
-            <p>
-              <strong>Started:</strong>{" "}
-              {new Date(show.premiered).toLocaleDateString()}
-            </p>
+            {show.premiered && (
+              <p>
+                <strong>Started:</strong>{" "}
+                {new Date(show.premiered).toLocaleDateString()}
+              </p>
+            )}
             {show.ended && (
               <p>
                 <strong>Ended:</strong>{" "}

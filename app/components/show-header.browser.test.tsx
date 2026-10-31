@@ -63,7 +63,7 @@ describe("ShowHeader", () => {
       .toBeInTheDocument();
     await expect.element(page.getByText(show.summary)).toBeInTheDocument();
 
-    const premieredDate = new Date(show.premiered).toLocaleDateString();
+    const premieredDate = new Date("2022-01-01").toLocaleDateString();
     await expect
       .element(page.getByText(new RegExp(`Started:.*${premieredDate}`)))
       .toBeInTheDocument();
@@ -78,6 +78,27 @@ describe("ShowHeader", () => {
       .element(page.getByText("Mark all aired episodes as watched"))
       .toBeInTheDocument();
     await expect.element(page.getByText("Remove show")).toBeInTheDocument();
+  });
+
+  it("does not render a start date for a show without a premiere", async () => {
+    await render(
+      <ShowHeader
+        show={{ ...show, premiered: null }}
+        watchedEpisodes={[]}
+        features={{
+          markAllAsWatched: true,
+          archive: true,
+        }}
+      />
+    );
+
+    await expect
+      .element(page.getByRole("heading", { name: show.name }))
+      .toBeInTheDocument();
+    await expect.element(page.getByText("Started:")).not.toBeInTheDocument();
+    await expect
+      .element(page.getByText("Invalid Date"))
+      .not.toBeInTheDocument();
   });
 
   it("renders watch count correctly", async () => {

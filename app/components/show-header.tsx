@@ -67,10 +67,12 @@ export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
           <p>{show.summary}</p>
         </div>
         <div className={`flex flex-col py-5 pl-0 pr-10 md:pl-4`}>
-          <p>
-            <strong>Started:</strong>{" "}
-            {new Date(show.premiered).toLocaleDateString()}
-          </p>
+          {show.premiered && (
+            <p>
+              <strong>Started:</strong>{" "}
+              {new Date(show.premiered).toLocaleDateString()}
+            </p>
+          )}
           {show.ended && (
             <p>
               <strong>Ended:</strong>{" "}
