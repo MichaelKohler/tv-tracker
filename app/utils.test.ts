@@ -1,6 +1,7 @@
 import {
   getPasswordValidationError,
   padNumber,
+  safeRedirect,
   sanitizeInput,
   validateAndSanitizeEmail,
   validateEmail,
@@ -8,6 +9,52 @@ import {
 } from "./utils";
 
 describe("Utility Functions", () => {
+  describe("safeRedirect", () => {
+    it.each([
+      "/",
+      "/tv",
+      "/tv/123?page=2#episodes",
+      "/tv?redirect=//evil.com",
+      "/tv#//evil.com",
+      "/%5Cevil.com",
+    ])("allows the same-origin path %j", (to) => {
+      expect(safeRedirect(to, "/fallback")).toBe(to);
+    });
+
+    it.each([
+      "https://evil.com",
+      "javascript:alert(1)",
+      "evil.com",
+      "//evil.com",
+      "///evil.com",
+      "/\\evil.com",
+      "/\\/evil.com",
+      "\\\\evil.com",
+      "/\t/evil.com",
+      "/\n/evil.com",
+      "/\r\n/evil.com",
+      "/.//evil.com",
+      "/..//evil.com",
+      "/tv/..//evil.com",
+      "/./\\evil.com",
+      "/\\[",
+      "/tv\r\nSet-Cookie: a=b",
+    ])("rejects the unsafe target %j", (to) => {
+      expect(safeRedirect(to, "/fallback")).toBe("/fallback");
+    });
+
+    it("falls back for missing or non-string values", () => {
+      expect(safeRedirect(null, "/fallback")).toBe("/fallback");
+      expect(safeRedirect(undefined, "/fallback")).toBe("/fallback");
+      expect(safeRedirect("", "/fallback")).toBe("/fallback");
+      expect(safeRedirect(new File([], "name"), "/fallback")).toBe("/fallback");
+    });
+
+    it("uses / as the default fallback", () => {
+      expect(safeRedirect("//evil.com")).toBe("/");
+    });
+  });
+
   describe("validateEmail", () => {
     it("returns false for non-emails", () => {
       expect(validateEmail(undefined)).equal(false);

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import type { User } from "./models/user.server";
 
 const DEFAULT_REDIRECT = "/";
+const REDIRECT_BASE_ORIGIN = "http://redirect-base.invalid";
 
 /**
  * This should be used any time the redirect path is user-provided
@@ -20,11 +21,20 @@ export function safeRedirect(
     return defaultRedirect;
   }
 
-  if (!to.startsWith("/") || to.startsWith("//")) {
-    return defaultRedirect;
+  return isSameOriginPath(to) ? to : defaultRedirect;
+}
+
+function isSameOriginPath(to: string) {
+  if (!to.startsWith("/") || sanitizeInput(to) !== to) {
+    return false;
   }
 
-  return to;
+  try {
+    const { origin, pathname } = new URL(to, REDIRECT_BASE_ORIGIN);
+    return origin === REDIRECT_BASE_ORIGIN && !pathname.startsWith("//");
+  } catch {
+    return false;
+  }
 }
 
 /**

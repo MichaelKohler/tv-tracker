@@ -250,6 +250,38 @@ describe("Login Route", () => {
     expect(response.redirectTo).toBe("/customRedirectLocation");
   });
 
+  it("action should ignore a backslash redirect to another origin", async () => {
+    vi.mocked(getUserId).mockResolvedValue(undefined);
+    vi.mocked(validateEmail).mockReturnValue(true);
+    vi.mocked(verifyLogin).mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+    });
+
+    const formData = new FormData();
+    formData.append("email", "foo@example.com");
+    formData.append("password", "foo");
+    formData.append("remember", "off");
+    formData.append("redirectTo", "/\\evil.com");
+
+    const response = await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+      params: {},
+    });
+
+    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
+    expect(response.redirectTo).toBe("/tv");
+  });
+
   it("action should return error if email is invalid", async () => {
     vi.mocked(getUserId).mockResolvedValue(undefined);
     vi.mocked(validateEmail).mockReturnValue(false);

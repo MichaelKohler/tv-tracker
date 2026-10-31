@@ -22,15 +22,6 @@ import { logInfo } from "../logger.server";
 import { verifyLogin } from "../models/user.server";
 import { withRequestContext } from "../request-handler.server";
 
-function clientSafeRedirect(
-  to: string | null,
-  defaultRedirect = "/tv"
-): string {
-  if (!to || typeof to !== "string") return defaultRedirect;
-  if (!to.startsWith("/") || to.startsWith("//")) return defaultRedirect;
-  return to;
-}
-
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {
     logInfo("Login page accessed", {});
@@ -174,7 +165,7 @@ export default function LoginPage() {
         throw new Error(result.error || "Authentication failed");
       }
 
-      window.location.href = clientSafeRedirect(redirectTo);
+      window.location.href = safeRedirect(redirectTo, "/tv");
     } catch (error) {
       const errorMessages: Record<string, string> = {
         NotAllowedError: "Authentication canceled or timed out",
