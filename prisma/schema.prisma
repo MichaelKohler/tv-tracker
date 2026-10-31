@@ -46,7 +46,7 @@ model Show {
   id         String @id @default(uuid())
   name       String
   mazeId     String @unique
-  premiered  DateTime
+  premiered  DateTime?
   ended      DateTime?
   rating     Float?
   imageUrl   String?

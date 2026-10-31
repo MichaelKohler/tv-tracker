@@ -337,7 +337,7 @@ export async function searchShows(
       name: showResult.show.name,
       premiered: showResult.show.premiered
         ? new Date(showResult.show.premiered)
-        : "",
+        : null,
       ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
       rating: showResult.show.rating.average ?? null,
       imageUrl: showResult.show.image?.medium ?? null,
@@ -357,7 +357,7 @@ export function prepareShow(showResult: TVMazeShowResponse) {
   const show = {
     mazeId: `${showResult.id}`,
     name: showResult.name,
-    premiered: showResult.premiered ? new Date(showResult.premiered) : "",
+    premiered: showResult.premiered ? new Date(showResult.premiered) : null,
     ended: showResult.ended ? new Date(showResult.ended) : null,
     rating: showResult.rating.average ?? null,
     imageUrl: showResult.image?.medium ?? null,

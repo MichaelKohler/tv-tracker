@@ -40,7 +40,7 @@ describe("ShowResult", () => {
       .toBeInTheDocument();
     await expect.element(page.getByText(show.summary)).toBeInTheDocument();
 
-    const premieredDate = new Date(show.premiered).toLocaleDateString();
+    const premieredDate = new Date("2022-01-01").toLocaleDateString();
     await expect
       .element(page.getByText(new RegExp(`Started:.*${premieredDate}`)))
       .toBeInTheDocument();
@@ -52,6 +52,23 @@ describe("ShowResult", () => {
     const element = page.getByTestId("show-result");
     await expect.element(element).toBeInTheDocument();
     await expect(element).toMatchScreenshot("show-result");
+  });
+
+  it("does not render a start date for a show without a premiere", async () => {
+    await render(
+      <ShowResult
+        show={{ ...show, premiered: null }}
+        features={{ addShow: true }}
+      />
+    );
+
+    await expect
+      .element(page.getByText(show.name, { exact: true }))
+      .toBeInTheDocument();
+    await expect.element(page.getByText("Started:")).not.toBeInTheDocument();
+    await expect
+      .element(page.getByText("Invalid Date"))
+      .not.toBeInTheDocument();
   });
 
   it("does not render add show button with feature disabled", async () => {

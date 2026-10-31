@@ -497,6 +497,30 @@ describe("Show Model", () => {
     expect(searchResults).toStrictEqual([show]);
   });
 
+  it("searchShows should use null for a show without a premiere", async () => {
+    vi.mocked(fetchSearchResults).mockResolvedValue([
+      {
+        show: {
+          id: 1,
+          name: "Name",
+          status: "In Development",
+          premiered: null,
+          ended: null,
+          rating: {
+            average: null,
+          },
+          image: null,
+          summary: null,
+        },
+        score: 1,
+      },
+    ]);
+    vi.mocked(prisma.show.findMany).mockResolvedValue([]);
+
+    const [searchResult] = await searchShows("foo", "userId");
+    expect(searchResult?.premiered).toBeNull();
+  });
+
   it("searchShows should return empty array for empty query", async () => {
     const searchResults = await searchShows("", "userId");
     expect(searchResults).toStrictEqual([]);
@@ -634,6 +658,32 @@ describe("Show Model", () => {
     });
   });
 
+  it("addShow should add a show without a premiere", async () => {
+    vi.mocked(fetchShowWithEmbededEpisodes).mockResolvedValue({
+      id: 1,
+      name: "Name",
+      premiered: null,
+      ended: null,
+      status: "In Development",
+      rating: {
+        average: null,
+      },
+      image: null,
+      summary: null,
+    });
+    vi.mocked(prisma.show.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.show.create).mockResolvedValue({
+      ...SHOW,
+      premiered: null,
+    });
+
+    await addShow("userId", "maze1");
+
+    expect(prisma.show.create).toBeCalledWith({
+      data: expect.objectContaining({ premiered: null }),
+    });
+  });
+
   it("addShow should only connect show to user if already in database", async () => {
     vi.mocked(prisma.show.findFirst).mockResolvedValue(SHOW);
     vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue(null);
@@ -732,6 +782,23 @@ describe("Show Model", () => {
     });
 
     expect(result).toBeNull();
+  });
+
+  it("prepareShow should use null for a show without a premiere", () => {
+    const { show } = prepareShow({
+      id: 1,
+      status: "In Development",
+      name: "Name",
+      premiered: null,
+      ended: null,
+      rating: {
+        average: null,
+      },
+      image: null,
+      summary: null,
+    });
+
+    expect(show.premiered).toBeNull();
   });
 
   it("prepareShow should strip and decode HTML entities", () => {

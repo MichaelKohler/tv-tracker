@@ -1,7 +1,7 @@
 export interface SearchResultShow {
   mazeId: number;
   name: string;
-  premiered: Date | string;
+  premiered: Date | null;
   ended: Date | null;
   rating: number | null;
   imageUrl: string | null;
