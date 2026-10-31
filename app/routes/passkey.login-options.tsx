@@ -27,7 +27,7 @@ export const loader = withRequestContext(
     const options = await generateAuthenticationOptions({
       rpID: process.env.RP_ID || "localhost",
       allowCredentials: [],
-      userVerification: "preferred",
+      userVerification: "required",
     });
 
     const session = await setPasskeyChallenge(request, options.challenge);

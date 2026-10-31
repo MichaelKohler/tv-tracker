@@ -93,7 +93,7 @@ describe("Passkey Register Options Route", () => {
       excludeCredentials: [],
       authenticatorSelection: {
         residentKey: "preferred",
-        userVerification: "preferred",
+        userVerification: "required",
       },
     });
     expect(setPasskeyChallenge).toHaveBeenCalledWith(

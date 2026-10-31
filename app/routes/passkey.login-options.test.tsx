@@ -46,7 +46,7 @@ describe("Passkey Login Options Route", () => {
       challenge: "test-challenge-123",
       rpId: "localhost",
       allowCredentials: [],
-      userVerification: "preferred" as const,
+      userVerification: "required" as const,
     };
 
     vi.mocked(generateAuthenticationOptions).mockResolvedValue(
@@ -66,7 +66,7 @@ describe("Passkey Login Options Route", () => {
     expect(generateAuthenticationOptions).toHaveBeenCalledWith({
       rpID: "localhost",
       allowCredentials: [],
-      userVerification: "preferred",
+      userVerification: "required",
     });
     expect(setPasskeyChallenge).toHaveBeenCalledWith(
       mockRequest,

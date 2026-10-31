@@ -81,7 +81,7 @@ describe("Passkey Reauth Options Route", () => {
     expect(generateAuthenticationOptions).toHaveBeenCalledWith({
       rpID: "localhost",
       allowCredentials: [],
-      userVerification: "preferred",
+      userVerification: "required",
     });
     expect(setPasskeyReauthChallenge).toHaveBeenCalledWith(
       mockRequest,
