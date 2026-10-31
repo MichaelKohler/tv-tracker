@@ -1,6 +1,7 @@
 import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 
+import { PASSKEY_CHALLENGE_TTL_MS } from "../constants";
 import { logError } from "../logger.server";
 import { prisma } from "../db.server";
 
@@ -80,6 +81,19 @@ export async function getPasskeyByCredentialId(credentialId: string) {
   });
 }
 
+export async function consumePasskeyChallenge(challenge: string) {
+  await prisma.usedPasskeyChallenge.deleteMany({
+    where: { usedAt: { lt: new Date(Date.now() - PASSKEY_CHALLENGE_TTL_MS) } },
+  });
+
+  const { count } = await prisma.usedPasskeyChallenge.createMany({
+    data: [{ challenge }],
+    skipDuplicates: true,
+  });
+
+  return count === 1;
+}
+
 export async function verifyPasskeyAuthentication(
   credentialJSON: AuthenticationResponseJSON,
   expectedChallenge: string,
@@ -125,6 +139,10 @@ export async function verifyPasskeyAuthentication(
 
     if (!verification.verified) {
       return { success: false, error: "Verification failed" };
+    }
+
+    if (!(await consumePasskeyChallenge(expectedChallenge))) {
+      return { success: false, error: "Challenge already used" };
     }
 
     await updatePasskeyCounter(

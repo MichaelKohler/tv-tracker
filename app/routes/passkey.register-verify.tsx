@@ -10,14 +10,14 @@ import {
 import { withRequestContext } from "../request-handler.server";
 
 import {
-  clearPasskeyChallenge,
-  clearPasskeyReauthChallenge,
+  clearPasskeyChallenges,
   getPasskeyChallenge,
   getPasskeyReauthChallenge,
   requireUser,
   sessionStorage,
 } from "../session.server";
 import {
+  consumePasskeyChallenge,
   createPasskey,
   verifyPasskeyAuthentication,
 } from "../models/passkey.server";
@@ -95,6 +95,11 @@ export const action = withRequestContext(
       }
     }
 
+    const session = await clearPasskeyChallenges(request);
+    const headers = {
+      "Set-Cookie": await sessionStorage.commitSession(session),
+    };
+
     try {
       const verification = await verifyRegistrationResponse({
         response: credential,
@@ -104,7 +109,14 @@ export const action = withRequestContext(
       });
 
       if (!verification.verified || !verification.registrationInfo) {
-        return data({ error: "Verification failed" }, { status: 400 });
+        return data({ error: "Verification failed" }, { status: 400, headers });
+      }
+
+      if (!(await consumePasskeyChallenge(challenge))) {
+        return data(
+          { error: "Challenge already used" },
+          { status: 400, headers }
+        );
       }
 
       const { credential: credentialInfo } = verification.registrationInfo;
@@ -124,20 +136,13 @@ export const action = withRequestContext(
         createdAt: passkey.createdAt,
       });
 
-      const session = await clearPasskeyChallenge(request);
-      await clearPasskeyReauthChallenge(request);
-
-      return data(
-        { verified: true },
-        {
-          headers: {
-            "Set-Cookie": await sessionStorage.commitSession(session),
-          },
-        }
-      );
+      return data({ verified: true }, { headers });
     } catch (error) {
       console.error("Passkey registration verification error:", error);
-      return data({ error: "Failed to verify passkey" }, { status: 500 });
+      return data(
+        { error: "Failed to verify passkey" },
+        { status: 500, headers }
+      );
     }
   }
 );

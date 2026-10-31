@@ -1,10 +1,12 @@
 import {
+  consumePasskeyChallenge,
   createPasskey,
   deletePasskey,
   getPasskeysByUserId,
   updatePasskeyCounter,
   updatePasskeyName,
 } from "./passkey.server";
+import { PASSKEY_CHALLENGE_TTL_MS } from "../constants";
 import { prisma } from "../__mocks__/db.server";
 
 vi.mock("../db.server");
@@ -168,6 +170,51 @@ describe("Passkey Model", () => {
           userId: "user-123",
         },
       });
+    });
+  });
+
+  describe("consumePasskeyChallenge", () => {
+    it("should return true the first time a challenge is used", async () => {
+      prisma.usedPasskeyChallenge.createMany.mockResolvedValue({ count: 1 });
+
+      await expect(consumePasskeyChallenge("challenge-1")).resolves.toBe(true);
+
+      expect(prisma.usedPasskeyChallenge.createMany).toHaveBeenCalledWith({
+        data: [{ challenge: "challenge-1" }],
+        skipDuplicates: true,
+      });
+    });
+
+    it("should return false if the challenge was already used", async () => {
+      prisma.usedPasskeyChallenge.createMany.mockResolvedValue({ count: 0 });
+
+      await expect(consumePasskeyChallenge("challenge-1")).resolves.toBe(false);
+    });
+
+    it("should only prune challenges that can no longer be presented", async () => {
+      vi.useFakeTimers({ now: new Date("2026-01-01T12:00:00Z") });
+      prisma.usedPasskeyChallenge.createMany.mockResolvedValue({ count: 1 });
+
+      await consumePasskeyChallenge("challenge-1");
+
+      expect(prisma.usedPasskeyChallenge.deleteMany).toHaveBeenCalledWith({
+        where: {
+          usedAt: {
+            lt: new Date(Date.now() - PASSKEY_CHALLENGE_TTL_MS),
+          },
+        },
+      });
+      vi.useRealTimers();
+    });
+
+    it("should reject if the challenge can not be recorded", async () => {
+      prisma.usedPasskeyChallenge.createMany.mockRejectedValue(
+        new Error("Database unavailable")
+      );
+
+      await expect(consumePasskeyChallenge("challenge-1")).rejects.toThrow(
+        "Database unavailable"
+      );
     });
   });
 

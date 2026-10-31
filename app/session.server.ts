@@ -1,6 +1,7 @@
 import { createCookieSessionStorage, redirect } from "react-router";
 import invariant from "tiny-invariant";
 
+import { PASSKEY_CHALLENGE_TTL_MS } from "./constants";
 import type { User } from "./models/user.server";
 import { getUserById } from "./models/user.server";
 import { logError } from "./logger.server";
@@ -109,9 +110,22 @@ export async function logout(request: Request) {
   });
 }
 
+function readUnexpiredChallenge(stored: unknown) {
+  if (typeof stored !== "object" || stored === null) return undefined;
+
+  const { challenge, issuedAt } = stored as Record<string, unknown>;
+  if (typeof challenge !== "string" || typeof issuedAt !== "number") {
+    return undefined;
+  }
+
+  return Date.now() - issuedAt < PASSKEY_CHALLENGE_TTL_MS
+    ? challenge
+    : undefined;
+}
+
 export async function setPasskeyChallenge(request: Request, challenge: string) {
   const session = await getSession(request);
-  session.set(PASSKEY_CHALLENGE_KEY, challenge);
+  session.set(PASSKEY_CHALLENGE_KEY, { challenge, issuedAt: Date.now() });
   return session;
 }
 
@@ -119,7 +133,7 @@ export async function getPasskeyChallenge(
   request: Request
 ): Promise<string | undefined> {
   const session = await getSession(request);
-  return session.get(PASSKEY_CHALLENGE_KEY);
+  return readUnexpiredChallenge(session.get(PASSKEY_CHALLENGE_KEY));
 }
 
 export async function clearPasskeyChallenge(request: Request) {
@@ -133,7 +147,10 @@ export async function setPasskeyReauthChallenge(
   challenge: string
 ) {
   const session = await getSession(request);
-  session.set(PASSKEY_REAUTH_CHALLENGE_KEY, challenge);
+  session.set(PASSKEY_REAUTH_CHALLENGE_KEY, {
+    challenge,
+    issuedAt: Date.now(),
+  });
   return session;
 }
 
@@ -141,11 +158,18 @@ export async function getPasskeyReauthChallenge(
   request: Request
 ): Promise<string | undefined> {
   const session = await getSession(request);
-  return session.get(PASSKEY_REAUTH_CHALLENGE_KEY);
+  return readUnexpiredChallenge(session.get(PASSKEY_REAUTH_CHALLENGE_KEY));
 }
 
 export async function clearPasskeyReauthChallenge(request: Request) {
   const session = await getSession(request);
+  session.unset(PASSKEY_REAUTH_CHALLENGE_KEY);
+  return session;
+}
+
+export async function clearPasskeyChallenges(request: Request) {
+  const session = await getSession(request);
+  session.unset(PASSKEY_CHALLENGE_KEY);
   session.unset(PASSKEY_REAUTH_CHALLENGE_KEY);
   return session;
 }

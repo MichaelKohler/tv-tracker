@@ -4,14 +4,14 @@ import type { VerifiedRegistrationResponse } from "@simplewebauthn/server";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 
 import {
-  clearPasskeyChallenge,
-  clearPasskeyReauthChallenge,
+  clearPasskeyChallenges,
   getPasskeyChallenge,
   getPasskeyReauthChallenge,
   requireUser,
   sessionStorage,
 } from "../session.server";
 import {
+  consumePasskeyChallenge,
   createPasskey,
   verifyPasskeyAuthentication,
 } from "../models/passkey.server";
@@ -30,6 +30,7 @@ vi.mock("@simplewebauthn/server", async () => ({
 
 vi.mock("../models/passkey.server", async () => ({
   ...(await vi.importActual("../models/passkey.server")),
+  consumePasskeyChallenge: vi.fn<() => Promise<boolean>>(),
   createPasskey: vi.fn<() => Promise<Passkey>>(),
   verifyPasskeyAuthentication:
     vi.fn<() => Promise<{ success: boolean; error?: string }>>(),
@@ -49,8 +50,7 @@ vi.mock("../session.server", async () => ({
   requireUser: vi.fn<() => Promise<User>>(),
   getPasskeyChallenge: vi.fn<() => Promise<string | undefined>>(),
   getPasskeyReauthChallenge: vi.fn<() => Promise<string | undefined>>(),
-  clearPasskeyChallenge: vi.fn<() => Promise<unknown>>(),
-  clearPasskeyReauthChallenge: vi.fn<() => Promise<unknown>>(),
+  clearPasskeyChallenges: vi.fn<() => Promise<unknown>>(),
   sessionStorage: {
     commitSession: vi.fn<() => Promise<string>>(),
   },
@@ -68,6 +68,7 @@ describe("Passkey Register Verify Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(requireUser).mockResolvedValue(mockUser);
+    vi.mocked(consumePasskeyChallenge).mockResolvedValue(true);
     vi.mocked(userHasPassword).mockResolvedValue(true);
     vi.mocked(verifyLogin).mockResolvedValue(mockUser);
     process.env.RP_ORIGIN = "http://localhost:5173";
@@ -366,11 +367,7 @@ describe("Passkey Register Verify Route", () => {
       lastUsedAt: new Date(),
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
-    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
-      mockSession as any
-    );
+    vi.mocked(clearPasskeyChallenges).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(
@@ -449,11 +446,7 @@ describe("Passkey Register Verify Route", () => {
       lastUsedAt: new Date(),
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
-    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
-      mockSession as any
-    );
+    vi.mocked(clearPasskeyChallenges).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(
@@ -501,11 +494,7 @@ describe("Passkey Register Verify Route", () => {
       registrationInfo: mockRegistrationInfo as any,
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
-    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
-      mockSession as any
-    );
+    vi.mocked(clearPasskeyChallenges).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(
@@ -581,11 +570,7 @@ describe("Passkey Register Verify Route", () => {
       } as any,
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
-    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
-      mockSession as any
-    );
+    vi.mocked(clearPasskeyChallenges).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(
@@ -631,11 +616,7 @@ describe("Passkey Register Verify Route", () => {
       } as any,
     });
     // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyChallenge).mockResolvedValue(mockSession as any);
-    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(clearPasskeyReauthChallenge).mockResolvedValue(
-      mockSession as any
-    );
+    vi.mocked(clearPasskeyChallenges).mockResolvedValue(mockSession as any);
     vi.mocked(sessionStorage.commitSession).mockResolvedValue("session-cookie");
 
     const request = new Request(

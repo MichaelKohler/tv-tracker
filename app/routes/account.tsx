@@ -13,6 +13,7 @@ import {
   clearPasskeyChallenge,
   getPasskeyChallenge,
   requireUser,
+  sessionStorage,
 } from "../session.server";
 import {
   deletePasskey,
@@ -99,6 +100,11 @@ async function verifyPasskeyCredential(
   }
 
   return verifyPasskeyAuthentication(credentialJSON, challenge, userId);
+}
+
+async function getClearedChallengeHeaders(request: Request) {
+  const session = await clearPasskeyChallenge(request);
+  return { "Set-Cookie": await sessionStorage.commitSession(session) };
 }
 
 export const action = withRequestContext(
@@ -245,12 +251,16 @@ export const action = withRequestContext(
         );
       }
 
+      const headers = await getClearedChallengeHeaders(request);
+
       try {
         await removePassword(user.id);
-        await clearPasskeyChallenge(request);
 
         logInfo("Password removed successfully", {});
-        return data({ done: true, errors, intent: "remove-password" });
+        return data(
+          { done: true, errors, intent: "remove-password" },
+          { headers }
+        );
       } catch (error) {
         if (
           error instanceof Error &&
@@ -265,7 +275,7 @@ export const action = withRequestContext(
               },
               done: false,
             },
-            { status: 400 }
+            { status: 400, headers }
           );
         }
 
@@ -281,7 +291,7 @@ export const action = withRequestContext(
               },
               done: false,
             },
-            { status: 400 }
+            { status: 400, headers }
           );
         }
 
@@ -290,7 +300,7 @@ export const action = withRequestContext(
             errors: { ...errors, generic: "Failed to remove password" },
             done: false,
           },
-          { status: 500 }
+          { status: 500, headers }
         );
       }
     }
@@ -346,6 +356,7 @@ export const action = withRequestContext(
     }
 
     let user: { email: string; id?: string } = { email: "" };
+    let headers: Record<string, string> | undefined;
     if (!token) {
       // We do not want to go further if there is no token and the
       // user is not logged in. This check here is crucial to not allow
@@ -426,7 +437,7 @@ export const action = withRequestContext(
           );
         }
 
-        await clearPasskeyChallenge(request);
+        headers = await getClearedChallengeHeaders(request);
       }
     }
 
@@ -445,7 +456,7 @@ export const action = withRequestContext(
             },
             done: false,
           },
-          { status: 400 }
+          { status: 400, headers }
         );
       }
 
@@ -457,12 +468,12 @@ export const action = withRequestContext(
           },
           done: false,
         },
-        { status: 500 }
+        { status: 500, headers }
       );
     }
 
     logInfo("Password changed successfully", {});
-    return data({ done: true, errors });
+    return data({ done: true, errors }, { headers });
   }
 );
 
