@@ -34,7 +34,7 @@ export const loader = withRequestContext(
       ),
       authenticatorSelection: {
         residentKey: "preferred",
-        userVerification: "preferred",
+        userVerification: "required",
       },
     });
 

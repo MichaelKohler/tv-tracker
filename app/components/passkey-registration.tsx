@@ -85,7 +85,8 @@ export function PasskeyRegistration({
       void revalidator.revalidate();
     } catch (error) {
       const errorMessages: Record<string, string> = {
-        NotAllowedError: "Registration canceled or timed out",
+        NotAllowedError:
+          "Registration canceled or timed out. Security keys need a PIN to be used as a passkey.",
         InvalidStateError: "This passkey is already registered",
         NotSupportedError: "Your browser doesn't support passkeys",
         AbortError: "Registration was canceled",
