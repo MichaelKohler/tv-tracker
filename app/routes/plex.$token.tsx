@@ -12,7 +12,7 @@ import { withRequestContext } from "../request-handler.server";
 
 export const action = withRequestContext(
   async ({ request, params }: ActionFunctionArgs) => {
-    logInfo("Plex webhook received", { token: params.token });
+    logInfo("Plex webhook received");
 
     const plexEnabled = await evaluateBoolean(request, FLAGS.PLEX);
     if (!plexEnabled) {

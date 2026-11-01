@@ -84,6 +84,31 @@ describe("Plex token route", () => {
     vi.mocked(markEpisodeAsWatched).mockResolvedValue(undefined);
   });
 
+  it("logs the webhook without exposing the token", async () => {
+    const consoleLogSpy = vi
+      .spyOn(console, "log")
+      .mockImplementation(() => undefined);
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify(createPlexPayload()));
+
+    await action({
+      request: new Request("http://localhost:8080/plex/token123", {
+        method: "POST",
+        body: formData,
+      }),
+      params: { token: "token123" },
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+    } as ActionFunctionArgs);
+
+    const logOutput = consoleLogSpy.mock.calls.flat().join("\n");
+    consoleLogSpy.mockRestore();
+
+    expect(logOutput).toContain("Plex webhook received");
+    expect(logOutput).not.toContain("token123");
+  });
+
   it("marks episode as watched for valid scrobble event", async () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify(createPlexPayload()));
