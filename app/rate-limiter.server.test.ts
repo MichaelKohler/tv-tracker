@@ -1,4 +1,5 @@
 import {
+  checkPasswordAttemptLimit,
   checkRateLimit,
   clearRateLimitStore,
   getClientIp,
@@ -71,6 +72,27 @@ describe("rate-limiter.server", () => {
       expect(result.limited).toBe(true);
       expect(result.retryAfterSeconds).toBeGreaterThan(0);
       expect(result.retryAfterSeconds).toBeLessThanOrEqual(60);
+    });
+  });
+
+  describe("checkPasswordAttemptLimit", () => {
+    it("blocks the attempt after the limit is used up", () => {
+      for (let i = 0; i < 20; i++) {
+        expect(checkPasswordAttemptLimit("foo@example.com").limited).toBe(
+          false
+        );
+      }
+
+      expect(checkPasswordAttemptLimit("foo@example.com").limited).toBe(true);
+      expect(checkPasswordAttemptLimit("bar@example.com").limited).toBe(false);
+    });
+
+    it("shares its counter with the account limit of the login route", () => {
+      for (let i = 0; i < 20; i++) {
+        checkRateLimit("login-account:foo@example.com", 20, 900_000);
+      }
+
+      expect(checkPasswordAttemptLimit("foo@example.com").limited).toBe(true);
     });
   });
 

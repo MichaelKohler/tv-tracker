@@ -13,9 +13,9 @@ import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 
 import Login, { action, loader } from "./login";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
+import { createUserSession, getUserId } from "../session.server";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
-import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
 import { verifyLogin } from "../models/user.server";
 
@@ -185,6 +185,73 @@ describe("Login Route", () => {
     expect(response.redirectTo).toBe("/tv");
     // @ts-expect-error .. seems we do not actually have the right type due to mocking..
     expect(response.remember).toBe(false);
+  });
+
+  it("action should show an error when the session can not be created", async () => {
+    vi.mocked(verifyLogin).mockResolvedValue({
+      id: "123",
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    vi.mocked(createUserSession).mockRejectedValueOnce(new Error("db down"));
+
+    const formData = new FormData();
+    formData.append("email", "foo@example.com");
+    formData.append("password", "foofoofoo");
+
+    const response = await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+      params: {},
+    });
+
+    expect(response).toMatchObject({
+      data: { errors: { email: "Could not log you in. Please try again." } },
+      init: { status: 500 },
+    });
+  });
+
+  it("action should reject the login when the password changed before the session was created", async () => {
+    vi.mocked(verifyLogin).mockResolvedValue({
+      id: "123",
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    vi.mocked(createUserSession).mockRejectedValueOnce(
+      new Error("CREDENTIAL_CHANGED")
+    );
+
+    const formData = new FormData();
+    formData.append("email", "foo@example.com");
+    formData.append("password", "foofoofoo");
+
+    const response = await action({
+      request: new Request("http://localhost:8080/login", {
+        method: "POST",
+        body: formData,
+      }),
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+      params: {},
+    });
+
+    expect(createUserSession).toHaveBeenCalledWith(
+      expect.objectContaining({ credential: { password: "foofoofoo" } })
+    );
+    expect(response).toMatchObject({
+      data: { errors: { email: "Invalid email or password" } },
+      init: { status: 400 },
+    });
   });
 
   it("action should return if everything ok with remember on", async () => {

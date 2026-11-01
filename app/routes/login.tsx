@@ -17,8 +17,9 @@ import { startAuthentication } from "@simplewebauthn/browser";
 
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { createUserSession, getUserId } from "../session.server";
+import { logError, logInfo } from "../logger.server";
 import { safeRedirect, validateAndSanitizeEmail } from "../utils";
-import { logInfo } from "../logger.server";
+import { CREDENTIAL_CHANGED_ERROR } from "../models/session.server";
 import { verifyLogin } from "../models/user.server";
 import { withRequestContext } from "../request-handler.server";
 
@@ -102,12 +103,36 @@ export const action = withRequestContext(
 
     logInfo("User logged in successfully", { email, userId: user.id });
 
-    return createUserSession({
-      request,
-      userId: user.id,
-      remember: remember === "on" ? true : false,
-      redirectTo,
-    });
+    try {
+      return await createUserSession({
+        request,
+        userId: user.id,
+        remember: remember === "on" ? true : false,
+        redirectTo,
+        credential: { password: passwordInput },
+      });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === CREDENTIAL_CHANGED_ERROR
+      ) {
+        return data(
+          { errors: { ...errors, email: "Invalid email or password" } },
+          { status: 400 }
+        );
+      }
+
+      logError("Failed to create login session", { userId: user.id }, error);
+      return data(
+        {
+          errors: {
+            ...errors,
+            email: "Could not log you in. Please try again.",
+          },
+        },
+        { status: 500 }
+      );
+    }
   }
 );
 

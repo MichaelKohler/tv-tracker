@@ -1,11 +1,24 @@
-import { createCookieSessionStorage, redirect } from "react-router";
+import {
+  type Session,
+  createCookieSessionStorage,
+  redirect,
+} from "react-router";
 import invariant from "tiny-invariant";
 
+import {
+  type LoginCredential,
+  createReplacementSession,
+  createSession,
+  deleteSession,
+  deleteUserSessions,
+  getActiveSessionUserId,
+  prepareNewSession,
+} from "./models/session.server";
+import { memoizeSessionLookup, setUserId } from "./request-context.server";
 import { PASSKEY_CHALLENGE_TTL_MS } from "./constants";
 import type { User } from "./models/user.server";
 import { getUserById } from "./models/user.server";
 import { logError } from "./logger.server";
-import { setUserId } from "./request-context.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
@@ -20,7 +33,10 @@ const cookieSessionStorage = createCookieSessionStorage({
   },
 });
 
-const USER_SESSION_KEY = "userId";
+const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
+const SEVEN_DAYS_IN_SECONDS = ONE_DAY_IN_SECONDS * 7;
+
+const SESSION_TOKEN_KEY = "sessionToken";
 const SESSION_EXPIRES_AT_KEY = "sessionExpiresAt";
 const PASSKEY_CHALLENGE_KEY = "passkeyChallenge";
 const PASSKEY_REAUTH_CHALLENGE_KEY = "passkeyReauthChallenge";
@@ -55,7 +71,12 @@ export async function getUserId(
   request: Request
 ): Promise<User["id"] | undefined> {
   const session = await getSession(request);
-  const userId = session.get(USER_SESSION_KEY);
+  const token = session.get(SESSION_TOKEN_KEY);
+  if (typeof token !== "string") return undefined;
+
+  const userId = await memoizeSessionLookup(token, () =>
+    getActiveSessionUserId(token)
+  );
 
   if (userId) {
     setUserId(userId);
@@ -99,37 +120,110 @@ export async function requireUser(request: Request) {
   throw await logout(request);
 }
 
-export async function createUserSession({
+export async function prepareUserSession({
   request,
-  userId,
   remember,
   redirectTo,
 }: {
   request: Request;
-  userId: string;
   remember: boolean;
   redirectTo: string;
 }) {
   const session = await getSession(request);
   const lifetimeInSeconds = remember
-    ? 60 * 60 * 24 * 7 // 7 days
-    : 60 * 60 * 24; // 24 hours
-  session.set(USER_SESSION_KEY, userId);
-  session.set(SESSION_EXPIRES_AT_KEY, Date.now() + lifetimeInSeconds * 1000);
-  return redirect(redirectTo, {
+    ? SEVEN_DAYS_IN_SECONDS
+    : ONE_DAY_IN_SECONDS;
+  const expiresAt = Date.now() + lifetimeInSeconds * 1000;
+  const previousToken = session.get(SESSION_TOKEN_KEY);
+  const { token, newSession } = prepareNewSession(
+    new Date(expiresAt),
+    typeof previousToken === "string" ? previousToken : undefined
+  );
+  session.set(SESSION_TOKEN_KEY, token);
+  session.set(SESSION_EXPIRES_AT_KEY, expiresAt);
+  return {
+    newSession,
+    response: redirect(redirectTo, {
+      headers: {
+        "Set-Cookie": await sessionStorage.commitSession(session),
+      },
+    }),
+  };
+}
+
+export async function createUserSession({
+  request,
+  userId,
+  remember,
+  redirectTo,
+  credential,
+}: {
+  request: Request;
+  userId: string;
+  remember: boolean;
+  redirectTo: string;
+  credential: LoginCredential;
+}) {
+  const { newSession, response } = await prepareUserSession({
+    request,
+    remember,
+    redirectTo,
+  });
+  await createSession(userId, newSession, credential);
+  return response;
+}
+
+export async function prepareSessionRotation(request: Request) {
+  const session = await getSession(request);
+  const storedExpiresAt = session.get(SESSION_EXPIRES_AT_KEY);
+  const expiresAt =
+    typeof storedExpiresAt === "number"
+      ? storedExpiresAt
+      : Date.now() + ONE_DAY_IN_SECONDS * 1000;
+  const currentToken = session.get(SESSION_TOKEN_KEY);
+  const { token, replacementSession } = createReplacementSession(
+    typeof currentToken === "string" ? currentToken : "",
+    new Date(expiresAt)
+  );
+  session.set(SESSION_TOKEN_KEY, token);
+  session.set(SESSION_EXPIRES_AT_KEY, expiresAt);
+  session.unset(PASSKEY_CHALLENGE_KEY);
+  return {
+    replacementSession,
+    headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+  };
+}
+
+async function redirectWithDestroyedCookie(session: Session) {
+  return redirect("/", {
     headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session),
+      "Set-Cookie": await sessionStorage.destroySession(session),
     },
   });
 }
 
 export async function logout(request: Request) {
   const session = await getSession(request);
-  return redirect("/", {
-    headers: {
-      "Set-Cookie": await sessionStorage.destroySession(session),
-    },
-  });
+  const token = session.get(SESSION_TOKEN_KEY);
+  if (typeof token === "string") {
+    try {
+      await deleteSession(token);
+    } catch (error) {
+      logError("Failed to revoke session during logout", {}, error);
+      throw error;
+    }
+  }
+  return redirectWithDestroyedCookie(session);
+}
+
+export async function clearSessionCookie(request: Request) {
+  return redirectWithDestroyedCookie(await getSession(request));
+}
+
+export async function logoutAllDevices(request: Request, userId: string) {
+  const session = await getSession(request);
+  await deleteUserSessions(userId);
+  return redirectWithDestroyedCookie(session);
 }
 
 function readUnexpiredChallenge(stored: unknown) {

@@ -144,32 +144,53 @@ describe("Passkey Model", () => {
   });
 
   describe("deletePasskey", () => {
-    it("should delete passkey with user ownership check", async () => {
-      const now = new Date();
-      const mockDeletedPasskey = {
-        id: "passkey-1",
+    it("should delete passkey with user ownership check and revoke sessions", async () => {
+      prisma.$transaction.mockImplementation(((
+        callback: (transaction: typeof prisma) => unknown
+      ) => callback(prisma)) as never);
+      prisma.session.findUnique.mockResolvedValue({
         userId: "user-123",
-        credentialId: "cred-abc",
-        publicKey: Buffer.from("public-key"),
-        counter: BigInt(5),
-        transports: ["usb"],
-        name: "YubiKey",
-        createdAt: now,
-        updatedAt: now,
-        lastUsedAt: now,
-      };
+        expiresAt: new Date(Date.now() + 60_000),
+      } as never);
+      const expiresAt = new Date("2026-01-08T00:00:00.000Z");
 
-      prisma.passkey.delete.mockResolvedValue(mockDeletedPasskey);
+      await deletePasskey("passkey-1", "user-123", {
+        currentToken: "current-token",
+        tokenHash: "new-hash",
+        expiresAt,
+      });
 
-      const result = await deletePasskey("passkey-1", "user-123");
-
-      expect(result).toEqual(mockDeletedPasskey);
+      expect(prisma.$transaction).toHaveBeenCalledTimes(1);
       expect(prisma.passkey.delete).toHaveBeenCalledWith({
         where: {
           id: "passkey-1",
           userId: "user-123",
         },
       });
+      expect(prisma.session.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-123" },
+      });
+      expect(prisma.session.create).toHaveBeenCalledWith({
+        data: { userId: "user-123", tokenHash: "new-hash", expiresAt },
+      });
+    });
+
+    it("should not delete a passkey for a revoked session", async () => {
+      prisma.$transaction.mockImplementation(((
+        callback: (transaction: typeof prisma) => unknown
+      ) => callback(prisma)) as never);
+      prisma.session.findUnique.mockResolvedValue(null);
+
+      await expect(
+        deletePasskey("passkey-1", "user-123", {
+          currentToken: "current-token",
+          tokenHash: "new-hash",
+          expiresAt: new Date("2026-01-08T00:00:00.000Z"),
+        })
+      ).rejects.toThrow("SESSION_REVOKED");
+
+      expect(prisma.passkey.delete).not.toHaveBeenCalled();
+      expect(prisma.session.create).not.toHaveBeenCalled();
     });
   });
 

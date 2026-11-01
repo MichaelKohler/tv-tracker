@@ -23,6 +23,7 @@ import {
   verifyPasskeyAuthentication,
 } from "../models/passkey.server";
 import { userHasPassword, verifyLogin } from "../models/user.server";
+import { checkPasswordAttemptLimit } from "../rate-limiter.server";
 import { logInfo } from "../logger.server";
 import { sendPasskeyCreatedMail } from "../models/mail.server";
 
@@ -68,6 +69,16 @@ export const action = withRequestContext(
         return data(
           { error: "Password is required to register a new passkey" },
           { status: 400 }
+        );
+      }
+
+      const { limited, retryAfterSeconds } = checkPasswordAttemptLimit(
+        user.email
+      );
+      if (limited) {
+        return data(
+          { error: "Too many attempts. Please try again later." },
+          { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
         );
       }
 

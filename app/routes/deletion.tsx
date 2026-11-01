@@ -14,8 +14,8 @@ import { useState } from "react";
 import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   clearPasskeyReauthChallenge,
+  clearSessionCookie,
   getPasskeyReauthChallenge,
-  logout,
   requireUser,
   sessionStorage,
 } from "../session.server";
@@ -29,6 +29,7 @@ import {
   verifyPasskeyAuthentication,
 } from "../models/passkey.server";
 import { logError, logInfo } from "../logger.server";
+import { checkPasswordAttemptLimit } from "../rate-limiter.server";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
@@ -156,7 +157,7 @@ export const action = withRequestContext(
         );
       }
 
-      return logout(request);
+      return clearSessionCookie(request);
     }
 
     if (typeof password !== "string" || password === "") {
@@ -168,6 +169,21 @@ export const action = withRequestContext(
           },
         },
         { status: 400 }
+      );
+    }
+
+    const { limited, retryAfterSeconds } = checkPasswordAttemptLimit(
+      user.email
+    );
+    if (limited) {
+      return data(
+        {
+          errors: {
+            deletion: null,
+            password: "Too many attempts. Please try again later.",
+          },
+        },
+        { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
       );
     }
 
@@ -207,7 +223,7 @@ export const action = withRequestContext(
       );
     }
 
-    return logout(request);
+    return clearSessionCookie(request);
   }
 );
 

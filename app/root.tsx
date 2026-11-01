@@ -22,6 +22,7 @@ import Footer from "./components/footer";
 import Header from "./components/header";
 import { getUser } from "./session.server";
 import tailwindStylesheetUrl from "./styles/tailwind.css?url";
+import { withRequestContext } from "./request-handler.server";
 
 export function headers(): ReturnType<HeadersFunction> {
   return {
@@ -46,32 +47,34 @@ export function meta(): ReturnType<MetaFunction> {
   ];
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const [
-    maintenanceModeDisabled,
-    upcomingRoute,
-    recentlyWatchedRoute,
-    statsRoute,
-    archiveEnabled,
-  ] = await Promise.all([
-    evaluateBoolean(request, FLAGS.MAINTENANCE_MODE),
-    evaluateBoolean(request, FLAGS.UPCOMING_ROUTE),
-    evaluateBoolean(request, FLAGS.RECENTLY_WATCHED_ROUTE),
-    evaluateBoolean(request, FLAGS.STATS_ROUTE),
-    evaluateBoolean(request, FLAGS.ARCHIVE),
-  ]);
-
-  return {
-    user: await getUser(request),
-    features: {
-      maintenanceMode: !maintenanceModeDisabled,
+export const loader = withRequestContext(
+  async ({ request }: LoaderFunctionArgs) => {
+    const [
+      maintenanceModeDisabled,
       upcomingRoute,
       recentlyWatchedRoute,
       statsRoute,
-      archive: archiveEnabled,
-    },
-  };
-}
+      archiveEnabled,
+    ] = await Promise.all([
+      evaluateBoolean(request, FLAGS.MAINTENANCE_MODE),
+      evaluateBoolean(request, FLAGS.UPCOMING_ROUTE),
+      evaluateBoolean(request, FLAGS.RECENTLY_WATCHED_ROUTE),
+      evaluateBoolean(request, FLAGS.STATS_ROUTE),
+      evaluateBoolean(request, FLAGS.ARCHIVE),
+    ]);
+
+    return {
+      user: await getUser(request),
+      features: {
+        maintenanceMode: !maintenanceModeDisabled,
+        upcomingRoute,
+        recentlyWatchedRoute,
+        statsRoute,
+        archive: archiveEnabled,
+      },
+    };
+  }
+);
 
 function App({
   features,

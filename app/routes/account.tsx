@@ -12,6 +12,9 @@ import {
 import {
   clearPasskeyChallenge,
   getPasskeyChallenge,
+  logout,
+  logoutAllDevices,
+  prepareSessionRotation,
   requireUser,
   sessionStorage,
 } from "../session.server";
@@ -21,14 +24,17 @@ import {
   updatePasskeyName,
   verifyPasskeyAuthentication,
 } from "../models/passkey.server";
+import { logError, logInfo } from "../logger.server";
 import { DeleteAccount } from "../components/delete-account";
+import { LogoutAllDevices } from "../components/logout-all-devices";
 import { PasskeyList } from "../components/passkey-list";
 import { PasskeyRegistration } from "../components/passkey-registration";
 import { PasswordChangeForm } from "../components/password-change-form";
 import { PasswordRemove } from "../components/password-remove";
 import { PlexWebhook } from "../components/plex-webhook";
+import { SESSION_REVOKED_ERROR } from "../models/session.server";
+import { checkPasswordAttemptLimit } from "../rate-limiter.server";
 import { getPasswordValidationError } from "../utils";
-import { logInfo } from "../logger.server";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
@@ -102,6 +108,12 @@ async function verifyPasskeyCredential(
   return verifyPasskeyAuthentication(credentialJSON, challenge, userId);
 }
 
+async function logoutIfSessionWasRevoked(request: Request, error: unknown) {
+  if (error instanceof Error && error.message === SESSION_REVOKED_ERROR) {
+    throw await logout(request);
+  }
+}
+
 async function getClearedChallengeHeaders(request: Request) {
   const session = await clearPasskeyChallenge(request);
   return { "Set-Cookie": await sessionStorage.commitSession(session) };
@@ -121,7 +133,32 @@ export const action = withRequestContext(
       token: null,
       generic: null,
       passkey: null,
+      logoutAllDevices: null,
     };
+
+    if (intent === "logout-all-devices") {
+      const user = await requireUser(request);
+
+      let logoutResponse: Response;
+      try {
+        logoutResponse = await logoutAllDevices(request, user.id);
+      } catch (error) {
+        logError("Failed to log out all devices", {}, error);
+        return data(
+          {
+            errors: {
+              ...errors,
+              logoutAllDevices:
+                "Could not log out all devices. Please try again.",
+            },
+            done: false,
+          },
+          { status: 500 }
+        );
+      }
+
+      throw logoutResponse;
+    }
 
     if (intent === "edit-passkey") {
       const user = await requireUser(request);
@@ -187,19 +224,123 @@ export const action = withRequestContext(
         );
       }
 
+      let headers: Record<string, string> | undefined;
+      if (hasPassword) {
+        const password = formData.get("password");
+        if (typeof password !== "string" || password === "") {
+          return data(
+            {
+              errors: {
+                ...errors,
+                passkey: "Password is required to delete a passkey",
+              },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        const { limited, retryAfterSeconds } = checkPasswordAttemptLimit(
+          user.email
+        );
+        if (limited) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                passkey: "Too many attempts. Please try again later.",
+              },
+              done: false,
+            },
+            {
+              status: 429,
+              headers: { "Retry-After": String(retryAfterSeconds) },
+            }
+          );
+        }
+
+        if (!(await verifyLogin(user.email, password))) {
+          return data(
+            {
+              errors: { ...errors, passkey: "Incorrect password" },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+      } else {
+        const passkeyCredentialString = formData.get("passkeyCredential");
+        if (
+          typeof passkeyCredentialString !== "string" ||
+          !passkeyCredentialString
+        ) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                passkey: "Passkey verification required to delete a passkey",
+              },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        let passkeyCredential: AuthenticationResponseJSON;
+        try {
+          passkeyCredential = JSON.parse(passkeyCredentialString);
+        } catch {
+          return data(
+            {
+              errors: { ...errors, passkey: "Invalid passkey credential" },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        const verification = await verifyPasskeyCredential(
+          request,
+          passkeyCredential,
+          user.id
+        );
+
+        if (!verification.success) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                passkey: verification.error || "Passkey verification failed",
+              },
+              done: false,
+            },
+            { status: 400 }
+          );
+        }
+
+        headers = await getClearedChallengeHeaders(request);
+      }
+
+      const rotation = await prepareSessionRotation(request);
+
       try {
-        await deletePasskey(passkeyId, user.id);
-        logInfo("Passkey deleted successfully", { passkeyId });
-        return data({ done: true, errors, intent: "delete-passkey" });
-      } catch {
+        await deletePasskey(passkeyId, user.id, rotation.replacementSession);
+      } catch (error) {
+        await logoutIfSessionWasRevoked(request, error);
         return data(
           {
             errors: { ...errors, passkey: "Failed to delete passkey" },
             done: false,
           },
-          { status: 500 }
+          { status: 500, headers }
         );
       }
+
+      logInfo("Passkey deleted successfully", { passkeyId });
+      return data(
+        { done: true, errors, intent: "delete-passkey" },
+        { headers: rotation.headers }
+      );
     }
 
     if (intent === "remove-password") {
@@ -252,16 +393,13 @@ export const action = withRequestContext(
       }
 
       const headers = await getClearedChallengeHeaders(request);
+      const rotation = await prepareSessionRotation(request);
 
       try {
-        await removePassword(user.id);
-
-        logInfo("Password removed successfully", {});
-        return data(
-          { done: true, errors, intent: "remove-password" },
-          { headers }
-        );
+        await removePassword(user.id, rotation.replacementSession);
       } catch (error) {
+        await logoutIfSessionWasRevoked(request, error);
+
         if (
           error instanceof Error &&
           error.message === "NEED_PASSKEY_BEFORE_REMOVAL"
@@ -303,6 +441,12 @@ export const action = withRequestContext(
           { status: 500, headers }
         );
       }
+
+      logInfo("Password removed successfully", {});
+      return data(
+        { done: true, errors, intent: "remove-password" },
+        { headers: rotation.headers }
+      );
     }
 
     const passwordChangeEnabled = await evaluateBoolean(
@@ -396,6 +540,25 @@ export const action = withRequestContext(
           );
         }
 
+        const { limited, retryAfterSeconds } = checkPasswordAttemptLimit(
+          user.email
+        );
+        if (limited) {
+          return data(
+            {
+              errors: {
+                ...errors,
+                password: "Too many attempts. Please try again later.",
+              },
+              done: false,
+            },
+            {
+              status: 429,
+              headers: { "Retry-After": String(retryAfterSeconds) },
+            }
+          );
+        }
+
         const isValid = await verifyLogin(user.email, currentPassword);
         if (!isValid) {
           return data(
@@ -460,9 +623,18 @@ export const action = withRequestContext(
       }
     }
 
+    const rotation = user.id ? await prepareSessionRotation(request) : null;
+
     try {
-      await changePassword(user.email, newPassword, token);
+      await changePassword(
+        user.email,
+        newPassword,
+        token,
+        rotation?.replacementSession
+      );
     } catch (error) {
+      await logoutIfSessionWasRevoked(request, error);
+
       if (
         error instanceof Error &&
         error.message === "PASSWORD_RESET_EXPIRED"
@@ -492,7 +664,10 @@ export const action = withRequestContext(
     }
 
     logInfo("Password changed successfully", {});
-    return data({ done: true, errors }, { headers });
+    return data(
+      { done: true, errors },
+      { headers: rotation?.headers ?? headers }
+    );
   }
 );
 
@@ -521,9 +696,11 @@ export default function AccountPage() {
         hasPasskeys={passkeys.length > 0}
       />
 
-      <PasskeyList passkeys={passkeys} />
+      <PasskeyList passkeys={passkeys} hasPassword={hasPassword} />
 
       <PlexWebhook isEnabled={features.plex} webhookUrl={webhookUrl} />
+
+      {!resetToken && <LogoutAllDevices />}
 
       <DeleteAccount isEnabled={features.deleteAccount} />
     </main>

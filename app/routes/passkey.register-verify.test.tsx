@@ -19,6 +19,7 @@ import {
 import { userHasPassword, verifyLogin } from "../models/user.server";
 import type { User } from "../models/user.server";
 import { action } from "./passkey.register-verify";
+import { clearRateLimitStore } from "../rate-limiter.server";
 import { sendPasskeyCreatedMail } from "../models/mail.server";
 
 vi.mock("../db.server");
@@ -70,6 +71,7 @@ describe("Passkey Register Verify Route", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    clearRateLimitStore();
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(requireUser).mockResolvedValue(mockUser);
     vi.mocked(consumePasskeyChallenge).mockResolvedValue(true);
@@ -250,6 +252,43 @@ describe("Passkey Register Verify Route", () => {
       const response = await action({ request } as ActionFunctionArgs);
 
       expect(response.data).toEqual({ error: "Incorrect password" });
+    });
+
+    it("should stop checking the password after too many attempts", async () => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(userHasPassword).mockResolvedValue(true);
+      vi.mocked(verifyLogin).mockResolvedValue(null);
+
+      const registerRequest = () =>
+        ({
+          request: new Request(
+            "http://localhost:3000/passkey/register-verify",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                credential: {},
+                name: "My Passkey",
+                password: "wrongPassword",
+              }),
+            }
+          ),
+        }) as ActionFunctionArgs;
+
+      for (let attempt = 0; attempt < 20; attempt++) {
+        await action(registerRequest());
+      }
+      const response = await action(registerRequest());
+
+      expect(verifyLogin).toHaveBeenCalledTimes(20);
+      expect(createPasskey).not.toHaveBeenCalled();
+      expect(response).toMatchObject({
+        data: { error: "Too many attempts. Please try again later." },
+        init: {
+          status: 429,
+          headers: { "Retry-After": expect.any(String) },
+        },
+      });
     });
   });
 

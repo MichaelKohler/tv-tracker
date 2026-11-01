@@ -168,11 +168,11 @@ Without `--accept-data-loss`, `db push` refuses destructive changes. Keep `--env
 
 ### Database & Models
 
-- `prisma/schema.prisma`: PostgreSQL schema with User, Show, Episode entities
+- `prisma/schema.prisma`: PostgreSQL schema with User, Session, Show, Episode entities
 - `prisma/seed.ts`: Test data seeding (creates rachel@remix.run test user)
 - `app/db.server.ts`: Prisma client with dev/prod connection handling
 - `app/models/`: Server-side data models and business logic
-- `app/session.server.ts`: Authentication session management
+- `app/session.server.ts`: Authentication session management. The signed cookie holds a random session token, and `getUserId` validates it against the `Session` table on each request, so sessions can be revoked. Credential changes revoke all of a user's sessions and issue the current device a new one in the same transaction, using `prepareSessionRotation`. `createUserSession` locks the `User` row and rechecks the login credential before writing the session, so a login that overlaps a credential change can't outlive it. `logout` fails if the session can't be revoked and leaves the cookie in place; use `clearSessionCookie` only when the server-side session is already gone
 
 ### Application Code
 

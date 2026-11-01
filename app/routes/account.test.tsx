@@ -21,10 +21,11 @@ import {
   userHasPassword,
   verifyLogin,
 } from "../models/user.server";
-import { getSession, requireUser } from "../session.server";
+import { deletePasskey, getPasskeysByUserId } from "../models/passkey.server";
+import { getSession, logoutAllDevices, requireUser } from "../session.server";
 import type { User } from "../models/user.server";
+import { clearRateLimitStore } from "../rate-limiter.server";
 import { evaluateBoolean } from "../flags.server";
-import { getPasskeysByUserId } from "../models/passkey.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
@@ -61,6 +62,7 @@ vi.mock("../models/user.server", () => ({
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
   getSession: vi.fn<() => Promise<unknown>>(),
+  logoutAllDevices: vi.fn<() => Promise<Response>>(),
   requireUser: vi.fn<() => Promise<User>>(),
   sessionStorage: {
     commitSession: vi.fn<() => Promise<string>>(),
@@ -77,6 +79,7 @@ vi.mock("../models/passkey.server", async () => ({
 describe("Account Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearRateLimitStore();
 
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
 
@@ -335,6 +338,181 @@ describe("Account Route", () => {
   });
 
   describe("action", () => {
+    const logoutAllDevicesRequest = () => {
+      const body = new FormData();
+      body.append("intent", "logout-all-devices");
+      return new Request("http://localhost:3000/account", {
+        method: "POST",
+        body,
+      });
+    };
+
+    const routeArgs = (request: Request) => ({
+      request,
+      context: new RouterContextProvider(),
+      url: new URL(request.url),
+      pattern: "",
+      params: {},
+    });
+
+    const deletePasskeyRequest = (fields: Record<string, string>) => {
+      const body = new FormData();
+      body.append("intent", "delete-passkey");
+      body.append("passkeyId", "passkey-1");
+      Object.entries(fields).forEach(([key, value]) => body.append(key, value));
+      return new Request("http://localhost:3000/account", {
+        method: "POST",
+        body,
+      });
+    };
+
+    const passkeyErrorOf = async (fields: Record<string, string>) => {
+      const response = await action(routeArgs(deletePasskeyRequest(fields)));
+      return (response as { data: { errors: { passkey: string | null } } }).data
+        .errors.passkey;
+    };
+
+    it("does not delete a passkey without the password", async () => {
+      await expect(passkeyErrorOf({})).resolves.toBe(
+        "Password is required to delete a passkey"
+      );
+      expect(deletePasskey).not.toHaveBeenCalled();
+    });
+
+    it("does not delete a passkey with a wrong password", async () => {
+      vi.mocked(verifyLogin).mockResolvedValue(null);
+
+      await expect(passkeyErrorOf({ password: "wrong" })).resolves.toBe(
+        "Incorrect password"
+      );
+      expect(deletePasskey).not.toHaveBeenCalled();
+    });
+
+    it("stops checking the current password after too many attempts", async () => {
+      vi.mocked(verifyLogin).mockResolvedValue(null);
+
+      const changePasswordRequest = () => {
+        const body = new FormData();
+        body.append("password", "wrongPassword");
+        body.append("newPassword", "newnewPassword");
+        body.append("confirmPassword", "newnewPassword");
+        return new Request("http://localhost:3000/account", {
+          method: "POST",
+          body,
+        });
+      };
+
+      for (let attempt = 0; attempt < 20; attempt++) {
+        await action(routeArgs(changePasswordRequest()));
+      }
+      const response = await action(routeArgs(changePasswordRequest()));
+
+      expect(verifyLogin).toHaveBeenCalledTimes(20);
+      expect(changePassword).not.toHaveBeenCalled();
+      expect(response.init?.status).toBe(429);
+      expect(new Headers(response.init?.headers).get("Retry-After")).toEqual(
+        expect.any(String)
+      );
+      expect(response.data.errors.password).toBe(
+        "Too many attempts. Please try again later."
+      );
+    });
+
+    it("stops checking the password to delete a passkey after too many attempts", async () => {
+      vi.mocked(verifyLogin).mockResolvedValue(null);
+
+      for (let attempt = 0; attempt < 20; attempt++) {
+        await expect(passkeyErrorOf({ password: "wrong" })).resolves.toBe(
+          "Incorrect password"
+        );
+      }
+      const response = await action(
+        routeArgs(deletePasskeyRequest({ password: "correct" }))
+      );
+
+      expect(verifyLogin).toHaveBeenCalledTimes(20);
+      expect(deletePasskey).not.toHaveBeenCalled();
+      expect(response.init?.status).toBe(429);
+      expect(new Headers(response.init?.headers).get("Retry-After")).toEqual(
+        expect.any(String)
+      );
+      expect(response.data.errors.passkey).toBe(
+        "Too many attempts. Please try again later."
+      );
+    });
+
+    it("deletes a passkey and rotates the session with the correct password", async () => {
+      vi.mocked(verifyLogin).mockResolvedValue({ id: "123" } as never);
+
+      const response = await action(
+        routeArgs(deletePasskeyRequest({ password: "correct" }))
+      );
+
+      expect(verifyLogin).toHaveBeenCalledWith("foo@example.com", "correct");
+      expect(deletePasskey).toHaveBeenCalledWith(
+        "passkey-1",
+        "123",
+        expect.objectContaining({ tokenHash: expect.any(String) })
+      );
+      expect(new Headers(response.init?.headers).get("Set-Cookie")).toContain(
+        "__session="
+      );
+    });
+
+    it("does not accept a password in place of a passkey without a password", async () => {
+      vi.mocked(userHasPassword).mockResolvedValue(false);
+      vi.mocked(getPasskeysByUserId).mockResolvedValue([
+        { id: "passkey-1" },
+        { id: "passkey-2" },
+      ] as never);
+
+      await expect(passkeyErrorOf({ password: "anything" })).resolves.toBe(
+        "Passkey verification required to delete a passkey"
+      );
+      expect(verifyLogin).not.toHaveBeenCalled();
+      expect(deletePasskey).not.toHaveBeenCalled();
+    });
+
+    it("does not delete a passkey with a passkey assertion but no challenge", async () => {
+      vi.mocked(userHasPassword).mockResolvedValue(false);
+      vi.mocked(getPasskeysByUserId).mockResolvedValue([
+        { id: "passkey-1" },
+        { id: "passkey-2" },
+      ] as never);
+
+      await expect(
+        passkeyErrorOf({ passkeyCredential: JSON.stringify({ id: "cred" }) })
+      ).resolves.toBe("No challenge found");
+      expect(deletePasskey).not.toHaveBeenCalled();
+    });
+
+    it("logs out all devices of the current user", async () => {
+      const logoutResponse = new Response(null, { status: 302 });
+      vi.mocked(logoutAllDevices).mockResolvedValue(logoutResponse);
+      const request = logoutAllDevicesRequest();
+
+      await expect(action(routeArgs(request))).rejects.toBe(logoutResponse);
+
+      expect(logoutAllDevices).toHaveBeenCalledWith(request, "123");
+    });
+
+    it("shows an error when logging out all devices fails", async () => {
+      vi.mocked(logoutAllDevices).mockRejectedValue(new Error("db down"));
+
+      const response = await action(routeArgs(logoutAllDevicesRequest()));
+
+      expect(response).toMatchObject({
+        data: {
+          done: false,
+          errors: {
+            logoutAllDevices:
+              "Could not log out all devices. Please try again.",
+          },
+        },
+        init: { status: 500 },
+      });
+    });
+
     it("should return error if new password is invalid", async () => {
       const formData = new FormData();
       formData.append("password", "currentPassword");
@@ -535,8 +713,53 @@ describe("Account Route", () => {
       expect(changePassword).toHaveBeenCalledWith(
         "foo@example.com",
         "newnewPassword",
-        ""
+        "",
+        expect.objectContaining({ tokenHash: expect.any(String) })
       );
+    });
+
+    it("does not send a new session cookie when the password change fails", async () => {
+      vi.mocked(changePassword).mockRejectedValue(new Error("db down"));
+      const formData = new FormData();
+      formData.append("password", "goodPassword");
+      formData.append("newPassword", "newnewPassword");
+      formData.append("confirmPassword", "newnewPassword");
+
+      const response = await action({
+        request: new Request("http://localhost:8080/password/change", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      expect(response.init?.status).toBe(500);
+      expect(response.init?.headers).toBeUndefined();
+    });
+
+    it("logs out instead of changing the password of a revoked session", async () => {
+      vi.mocked(changePassword).mockRejectedValue(new Error("SESSION_REVOKED"));
+      const formData = new FormData();
+      formData.append("password", "goodPassword");
+      formData.append("newPassword", "newnewPassword");
+      formData.append("confirmPassword", "newnewPassword");
+
+      const logoutResponse = (await action({
+        request: new Request("http://localhost:8080/password/change", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      }).catch((thrown: unknown) => thrown)) as Response;
+
+      expect(logoutResponse.status).toBe(302);
+      expect(logoutResponse.headers.get("Location")).toBe("/");
     });
 
     it("should change password with token", async () => {
@@ -563,7 +786,8 @@ describe("Account Route", () => {
       expect(changePassword).toHaveBeenCalledWith(
         "",
         "newnewPassword",
-        "someToken"
+        "someToken",
+        undefined
       );
     });
 
@@ -657,6 +881,42 @@ describe("Account Route", () => {
       expect(response.features.deleteAccount).toBe(false);
       expect(response.features.plex).toBe(false);
       expect(response.features.passkeyRegistration).toBe(false);
+    });
+  });
+
+  describe("Log out all devices", () => {
+    it("renders the button", () => {
+      render(<Account />);
+
+      expect(
+        screen.getByRole("button", { name: "Log out all devices" })
+      ).toBeInTheDocument();
+    });
+
+    it("hides the button on the password reset page", () => {
+      vi.mocked(useSearchParams).mockReturnValue([
+        { get: () => "reset-token" } as unknown as URLSearchParams,
+        vi.fn<() => void>() as unknown as SetURLSearchParams,
+      ]);
+
+      render(<Account />);
+
+      expect(
+        screen.queryByRole("button", { name: "Log out all devices" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows the error from the action", () => {
+      vi.mocked(useActionData).mockReturnValue({
+        errors: { logoutAllDevices: "Could not log out all devices." },
+        done: false,
+      });
+
+      render(<Account />);
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Could not log out all devices."
+      );
     });
   });
 
@@ -793,6 +1053,190 @@ describe("Account Route", () => {
       expect(screen.getByText("iPhone")).toBeInTheDocument();
       expect(screen.getByText(/Created: 1\/1\/2024/)).toBeInTheDocument();
       expect(screen.getByText(/Last used: 1\/15\/2024/)).toBeInTheDocument();
+    });
+
+    it("asks for the password before deleting when the user has one", async () => {
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        passkeys: [
+          {
+            id: "passkey-1",
+            name: "My Passkey",
+            createdAt: new Date(),
+            lastUsedAt: new Date(),
+          },
+        ],
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+        hasPassword: true,
+      });
+      render(<Account />);
+
+      expect(
+        screen.queryByRole("button", { name: "Delete passkey" })
+      ).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+
+      expect(
+        screen.getByRole("button", { name: "Delete passkey" })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByLabelText("Confirm with your password")
+      ).toHaveAttribute("type", "password");
+    });
+
+    it("shows passkey deletion errors", () => {
+      vi.mocked(useLoaderData).mockReturnValue({
+        webhookUrl: "http://webhook.example",
+        passkeys: [
+          {
+            id: "passkey-1",
+            name: "My Passkey",
+            createdAt: new Date(),
+            lastUsedAt: new Date(),
+          },
+        ],
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+        hasPassword: true,
+      });
+      vi.mocked(useActionData).mockReturnValue({
+        errors: { passkey: "Incorrect password" },
+        done: false,
+      });
+
+      render(<Account />);
+
+      expect(screen.getByRole("alert")).toHaveTextContent("Incorrect password");
+    });
+
+    describe("passkey error display", () => {
+      const loaderDataWithPasskeys = (
+        names: string[],
+        hasPassword: boolean
+      ) => ({
+        webhookUrl: "http://webhook.example",
+        passkeys: names.map((name) => ({
+          id: name,
+          name,
+          createdAt: new Date(),
+          lastUsedAt: new Date(),
+        })),
+        features: {
+          passwordChange: true,
+          passkeyRegistration: true,
+          deleteAccount: true,
+          plex: true,
+        },
+        hasPassword,
+      });
+
+      const serverError = (passkey: string) => ({
+        errors: { passkey },
+        done: false,
+      });
+
+      afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.mocked(useActionData).mockReturnValue(undefined);
+      });
+
+      it("replaces an old server error with a newer verification error", async () => {
+        vi.stubGlobal("confirm", vi.fn<() => boolean>().mockReturnValue(true));
+        vi.stubGlobal(
+          "fetch",
+          vi.fn<() => Promise<Response>>().mockRejectedValue(new Error("down"))
+        );
+        vi.mocked(useLoaderData).mockReturnValue(
+          loaderDataWithPasskeys(["My Passkey"], false)
+        );
+        vi.mocked(useActionData).mockReturnValue(
+          serverError("Verification failed")
+        );
+        render(<Account />);
+
+        await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+          "Passkey verification failed. Please try again."
+        );
+      });
+
+      it("shows a new server error after a previous one", () => {
+        vi.mocked(useLoaderData).mockReturnValue(
+          loaderDataWithPasskeys(["My Passkey"], true)
+        );
+        vi.mocked(useActionData).mockReturnValue(
+          serverError("Incorrect password")
+        );
+        const { rerender } = render(<Account />);
+
+        vi.mocked(useActionData).mockReturnValue(
+          serverError("Failed to delete passkey")
+        );
+        rerender(<Account />);
+
+        expect(screen.getByRole("alert")).toHaveTextContent(
+          "Failed to delete passkey"
+        );
+      });
+
+      it("clears the error when cancelling the delete form", async () => {
+        vi.mocked(useLoaderData).mockReturnValue(
+          loaderDataWithPasskeys(["My Passkey"], true)
+        );
+        vi.mocked(useActionData).mockReturnValue(
+          serverError("Incorrect password")
+        );
+        render(<Account />);
+
+        await userEvent.click(screen.getByRole("button", { name: "Delete" }));
+        vi.mocked(useActionData).mockClear();
+        await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      });
+
+      it("clears the error when opening the delete form of another passkey", async () => {
+        vi.mocked(useLoaderData).mockReturnValue(
+          loaderDataWithPasskeys(["First", "Second"], true)
+        );
+        vi.mocked(useActionData).mockReturnValue(
+          serverError("Incorrect password")
+        );
+        render(<Account />);
+
+        await userEvent.click(
+          screen.getAllByRole("button", { name: "Delete" })[1]
+        );
+
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      });
+
+      it("shows the error when no passkeys are left", () => {
+        vi.mocked(useLoaderData).mockReturnValue(
+          loaderDataWithPasskeys([], true)
+        );
+        vi.mocked(useActionData).mockReturnValue(
+          serverError("Failed to delete passkey")
+        );
+
+        render(<Account />);
+
+        expect(screen.getByRole("alert")).toHaveTextContent(
+          "Failed to delete passkey"
+        );
+        expect(screen.queryByText("Your Passkeys")).not.toBeInTheDocument();
+      });
     });
 
     it("shows edit and delete buttons for each passkey", () => {

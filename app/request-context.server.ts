@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 interface RequestContext {
   correlationId: string;
   userId?: string;
+  sessionLookup?: { token: string; userId: Promise<string | undefined> };
 }
 
 const asyncLocalStorage = new AsyncLocalStorage<RequestContext>();
@@ -31,6 +32,20 @@ export function setUserId(userId: string | undefined): void {
   if (context) {
     context.userId = userId;
   }
+}
+
+export function memoizeSessionLookup(
+  token: string,
+  lookup: () => Promise<string | undefined>
+): Promise<string | undefined> {
+  const context = asyncLocalStorage.getStore();
+  if (!context) {
+    return lookup();
+  }
+  if (context.sessionLookup?.token !== token) {
+    context.sessionLookup = { token, userId: lookup() };
+  }
+  return context.sessionLookup.userId;
 }
 
 export function runWithRequestContext<T>(
