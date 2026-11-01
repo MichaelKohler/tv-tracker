@@ -10,7 +10,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { FLAGS, evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
 import { logInfo } from "../logger.server";
-import { useOptionalUser } from "../utils";
+import { useIsLoggedIn } from "../utils";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
@@ -37,7 +37,7 @@ export const loader = withRequestContext(
 );
 
 export default function Index() {
-  const user = useOptionalUser();
+  const isLoggedIn = useIsLoggedIn();
   const data = useLoaderData<typeof loader>();
 
   const features = [
@@ -72,7 +72,7 @@ export default function Index() {
         {!data.features.signup && (
           <h2 className="mt-8 font-title text-3xl uppercase">Coming Soon!</h2>
         )}
-        {!user && (
+        {!isLoggedIn && (
           <div className="mt-9 flex flex-row justify-center space-x-4">
             {data.features.signup && (
               <Link
@@ -124,7 +124,7 @@ export default function Index() {
           </div>
         </div>
       </div>
-      {!user && data.features.signup && (
+      {!isLoggedIn && data.features.signup && (
         <div className="relative isolate overflow-hidden bg-mk px-6 py-24 sm:py-32 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
