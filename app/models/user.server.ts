@@ -2,6 +2,12 @@ import type { Invite, Password, User } from "@prisma/client";
 import { compare, hash } from "bcrypt";
 import { createHash } from "crypto";
 
+import {
+  type NewSession,
+  type ReplacementSession,
+  revokeUserSessions,
+  writeNewSession,
+} from "./session.server";
 import type { Prisma } from "../generated/prisma";
 import { prisma } from "../db.server";
 
@@ -37,18 +43,27 @@ function buildNewUserData(email: User["email"], hashedPassword: string) {
   };
 }
 
-export async function createUser(email: User["email"], password: string) {
+export async function createUser(
+  email: User["email"],
+  password: string,
+  newSession: NewSession
+) {
   const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
-  return prisma.user.create({
-    data: buildNewUserData(email, hashedPassword),
+  return prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+    const user = await transaction.user.create({
+      data: buildNewUserData(email, hashedPassword),
+    });
+    await writeNewSession(transaction, user.id, newSession);
+    return user;
   });
 }
 
 export async function createUserWithInvite(
   email: User["email"],
   password: string,
-  inviteCode: Invite["id"]
+  inviteCode: Invite["id"],
+  newSession: NewSession
 ) {
   const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
@@ -61,17 +76,20 @@ export async function createUserWithInvite(
       return null;
     }
 
-    return transaction.user.create({
+    const user = await transaction.user.create({
       data: buildNewUserData(email, hashedPassword),
     });
+    await writeNewSession(transaction, user.id, newSession);
+    return user;
   });
 }
 
-async function validatePasswordResetToken(token: string) {
-  const hashedToken = createHash("sha256").update(token).digest("hex");
+const hashPasswordResetToken = (token: string) =>
+  createHash("sha256").update(token).digest("hex");
 
+async function validatePasswordResetToken(token: string) {
   const passwordResetEntry = await prisma.passwordReset.findUnique({
-    where: { token: hashedToken },
+    where: { token: hashPasswordResetToken(token) },
   });
 
   if (
@@ -81,15 +99,27 @@ async function validatePasswordResetToken(token: string) {
     throw new Error("PASSWORD_RESET_EXPIRED");
   }
 
-  await prisma.passwordReset.delete({ where: { token: hashedToken } });
-
   return passwordResetEntry.email;
+}
+
+async function consumePasswordResetToken(
+  transaction: Prisma.TransactionClient,
+  token: string
+) {
+  const { count } = await transaction.passwordReset.deleteMany({
+    where: { token: hashPasswordResetToken(token) },
+  });
+
+  if (count === 0) {
+    throw new Error("PASSWORD_RESET_EXPIRED");
+  }
 }
 
 export async function changePassword(
   email: User["email"],
   password: string,
-  token: string
+  token: string,
+  replacementSession?: ReplacementSession
 ) {
   let userEmail = email;
 
@@ -109,17 +139,23 @@ export async function changePassword(
 
   const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
-  await prisma.password.upsert({
-    where: {
-      userId: existingUser.id,
-    },
-    create: {
-      userId: existingUser.id,
-      hash: hashedPassword,
-    },
-    update: {
-      hash: hashedPassword,
-    },
+  await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+    if (token) {
+      await consumePasswordResetToken(transaction, token);
+    }
+    await revokeUserSessions(transaction, existingUser.id, replacementSession);
+    await transaction.password.upsert({
+      where: {
+        userId: existingUser.id,
+      },
+      create: {
+        userId: existingUser.id,
+        hash: hashedPassword,
+      },
+      update: {
+        hash: hashedPassword,
+      },
+    });
   });
 }
 
@@ -140,7 +176,10 @@ export async function userHasPassword(userId: User["id"]): Promise<boolean> {
   return !!user?.password;
 }
 
-export async function removePassword(userId: User["id"]) {
+export async function removePassword(
+  userId: User["id"],
+  replacementSession: ReplacementSession
+) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: { password: true, passkeys: true },
@@ -158,8 +197,11 @@ export async function removePassword(userId: User["id"]) {
     throw new Error("NEED_PASSKEY_BEFORE_REMOVAL");
   }
 
-  await prisma.password.delete({
-    where: { userId },
+  await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+    await revokeUserSessions(transaction, userId, replacementSession);
+    await transaction.password.delete({
+      where: { userId },
+    });
   });
 }
 

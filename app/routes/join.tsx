@@ -22,13 +22,13 @@ import {
   createUserWithInvite,
   getUserByEmail,
 } from "../models/user.server";
-import { createUserSession, getUserId } from "../session.server";
 import {
   getPasswordValidationError,
   safeRedirect,
   validateAndSanitizeEmail,
 } from "../utils";
-import { logInfo } from "../logger.server";
+import { getUserId, prepareUserSession } from "../session.server";
+import { logError, logInfo } from "../logger.server";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
@@ -135,10 +135,30 @@ export const action = withRequestContext(
       );
     }
 
-    const user =
-      signupDisabled && typeof invite === "string"
-        ? await createUserWithInvite(email, passwordInput, invite)
-        : await createUser(email, passwordInput);
+    const { newSession, response } = await prepareUserSession({
+      request,
+      remember: false,
+      redirectTo,
+    });
+
+    let user;
+    try {
+      user =
+        signupDisabled && typeof invite === "string"
+          ? await createUserWithInvite(email, passwordInput, invite, newSession)
+          : await createUser(email, passwordInput, newSession);
+    } catch (error) {
+      logError("Failed to create user", {}, error);
+      return data(
+        {
+          errors: {
+            ...errors,
+            email: "Could not create your account. Please try again.",
+          },
+        },
+        { status: 500 }
+      );
+    }
 
     if (!user) {
       return data(
@@ -149,12 +169,7 @@ export const action = withRequestContext(
 
     logInfo("User created successfully", { email, userId: user.id });
 
-    return createUserSession({
-      request,
-      userId: user.id,
-      remember: false,
-      redirectTo,
-    });
+    return response;
   }
 );
 

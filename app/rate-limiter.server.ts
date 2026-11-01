@@ -44,6 +44,10 @@ export function checkRateLimit(
   return { limited: false, retryAfterSeconds: 0 };
 }
 
+export function checkPasswordAttemptLimit(email: string): RateLimitResult {
+  return checkRateLimit(`login-account:${email}`, 20, 15 * 60 * 1000);
+}
+
 export function getClientIp(request: Request): string {
   return request.headers.get("x-vercel-forwarded-for") ?? "unknown";
 }

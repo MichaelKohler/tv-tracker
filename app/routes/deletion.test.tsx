@@ -14,6 +14,7 @@ import * as user from "../models/user.server";
 import Deletion, { action, loader } from "./deletion";
 import { FLAGS, evaluateBoolean } from "../flags.server";
 import type { User } from "../models/user.server";
+import { clearRateLimitStore } from "../rate-limiter.server";
 import { requireUser } from "../session.server";
 
 vi.mock("react-router", async () => ({
@@ -69,6 +70,7 @@ vi.mock("../session.server", async () => ({
 describe("Account Deletion Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    clearRateLimitStore();
 
     vi.mocked(evaluateBoolean).mockResolvedValue(true);
 
@@ -313,6 +315,45 @@ describe("Account Deletion Route", () => {
       // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.password).toBe("Incorrect password.");
       expect(user.deleteUserByUserId).not.toHaveBeenCalled();
+    });
+
+    it("should stop checking the password after too many attempts", async () => {
+      vi.spyOn(user, "verifyLogin").mockResolvedValue(null);
+
+      const deletionRequest = () => {
+        const formData = new FormData();
+        formData.append("password", "wrongPassword");
+        return {
+          request: new Request("http://localhost:8080/deletion", {
+            method: "POST",
+            body: formData,
+          }),
+          context: new RouterContextProvider(),
+          url: new URL("http://localhost"),
+          pattern: "",
+          params: {},
+        };
+      };
+
+      for (let attempt = 0; attempt < 20; attempt++) {
+        await action(deletionRequest());
+      }
+      const response = await action(deletionRequest());
+
+      expect(user.verifyLogin).toHaveBeenCalledTimes(20);
+      expect(user.deleteUserByUserId).not.toHaveBeenCalled();
+      expect(response).toMatchObject({
+        data: {
+          errors: {
+            deletion: null,
+            password: "Too many attempts. Please try again later.",
+          },
+        },
+        init: {
+          status: 429,
+          headers: { "Retry-After": expect.any(String) },
+        },
+      });
     });
 
     it("should return error if user can not be deleted", async () => {

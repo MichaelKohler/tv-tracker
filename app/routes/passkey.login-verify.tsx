@@ -15,6 +15,7 @@ import {
   getPasskeyByCredentialId,
   updatePasskeyCounter,
 } from "../models/passkey.server";
+import { CREDENTIAL_CHANGED_ERROR } from "../models/session.server";
 import { logInfo } from "../logger.server";
 import { safeRedirect } from "../utils";
 import { withRequestContext } from "../request-handler.server";
@@ -98,7 +99,7 @@ export const action = withRequestContext(
 
       const session = await clearPasskeyChallenge(request);
 
-      return createUserSession({
+      return await createUserSession({
         request: new Request(request.url, {
           headers: {
             Cookie: await sessionStorage.commitSession(session),
@@ -107,8 +108,16 @@ export const action = withRequestContext(
         userId: passkey.userId,
         remember: remember ?? false,
         redirectTo: safeRedirect(redirectTo, "/tv"),
+        credential: { passkeyId: passkey.id },
       });
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === CREDENTIAL_CHANGED_ERROR
+      ) {
+        return data({ error: "Passkey not found" }, { status: 404 });
+      }
+
       console.error("Passkey authentication error:", error);
       return data({ error: "Failed to authenticate passkey" }, { status: 500 });
     }

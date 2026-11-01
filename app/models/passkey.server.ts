@@ -1,7 +1,9 @@
 import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 import { verifyAuthenticationResponse } from "@simplewebauthn/server";
 
+import { type ReplacementSession, revokeUserSessions } from "./session.server";
 import { PASSKEY_CHALLENGE_TTL_MS } from "../constants";
+import type { Prisma } from "../generated/prisma";
 import { logError } from "../logger.server";
 import { prisma } from "../db.server";
 
@@ -49,12 +51,19 @@ export async function updatePasskeyCounter(id: string, newCounter: bigint) {
   });
 }
 
-export async function deletePasskey(id: string, userId: string) {
-  return prisma.passkey.delete({
-    where: {
-      id,
-      userId,
-    },
+export async function deletePasskey(
+  id: string,
+  userId: string,
+  replacementSession: ReplacementSession
+) {
+  await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+    await revokeUserSessions(transaction, userId, replacementSession);
+    await transaction.passkey.delete({
+      where: {
+        id,
+        userId,
+      },
+    });
   });
 }
 

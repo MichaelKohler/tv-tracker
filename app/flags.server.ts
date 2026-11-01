@@ -66,20 +66,29 @@ export const DEFAULT_FLAG_VALUES: Record<string, boolean> = {
   [FLAGS.ARCHIVE]: false,
 };
 
+async function getFlagEntityId(request: Request) {
+  try {
+    return (await getUserId(request)) || "";
+  } catch (error) {
+    console.error("Failed to read the user for flag evaluation:", error);
+    return "";
+  }
+}
+
 export async function evaluateVariant(request: Request, flag: string) {
   if (process.env.FLIPT_ENVIRONMENT === "") {
     return true;
   }
 
   try {
-    const userId = await getUserId(request);
+    const entityId = await getFlagEntityId(request);
 
     const variantEvaluationResponse = await (
       await getFliptClient()
     ).evaluation.variant({
       namespaceKey: "default",
       flagKey: flag,
-      entityId: userId || "",
+      entityId,
       context: {},
     });
 
@@ -100,14 +109,14 @@ export async function evaluateBoolean(request: Request, flag: string) {
   }
 
   try {
-    const userId = await getUserId(request);
+    const entityId = await getFlagEntityId(request);
 
     const booleanEvaluationResponse = await (
       await getFliptClient()
     ).evaluation.boolean({
       namespaceKey: "default",
       flagKey: flag,
-      entityId: userId || "",
+      entityId,
       context: {},
     });
 

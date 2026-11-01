@@ -170,6 +170,22 @@ describe("Flags", () => {
       });
     });
 
+    it("still asks flipt anonymously when reading the user fails", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      mockGetUserId.mockRejectedValue(new Error("db down"));
+      mockBooleanFn.mockResolvedValue({ enabled: true });
+
+      const result = await evaluateBoolean(mockRequest, "test-flag");
+
+      expect(result).equal(true);
+      expect(mockBooleanFn).toHaveBeenCalledWith({
+        namespaceKey: "default",
+        flagKey: "test-flag",
+        entityId: "",
+        context: {},
+      });
+    });
+
     it("returns false when flag is disabled", async () => {
       process.env.FLIPT_ENVIRONMENT = "production";
       mockBooleanFn.mockResolvedValue({ enabled: false });
@@ -269,6 +285,17 @@ describe("Flags", () => {
   });
 
   describe("evaluateVariant error handling", () => {
+    it("still asks flipt anonymously when reading the user fails", async () => {
+      process.env.FLIPT_ENVIRONMENT = "production";
+      const variant = { variantKey: "a" };
+      mockGetUserId.mockRejectedValue(new Error("db down"));
+      mockVariantFn.mockResolvedValue(variant);
+
+      const result = await evaluateVariant(mockRequest, "test-flag");
+
+      expect(result).toBe(variant);
+    });
+
     it("returns null when flipt client throws error", async () => {
       process.env.FLIPT_ENVIRONMENT = "production";
       mockVariantFn.mockRejectedValue(new Error("Service unavailable"));

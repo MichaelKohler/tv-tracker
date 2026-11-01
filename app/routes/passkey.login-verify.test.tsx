@@ -289,6 +289,47 @@ describe("Passkey Login Verify Route", () => {
     );
   });
 
+  it.each([
+    ["CREDENTIAL_CHANGED", { error: "Passkey not found" }, 404],
+    ["db down", { error: "Failed to authenticate passkey" }, 500],
+  ])(
+    "should report a session creation failure with %s",
+    async (message, expectedData, expectedStatus) => {
+      vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+      vi.mocked(getPasskeyByCredentialId).mockResolvedValue(mockPasskey);
+      vi.mocked(verifyAuthenticationResponse).mockResolvedValue({
+        verified: true,
+        authenticationInfo: {
+          newCounter: 6,
+          credentialID: new Uint8Array(),
+          // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any,
+      });
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked(clearPasskeyChallenge).mockResolvedValue({} as any);
+      vi.mocked(createUserSession).mockRejectedValueOnce(new Error(message));
+
+      const request = new Request(
+        "http://localhost:3000/passkey/login-verify",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential: { id: "cred-123" } }),
+        }
+      );
+
+      const response = await action({ request } as ActionFunctionArgs);
+
+      expect(createUserSession).toHaveBeenCalledWith(
+        expect.objectContaining({ credential: { passkeyId: "passkey-1" } })
+      );
+      expect(response).toMatchObject({
+        data: expectedData,
+        init: { status: expectedStatus },
+      });
+    }
+  );
+
   it("should use remember flag when provided", async () => {
     const mockChallenge = "test-challenge";
     const mockSession = { id: "session-123" };

@@ -9,10 +9,19 @@ vi.unmock("../models/passkey.server");
 
 vi.mock("../db.server", () => ({
   prisma: {
+    $queryRaw: vi.fn<() => Promise<unknown>>(),
+    $transaction: vi.fn<() => Promise<unknown>>(),
     passkey: {
       create: vi.fn<() => Promise<unknown>>(),
+      delete: vi.fn<() => Promise<unknown>>(),
+      findMany: vi.fn<() => Promise<unknown>>(),
       findUnique: vi.fn<() => Promise<unknown>>(),
       update: vi.fn<() => Promise<unknown>>(),
+    },
+    session: {
+      create: vi.fn<() => Promise<unknown>>(),
+      deleteMany: vi.fn<() => Promise<{ count: number }>>(),
+      findUnique: vi.fn<() => Promise<unknown>>(),
     },
     usedPasskeyChallenge: {
       createMany: vi.fn<() => Promise<{ count: number }>>(),
@@ -46,6 +55,9 @@ vi.mock("../models/mail.server", () => ({
 }));
 
 vi.mock("../rate-limiter.server", () => ({
+  checkPasswordAttemptLimit: vi.fn<() => { limited: boolean }>(() => ({
+    limited: false,
+  })),
   checkRateLimit: vi.fn<() => { limited: boolean }>(() => ({ limited: false })),
   getClientIp: vi.fn<() => string>(() => "10.0.0.1"),
 }));
@@ -71,6 +83,7 @@ const {
 const { createUserSession, sessionStorage } = await import("../session.server");
 
 const CHALLENGE = "login-or-registration-challenge";
+const TEST_SESSION_TOKEN = "test-session-token";
 const REAUTH_CHALLENGE = "reauth-challenge";
 
 const createCookie = async ({
@@ -78,7 +91,7 @@ const createCookie = async ({
   userId = "user-123" as string | null,
 } = {}) => {
   const session = await sessionStorage.getSession();
-  if (userId) session.set("userId", userId);
+  if (userId) session.set("sessionToken", TEST_SESSION_TOKEN);
   session.set("passkeyChallenge", { challenge: CHALLENGE, issuedAt });
   session.set("passkeyReauthChallenge", {
     challenge: REAUTH_CHALLENGE,
@@ -93,7 +106,7 @@ const readChallenges = async (setCookie: string | null) => {
   return {
     challenge: session.get("passkeyChallenge"),
     reauthChallenge: session.get("passkeyReauthChallenge"),
-    userId: session.get("userId"),
+    sessionToken: session.get("sessionToken"),
   };
 };
 
@@ -176,6 +189,21 @@ describe("passkey challenge consumption", () => {
     vi.mocked(prisma.usedPasskeyChallenge.deleteMany).mockResolvedValue({
       count: 0,
     } as never);
+    vi.mocked(prisma.session.findUnique).mockImplementation((() =>
+      Promise.resolve({
+        userId: "user-123",
+        expiresAt: new Date(Date.now() + 60_000),
+      })) as never);
+    vi.mocked(prisma.session.deleteMany).mockResolvedValue({
+      count: 0,
+    } as never);
+    vi.mocked(prisma.$transaction).mockImplementation(((
+      callback: (transaction: typeof prisma) => unknown
+    ) => callback(prisma)) as never);
+    vi.mocked(prisma.passkey.findMany).mockResolvedValue([
+      { id: "passkey-1" },
+      { id: "passkey-2" },
+    ] as never);
     vi.mocked(prisma.passkey.findUnique).mockResolvedValue({
       id: "passkey-1",
       userId: "user-123",
@@ -237,6 +265,26 @@ describe("passkey challenge consumption", () => {
       expect(getGenericError(replay)).toBe("Challenge already used");
     });
 
+    it("deletes a passkey only once", async () => {
+      vi.mocked(userHasPassword).mockResolvedValue(false);
+      const cookie = await createCookie();
+      const deleteRequest = () =>
+        formRequest("/account", cookie, {
+          intent: "delete-passkey",
+          passkeyId: "passkey-2",
+          passkeyCredential,
+        });
+
+      await accountAction(routeArgs(deleteRequest()));
+      const replay = await accountAction(routeArgs(deleteRequest()));
+
+      expect(prisma.passkey.delete).toHaveBeenCalledOnce();
+      expect(
+        (getData(replay) as { errors: { passkey: string | null } }).errors
+          .passkey
+      ).toBe("Challenge already used");
+    });
+
     it("sets a password only once", async () => {
       const cookie = await createCookie();
 
@@ -249,7 +297,8 @@ describe("passkey challenge consumption", () => {
       expect(changePassword).toHaveBeenCalledWith(
         "test@example.com",
         "newnewPassword",
-        ""
+        "",
+        expect.objectContaining({ tokenHash: expect.any(String) })
       );
     });
 
@@ -365,7 +414,7 @@ describe("passkey challenge consumption", () => {
 
     it("rejects a challenge stored before lifetimes were added", async () => {
       const session = await sessionStorage.getSession();
-      session.set("userId", "user-123");
+      session.set("sessionToken", TEST_SESSION_TOKEN);
       session.set("passkeyChallenge", CHALLENGE);
       const cookie = (await sessionStorage.commitSession(session)).split(
         ";"
@@ -433,12 +482,12 @@ describe("passkey challenge consumption", () => {
         routeArgs(removeRequest(await createCookie()))
       );
 
-      const { challenge, reauthChallenge, userId } = await readChallenges(
+      const { challenge, reauthChallenge, sessionToken } = await readChallenges(
         getSetCookie(response)
       );
       expect(challenge).toBeUndefined();
       expect(reauthChallenge).toMatchObject({ challenge: REAUTH_CHALLENGE });
-      expect(userId).toBe("user-123");
+      expect(sessionToken).toEqual(expect.any(String));
     });
 
     it.each([
@@ -484,7 +533,7 @@ describe("passkey challenge consumption", () => {
       ).toBeUndefined();
     });
 
-    it("does not touch the session when changing a password with the current password", async () => {
+    it("rotates the session when changing a password with the current password", async () => {
       vi.mocked(userHasPassword).mockResolvedValue(true);
       vi.mocked(verifyLogin).mockResolvedValue({ id: "user-123" } as never);
 
@@ -498,7 +547,15 @@ describe("passkey challenge consumption", () => {
         )
       );
 
-      expect(getSetCookie(response)).toBeNull();
+      const { sessionToken } = await readChallenges(getSetCookie(response));
+      expect(sessionToken).toEqual(expect.any(String));
+      expect(sessionToken).not.toBe(TEST_SESSION_TOKEN);
+      expect(changePassword).toHaveBeenCalledWith(
+        expect.any(String),
+        "newnewPassword",
+        "",
+        expect.objectContaining({ tokenHash: expect.any(String) })
+      );
     });
 
     it("clears the reauth challenge when deleting the user fails", async () => {
@@ -512,12 +569,12 @@ describe("passkey challenge consumption", () => {
         )
       );
 
-      const { challenge, reauthChallenge, userId } = await readChallenges(
+      const { challenge, reauthChallenge, sessionToken } = await readChallenges(
         getSetCookie(response)
       );
       expect(challenge).toMatchObject({ challenge: CHALLENGE });
       expect(reauthChallenge).toBeUndefined();
-      expect(userId).toBe("user-123");
+      expect(sessionToken).toEqual(expect.any(String));
     });
 
     it("destroys the session after deleting the user", async () => {
@@ -531,7 +588,7 @@ describe("passkey challenge consumption", () => {
       expect(await readChallenges(response.headers.get("Set-Cookie"))).toEqual({
         challenge: undefined,
         reauthChallenge: undefined,
-        userId: undefined,
+        sessionToken: undefined,
       });
     });
 
@@ -541,6 +598,7 @@ describe("passkey challenge consumption", () => {
         userId: "user-123",
         remember: true,
         redirectTo: "/tv",
+        credential: { passkeyId: "passkey-1" },
       });
       const loginCookie = login.headers.get("Set-Cookie");
       const session = await sessionStorage.getSession(loginCookie);
@@ -578,7 +636,7 @@ describe("passkey challenge consumption", () => {
       expect(await readChallenges(getSetCookie(response))).toEqual({
         challenge: undefined,
         reauthChallenge: undefined,
-        userId: "user-123",
+        sessionToken: TEST_SESSION_TOKEN,
       });
     });
 
@@ -615,7 +673,7 @@ describe("passkey challenge consumption", () => {
         expect(await readChallenges(getSetCookie(response))).toEqual({
           challenge: undefined,
           reauthChallenge: undefined,
-          userId: "user-123",
+          sessionToken: TEST_SESSION_TOKEN,
         });
       }
     );

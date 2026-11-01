@@ -55,11 +55,6 @@ vi.mock("../flags.server");
 vi.mock("../session.server", async () => ({
   ...(await vi.importActual("../session.server")),
   getUserId: vi.fn<() => Promise<string | undefined>>(),
-  createUserSession: vi
-    .fn<() => Promise<Response>>()
-    .mockImplementation(
-      ((arg: unknown) => arg) as unknown as () => Promise<Response>
-    ),
 }));
 
 vi.mock("../utils", async () => ({
@@ -227,10 +222,45 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-      expect(response.redirectTo).toBe("/tv");
-      // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-      expect(response.remember).toBe(false);
+      expect((response as Response).headers.get("Location")).toBe("/tv");
+      expect((response as Response).headers.get("Set-Cookie")).toContain(
+        "Max-Age=86400"
+      );
+    });
+
+    it("shows an error and sends no cookie when the account can not be created", async () => {
+      vi.mocked(getUserId).mockResolvedValue(undefined);
+      vi.mocked(evaluateBoolean).mockResolvedValue(false);
+      vi.mocked(validateEmail).mockReturnValue(true);
+      vi.mocked(getUserByEmail).mockResolvedValue(null);
+      vi.mocked(createUser).mockRejectedValue(new Error("db down"));
+
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+      formData.append("password", "foofoofoo");
+
+      const response = await action({
+        request: new Request("http://localhost:8080/join", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      expect(response).toMatchObject({
+        data: {
+          errors: {
+            email: "Could not create your account. Please try again.",
+          },
+        },
+        init: { status: 500 },
+      });
+      expect(
+        (response as { init?: { headers?: unknown } }).init?.headers
+      ).toBeUndefined();
     });
 
     it("should return if everything ok with custom redirect", async () => {
@@ -262,8 +292,9 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-      expect(response.redirectTo).toBe("/customRedirectLocation");
+      expect((response as Response).headers.get("Location")).toBe(
+        "/customRedirectLocation"
+      );
     });
 
     it("should return 429 when rate limited", async () => {
@@ -523,11 +554,11 @@ describe("Join Route", () => {
       expect(createUserWithInvite).toHaveBeenCalledWith(
         "foo@example.com",
         "foofoofoo",
-        "someInviteCode"
+        "someInviteCode",
+        expect.objectContaining({ tokenHash: expect.any(String) })
       );
       expect(createUser).not.toHaveBeenCalled();
-      // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-      expect(response.redirectTo).toBe("/tv");
+      expect((response as Response).headers.get("Location")).toBe("/tv");
     });
   });
 });

@@ -3,9 +3,7 @@ import {
   startAuthentication,
   startRegistration,
 } from "@simplewebauthn/browser";
-import { useActionData, useRevalidator } from "react-router";
-
-import type { action } from "../routes/account";
+import { useRevalidator } from "react-router";
 
 interface PasskeyRegistrationProps {
   isEnabled: boolean;
@@ -18,7 +16,6 @@ export function PasskeyRegistration({
   hasPassword,
   hasPasskeys,
 }: PasskeyRegistrationProps) {
-  const actionData = useActionData<typeof action>();
   const revalidator = useRevalidator();
   const [showPasskeyForm, setShowPasskeyForm] = useState(false);
   const [passkeyName, setPasskeyName] = useState("");
@@ -221,10 +218,6 @@ export function PasskeyRegistration({
 
       {passkeySuccess && (
         <p className="mt-2 text-green-600">Passkey registered successfully!</p>
-      )}
-
-      {actionData?.errors?.passkey && (
-        <p className="mt-2 text-mkerror">{actionData.errors.passkey}</p>
       )}
     </>
   );

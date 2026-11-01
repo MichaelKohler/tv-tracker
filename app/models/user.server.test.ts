@@ -21,8 +21,27 @@ vi.mock("../db.server");
 
 const BCRYPT_HASH = expect.stringMatching(/^\$2b\$10\$/);
 const FAST_BCRYPT_ROUNDS = 4;
+const NEW_SESSION = {
+  tokenHash: "new-hash",
+  expiresAt: new Date("2026-01-08T00:00:00.000Z"),
+};
+const REPLACEMENT_SESSION = {
+  currentToken: "current-token",
+  tokenHash: "new-hash",
+  expiresAt: new Date("2026-01-08T00:00:00.000Z"),
+};
 
 describe("User Model", () => {
+  beforeEach(() => {
+    prisma.$transaction.mockImplementation(((
+      callback: (transaction: typeof prisma) => unknown
+    ) => callback(prisma)) as never);
+    prisma.session.findUnique.mockResolvedValue({
+      userId: "123",
+      expiresAt: new Date(Date.now() + 60_000),
+    } as never);
+  });
+
   it("getUserById should return user", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
@@ -62,7 +81,8 @@ describe("User Model", () => {
   });
 
   it("createUser should create user", async () => {
-    await createUser("foo@example.com", "foo");
+    prisma.user.create.mockResolvedValue({ id: "123" } as never);
+    await createUser("foo@example.com", "foo", NEW_SESSION);
     expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
         email: "foo@example.com",
@@ -73,6 +93,28 @@ describe("User Model", () => {
         },
       },
     });
+  });
+
+  it("createUser should create the session in the same transaction", async () => {
+    prisma.user.create.mockResolvedValue({ id: "123" } as never);
+
+    await createUser("foo@example.com", "foo", NEW_SESSION);
+
+    expect(prisma.$transaction).toHaveBeenCalledOnce();
+    expect(prisma.session.create).toHaveBeenCalledWith({
+      data: { userId: "123", ...NEW_SESSION },
+    });
+  });
+
+  it("createUser should fail as a whole when the session can not be created", async () => {
+    prisma.user.create.mockResolvedValue({ id: "123" } as never);
+    prisma.session.create.mockRejectedValue(new Error("oh no"));
+
+    await expect(
+      createUser("foo@example.com", "foo", NEW_SESSION)
+    ).rejects.toThrow("oh no");
+
+    expect(prisma.$transaction).toHaveBeenCalledOnce();
   });
 
   describe("createUserWithInvite", () => {
@@ -96,7 +138,8 @@ describe("User Model", () => {
       const user = await createUserWithInvite(
         "foo@example.com",
         "foo",
-        "invite-1"
+        "invite-1",
+        NEW_SESSION
       );
 
       expect(user).toBe(createdUser);
@@ -121,7 +164,8 @@ describe("User Model", () => {
       const user = await createUserWithInvite(
         "foo@example.com",
         "foo",
-        "invite-1"
+        "invite-1",
+        NEW_SESSION
       );
 
       expect(user).toBeNull();
@@ -133,7 +177,7 @@ describe("User Model", () => {
       prisma.user.create.mockRejectedValue(new Error("oh no"));
 
       await expect(
-        createUserWithInvite("foo@example.com", "foo", "invite-1")
+        createUserWithInvite("foo@example.com", "foo", "invite-1", NEW_SESSION)
       ).rejects.toThrow("oh no");
 
       expect(prisma.$transaction).toHaveBeenCalledOnce();
@@ -257,6 +301,48 @@ describe("User Model", () => {
     });
   });
 
+  it("changePassword should revoke the sessions in the password transaction", async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+    });
+
+    await changePassword("foo@example.com", "foo", "", REPLACEMENT_SESSION);
+
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(prisma.session.deleteMany).toHaveBeenCalledWith({
+      where: { userId: "123" },
+    });
+    expect(prisma.session.create).toHaveBeenCalledWith({
+      data: {
+        userId: "123",
+        tokenHash: REPLACEMENT_SESSION.tokenHash,
+        expiresAt: REPLACEMENT_SESSION.expiresAt,
+      },
+    });
+  });
+
+  it("changePassword should not change the password of a revoked session", async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      id: "123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      email: "foo@example.com",
+      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+    });
+    prisma.session.findUnique.mockResolvedValue(null);
+
+    await expect(() =>
+      changePassword("foo@example.com", "foo", "", REPLACEMENT_SESSION)
+    ).rejects.toThrow("SESSION_REVOKED");
+
+    expect(prisma.password.upsert).not.toHaveBeenCalled();
+    expect(prisma.session.create).not.toHaveBeenCalled();
+  });
+
   it("changePassword should throw error if no user found", async () => {
     prisma.user.findUnique.mockResolvedValue(null);
     await expect(() =>
@@ -306,6 +392,7 @@ describe("User Model", () => {
       createdAt: new Date(),
       email: "foo@example.com",
     });
+    prisma.passwordReset.deleteMany.mockResolvedValue({ count: 1 });
 
     await changePassword("foo@example.com", "foo", "fooToken");
     expect(prisma.password.upsert).toHaveBeenCalledWith({
@@ -320,10 +407,49 @@ describe("User Model", () => {
         hash: BCRYPT_HASH,
       },
     });
-    expect(prisma.passwordReset.delete).toHaveBeenCalledWith({
+    expect(prisma.passwordReset.deleteMany).toHaveBeenCalledWith({
       where: {
         token: createHash("sha256").update("fooToken").digest("hex"),
       },
+    });
+  });
+
+  describe("changePassword with a valid reset token", () => {
+    beforeEach(() => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: "123",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        email: "foo@example.com",
+        plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
+      });
+      prisma.passwordReset.findUnique.mockResolvedValue({
+        id: "1",
+        token: "1",
+        createdAt: new Date(),
+        email: "foo@example.com",
+      });
+    });
+
+    it("should consume the token only inside the password transaction", async () => {
+      prisma.$transaction.mockRejectedValue(new Error("db down"));
+
+      await expect(changePassword("", "foo", "fooToken")).rejects.toThrow(
+        "db down"
+      );
+
+      expect(prisma.passwordReset.deleteMany).not.toHaveBeenCalled();
+    });
+
+    it("should not change the password when the token was already consumed", async () => {
+      prisma.passwordReset.deleteMany.mockResolvedValue({ count: 0 });
+
+      await expect(changePassword("", "foo", "fooToken")).rejects.toThrow(
+        "PASSWORD_RESET_EXPIRED"
+      );
+
+      expect(prisma.session.deleteMany).not.toHaveBeenCalled();
+      expect(prisma.password.upsert).not.toHaveBeenCalled();
     });
   });
 
@@ -409,10 +535,21 @@ describe("User Model", () => {
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    await removePassword("123");
+    await removePassword("123", REPLACEMENT_SESSION);
+    expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(prisma.password.delete).toHaveBeenCalledWith({
       where: {
         userId: "123",
+      },
+    });
+    expect(prisma.session.deleteMany).toHaveBeenCalledWith({
+      where: { userId: "123" },
+    });
+    expect(prisma.session.create).toHaveBeenCalledWith({
+      data: {
+        userId: "123",
+        tokenHash: REPLACEMENT_SESSION.tokenHash,
+        expiresAt: REPLACEMENT_SESSION.expiresAt,
       },
     });
   });
@@ -420,7 +557,9 @@ describe("User Model", () => {
   it("removePassword should throw error when user not found", async () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
-    await expect(() => removePassword("123")).rejects.toHaveProperty(
+    await expect(() =>
+      removePassword("123", REPLACEMENT_SESSION)
+    ).rejects.toHaveProperty(
       "message",
       expect.stringContaining("USER_NOT_FOUND")
     );
@@ -438,7 +577,9 @@ describe("User Model", () => {
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    await expect(() => removePassword("123")).rejects.toHaveProperty(
+    await expect(() =>
+      removePassword("123", REPLACEMENT_SESSION)
+    ).rejects.toHaveProperty(
       "message",
       expect.stringContaining("NO_PASSWORD_TO_REMOVE")
     );
@@ -458,7 +599,9 @@ describe("User Model", () => {
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
-    await expect(() => removePassword("123")).rejects.toHaveProperty(
+    await expect(() =>
+      removePassword("123", REPLACEMENT_SESSION)
+    ).rejects.toHaveProperty(
       "message",
       expect.stringContaining("NEED_PASSKEY_BEFORE_REMOVAL")
     );
