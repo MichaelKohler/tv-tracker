@@ -70,6 +70,8 @@ describe("Account Deletion Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
+
     vi.mocked(useLoaderData).mockReturnValue({
       deleteAccountEnabled: true,
       hasPassword: true,
@@ -391,6 +393,37 @@ describe("Account Deletion Route", () => {
       // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.deletion).toBe("Verification failed");
       expect(user.deleteUserByUserId).not.toBeCalled();
+    });
+
+    it("should not delete the user if the feature is disabled", async () => {
+      vi.mocked(evaluateBoolean).mockResolvedValue(false);
+
+      const formData = new FormData();
+      formData.append("password", "correctPassword");
+
+      const response = await action({
+        request: new Request("http://localhost:8080/deletion", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      expect(evaluateBoolean).toHaveBeenCalledWith(
+        expect.any(Request),
+        FLAGS.DELETE_ACCOUNT
+      );
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.init?.status).toBe(403);
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data.errors.deletion).toBe(
+        "The account deletion functionality is currently disabled. Please try again later."
+      );
+      expect(user.verifyLogin).not.toHaveBeenCalled();
+      expect(user.deleteUserByUserId).not.toHaveBeenCalled();
     });
   });
 });

@@ -60,6 +60,24 @@ export const loader = withRequestContext(
 
 export const action = withRequestContext(
   async ({ request }: ActionFunctionArgs) => {
+    const deleteAccountEnabled = await evaluateBoolean(
+      request,
+      FLAGS.DELETE_ACCOUNT
+    );
+
+    if (!deleteAccountEnabled) {
+      return data(
+        {
+          errors: {
+            deletion:
+              "The account deletion functionality is currently disabled. Please try again later.",
+            password: null,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     const user = await requireUser(request);
 
     logInfo("Starting account deletion", { userId: user.id });

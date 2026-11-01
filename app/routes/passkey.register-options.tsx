@@ -3,6 +3,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   requireUser,
   sessionStorage,
@@ -15,6 +16,18 @@ import { withRequestContext } from "../request-handler.server";
 export const loader = withRequestContext(
   async ({ request }: LoaderFunctionArgs) => {
     logInfo("Passkey registration options requested", {});
+
+    const passkeyRegistrationEnabled = await evaluateBoolean(
+      request,
+      FLAGS.PASSKEY_REGISTRATION
+    );
+
+    if (!passkeyRegistrationEnabled) {
+      return data(
+        { error: "Passkey registration is currently disabled" },
+        { status: 403 }
+      );
+    }
 
     const user = await requireUser(request);
 

@@ -3,6 +3,7 @@ import type { Passkey } from "@prisma/client";
 import type { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/server";
 import { generateRegistrationOptions } from "@simplewebauthn/server";
 
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   requireUser,
   sessionStorage,
@@ -13,6 +14,8 @@ import { getPasskeysByUserId } from "../models/passkey.server";
 import { loader } from "./passkey.register-options";
 
 vi.mock("../db.server");
+
+vi.mock("../flags.server");
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
@@ -49,10 +52,30 @@ describe("Passkey Register Options Route", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(requireUser).mockResolvedValue(mockUser);
 
     process.env.RP_NAME = "TV Tracker";
     process.env.RP_ID = "localhost";
+  });
+
+  it("should not return registration options if the feature is disabled", async () => {
+    vi.mocked(evaluateBoolean).mockResolvedValue(false);
+
+    const response = await loader({
+      request: mockRequest,
+    } as LoaderFunctionArgs);
+
+    expect(evaluateBoolean).toHaveBeenCalledWith(
+      mockRequest,
+      FLAGS.PASSKEY_REGISTRATION
+    );
+    expect(response.init?.status).toBe(403);
+    expect(response.data).toEqual({
+      error: "Passkey registration is currently disabled",
+    });
+    expect(generateRegistrationOptions).not.toHaveBeenCalled();
+    expect(setPasskeyChallenge).not.toHaveBeenCalled();
   });
 
   it("should return registration options for user with no passkeys", async () => {

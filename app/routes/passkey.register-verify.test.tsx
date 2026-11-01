@@ -3,6 +3,7 @@ import type { Passkey } from "@prisma/client";
 import type { VerifiedRegistrationResponse } from "@simplewebauthn/server";
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   clearPasskeyChallenges,
   getPasskeyChallenge,
@@ -21,6 +22,8 @@ import { action } from "./passkey.register-verify";
 import { sendPasskeyCreatedMail } from "../models/mail.server";
 
 vi.mock("../db.server");
+
+vi.mock("../flags.server");
 
 vi.mock("@simplewebauthn/server", async () => ({
   ...(await vi.importActual("@simplewebauthn/server")),
@@ -67,12 +70,46 @@ describe("Passkey Register Verify Route", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
     vi.mocked(requireUser).mockResolvedValue(mockUser);
     vi.mocked(consumePasskeyChallenge).mockResolvedValue(true);
     vi.mocked(userHasPassword).mockResolvedValue(true);
     vi.mocked(verifyLogin).mockResolvedValue(mockUser);
     process.env.RP_ORIGIN = "http://localhost:5173";
     process.env.RP_ID = "localhost";
+  });
+
+  it("should not create a passkey if the feature is disabled", async () => {
+    vi.mocked(evaluateBoolean).mockResolvedValue(false);
+    vi.mocked(getPasskeyChallenge).mockResolvedValue("test-challenge");
+
+    const request = new Request(
+      "http://localhost:3000/passkey/register-verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: {},
+          name: "My Passkey",
+          password: "correctPassword",
+        }),
+      }
+    );
+
+    const response = await action({
+      request,
+    } as ActionFunctionArgs);
+
+    expect(evaluateBoolean).toHaveBeenCalledWith(
+      request,
+      FLAGS.PASSKEY_REGISTRATION
+    );
+    expect(response.init?.status).toBe(403);
+    expect(response.data).toEqual({
+      error: "Passkey registration is currently disabled",
+    });
+    expect(verifyLogin).not.toHaveBeenCalled();
+    expect(createPasskey).not.toHaveBeenCalled();
   });
 
   it("should return error if no challenge found", async () => {

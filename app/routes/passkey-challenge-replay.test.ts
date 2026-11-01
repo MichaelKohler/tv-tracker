@@ -36,6 +36,11 @@ vi.mock("../models/user.server", () => ({
   verifyLogin: vi.fn<() => Promise<unknown>>(),
 }));
 
+vi.mock("../flags.server", async () => ({
+  ...(await vi.importActual("../flags.server")),
+  evaluateBoolean: vi.fn<() => Promise<boolean>>(() => Promise.resolve(true)),
+}));
+
 vi.mock("../models/mail.server", () => ({
   sendPasskeyCreatedMail: vi.fn<() => Promise<void>>(),
 }));

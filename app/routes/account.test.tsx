@@ -78,6 +78,8 @@ describe("Account Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
+
     vi.mocked(useLoaderData).mockReturnValue({
       webhookUrl: "http://webhook.example",
       passkeys: [],
@@ -560,6 +562,43 @@ describe("Account Route", () => {
 
       expect(changePassword).toBeCalledWith("", "newnewPassword", "someToken");
     });
+
+    it.each([
+      { description: "the current password", field: "password", value: "foo" },
+      { description: "a reset token", field: "token", value: "someToken" },
+    ])(
+      "should not change the password with $description if the feature is disabled",
+      async ({ field, value }) => {
+        vi.mocked(evaluateBoolean).mockResolvedValue(false);
+
+        const formData = new FormData();
+        formData.append(field, value);
+        formData.append("newPassword", "newnewPassword");
+        formData.append("confirmPassword", "newnewPassword");
+
+        const response = await action({
+          request: new Request("http://localhost:8080/password/change", {
+            method: "POST",
+            body: formData,
+          }),
+          context: new RouterContextProvider(),
+          url: new URL("http://localhost"),
+          pattern: "",
+          params: {},
+        });
+
+        expect(evaluateBoolean).toHaveBeenCalledWith(
+          expect.any(Request),
+          "password-change"
+        );
+        expect(response.init?.status).toBe(403);
+        expect(response.data.errors.generic).toBe(
+          "The password change functionality is currently disabled. Please try again later."
+        );
+        expect(verifyLogin).not.toHaveBeenCalled();
+        expect(changePassword).not.toHaveBeenCalled();
+      }
+    );
   });
 
   describe("loader", () => {
