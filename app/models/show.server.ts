@@ -58,6 +58,7 @@ export async function getShowByUserIdAndName({
 }
 
 export async function getShowsByUserId(userId: User["id"], archived = false) {
+  const now = new Date();
   const showsOnUser = await prisma.showOnUser.findMany({
     where: {
       userId,
@@ -75,7 +76,7 @@ export async function getShowsByUserId(userId: User["id"], archived = false) {
               episodes: {
                 where: {
                   airDate: {
-                    lt: new Date(),
+                    lte: now,
                   },
                 },
               },
@@ -118,6 +119,11 @@ export async function getShowsByUserId(userId: User["id"], archived = false) {
         ignored: true,
         showId: {
           in: showIds,
+        },
+        episode: {
+          airDate: {
+            lte: now,
+          },
         },
       },
     }),
