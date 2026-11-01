@@ -9,6 +9,7 @@ import {
 } from "@simplewebauthn/server";
 import { withRequestContext } from "../request-handler.server";
 
+import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   clearPasskeyChallenges,
   getPasskeyChallenge,
@@ -28,6 +29,18 @@ import { sendPasskeyCreatedMail } from "../models/mail.server";
 export const action = withRequestContext(
   async ({ request }: ActionFunctionArgs) => {
     logInfo("Passkey registration verification started", {});
+
+    const passkeyRegistrationEnabled = await evaluateBoolean(
+      request,
+      FLAGS.PASSKEY_REGISTRATION
+    );
+
+    if (!passkeyRegistrationEnabled) {
+      return data(
+        { error: "Passkey registration is currently disabled" },
+        { status: 403 }
+      );
+    }
 
     const user = await requireUser(request);
     const challenge = await getPasskeyChallenge(request);

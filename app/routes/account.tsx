@@ -305,6 +305,25 @@ export const action = withRequestContext(
       }
     }
 
+    const passwordChangeEnabled = await evaluateBoolean(
+      request,
+      FLAGS.PASSWORD_CHANGE
+    );
+
+    if (!passwordChangeEnabled) {
+      return data(
+        {
+          errors: {
+            ...errors,
+            generic:
+              "The password change functionality is currently disabled. Please try again later.",
+          },
+          done: false,
+        },
+        { status: 403 }
+      );
+    }
+
     const currentPassword = formData.get("password");
     const newPassword = formData.get("newPassword");
     const confirmPassword = formData.get("confirmPassword");
