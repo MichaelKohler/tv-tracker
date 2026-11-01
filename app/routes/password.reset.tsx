@@ -16,7 +16,7 @@ import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { logInfo } from "../logger.server";
 import { triggerPasswordReset } from "../models/password.server";
-import { validateEmail } from "../utils";
+import { validateAndSanitizeEmail } from "../utils";
 import { withRequestContext } from "../request-handler.server";
 
 export const loader = withRequestContext(
@@ -37,20 +37,20 @@ export const loader = withRequestContext(
 export const action = withRequestContext(
   async ({ request }: ActionFunctionArgs) => {
     const formData = await request.formData();
-    const email = formData.get("email");
-
-    logInfo("Password reset requested", { email: email as string });
+    const email = validateAndSanitizeEmail(formData.get("email"));
 
     const errors = {
       email: null,
     };
 
-    if (!validateEmail(email)) {
+    if (!email) {
       return data(
         { errors: { email: "Email is invalid" }, done: false },
         { status: 400 }
       );
     }
+
+    logInfo("Password reset requested", { email });
 
     const { limited, retryAfterSeconds } = checkRateLimit(
       `password-reset:${email}`,

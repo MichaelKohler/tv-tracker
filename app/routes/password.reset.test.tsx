@@ -13,6 +13,7 @@ import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
 import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
+import { triggerPasswordReset } from "../models/password.server";
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
@@ -213,6 +214,29 @@ describe("Password Reset Route", () => {
         3,
         3_600_000
       );
+    });
+
+    it("should normalize the email before rate limiting and triggering the reset", async () => {
+      const formData = new FormData();
+      formData.append("email", "  Foo@Example.COM ");
+
+      await action({
+        request: new Request("http://localhost:8080/password/reset", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      expect(checkRateLimit).toHaveBeenCalledWith(
+        "password-reset:foo@example.com",
+        3,
+        3_600_000
+      );
+      expect(triggerPasswordReset).toHaveBeenCalledWith("foo@example.com");
     });
   });
 });
