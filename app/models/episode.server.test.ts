@@ -426,6 +426,15 @@ describe("Episode Model", () => {
     vi.useRealTimers();
   });
 
+  it("getLast12MonthsStats should not cap the number of rows it reads", async () => {
+    vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue([]);
+
+    await getLast12MonthsStats("userId");
+
+    const [query] = vi.mocked(prisma.episodeOnUser.findMany).mock.lastCall!;
+    expect(query).not.toHaveProperty("take");
+  });
+
   it("getLast12MonthsStats should format January 2026 correctly", async () => {
     const mockCurrentDate = new Date("2026-01-24");
     vi.useFakeTimers();

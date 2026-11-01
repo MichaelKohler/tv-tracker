@@ -485,7 +485,6 @@ export async function getLast12MonthsStats(userId: User["id"]) {
     orderBy: {
       createdAt: "asc",
     },
-    take: 1000,
   });
 
   // Group by month
