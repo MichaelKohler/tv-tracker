@@ -121,7 +121,7 @@ vp run validate      # Runs: test, lint, format, and e2e tests in parallel
 vp run test:e2e     # setup → run → teardown
 
 # Manual E2E control
-vp run test:e2e:setup     # Starts PostgreSQL container, waits up to 60s
+vp run test:e2e:setup     # Starts PostgreSQL container, retries schema push for up to 60s, fails if it never succeeds
 vp run test:e2e:run       # Runs Playwright tests
 vp run test:e2e:teardown  # Cleanup containers
 vp run test:e2e:report    # View test results
