@@ -210,6 +210,7 @@ Additionally please also format the code with `vp fmt .` as otherwise the GitHub
 - Unit tests use mocked Prisma client (`app/__mocks__/db.server.ts`)
 - E2E tests use real PostgreSQL in Docker container
 - Test files follow `*.test.{ts,tsx}` pattern
+- The `unit` project runs with `isolate: false`, so all test files share one module cache, and a module stays bound to whatever its imports were when an earlier file first loaded it. Avoid `vi.mock` of a dependency unless every test file that loads the importing module mocks it the same way: use the real library when it is fast and deterministic (such as `bcrypt`), or stub the browser or network API beneath it (such as `navigator.credentials`). To check for order dependence, run `vp test --run --project unit --sequence.shuffle.files --sequence.seed=<n>` with several seeds
 
 **Expected Test Output**:
 

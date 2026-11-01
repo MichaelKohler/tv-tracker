@@ -1,4 +1,5 @@
-import { compare } from "bcrypt";
+import { createHash } from "crypto";
+import { hash } from "bcrypt";
 
 import {
   changePassword,
@@ -16,44 +17,12 @@ import {
 } from "./user.server";
 import { prisma } from "../__mocks__/db.server";
 
-vi.mock("bcrypt", async () => ({
-  ...(await vi.importActual("bcrypt")),
-  compare: vi.fn<() => Promise<boolean>>().mockResolvedValue(true),
-  hash: vi.fn<() => Promise<string>>().mockResolvedValue("testHash"),
-}));
-
-vi.mock("crypto", async () => {
-  const createHash = vi
-    .fn<
-      () => {
-        update: (data: string) => { digest: (encoding: string) => string };
-      }
-    >()
-    .mockReturnValue({
-      update: vi
-        .fn<() => { digest: (encoding: string) => string }>()
-        .mockReturnValue({
-          digest: vi.fn<() => string>().mockReturnValue("testHashedToken"),
-        }),
-    });
-
-  return {
-    ...(await vi.importActual("crypto")),
-    createHash,
-    default: { createHash },
-  };
-});
-
 vi.mock("../db.server");
 
-describe("User Model", () => {
-  beforeEach(() => {
-    // Only clearing mocks here, as otherwise we would need to re-mock
-    // all the crypto functions again and we'd need to provide all necessary
-    // properties to fulfill type checking.
-    vi.clearAllMocks();
-  });
+const BCRYPT_HASH = expect.stringMatching(/^\$2b\$10\$/);
+const FAST_BCRYPT_ROUNDS = 4;
 
+describe("User Model", () => {
   it("getUserById should return user", async () => {
     const now = new Date();
     prisma.user.findUnique.mockResolvedValue({
@@ -99,7 +68,7 @@ describe("User Model", () => {
         email: "foo@example.com",
         password: {
           create: {
-            hash: "testHash",
+            hash: BCRYPT_HASH,
           },
         },
       },
@@ -139,7 +108,7 @@ describe("User Model", () => {
           email: "foo@example.com",
           password: {
             create: {
-              hash: "testHash",
+              hash: BCRYPT_HASH,
             },
           },
         },
@@ -198,13 +167,10 @@ describe("User Model", () => {
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       password: {
-        hash: "foo",
+        hash: await hash("foo", FAST_BCRYPT_ROUNDS),
       },
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
-    vi.mocked(
-      compare as (data: string | Buffer, encrypted: string) => Promise<boolean>
-    ).mockResolvedValue(true);
 
     const user = await verifyLogin("foo@example.com", "foo");
     expect(user).toStrictEqual({
@@ -246,13 +212,10 @@ describe("User Model", () => {
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
       password: {
-        hash: "foo",
+        hash: await hash("different-password", FAST_BCRYPT_ROUNDS),
       },
       // oxlint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
-    vi.mocked(
-      compare as (data: string | Buffer, encrypted: string) => Promise<boolean>
-    ).mockResolvedValue(false);
 
     const user = await verifyLogin("foo@example.com", "foo");
     expect(user).toBeNull();
@@ -286,10 +249,10 @@ describe("User Model", () => {
       },
       create: {
         userId: "123",
-        hash: "testHash",
+        hash: BCRYPT_HASH,
       },
       update: {
-        hash: "testHash",
+        hash: BCRYPT_HASH,
       },
     });
   });
@@ -351,15 +314,15 @@ describe("User Model", () => {
       },
       create: {
         userId: "123",
-        hash: "testHash",
+        hash: BCRYPT_HASH,
       },
       update: {
-        hash: "testHash",
+        hash: BCRYPT_HASH,
       },
     });
     expect(prisma.passwordReset.delete).toBeCalledWith({
       where: {
-        token: "testHashedToken",
+        token: createHash("sha256").update("fooToken").digest("hex"),
       },
     });
   });
