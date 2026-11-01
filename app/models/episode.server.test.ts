@@ -133,8 +133,8 @@ describe("Episode Model", () => {
 
   it("getRecentlyWatchedEpisodes should be called with correct params", async () => {
     const fromDate = new Date();
-    fromDate.setMonth(fromDate.getMonth() - 11);
     fromDate.setDate(1);
+    fromDate.setMonth(fromDate.getMonth() - 11);
     fromDate.setHours(0, 0, 0, 0);
 
     prisma.episodeOnUser.findMany.mockResolvedValue([]);
@@ -175,6 +175,21 @@ describe("Episode Model", () => {
       take: 50,
       skip: 0,
     });
+  });
+
+  it("getRecentlyWatchedEpisodes should start the window on the first of the month 11 months ago on the 31st", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 9, 31, 12));
+
+    prisma.episodeOnUser.findMany.mockResolvedValue([]);
+    await getRecentlyWatchedEpisodes("1");
+
+    const [query] = vi.mocked(prisma.episodeOnUser.findMany).mock.lastCall!;
+    expect(query?.where?.createdAt).toMatchObject({
+      gte: new Date(2025, 10, 1),
+    });
+
+    vi.useRealTimers();
   });
 
   it("getEpisodeCount should return count", async () => {
@@ -433,6 +448,21 @@ describe("Episode Model", () => {
 
     const [query] = vi.mocked(prisma.episodeOnUser.findMany).mock.lastCall!;
     expect(query).not.toHaveProperty("take");
+  });
+
+  it("getLast12MonthsStats should start the window on the first of the same month last year on a leap day", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2028, 1, 29, 12));
+
+    vi.mocked(prisma.episodeOnUser.findMany).mockResolvedValue([]);
+    await getLast12MonthsStats("userId");
+
+    const [query] = vi.mocked(prisma.episodeOnUser.findMany).mock.lastCall!;
+    expect(query?.where?.createdAt).toMatchObject({
+      gte: new Date(2027, 1, 1),
+    });
+
+    vi.useRealTimers();
   });
 
   it("getLast12MonthsStats should format January 2026 correctly", async () => {

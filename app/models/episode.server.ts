@@ -94,8 +94,8 @@ export async function getRecentlyWatchedEpisodes(
   offset = 0
 ) {
   const fromDate = new Date();
-  fromDate.setMonth(fromDate.getMonth() - 11);
   fromDate.setDate(1);
+  fromDate.setMonth(fromDate.getMonth() - 11);
   fromDate.setHours(0, 0, 0, 0);
 
   const recentlyWatchedEpisodes = await prisma.episodeOnUser.findMany({
@@ -460,8 +460,8 @@ export async function getUnwatchedEpisodesCountForUser(userId: User["id"]) {
 
 export async function getLast12MonthsStats(userId: User["id"]) {
   const twelveMonthsAgo = new Date();
-  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
   twelveMonthsAgo.setDate(1);
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
   twelveMonthsAgo.setHours(0, 0, 0, 0);
 
   const watchedEpisodes = await prisma.episodeOnUser.findMany({
