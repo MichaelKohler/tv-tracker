@@ -296,6 +296,44 @@ describe("Plex token route", () => {
     expect(response).toEqual({});
   });
 
+  it("returns empty object when payload field is missing", async () => {
+    const formData = new FormData();
+    formData.append("other", "value");
+
+    const response = await action({
+      request: new Request("http://localhost:8080/plex/token123", {
+        method: "POST",
+        body: formData,
+      }),
+      params: { token: "token123" },
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+    } as ActionFunctionArgs);
+
+    expect(getUserByPlexToken).not.toHaveBeenCalled();
+    expect(response).toEqual({});
+  });
+
+  it("returns empty object when payload is JSON null", async () => {
+    const formData = new FormData();
+    formData.append("payload", "null");
+
+    const response = await action({
+      request: new Request("http://localhost:8080/plex/token123", {
+        method: "POST",
+        body: formData,
+      }),
+      params: { token: "token123" },
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+    } as ActionFunctionArgs);
+
+    expect(getUserByPlexToken).not.toHaveBeenCalled();
+    expect(response).toEqual({});
+  });
+
   it("returns null for payload missing Metadata", async () => {
     const formData = new FormData();
     formData.append("payload", JSON.stringify({ event: "media.scrobble" }));

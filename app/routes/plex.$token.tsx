@@ -27,11 +27,15 @@ export const action = withRequestContext(
         parentIndex?: number;
         index?: number;
       };
-    };
+    } | null;
 
     try {
       parsedPayload = JSON.parse(payload as string);
     } catch {
+      return {};
+    }
+
+    if (!parsedPayload) {
       return {};
     }
 
