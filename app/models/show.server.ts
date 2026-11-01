@@ -427,7 +427,7 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
 
   const { show, episodes } = prepareShow(showResult);
 
-  const record = await prisma.show.create({
+  await prisma.show.create({
     data: {
       ...show,
       users: {
@@ -437,15 +437,12 @@ export async function addShow(userId: User["id"], showId: Show["mazeId"]) {
           },
         ],
       },
+      episodes: {
+        createMany: {
+          data: episodes ?? [],
+        },
+      },
     },
-  });
-
-  await prisma.episode.createMany({
-    data:
-      episodes?.map((episode) => ({
-        ...episode,
-        showId: record.id,
-      })) || [],
   });
 
   return {};

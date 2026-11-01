@@ -709,31 +709,42 @@ describe("Show Model", () => {
     });
     vi.mocked(prisma.show.findFirst).mockResolvedValue(null);
 
-    const recordId = "database-record-id";
-    vi.mocked(prisma.show.create).mockResolvedValue({
-      ...show,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      id: recordId,
-    });
-
     await addShow("userId", "maze1");
+    expect(prisma.show.create).toHaveBeenCalledOnce();
     expect(prisma.show.create).toHaveBeenCalledWith({
       data: {
         ...show,
         users: {
           create: [{ userId: "userId" }],
         },
+        episodes: {
+          createMany: {
+            data: [episode],
+          },
+        },
       },
     });
-    expect(prisma.episode.createMany).toHaveBeenCalledWith({
-      data: [
-        {
-          ...episode,
-          showId: recordId,
-        },
-      ],
+    expect(prisma.episode.createMany).not.toHaveBeenCalled();
+  });
+
+  it("addShow should reject when the combined show and episode write fails", async () => {
+    vi.mocked(fetchShowWithEmbededEpisodes).mockResolvedValue({
+      id: 1,
+      name: "Name",
+      premiered: null,
+      ended: null,
+      status: "Running",
+      rating: {
+        average: null,
+      },
+      image: null,
+      summary: null,
     });
+    vi.mocked(prisma.show.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.show.create).mockRejectedValue(new Error("WRITE_FAILED"));
+
+    await expect(addShow("userId", "maze1")).rejects.toThrow("WRITE_FAILED");
+    expect(prisma.episode.createMany).not.toHaveBeenCalled();
   });
 
   it("addShow should add a show without a premiere", async () => {
@@ -758,7 +769,10 @@ describe("Show Model", () => {
     await addShow("userId", "maze1");
 
     expect(prisma.show.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ premiered: null }),
+      data: expect.objectContaining({
+        premiered: null,
+        episodes: { createMany: { data: [] } },
+      }),
     });
   });
 
