@@ -530,7 +530,7 @@ describe("Account Route", () => {
         params: {},
       });
 
-      expect(changePassword).toBeCalledWith(
+      expect(changePassword).toHaveBeenCalledWith(
         "foo@example.com",
         "newnewPassword",
         ""
@@ -558,7 +558,11 @@ describe("Account Route", () => {
         params: {},
       });
 
-      expect(changePassword).toBeCalledWith("", "newnewPassword", "someToken");
+      expect(changePassword).toHaveBeenCalledWith(
+        "",
+        "newnewPassword",
+        "someToken"
+      );
     });
   });
 

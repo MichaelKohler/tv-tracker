@@ -74,7 +74,7 @@ describe("Episode Model", () => {
       episode: 1,
     });
     expect(episode).toStrictEqual(EPISODE);
-    expect(prisma.episode.findFirst).toBeCalledWith({
+    expect(prisma.episode.findFirst).toHaveBeenCalledWith({
       where: {
         showId: "1",
         season: 1,
@@ -139,7 +139,7 @@ describe("Episode Model", () => {
 
     prisma.episodeOnUser.findMany.mockResolvedValue([]);
     await getRecentlyWatchedEpisodes("1");
-    expect(prisma.episodeOnUser.findMany).toBeCalledWith({
+    expect(prisma.episodeOnUser.findMany).toHaveBeenCalledWith({
       where: {
         createdAt: {
           lt: expect.any(Date),
@@ -197,7 +197,7 @@ describe("Episode Model", () => {
     ]);
     const count = await getConnectedEpisodeCount();
     expect(count).toBe(1);
-    expect(prisma.episodeOnUser.findMany).toBeCalledWith({
+    expect(prisma.episodeOnUser.findMany).toHaveBeenCalledWith({
       distinct: ["episodeId"],
       select: {
         episodeId: true,
@@ -219,7 +219,7 @@ describe("Episode Model", () => {
       episodeId: "episodeId",
       showId: "showId",
     });
-    expect(prisma.episodeOnUser.upsert).toBeCalledWith({
+    expect(prisma.episodeOnUser.upsert).toHaveBeenCalledWith({
       where: {
         episodeId_showId_userId: {
           episodeId: "episodeId",
@@ -264,7 +264,7 @@ describe("Episode Model", () => {
       episodeId: "episodeId",
       showId: "showId",
     });
-    expect(prisma.episodeOnUser.deleteMany).toBeCalledWith({
+    expect(prisma.episodeOnUser.deleteMany).toHaveBeenCalledWith({
       where: {
         userId: "userId",
         showId: "showId",
@@ -300,7 +300,7 @@ describe("Episode Model", () => {
       showId: "showId",
     });
 
-    expect(prisma.episode.findMany).toBeCalledWith({
+    expect(prisma.episode.findMany).toHaveBeenCalledWith({
       where: {
         showId: "showId",
         airDate: {
@@ -317,7 +317,7 @@ describe("Episode Model", () => {
       },
     });
 
-    expect(prisma.episodeOnUser.createMany).toBeCalledWith({
+    expect(prisma.episodeOnUser.createMany).toHaveBeenCalledWith({
       data: [
         {
           showId: "showId",
@@ -523,7 +523,7 @@ describe("Episode Model", () => {
       showId: "showId",
     });
 
-    expect(prisma.episodeOnUser.upsert).toBeCalledWith({
+    expect(prisma.episodeOnUser.upsert).toHaveBeenCalledWith({
       where: {
         episodeId_showId_userId: {
           episodeId: "episodeId",
@@ -592,7 +592,7 @@ describe("Episode Model", () => {
       showId: "showId",
     });
 
-    expect(prisma.episodeOnUser.delete).toBeCalledWith({
+    expect(prisma.episodeOnUser.delete).toHaveBeenCalledWith({
       where: {
         id: "episodeOnUserId",
       },

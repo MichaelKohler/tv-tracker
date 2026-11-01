@@ -33,6 +33,6 @@ describe("Logout route", () => {
       params: {},
     });
 
-    expect(logout).toBeCalled();
+    expect(logout).toHaveBeenCalled();
   });
 });

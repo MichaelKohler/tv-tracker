@@ -496,13 +496,13 @@ describe("Show Model", () => {
 
   it("removeShowFromUser should remove show and episodes", async () => {
     await removeShowFromUser({ userId: "userId", showId: "showId" });
-    expect(prisma.showOnUser.deleteMany).toBeCalledWith({
+    expect(prisma.showOnUser.deleteMany).toHaveBeenCalledWith({
       where: {
         showId: "showId",
         userId: "userId",
       },
     });
-    expect(prisma.episodeOnUser.deleteMany).toBeCalledWith({
+    expect(prisma.episodeOnUser.deleteMany).toHaveBeenCalledWith({
       where: {
         showId: "showId",
         userId: "userId",
@@ -718,7 +718,7 @@ describe("Show Model", () => {
     });
 
     await addShow("userId", "maze1");
-    expect(prisma.show.create).toBeCalledWith({
+    expect(prisma.show.create).toHaveBeenCalledWith({
       data: {
         ...show,
         users: {
@@ -726,7 +726,7 @@ describe("Show Model", () => {
         },
       },
     });
-    expect(prisma.episode.createMany).toBeCalledWith({
+    expect(prisma.episode.createMany).toHaveBeenCalledWith({
       data: [
         {
           ...episode,
@@ -757,7 +757,7 @@ describe("Show Model", () => {
 
     await addShow("userId", "maze1");
 
-    expect(prisma.show.create).toBeCalledWith({
+    expect(prisma.show.create).toHaveBeenCalledWith({
       data: expect.objectContaining({ premiered: null }),
     });
   });
@@ -767,7 +767,7 @@ describe("Show Model", () => {
     vi.mocked(prisma.showOnUser.findFirst).mockResolvedValue(null);
 
     await addShow("userId", SHOW.mazeId);
-    expect(prisma.showOnUser.create).toBeCalledWith({
+    expect(prisma.showOnUser.create).toHaveBeenCalledWith({
       data: {
         showId: SHOW.id,
         userId: "userId",
@@ -787,7 +787,7 @@ describe("Show Model", () => {
     });
 
     await addShow("userId", SHOW.mazeId);
-    expect(prisma.showOnUser.create).not.toBeCalled();
+    expect(prisma.showOnUser.create).not.toHaveBeenCalled();
   });
 
   it("archiveShowOnUser should archive show", async () => {
@@ -797,7 +797,7 @@ describe("Show Model", () => {
       userId: "userId",
       showId: SHOW.id,
     });
-    expect(prisma.showOnUser.updateMany).toBeCalledWith({
+    expect(prisma.showOnUser.updateMany).toHaveBeenCalledWith({
       data: {
         archived: true,
       },
@@ -815,7 +815,7 @@ describe("Show Model", () => {
       userId: "userId",
       showId: SHOW.id,
     });
-    expect(prisma.showOnUser.updateMany).toBeCalledWith({
+    expect(prisma.showOnUser.updateMany).toHaveBeenCalledWith({
       data: {
         archived: false,
       },
@@ -834,7 +834,7 @@ describe("Show Model", () => {
       name: SHOW.name,
     });
 
-    expect(prisma.show.findFirst).toBeCalledWith({
+    expect(prisma.show.findFirst).toHaveBeenCalledWith({
       where: {
         name: SHOW.name,
         users: {
@@ -936,7 +936,7 @@ describe("Show Model", () => {
 
     const count = await getArchivedShowsCountForUser("userId");
     expect(count).toBe(3);
-    expect(prisma.showOnUser.count).toBeCalledWith({
+    expect(prisma.showOnUser.count).toHaveBeenCalledWith({
       where: {
         userId: "userId",
         archived: true,
