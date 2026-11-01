@@ -1,7 +1,7 @@
 import { Form, Link, useMatches } from "react-router";
 import { useEffect, useState } from "react";
 
-import { useOptionalUser } from "../utils";
+import { useIsLoggedIn } from "../utils";
 
 export default function Header({
   renderLoginButtons = true,
@@ -16,7 +16,7 @@ export default function Header({
     archive: boolean;
   };
 }) {
-  const user = useOptionalUser();
+  const isLoggedIn = useIsLoggedIn();
   const matches = useMatches();
   const latestRoute = matches[matches.length - 1].id;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,7 +35,7 @@ export default function Header({
       }`}
     >
       <h1 className="text-3xl font-bold">
-        <Link to={user ? "/tv" : "/"}>
+        <Link to={isLoggedIn ? "/tv" : "/"}>
           tv<span className="text-mklight-300">.tracker</span>
         </Link>
       </h1>
@@ -51,7 +51,7 @@ export default function Header({
         <nav
           className={`mt-0 flex ${menuOpen ? "flex-col" : "ml-20 flex-row"}`}
         >
-          {user && (
+          {isLoggedIn && (
             <>
               <Link
                 to="/tv"
@@ -115,7 +115,7 @@ export default function Header({
 
         {renderLoginButtons && (
           <section className="mt-8 lg:mt-0">
-            {user ? (
+            {isLoggedIn ? (
               <Form action="/logout" method="post">
                 <button
                   type="submit"

@@ -64,7 +64,7 @@ export const loader = withRequestContext(
     ]);
 
     return {
-      user: await getUser(request),
+      isLoggedIn: Boolean(await getUser(request)),
       features: {
         maintenanceMode: !maintenanceModeDisabled,
         upcomingRoute,

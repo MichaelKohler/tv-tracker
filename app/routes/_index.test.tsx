@@ -6,7 +6,7 @@ import { render, screen } from "@testing-library/react";
 import type { User } from "../models/user.server";
 import { evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
-import { useOptionalUser } from "../utils";
+import { useIsLoggedIn } from "../utils";
 
 import Index, { loader } from "./_index";
 
@@ -41,7 +41,7 @@ vi.mock("../session.server", async () => ({
 
 vi.mock("../utils", async () => ({
   ...(await vi.importActual("../utils")),
-  useOptionalUser: vi.fn<() => User | undefined>().mockReturnValue(undefined),
+  useIsLoggedIn: vi.fn<() => boolean>().mockReturnValue(false),
 }));
 
 describe("Index Route", () => {
@@ -72,13 +72,7 @@ describe("Index Route", () => {
   });
 
   it("renders index with logged in user", () => {
-    vi.mocked(useOptionalUser).mockReturnValue({
-      id: "1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      email: "foo@example.com",
-      plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
-    });
+    vi.mocked(useIsLoggedIn).mockReturnValue(true);
 
     render(<Index />);
 
