@@ -135,6 +135,40 @@ describe("TVShow Route", () => {
     expect(screen.queryByText("Archive")).not.toBeInTheDocument();
   });
 
+  it("renders error if marking episode as watched failed", () => {
+    vi.mocked(useActionData).mockReturnValue({
+      error: "MARKING_EPISODE_FAILED",
+    });
+
+    render(<TVShow />);
+
+    expect(
+      screen.getByText("Marking episode as watched failed")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /There was an error while marking the episode as watched/
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("renders error if marking episode as unwatched failed", () => {
+    vi.mocked(useActionData).mockReturnValue({
+      error: "MARKING_EPISODE_UNWATCHED_FAILED",
+    });
+
+    render(<TVShow />);
+
+    expect(
+      screen.getByText("Marking episode as unwatched failed")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /There was an error while marking the episode as unwatched/
+      )
+    ).toBeInTheDocument();
+  });
+
   it("renders error if marking all episodes failed", () => {
     vi.mocked(useActionData).mockReturnValue({
       error: "MARKING_ALL_EPISODES_FAILED",

@@ -197,6 +197,24 @@ export default function TVShow() {
         features={features}
       />
 
+      {error && error === "MARKING_EPISODE_FAILED" && (
+        <div className="mb-8 mt-2">
+          <ErrorAlert
+            title="Marking episode as watched failed"
+            message="There was an error while marking the episode as watched. Please try again. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
+
+      {error && error === "MARKING_EPISODE_UNWATCHED_FAILED" && (
+        <div className="mb-8 mt-2">
+          <ErrorAlert
+            title="Marking episode as unwatched failed"
+            message="There was an error while marking the episode as unwatched. Please try again. Sorry for the inconvenience!"
+          />
+        </div>
+      )}
+
       {error && error === "MARKING_ALL_EPISODES_FAILED" && (
         <div className="mb-8 mt-2">
           <ErrorAlert
