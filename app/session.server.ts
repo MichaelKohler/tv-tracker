@@ -9,7 +9,7 @@ import { setUserId } from "./request-context.server";
 
 invariant(process.env.SESSION_SECRET, "SESSION_SECRET must be set");
 
-export const sessionStorage = createCookieSessionStorage({
+const cookieSessionStorage = createCookieSessionStorage({
   cookie: {
     name: "__session",
     httpOnly: true,
@@ -21,8 +21,30 @@ export const sessionStorage = createCookieSessionStorage({
 });
 
 const USER_SESSION_KEY = "userId";
+const SESSION_EXPIRES_AT_KEY = "sessionExpiresAt";
 const PASSKEY_CHALLENGE_KEY = "passkeyChallenge";
 const PASSKEY_REAUTH_CHALLENGE_KEY = "passkeyReauthChallenge";
+
+const commitSessionUntilExpiry: typeof cookieSessionStorage.commitSession = (
+  session,
+  options
+) => {
+  const expiresAt = session.get(SESSION_EXPIRES_AT_KEY);
+  if (typeof expiresAt !== "number") {
+    return cookieSessionStorage.commitSession(session, options);
+  }
+
+  const remainingSeconds = Math.ceil((expiresAt - Date.now()) / 1000);
+  return cookieSessionStorage.commitSession(session, {
+    maxAge: Math.max(remainingSeconds, 0),
+    ...options,
+  });
+};
+
+export const sessionStorage = {
+  ...cookieSessionStorage,
+  commitSession: commitSessionUntilExpiry,
+};
 
 export async function getSession(request: Request) {
   const cookie = request.headers.get("Cookie");
@@ -89,14 +111,14 @@ export async function createUserSession({
   redirectTo: string;
 }) {
   const session = await getSession(request);
+  const lifetimeInSeconds = remember
+    ? 60 * 60 * 24 * 7 // 7 days
+    : 60 * 60 * 24; // 24 hours
   session.set(USER_SESSION_KEY, userId);
+  session.set(SESSION_EXPIRES_AT_KEY, Date.now() + lifetimeInSeconds * 1000);
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await sessionStorage.commitSession(session, {
-        maxAge: remember
-          ? 60 * 60 * 24 * 7 // 7 days
-          : 60 * 60 * 24, // 24 hours
-      }),
+      "Set-Cookie": await sessionStorage.commitSession(session),
     },
   });
 }
