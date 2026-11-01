@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import * as React from "react";
-import { RouterContextProvider, redirect, useLoaderData } from "react-router";
+import { RouterContextProvider, useLoaderData } from "react-router";
 import { render, screen } from "@testing-library/react";
 
 import type { User } from "../models/user.server";
@@ -19,7 +19,6 @@ vi.mock("@react-router/node", async () => ({
 
 vi.mock("react-router", async () => ({
   ...(await vi.importActual("react-router")),
-  redirect: vi.fn<() => Response>(),
   useLoaderData: vi
     .fn<() => unknown>()
     .mockReturnValue({ features: { signup: true } }),
@@ -109,14 +108,15 @@ describe("Index Route", () => {
   it("loader redirects to /tv if logged in", async () => {
     vi.mocked(getUserId).mockResolvedValue("user-id");
     const request = new Request("http://localhost");
-    await loader({
+    const response = (await loader({
       request,
       context: new RouterContextProvider(),
       url: new URL(request.url),
       pattern: "",
       params: {},
-    });
+    })) as Response;
 
-    expect(redirect).toHaveBeenCalledWith("/tv");
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe("/tv");
   });
 });

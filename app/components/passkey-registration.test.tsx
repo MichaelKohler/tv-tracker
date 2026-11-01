@@ -1,6 +1,5 @@
 import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { startRegistration } from "@simplewebauthn/browser";
 
 import { PasskeyRegistration } from "./passkey-registration";
 
@@ -12,28 +11,36 @@ vi.mock("react-router", async () => ({
     .mockReturnValue({ revalidate: vi.fn<() => Promise<void>>() }),
 }));
 
-vi.mock("@simplewebauthn/browser", () => ({
-  startAuthentication: vi.fn<() => Promise<unknown>>(),
-  startRegistration: vi.fn<() => Promise<unknown>>(),
-}));
+const stubCredentialCreation = (create: () => Promise<Credential | null>) => {
+  Object.defineProperty(navigator, "credentials", {
+    configurable: true,
+    value: { create },
+  });
+};
 
 describe("PasskeyRegistration", () => {
   beforeEach(() => {
+    vi.stubGlobal("PublicKeyCredential", vi.fn<() => void>());
     vi.stubGlobal(
       "fetch",
       vi
         .fn<() => Promise<Response>>()
-        .mockResolvedValue(new Response(JSON.stringify({ challenge: "abc" })))
+        .mockResolvedValue(
+          new Response(
+            JSON.stringify({ challenge: "abc", user: { id: "abc" } })
+          )
+        )
     );
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    Reflect.deleteProperty(navigator, "credentials");
   });
 
   it("should explain the PIN requirement when the authenticator refuses registration", async () => {
-    vi.mocked(startRegistration).mockRejectedValue(
-      Object.assign(new Error("not allowed"), { name: "NotAllowedError" })
+    stubCredentialCreation(() =>
+      Promise.reject(new DOMException("not allowed", "NotAllowedError"))
     );
 
     render(<PasskeyRegistration isEnabled hasPassword hasPasskeys={false} />);
