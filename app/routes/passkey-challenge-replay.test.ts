@@ -63,7 +63,7 @@ const {
   userHasPassword,
   verifyLogin,
 } = await import("../models/user.server");
-const { sessionStorage } = await import("../session.server");
+const { createUserSession, sessionStorage } = await import("../session.server");
 
 const CHALLENGE = "login-or-registration-challenge";
 const REAUTH_CHALLENGE = "reauth-challenge";
@@ -528,6 +528,35 @@ describe("passkey challenge consumption", () => {
         reauthChallenge: undefined,
         userId: undefined,
       });
+    });
+
+    it("keeps the login lifetime when clearing challenges", async () => {
+      const login = await createUserSession({
+        request: new Request("http://localhost:3000/"),
+        userId: "user-123",
+        remember: true,
+        redirectTo: "/tv",
+      });
+      const loginCookie = login.headers.get("Set-Cookie");
+      const session = await sessionStorage.getSession(loginCookie);
+      session.set("passkeyChallenge", {
+        challenge: CHALLENGE,
+        issuedAt: Date.now(),
+      });
+      session.set("passkeyReauthChallenge", {
+        challenge: REAUTH_CHALLENGE,
+        issuedAt: Date.now(),
+      });
+      const cookie = (await sessionStorage.commitSession(session)).split(
+        ";"
+      )[0];
+
+      const response = await registerVerifyAction(
+        routeArgs(jsonRequest("/passkey/register-verify", cookie, registration))
+      );
+
+      const maxAge = getSetCookie(response)?.match(/Max-Age=(\d+)/)?.[1];
+      expect(Number(maxAge)).toBeGreaterThan(60 * 60 * 24 * 6);
     });
 
     it("clears both challenges after registering", async () => {
