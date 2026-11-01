@@ -229,6 +229,84 @@ describe("Show Model", () => {
     ]);
   });
 
+  it("getShowsByUserId should only subtract ignored episodes that have aired", async () => {
+    const now = new Date("2024-06-15T12:00:00Z");
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+
+    const showOnUserData: (ShowOnUser & {
+      show: Show & { _count: { episodes: number } };
+    })[] = [
+      {
+        archived: false,
+        showId: "1",
+        id: "1",
+        userId: "userId",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        show: {
+          ...SHOW,
+          _count: {
+            episodes: 3,
+          },
+        },
+      },
+    ];
+    vi.mocked(prisma.showOnUser.findMany).mockResolvedValue(showOnUserData);
+    vi.mocked(prisma.episodeOnUser.groupBy)
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockResolvedValueOnce([{ showId: "1", _count: { episodeId: 1 } }] as any)
+      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockResolvedValueOnce([
+        { showId: "1", _count: { episodeId: 1 } },
+      ] as any);
+
+    const shows = await getShowsByUserId("userId");
+
+    expect(shows).toStrictEqual([{ ...SHOW, unwatchedEpisodesCount: 1 }]);
+    expect(prisma.showOnUser.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({
+          show: expect.objectContaining({
+            select: expect.objectContaining({
+              _count: {
+                select: {
+                  episodes: {
+                    where: {
+                      airDate: {
+                        lte: now,
+                      },
+                    },
+                  },
+                },
+              },
+            }),
+          }),
+        }),
+      })
+    );
+    expect(prisma.episodeOnUser.groupBy).toHaveBeenCalledWith({
+      by: ["showId"],
+      _count: {
+        episodeId: true,
+      },
+      where: {
+        userId: "userId",
+        ignored: true,
+        showId: {
+          in: ["1"],
+        },
+        episode: {
+          airDate: {
+            lte: now,
+          },
+        },
+      },
+    });
+
+    vi.useRealTimers();
+  });
+
   it("getSortedShowsByUserId should sort shows case-insensitively", async () => {
     const SHOW_A = { ...SHOW, id: "a", name: "a show" };
     const SHOW_B = { ...SHOW, id: "b", name: "B show" };
