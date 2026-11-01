@@ -2,7 +2,13 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { faker } from "@faker-js/faker";
 
-import { type BrowserContext, type Page, expect, test } from "@playwright/test";
+import {
+  type Browser,
+  type BrowserContext,
+  type Page,
+  expect,
+  test,
+} from "@playwright/test";
 
 const PASSWORD = "somePasswordIsVeryStrong123";
 
@@ -47,10 +53,19 @@ async function addPasskeyRow(email: string, name: string) {
   await prisma.$disconnect();
 }
 
-test.beforeEach(async ({ page }) => {
-  await page.setExtraHTTPHeaders({
-    "x-vercel-forwarded-for": faker.internet.ipv4(),
+function uniqueClientIpHeaders() {
+  return { "x-vercel-forwarded-for": faker.internet.ipv4() };
+}
+
+function newOtherDevice(browser: Browser, baseURL: string | undefined) {
+  return browser.newContext({
+    baseURL,
+    extraHTTPHeaders: uniqueClientIpHeaders(),
   });
+}
+
+test.beforeEach(async ({ page }) => {
+  await page.setExtraHTTPHeaders(uniqueClientIpHeaders());
   await page.goto("/");
 });
 
@@ -111,7 +126,7 @@ test("keeps other devices logged in when logging out on one", async ({
   const email = `${faker.internet.username()}@example.com`;
   await signUp(page, email);
 
-  const otherDevice = await browser.newContext({ baseURL });
+  const otherDevice = await newOtherDevice(browser, baseURL);
   const otherPage = await otherDevice.newPage();
   await logIn(otherPage, email, PASSWORD);
 
@@ -133,7 +148,7 @@ test("logs out every device when logging out all devices", async ({
   await signUp(page, email);
   const copiedCookies = await context.cookies();
 
-  const otherDevice = await browser.newContext({ baseURL });
+  const otherDevice = await newOtherDevice(browser, baseURL);
   const otherPage = await otherDevice.newPage();
   await logIn(otherPage, email, PASSWORD);
 
@@ -161,7 +176,7 @@ test("revokes old sessions but keeps this device logged in after a password chan
   await signUp(page, email);
   const copiedCookies = await context.cookies();
 
-  const otherDevice = await browser.newContext({ baseURL });
+  const otherDevice = await newOtherDevice(browser, baseURL);
   const otherPage = await otherDevice.newPage();
   await logIn(otherPage, email, PASSWORD);
 
