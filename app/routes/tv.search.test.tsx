@@ -146,7 +146,7 @@ describe("TV Show Search Route", () => {
       params: {},
     });
 
-    expect(searchShows).toBeCalledWith(null, "123");
+    expect(searchShows).toHaveBeenCalledWith(null, "123");
     expect(result.shows.length).toBe(1);
     expect(result.shows[0].name).toBe("TVShow1");
   });
@@ -161,7 +161,7 @@ describe("TV Show Search Route", () => {
       params: {},
     });
 
-    expect(searchShows).not.toBeCalled();
+    expect(searchShows).not.toHaveBeenCalled();
     expect(result.shows.length).toBe(0);
   });
 
@@ -175,7 +175,7 @@ describe("TV Show Search Route", () => {
       params: {},
     });
 
-    expect(searchShows).toBeCalledWith("fooQuery", "123");
+    expect(searchShows).toHaveBeenCalledWith("fooQuery", "123");
   });
 
   it("loader should search and return if no found show", async () => {
@@ -190,7 +190,7 @@ describe("TV Show Search Route", () => {
       params: {},
     });
 
-    expect(searchShows).toBeCalledWith(null, "123");
+    expect(searchShows).toHaveBeenCalledWith(null, "123");
     expect(result.shows.length).toBe(0);
   });
 
@@ -210,7 +210,7 @@ describe("TV Show Search Route", () => {
       params: {},
     });
 
-    expect(addShow).toBeCalledWith("123", "1");
+    expect(addShow).toHaveBeenCalledWith("123", "1");
   });
 
   it("action should not add show with feature disabled", async () => {
@@ -229,7 +229,7 @@ describe("TV Show Search Route", () => {
       params: {},
     });
 
-    expect(addShow).not.toBeCalled();
+    expect(addShow).not.toHaveBeenCalled();
     // @ts-expect-error -- response is a DataResponse, which has a data property
     expect(response.data.error).toBe("ADDING_SHOW_DISABLED");
   });

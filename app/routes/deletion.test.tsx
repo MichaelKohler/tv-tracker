@@ -266,7 +266,7 @@ describe("Account Deletion Route", () => {
         params: {},
       });
 
-      expect(user.deleteUserByUserId).toBeCalledWith("123");
+      expect(user.deleteUserByUserId).toHaveBeenCalledWith("123");
     });
 
     it("should return error if password field is empty", async () => {
@@ -288,7 +288,7 @@ describe("Account Deletion Route", () => {
       expect(response.data.errors.password).toBe(
         "Password is required to confirm account deletion."
       );
-      expect(user.deleteUserByUserId).not.toBeCalled();
+      expect(user.deleteUserByUserId).not.toHaveBeenCalled();
     });
 
     it("should return error if password is incorrect", async () => {
@@ -310,7 +310,7 @@ describe("Account Deletion Route", () => {
 
       // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.password).toBe("Incorrect password.");
-      expect(user.deleteUserByUserId).not.toBeCalled();
+      expect(user.deleteUserByUserId).not.toHaveBeenCalled();
     });
 
     it("should return error if user can not be deleted", async () => {
@@ -361,7 +361,7 @@ describe("Account Deletion Route", () => {
         params: {},
       });
 
-      expect(user.deleteUserByUserId).toBeCalledWith("123");
+      expect(user.deleteUserByUserId).toHaveBeenCalledWith("123");
     });
 
     it("should return error if passkey authentication fails", async () => {
@@ -390,7 +390,7 @@ describe("Account Deletion Route", () => {
 
       // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.deletion).toBe("Verification failed");
-      expect(user.deleteUserByUserId).not.toBeCalled();
+      expect(user.deleteUserByUserId).not.toHaveBeenCalled();
     });
   });
 });

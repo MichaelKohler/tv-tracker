@@ -94,7 +94,7 @@ describe("User Model", () => {
 
   it("createUser should create user", async () => {
     await createUser("foo@example.com", "foo");
-    expect(prisma.user.create).toBeCalledWith({
+    expect(prisma.user.create).toHaveBeenCalledWith({
       data: {
         email: "foo@example.com",
         password: {
@@ -131,10 +131,10 @@ describe("User Model", () => {
       );
 
       expect(user).toBe(createdUser);
-      expect(prisma.invite.deleteMany).toBeCalledWith({
+      expect(prisma.invite.deleteMany).toHaveBeenCalledWith({
         where: { id: "invite-1" },
       });
-      expect(prisma.user.create).toBeCalledWith({
+      expect(prisma.user.create).toHaveBeenCalledWith({
         data: {
           email: "foo@example.com",
           password: {
@@ -156,7 +156,7 @@ describe("User Model", () => {
       );
 
       expect(user).toBeNull();
-      expect(prisma.user.create).not.toBeCalled();
+      expect(prisma.user.create).not.toHaveBeenCalled();
     });
 
     it("should run invite deletion and user creation in one transaction that fails together", async () => {
@@ -173,7 +173,7 @@ describe("User Model", () => {
 
   it("deleteUserByEmail should delete user", async () => {
     await deleteUserByEmail("foo@example.com");
-    expect(prisma.user.delete).toBeCalledWith({
+    expect(prisma.user.delete).toHaveBeenCalledWith({
       where: {
         email: "foo@example.com",
       },
@@ -182,7 +182,7 @@ describe("User Model", () => {
 
   it("deleteUserByUserId should delete user", async () => {
     await deleteUserByUserId("1");
-    expect(prisma.user.delete).toBeCalledWith({
+    expect(prisma.user.delete).toHaveBeenCalledWith({
       where: {
         id: "1",
       },
@@ -280,7 +280,7 @@ describe("User Model", () => {
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
     });
     await changePassword("foo@example.com", "foo", "");
-    expect(prisma.password.upsert).toBeCalledWith({
+    expect(prisma.password.upsert).toHaveBeenCalledWith({
       where: {
         userId: "123",
       },
@@ -345,7 +345,7 @@ describe("User Model", () => {
     });
 
     await changePassword("foo@example.com", "foo", "fooToken");
-    expect(prisma.password.upsert).toBeCalledWith({
+    expect(prisma.password.upsert).toHaveBeenCalledWith({
       where: {
         userId: "123",
       },
@@ -357,7 +357,7 @@ describe("User Model", () => {
         hash: "testHash",
       },
     });
-    expect(prisma.passwordReset.delete).toBeCalledWith({
+    expect(prisma.passwordReset.delete).toHaveBeenCalledWith({
       where: {
         token: "testHashedToken",
       },
@@ -386,13 +386,13 @@ describe("User Model", () => {
   it("getUserByPlexToken should return null when no token provided", async () => {
     const user = await getUserByPlexToken("");
     expect(user).toBeNull();
-    expect(prisma.user.findUnique).not.toBeCalled();
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
   });
 
   it("verifyLogin should return null when empty password provided", async () => {
     const user = await verifyLogin("foo@example.com", "");
     expect(user).toBeNull();
-    expect(prisma.user.findUnique).not.toBeCalled();
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
   });
 
   it("userHasPassword should return true when user has password", async () => {
@@ -447,7 +447,7 @@ describe("User Model", () => {
     } as any);
 
     await removePassword("123");
-    expect(prisma.password.delete).toBeCalledWith({
+    expect(prisma.password.delete).toHaveBeenCalledWith({
       where: {
         userId: "123",
       },
