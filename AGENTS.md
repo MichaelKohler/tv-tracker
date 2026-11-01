@@ -127,7 +127,33 @@ vp run test:e2e:teardown  # Cleanup containers
 vp run test:e2e:report    # View test results
 ```
 
-**E2E Requirements**: Docker must be running. Uses `docker-compose.e2e.yml` with PostgreSQL 15 on port 5433.
+**E2E Requirements**: Docker must be running. Uses `docker-compose.e2e.yml` with PostgreSQL 18 on port 5433.
+
+#### Running E2E Tests as an AI Agent
+
+`vp run test:e2e` and `vp run validate` fail when run by an AI agent. `test:e2e:setup` runs `prisma db push --accept-data-loss`, and Prisma refuses that flag when it detects an AI agent unless the user has given explicit consent. The script hides stderr, so the only visible symptoms are about 30 `Waiting for PostgreSQL` lines followed by this misleading seed error:
+
+```
+The table `public.EpisodeOnUser` does not exist in the current database.
+```
+
+Do not set `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION` without the user's explicit consent. The flag isn't needed on a freshly created E2E database, so run these steps instead:
+
+```bash
+vp check
+vp test --run
+
+export PATH="$PWD/node_modules/.bin:$PATH"  # the seed command needs tsx on PATH
+docker compose -f docker-compose.e2e.yml up -d
+until docker exec tv-tracker-postgres-1 pg_isready -U tv_tracker -q; do sleep 2; done
+sleep 2  # the first pg_isready can succeed during PostgreSQL's init restart
+node --env-file=.env.e2e ./node_modules/prisma/build/index.js db push
+node --env-file=.env.e2e ./node_modules/prisma/build/index.js db seed
+vp run test:e2e:run
+vp run test:e2e:teardown
+```
+
+Without `--accept-data-loss`, `db push` refuses destructive changes. Keep `--env-file=.env.e2e` on every Prisma command: without it, Prisma uses `.env`, and the seed deletes data from the development database. Run teardown even when tests fail, because a failed run leaves the E2E container running.
 
 ## Project Structure & Key Files
 
