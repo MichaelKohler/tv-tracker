@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: 🛠 Setup vp
-        uses: voidzero-dev/setup-vp@v1
+        uses: voidzero-dev/setup-vp@v1.15.0
         with:
           cache: true
         env:
@@ -31,10 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: 🛠 Setup vp
-        uses: voidzero-dev/setup-vp@v1
+        uses: voidzero-dev/setup-vp@v1.15.0
         with:
           cache: true
         env:
@@ -47,7 +47,7 @@ jobs:
         run: vp test --run
 
       - name: ⬆️ Upload screenshot test failures
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         if: failure()
         with:
           name: vitest-screenshot-failures
@@ -75,13 +75,13 @@ jobs:
 
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: 🏄 Copy test env vars
         run: cp .env.example .env
 
       - name: 🛠 Setup vp
-        uses: voidzero-dev/setup-vp@v1
+        uses: voidzero-dev/setup-vp@v1.15.0
         with:
           cache: true
         env:
@@ -133,7 +133,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
 
       - name: ⬆️ Upload artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: playwright-report
