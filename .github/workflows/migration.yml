@@ -12,10 +12,6 @@ on:
         required: true
         default: "main"
         type: string
-      database_url:
-        description: "Database URL to run migrations against"
-        required: true
-        type: string
 permissions:
   contents: read
 
@@ -34,9 +30,9 @@ jobs:
         with:
           cache: true
         env:
-          DATABASE_URL: ${{ inputs.database_url || secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: 🗄️ Run Prisma Migrations
         run: vp exec prisma migrate deploy
         env:
-          DATABASE_URL: ${{ inputs.database_url || secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
