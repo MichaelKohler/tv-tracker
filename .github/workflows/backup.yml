@@ -27,10 +27,14 @@ jobs:
         run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
 
       - name: ✨ Create backup
+        shell: bash
         run: |
-          /usr/lib/postgresql/18/bin/pg_dump ${{ secrets.DATABASE_URL }} | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
-          cat tv-tracker-${TIMESTAMP}.sql.gz | gpg --passphrase "${{ secrets.ENCRYPTION_STRING }}" --batch --yes -c -o tv-tracker-${TIMESTAMP}.sql.gz.gpg
-          rm tv-tracker-${TIMESTAMP}.sql.gz
+          /usr/lib/postgresql/18/bin/pg_dump "$DATABASE_URL" | gzip > "tv-tracker-${TIMESTAMP}.sql.gz"
+          gpg --passphrase "$ENCRYPTION_STRING" --batch --yes -c -o "tv-tracker-${TIMESTAMP}.sql.gz.gpg" "tv-tracker-${TIMESTAMP}.sql.gz"
+          rm "tv-tracker-${TIMESTAMP}.sql.gz"
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ENCRYPTION_STRING: ${{ secrets.ENCRYPTION_STRING }}
 
       - name: ⌨️ Configure AWS credentials from Action OIDC
         uses: aws-actions/configure-aws-credentials@v6.3.0
