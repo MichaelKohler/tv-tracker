@@ -724,6 +724,47 @@ describe("Account Route", () => {
       );
     });
 
+    it.each([
+      {
+        description: "with a reset token",
+        token: "someToken",
+        field: "token" as const,
+        message: "Password reset link expired. Please try again.",
+      },
+      {
+        description: "without a reset token",
+        token: "",
+        field: "generic" as const,
+        message: "Something went wrong. Please try again.",
+      },
+    ])(
+      "should map a missing user $description to the right error",
+      async ({ token, field, message }) => {
+        vi.mocked(changePassword).mockRejectedValue(
+          new Error("USER_NOT_FOUND")
+        );
+
+        const formData = new FormData();
+        formData.append("password", "goodPassword");
+        formData.append("newPassword", "newnewPassword");
+        formData.append("confirmPassword", "newnewPassword");
+        formData.append("token", token);
+
+        const response = await action({
+          request: new Request("http://localhost:8080/password/change", {
+            method: "POST",
+            body: formData,
+          }),
+          context: new RouterContextProvider(),
+          url: new URL("http://localhost"),
+          pattern: "",
+          params: {},
+        });
+
+        expect(response.data.errors[field]).toBe(message);
+      }
+    );
+
     it("should throw redirect if no logged in user", async () => {
       vi.mocked(requireUser).mockRejectedValue(new Error("OH NO"));
 

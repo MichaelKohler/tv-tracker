@@ -5,6 +5,7 @@ import { createHash, randomUUID } from "crypto";
 import {
   type NewSession,
   type ReplacementSession,
+  lockUser,
   revokeUserSessions,
   writeNewSession,
 } from "./session.server";
@@ -91,7 +92,7 @@ export async function createUserWithInvite(
   });
 }
 
-const hashPasswordResetToken = (token: string) =>
+export const hashPasswordResetToken = (token: string) =>
   createHash("sha256").update(token).digest("hex");
 
 async function validatePasswordResetToken(token: string) {
@@ -106,20 +107,28 @@ async function validatePasswordResetToken(token: string) {
     throw new Error("PASSWORD_RESET_EXPIRED");
   }
 
-  return passwordResetEntry.email;
+  return passwordResetEntry.userId;
 }
 
-async function consumePasswordResetToken(
+async function assertPasswordResetTokenIsPending(
   transaction: Prisma.TransactionClient,
-  token: string
+  token: string,
+  userId: User["id"]
 ) {
-  const { count } = await transaction.passwordReset.deleteMany({
-    where: { token: hashPasswordResetToken(token) },
+  const count = await transaction.passwordReset.count({
+    where: { token: hashPasswordResetToken(token), userId },
   });
 
   if (count === 0) {
     throw new Error("PASSWORD_RESET_EXPIRED");
   }
+}
+
+export async function revokePasswordResets(
+  transaction: Prisma.TransactionClient,
+  userId: User["id"]
+) {
+  await transaction.passwordReset.deleteMany({ where: { userId } });
 }
 
 export async function changePassword(
@@ -128,18 +137,13 @@ export async function changePassword(
   token: string,
   replacementSession?: ReplacementSession
 ) {
-  let userEmail = email;
-
   if (!email && !token) {
     throw new Error("NO_EMAIL_OR_TOKEN_PASSED");
   }
 
-  // If this is a password reset flow change, then we need to validate the token
-  if (token) {
-    userEmail = await validatePasswordResetToken(token);
-  }
-
-  const existingUser = await getUserByEmail(userEmail);
+  const existingUser = token
+    ? await getUserById(await validatePasswordResetToken(token))
+    : await getUserByEmail(email);
   if (!existingUser) {
     throw new Error("USER_NOT_FOUND");
   }
@@ -147,9 +151,15 @@ export async function changePassword(
   const hashedPassword = await hash(password, BCRYPT_ROUNDS);
 
   await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+    await lockUser(transaction, existingUser.id);
     if (token) {
-      await consumePasswordResetToken(transaction, token);
+      await assertPasswordResetTokenIsPending(
+        transaction,
+        token,
+        existingUser.id
+      );
     }
+    await revokePasswordResets(transaction, existingUser.id);
     await revokeUserSessions(transaction, existingUser.id, replacementSession);
     await transaction.password.upsert({
       where: {
@@ -205,6 +215,7 @@ export async function removePassword(
   }
 
   await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+    await revokePasswordResets(transaction, userId);
     await revokeUserSessions(transaction, userId, replacementSession);
     await transaction.password.delete({
       where: { userId },

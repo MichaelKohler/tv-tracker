@@ -20,6 +20,7 @@ model User {
   password  Password?
   passkeys  Passkey[]
   sessions  Session[]
+  passwordResets PasswordReset[]
 
   shows     ShowOnUser[]
   episodes  EpisodeOnUser[]
@@ -53,7 +54,11 @@ model PasswordReset {
   createdAt DateTime @default(now())
 
   token String @unique
-  email String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  @@index([userId])
 }
 
 model Show {

@@ -675,7 +675,8 @@ export const action = withRequestContext(
 
       if (
         error instanceof Error &&
-        error.message === "PASSWORD_RESET_EXPIRED"
+        (error.message === "PASSWORD_RESET_EXPIRED" ||
+          (token && error.message === "USER_NOT_FOUND"))
       ) {
         return data(
           {

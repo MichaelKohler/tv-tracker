@@ -127,7 +127,7 @@ vp run test:e2e:teardown  # Cleanup containers
 vp run test:e2e:report    # View test results
 ```
 
-**E2E Requirements**: Docker must be running. Uses `docker-compose.e2e.yml` with PostgreSQL 18 on port 5433.
+**E2E Requirements**: Docker must be running. Uses `docker-compose.e2e.yml` with PostgreSQL 18 on port 5433 and Mailpit (SMTP on port 1025, web inbox on port 8025). Password reset tests read the reset emails from the Mailpit web inbox. Port 5173 must be free, because Playwright reuses any server already running there, and a dev server started with `.env` has neither the E2E database nor Mailpit.
 
 #### Running E2E Tests as an AI Agent
 

@@ -17,7 +17,10 @@ export const CREDENTIAL_CHANGED_ERROR = "CREDENTIAL_CHANGED";
 
 export type LoginCredential = { password: string } | { passkeyId: string };
 
-const lockUser = (transaction: Prisma.TransactionClient, userId: string) =>
+export const lockUser = (
+  transaction: Prisma.TransactionClient,
+  userId: string
+) =>
   transaction.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${userId} FOR UPDATE`;
 
 export interface ReplacementSession {

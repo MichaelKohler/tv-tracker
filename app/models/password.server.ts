@@ -1,8 +1,14 @@
-import { createHash, randomUUID } from "crypto";
 import type { User } from "@prisma/client";
+import { randomUUID } from "crypto";
 
+import {
+  getUserByEmail,
+  hashPasswordResetToken,
+  revokePasswordResets,
+} from "./user.server";
 import { logError, logInfo } from "../logger.server";
-import { getUserByEmail } from "./user.server";
+import type { Prisma } from "../generated/prisma";
+import { lockUser } from "./session.server";
 import { prisma } from "../db.server";
 import { sendPasswordResetMail } from "./mail.server";
 
@@ -11,26 +17,25 @@ export async function triggerPasswordReset(email: User["email"]) {
 
   // Always generate a token to maintain consistent timing
   const token = randomUUID();
-  const hashedToken = createHash("sha256").update(token).digest("hex");
+  const hashedToken = hashPasswordResetToken(token);
 
   // Check if user exists
-  const userExists = await getUserByEmail(email);
+  const user = await getUserByEmail(email);
 
-  if (userExists) {
-    // Clean up any existing password reset entries for this email
-    await prisma.passwordReset.deleteMany({
-      where: {
-        email,
-      },
-    });
-
+  if (user) {
     try {
-      await prisma.passwordReset.create({
-        data: {
-          email,
-          token: hashedToken,
-        },
-      });
+      await prisma.$transaction(
+        async (transaction: Prisma.TransactionClient) => {
+          await lockUser(transaction, user.id);
+          await revokePasswordResets(transaction, user.id);
+          await transaction.passwordReset.create({
+            data: {
+              userId: user.id,
+              token: hashedToken,
+            },
+          });
+        }
+      );
 
       logInfo("Password reset entry created", { email });
 
