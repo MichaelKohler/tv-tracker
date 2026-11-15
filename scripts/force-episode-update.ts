@@ -99,7 +99,7 @@ async function updateEpisode(
       airDate: new Date(episodeResult.airstamp),
       runtime: episodeResult.runtime || 0,
       imageUrl: episodeResult.image?.medium,
-      summary: striptags(episode.summary),
+      summary: episodeResult.summary ? striptags(episodeResult.summary) : "",
     },
     where: {
       id: episode.id,
