@@ -12,6 +12,7 @@ import {
   getUserByPlexToken,
   getUserCount,
   removePassword,
+  resetPlexToken,
   userHasPassword,
   verifyLogin,
 } from "./user.server";
@@ -469,6 +470,19 @@ describe("User Model", () => {
       updatedAt: now,
       email: "foo@example.com",
       plexToken: "test-plex-token",
+    });
+  });
+
+  it("resetPlexToken should replace the token of the user with a new UUID", async () => {
+    await resetPlexToken("123");
+
+    expect(prisma.user.update).toHaveBeenCalledWith({
+      where: { id: "123" },
+      data: {
+        plexToken: expect.stringMatching(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+        ),
+      },
     });
   });
 
