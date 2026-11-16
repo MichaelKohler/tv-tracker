@@ -1,5 +1,4 @@
 import type { Show, User } from "@prisma/client";
-import striptags from "striptags";
 
 import {
   TVMazeEpisodeResponse,
@@ -13,7 +12,7 @@ import {
   fetchSearchResults,
   fetchShowWithEmbededEpisodes,
 } from "./maze.server";
-import { decodeHtmlEntities } from "./html-entities.server";
+import { htmlToPlainText } from "./html-entities.server";
 
 // Used to update the episodes of shows in the GitHub action
 // We only want to return currently ongoing shows as we otherwise
@@ -347,7 +346,7 @@ export async function searchShows(
       ended: showResult.show.ended ? new Date(showResult.show.ended) : null,
       rating: showResult.show.rating.average ?? null,
       imageUrl: showResult.show.image?.medium ?? null,
-      summary: decodeHtmlEntities(striptags(showResult.show.summary || "")),
+      summary: htmlToPlainText(showResult.show.summary),
     })
   );
 
@@ -367,9 +366,7 @@ export function prepareShow(showResult: TVMazeShowResponse) {
     ended: showResult.ended ? new Date(showResult.ended) : null,
     rating: showResult.rating.average ?? null,
     imageUrl: showResult.image?.medium ?? null,
-    summary: showResult.summary
-      ? decodeHtmlEntities(striptags(showResult.summary))
-      : "",
+    summary: htmlToPlainText(showResult.summary),
   };
 
   const episodes = showResult._embedded?.episodes?.map(
@@ -381,7 +378,7 @@ export function prepareShow(showResult: TVMazeShowResponse) {
       airDate: new Date(episode.airstamp),
       runtime: episode.runtime ?? 0,
       imageUrl: episode.image?.medium ?? null,
-      summary: decodeHtmlEntities(striptags(episode.summary ?? "")),
+      summary: htmlToPlainText(episode.summary),
     })
   );
 
