@@ -6,6 +6,7 @@ import { FLAGS, evaluateBoolean } from "../flags.server";
 import {
   changePassword,
   removePassword,
+  resetPlexToken,
   userHasPassword,
   verifyLogin,
 } from "../models/user.server";
@@ -134,7 +135,44 @@ export const action = withRequestContext(
       generic: null,
       passkey: null,
       logoutAllDevices: null,
+      plexToken: null,
     };
+
+    if (intent === "reset-plex-token") {
+      const user = await requireUser(request);
+
+      if (!(await evaluateBoolean(request, FLAGS.PLEX))) {
+        return data(
+          {
+            errors: {
+              ...errors,
+              plexToken: "The Plex integration is currently disabled.",
+            },
+            done: false,
+          },
+          { status: 403 }
+        );
+      }
+
+      try {
+        await resetPlexToken(user.id);
+      } catch (error) {
+        logError("Failed to reset Plex token", {}, error);
+        return data(
+          {
+            errors: {
+              ...errors,
+              plexToken: "Could not reset the Plex token. Please try again.",
+            },
+            done: false,
+          },
+          { status: 500 }
+        );
+      }
+
+      logInfo("Plex token reset successfully", {});
+      return data({ done: true, errors, intent: "reset-plex-token" });
+    }
 
     if (intent === "logout-all-devices") {
       const user = await requireUser(request);

@@ -1,6 +1,6 @@
 import type { Invite, Password, User } from "@prisma/client";
 import { compare, hash } from "bcrypt";
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 import {
   type NewSession,
@@ -30,6 +30,13 @@ export async function getUserByPlexToken(plexToken: User["plexToken"]) {
   }
 
   return prisma.user.findUnique({ where: { plexToken } });
+}
+
+export async function resetPlexToken(id: User["id"]) {
+  return prisma.user.update({
+    where: { id },
+    data: { plexToken: randomUUID() },
+  });
 }
 
 function buildNewUserData(email: User["email"], hashedPassword: string) {

@@ -382,3 +382,22 @@ test("recognizes not matching password", async ({ page }) => {
   await page.getByRole("button", { name: "Change password" }).click();
   await expect(page.getByText("Passwords do not match")).toBeVisible();
 });
+
+test("resets the Plex token and shows the new webhook URL", async ({
+  page,
+}) => {
+  await signUp(page, `${faker.internet.username()}@example.com`);
+  await page.getByRole("link", { name: "Account", exact: true }).click();
+
+  const webhookLink = page.getByRole("link", { name: /\/plex\// });
+  const oldWebhookUrl = await webhookLink.textContent();
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "Reset token" }).click();
+
+  await expect(
+    page.getByText("Plex token reset. Update the webhook URL in Plex.")
+  ).toBeVisible();
+  await expect(webhookLink).not.toHaveText(oldWebhookUrl ?? "");
+  await expect(webhookLink).toHaveText(/\/plex\/[0-9a-f-]{36}$/);
+});

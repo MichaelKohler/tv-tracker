@@ -18,6 +18,7 @@ import userEvent from "@testing-library/user-event";
 import Account, { action, loader } from "./account";
 import {
   changePassword,
+  resetPlexToken,
   userHasPassword,
   verifyLogin,
 } from "../models/user.server";
@@ -55,6 +56,7 @@ vi.mock("../flags.server");
 
 vi.mock("../models/user.server", () => ({
   changePassword: vi.fn<() => Promise<void>>(),
+  resetPlexToken: vi.fn<() => Promise<User>>(),
   userHasPassword: vi.fn<() => Promise<boolean>>(),
   verifyLogin: vi.fn<() => Promise<User | null>>(),
 }));
@@ -513,6 +515,57 @@ describe("Account Route", () => {
       });
     });
 
+    const resetPlexTokenRequest = () => {
+      const body = new FormData();
+      body.append("intent", "reset-plex-token");
+      return new Request("http://localhost:3000/account", {
+        method: "POST",
+        body,
+      });
+    };
+
+    it("resets the Plex token of the current user", async () => {
+      const response = await action(routeArgs(resetPlexTokenRequest()));
+
+      expect(resetPlexToken).toHaveBeenCalledWith("123");
+      expect(response).toMatchObject({
+        data: { done: true, intent: "reset-plex-token" },
+      });
+    });
+
+    it("does not reset the Plex token if the feature is disabled", async () => {
+      vi.mocked(evaluateBoolean).mockResolvedValue(false);
+
+      const response = await action(routeArgs(resetPlexTokenRequest()));
+
+      expect(resetPlexToken).not.toHaveBeenCalled();
+      expect(response).toMatchObject({
+        data: {
+          done: false,
+          errors: {
+            plexToken: "The Plex integration is currently disabled.",
+          },
+        },
+        init: { status: 403 },
+      });
+    });
+
+    it("shows an error when resetting the Plex token fails", async () => {
+      vi.mocked(resetPlexToken).mockRejectedValue(new Error("db down"));
+
+      const response = await action(routeArgs(resetPlexTokenRequest()));
+
+      expect(response).toMatchObject({
+        data: {
+          done: false,
+          errors: {
+            plexToken: "Could not reset the Plex token. Please try again.",
+          },
+        },
+        init: { status: 500 },
+      });
+    });
+
     it("should return error if new password is invalid", async () => {
       const formData = new FormData();
       formData.append("password", "currentPassword");
@@ -916,6 +969,60 @@ describe("Account Route", () => {
 
       expect(screen.getByRole("alert")).toHaveTextContent(
         "Could not log out all devices."
+      );
+    });
+  });
+
+  describe("Plex webhook", () => {
+    it("renders the webhook URL with a reset button", () => {
+      render(<Account />);
+
+      expect(screen.getByText("http://webhook.example")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Reset token" })
+      ).toBeInTheDocument();
+    });
+
+    it("does not reset the token when the confirmation is cancelled", async () => {
+      const confirmSpy = vi.spyOn(window, "confirm").mockReturnValue(false);
+      const submitListener = vi.fn<(event: Event) => void>((event) =>
+        event.preventDefault()
+      );
+      render(<Account />);
+      const button = screen.getByRole("button", { name: "Reset token" });
+      button.closest("form")?.addEventListener("submit", submitListener);
+
+      await userEvent.click(button);
+
+      expect(confirmSpy).toHaveBeenCalled();
+      expect(submitListener).not.toHaveBeenCalled();
+      confirmSpy.mockRestore();
+    });
+
+    it("shows a success message after resetting the token", () => {
+      vi.mocked(useActionData).mockReturnValue({
+        errors: {},
+        done: true,
+        intent: "reset-plex-token",
+      });
+
+      render(<Account />);
+
+      expect(screen.getByRole("status")).toHaveTextContent(
+        "Plex token reset. Update the webhook URL in Plex."
+      );
+    });
+
+    it("shows the error from the action", () => {
+      vi.mocked(useActionData).mockReturnValue({
+        errors: { plexToken: "Could not reset the Plex token." },
+        done: false,
+      });
+
+      render(<Account />);
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Could not reset the Plex token."
       );
     });
   });
