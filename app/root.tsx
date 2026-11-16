@@ -14,6 +14,7 @@ import {
   isRouteErrorResponse,
   useLoaderData,
   useRouteError,
+  useRouteLoaderData,
 } from "react-router";
 import React from "react";
 
@@ -75,6 +76,14 @@ export const loader = withRequestContext(
     };
   }
 );
+
+const FALLBACK_FEATURES = {
+  maintenanceMode: false,
+  upcomingRoute: false,
+  recentlyWatchedRoute: false,
+  statsRoute: false,
+  archive: false,
+};
 
 function App({
   features,
@@ -143,7 +152,8 @@ function DefaultApp() {
 export default DefaultApp;
 
 export function ErrorBoundary() {
-  const { features } = useLoaderData<typeof loader>();
+  const features =
+    useRouteLoaderData<typeof loader>("root")?.features ?? FALLBACK_FEATURES;
   const error = useRouteError();
 
   if (isRouteErrorResponse(error) && error.status === 404) {

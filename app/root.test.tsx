@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react";
 import { getUser } from "./session.server";
 import { useIsLoggedIn } from "./utils";
 
-import { loader } from "./root";
+import { ErrorBoundary, loader } from "./root";
 
 vi.mock("./db.server");
 vi.mock("./flags.server");
@@ -93,5 +93,29 @@ describe("useIsLoggedIn", () => {
     renderLoginState();
 
     expect(await screen.findByText("logged out")).toBeInTheDocument();
+  });
+});
+
+describe("ErrorBoundary", () => {
+  it("renders the error page when the root loader fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(getUser).mockRejectedValue(new Error("database unreachable"));
+
+    const Stub = createRoutesStub([
+      {
+        id: "root",
+        path: "/",
+        loader: callLoader,
+        Component: LoginState,
+        ErrorBoundary,
+      },
+    ]);
+
+    render(<Stub />);
+
+    expect(
+      await screen.findByText("Something went wrong. Please try again.")
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Maintenance mode")).not.toBeInTheDocument();
   });
 });
