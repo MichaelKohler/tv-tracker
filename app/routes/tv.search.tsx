@@ -55,7 +55,11 @@ export const action = withRequestContext(
 
     const userId = await requireUserId(request);
     const formData = await request.formData();
-    const showId = (formData.get("showId") as string) || "";
+    const showId = formData.get("showId");
+
+    if (typeof showId !== "string" || !/^\d+$/.test(showId)) {
+      return data({ error: "ADDING_SHOW_FAILED" }, { status: 400 });
+    }
 
     logInfo("Adding show to watchlist", { showId });
 

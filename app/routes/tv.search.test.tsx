@@ -254,4 +254,49 @@ describe("TV Show Search Route", () => {
     // @ts-expect-error -- response is a DataResponse, which has a data property
     expect(response.data.error).toBe("ADDING_SHOW_FAILED");
   });
+
+  it.each([["1/../../search/shows?q=x"], ["abc"], [""], ["-1"], ["1.5"]])(
+    "action should reject invalid showId %j",
+    async (showId) => {
+      vi.mocked(evaluateBoolean).mockResolvedValue(true);
+      const formData = new FormData();
+      formData.append("showId", showId);
+
+      const response = await action({
+        request: new Request("http://localhost:8080/tv/search", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      expect(addShow).not.toHaveBeenCalled();
+      // @ts-expect-error -- response is a DataResponse, which has a data property
+      expect(response.data.error).toBe("ADDING_SHOW_FAILED");
+      // @ts-expect-error -- response is a DataResponse, which has an init property
+      expect(response.init.status).toBe(400);
+    }
+  );
+
+  it("action should reject missing showId", async () => {
+    vi.mocked(evaluateBoolean).mockResolvedValue(true);
+
+    const response = await action({
+      request: new Request("http://localhost:8080/tv/search", {
+        method: "POST",
+        body: new FormData(),
+      }),
+      context: new RouterContextProvider(),
+      url: new URL("http://localhost"),
+      pattern: "",
+      params: {},
+    });
+
+    expect(addShow).not.toHaveBeenCalled();
+    // @ts-expect-error -- response is a DataResponse, which has a data property
+    expect(response.data.error).toBe("ADDING_SHOW_FAILED");
+  });
 });
