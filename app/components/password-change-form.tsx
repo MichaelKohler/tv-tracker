@@ -1,4 +1,4 @@
-import { Form, useActionData, useSubmit } from "react-router";
+import { Form, useActionData, useNavigation, useSubmit } from "react-router";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { startAuthentication } from "@simplewebauthn/browser";
 
@@ -20,7 +20,12 @@ export function PasswordChangeForm({
   const currentPasswordRef = useRef<HTMLInputElement>(null);
   const newPasswordRef = useRef<HTMLInputElement>(null);
   const passwordConfirmRef = useRef<HTMLInputElement>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation = useNavigation();
+  const [isVerifyingPasskey, setIsVerifyingPasskey] = useState(false);
+  const isSubmitting =
+    isVerifyingPasskey ||
+    (navigation.state !== "idle" &&
+      navigation.formData?.has("newPassword") === true);
 
   useEffect(() => {
     if (actionData?.errors.password) {
@@ -41,11 +46,6 @@ export function PasswordChangeForm({
       currentPasswordRef.current.value = "";
       newPasswordRef.current.value = "";
       passwordConfirmRef.current.value = "";
-      setIsSubmitting(false);
-    }
-
-    if (actionData?.errors) {
-      setIsSubmitting(false);
     }
   }, [actionData]);
 
@@ -55,7 +55,7 @@ export function PasswordChangeForm({
     }
 
     e.preventDefault();
-    setIsSubmitting(true);
+    setIsVerifyingPasskey(true);
 
     const formData = new FormData(e.currentTarget);
 
@@ -66,13 +66,14 @@ export function PasswordChangeForm({
       }
 
       const options = await optionsResponse.json();
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       formData.append("passkeyCredential", JSON.stringify(credential));
-      void submit(formData, { method: "post" });
+      await submit(formData, { method: "post" });
     } catch (error) {
-      setIsSubmitting(false);
       console.error("Passkey authentication failed:", error);
+    } finally {
+      setIsVerifyingPasskey(false);
     }
   }
 

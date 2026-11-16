@@ -176,7 +176,7 @@ export default function LoginPage() {
 
       const options = await optionsResponse.json();
 
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       const rememberCheckbox = document.getElementById(
         "remember"

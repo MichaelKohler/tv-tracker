@@ -46,7 +46,9 @@ export function PasskeyRegistration({
           throw new Error("Failed to get authentication options");
         }
         const reauthOptions = await reauthResponse.json();
-        passkeyCredential = await startAuthentication(reauthOptions);
+        passkeyCredential = await startAuthentication({
+          optionsJSON: reauthOptions,
+        });
       }
 
       const optionsResponse = await fetch("/passkey/register-options");
@@ -57,7 +59,7 @@ export function PasskeyRegistration({
 
       const options = await optionsResponse.json();
 
-      const credential = await startRegistration(options);
+      const credential = await startRegistration({ optionsJSON: options });
 
       const verifyResponse = await fetch("/passkey/register-verify", {
         method: "POST",

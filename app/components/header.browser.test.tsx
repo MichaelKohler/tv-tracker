@@ -138,4 +138,25 @@ describe("Header", () => {
     await expect.element(page.getByText("Archive")).not.toBeInTheDocument();
     await expect.element(page.getByText("Stats")).not.toBeInTheDocument();
   });
+  it("keeps the menu closed when returning to the route it was opened on", async () => {
+    vi.mocked(useIsLoggedIn).mockReturnValue(true);
+    const matchFor = (id: string) => [
+      { id, pathname: "/", params: {}, handle: {}, loaderData: {} },
+    ];
+
+    await page.viewport(375, 800);
+    const { rerender } = await render(<Header features={mockFeatures} />);
+    const toggle = page.getByRole("button", { name: "Toggle navigation" });
+
+    await toggle.click();
+    await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
+
+    vi.mocked(useMatches).mockReturnValue(matchFor("bar"));
+    await rerender(<Header features={mockFeatures} />);
+    await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+
+    vi.mocked(useMatches).mockReturnValue(matchFor("foo"));
+    await rerender(<Header features={mockFeatures} />);
+    await expect.element(toggle).toHaveAttribute("aria-expanded", "false");
+  });
 });

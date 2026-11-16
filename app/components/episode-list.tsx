@@ -13,6 +13,7 @@ interface Props {
   watchedEpisodes: Episode["id"][];
   ignoredEpisodes: Episode["id"][];
   showId: Show["id"];
+  now: Date;
 }
 
 function InlineSpinner() {
@@ -30,6 +31,7 @@ export default function EpisodeList({
   watchedEpisodes,
   ignoredEpisodes,
   showId,
+  now,
 }: Props) {
   const navigation = useNavigation();
   const submissionEpisodeId = navigation?.formData?.get("episodeId");
@@ -70,7 +72,7 @@ export default function EpisodeList({
                 {!watchedEpisodes.includes(episode.id) &&
                   !ignoredEpisodes.includes(episode.id) && (
                     <div className="mt-4 flex gap-2">
-                      {new Date(episode.airDate) < new Date() && (
+                      {new Date(episode.airDate) < now && (
                         <Form method="post" className="inline-block">
                           <input
                             type="hidden"

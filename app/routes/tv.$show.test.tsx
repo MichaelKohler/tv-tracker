@@ -60,6 +60,7 @@ describe("TVShow Route", () => {
       },
       watchedEpisodes: [],
       ignoredEpisodes: [],
+      now: new Date(),
       features: {
         markAllAsWatched: true,
         archive: true,
@@ -96,6 +97,7 @@ describe("TVShow Route", () => {
       },
       watchedEpisodes: [],
       ignoredEpisodes: [],
+      now: new Date(),
       features: {
         markAllAsWatched: false,
         archive: true,
@@ -124,6 +126,7 @@ describe("TVShow Route", () => {
       },
       watchedEpisodes: [],
       ignoredEpisodes: [],
+      now: new Date(),
       features: {
         markAllAsWatched: true,
         archive: false,

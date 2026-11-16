@@ -25,24 +25,29 @@ interface Props {
     markAllAsWatched: boolean;
     archive: boolean;
   };
+  now: Date;
 }
 
 function InlineSpinner() {
   return (
-    <span
+    <output
       className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-t-current border-gray-300/50"
-      role="status"
       aria-label="Loading"
       data-testid="spinner"
     />
   );
 }
 
-export default function ShowHeader({ show, watchedEpisodes, features }: Props) {
+export default function ShowHeader({
+  show,
+  watchedEpisodes,
+  features,
+  now,
+}: Props) {
   const navigation = useNavigation();
   const submissionIntent = navigation?.formData?.get("intent");
   const pastEpisodes = show.episodes?.filter(
-    (episode) => new Date(episode.airDate) < new Date()
+    (episode) => new Date(episode.airDate) < now
   );
   const totalAiredEpisodes = pastEpisodes?.length || 0;
 

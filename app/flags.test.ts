@@ -8,7 +8,7 @@ const mockGetUserId = vi.hoisted(() => vi.fn<() => unknown>());
 // Mock the Flipt module
 vi.mock("@flipt-io/flipt", async () => ({
   ...(await vi.importActual("@flipt-io/flipt")),
-  FliptClient: vi.fn(
+  FliptClient: vi.fn<new () => object>(
     class {
       evaluation = {
         variant: mockVariantFn,
@@ -16,10 +16,10 @@ vi.mock("@flipt-io/flipt", async () => ({
       };
     }
   ),
-  AuthenticationStrategy: vi.fn(
+  AuthenticationStrategy: vi.fn<new () => object>(
     class {
       authenticate = vi
-        .fn()
+        .fn<() => Map<string, string>>()
         .mockReturnValue(new Map([["Authorization", "Basic test-token"]]));
     }
   ),

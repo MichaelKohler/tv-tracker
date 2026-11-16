@@ -1,6 +1,6 @@
 import { Form, useActionData, useNavigation, useSubmit } from "react-router";
-import { useEffect, useState } from "react";
 import { startAuthentication } from "@simplewebauthn/browser";
+import { useState } from "react";
 
 import type { action } from "../routes/account";
 
@@ -30,8 +30,10 @@ export function PasskeyList({ passkeys, hasPassword }: PasskeyListProps) {
   );
   const [editingPasskeyId, setEditingPasskeyId] = useState<string | null>(null);
   const [editingPasskeyName, setEditingPasskeyName] = useState("");
+  const [previousActionData, setPreviousActionData] = useState(actionData);
 
-  useEffect(() => {
+  if (actionData !== previousActionData) {
+    setPreviousActionData(actionData);
     setPasskeyError(actionData?.errors?.passkey ?? null);
 
     if (actionData?.done && !actionData.errors.passkey) {
@@ -39,7 +41,7 @@ export function PasskeyList({ passkeys, hasPassword }: PasskeyListProps) {
       setEditingPasskeyName("");
       setDeletingPasskeyId(null);
     }
-  }, [actionData]);
+  }
 
   async function handleDeleteWithPasskey(passkey: Passkey) {
     if (!confirm(`Are you sure you want to delete "${passkey.name}"?`)) {
@@ -56,7 +58,7 @@ export function PasskeyList({ passkeys, hasPassword }: PasskeyListProps) {
       }
 
       const options = await optionsResponse.json();
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       const formData = new FormData();
       formData.append("intent", "delete-passkey");

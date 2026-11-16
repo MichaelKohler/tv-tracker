@@ -11,7 +11,7 @@ Sentry.init({
   replaysOnErrorSampleRate: 1,
 
   integrations: [
-    Sentry.browserTracingIntegration(),
+    Sentry.reactRouterTracingIntegration(),
     Sentry.httpClientIntegration(),
     Sentry.replayIntegration(),
   ],
@@ -21,7 +21,9 @@ startTransition(() => {
   hydrateRoot(
     document,
     <StrictMode>
-      <HydratedRouter />
+      <HydratedRouter
+        instrumentations={[Sentry.createSentryClientInstrumentation()]}
+      />
     </StrictMode>
   );
 });

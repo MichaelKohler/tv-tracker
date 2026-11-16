@@ -63,6 +63,7 @@ export const loader = withRequestContext(
 
     return {
       ...showResult,
+      now: new Date(),
       features: {
         markAllAsWatched,
         archive,
@@ -180,7 +181,7 @@ export const action = withRequestContext(
 );
 
 export default function TVShow() {
-  const { show, watchedEpisodes, ignoredEpisodes, features } =
+  const { show, watchedEpisodes, ignoredEpisodes, features, now } =
     useLoaderData<typeof loader>();
   const actionData = useActionData();
   const error = actionData?.error;
@@ -195,6 +196,7 @@ export default function TVShow() {
         show={show}
         watchedEpisodes={watchedEpisodes}
         features={features}
+        now={now}
       />
 
       {error && error === "MARKING_EPISODE_FAILED" && (
@@ -275,6 +277,7 @@ export default function TVShow() {
         watchedEpisodes={watchedEpisodes}
         ignoredEpisodes={ignoredEpisodes}
         showId={show.id}
+        now={now}
       />
     </>
   );
