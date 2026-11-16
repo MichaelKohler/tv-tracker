@@ -1,10 +1,10 @@
 import type { Episode, Show } from "@prisma/client";
-import striptags from "striptags";
 
 import { FLAGS, evaluateBooleanFromScripts } from "../app/flags.server";
 import { type TVMazeEpisodeResponse } from "../app/types/tvmaze";
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { fetchShowWithEmbededEpisodes } from "../app/models/maze.server";
+import { htmlToPlainText } from "../app/models/html-entities.server";
 import { prisma } from "../app/db.server";
 
 async function updateEpisode(
@@ -70,7 +70,7 @@ async function updateEpisode(
       airDate: new Date(fetchedEpisode.airstamp),
       runtime: fetchedEpisode.runtime || 0,
       imageUrl: fetchedEpisode.image?.medium,
-      summary: fetchedEpisode.summary ? striptags(fetchedEpisode.summary) : "",
+      summary: htmlToPlainText(fetchedEpisode.summary),
     };
 
     console.log(`Creating new episode in DB (${season}, ${number})..`);
@@ -99,7 +99,7 @@ async function updateEpisode(
       airDate: new Date(episodeResult.airstamp),
       runtime: episodeResult.runtime || 0,
       imageUrl: episodeResult.image?.medium,
-      summary: episodeResult.summary ? striptags(episodeResult.summary) : "",
+      summary: htmlToPlainText(episodeResult.summary),
     },
     where: {
       id: episode.id,

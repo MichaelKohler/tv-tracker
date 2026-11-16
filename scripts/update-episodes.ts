@@ -1,9 +1,9 @@
 import type { Episode } from "@prisma/client";
-import striptags from "striptags";
 
 import { FLAGS, evaluateBooleanFromScripts } from "../app/flags.server";
 import { TV_EPISODE_API_PREFIX } from "../app/constants";
 import { getEpisodesWithMissingInfo } from "../app/models/episode.server";
+import { htmlToPlainText } from "../app/models/html-entities.server";
 import { prisma } from "../app/db.server";
 
 async function update() {
@@ -48,7 +48,7 @@ async function updateEpisode(episode: Episode) {
       name: episodeResult.name,
       airDate: new Date(episodeResult.airstamp),
       imageUrl: episodeResult.image?.medium,
-      summary: striptags(episodeResult.summary),
+      summary: htmlToPlainText(episodeResult.summary),
     },
     where: {
       id: episode.id,
