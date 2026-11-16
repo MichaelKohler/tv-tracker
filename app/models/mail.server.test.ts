@@ -1,24 +1,18 @@
-import type { Transporter } from "nodemailer";
-import { createTransport } from "nodemailer";
+import Mail from "nodemailer/lib/mailer";
+import type { MockInstance } from "vite-plus/test";
 
-import { logError, logInfo } from "../logger.server";
 import { sendPasskeyCreatedMail, sendPasswordResetMail } from "./mail.server";
 
-vi.mock("nodemailer", () => ({
-  createTransport: vi.fn<() => Transporter>(),
-}));
-vi.mock("../logger.server", () => ({
-  logInfo: vi.fn<() => void>(),
-  logError: vi.fn<() => void>(),
-}));
+const loggedEntries = (spy: MockInstance<(...data: unknown[]) => void>) =>
+  spy.mock.calls.map(([output]) => JSON.parse(String(output)));
 
 describe("mail.server", () => {
   const originalEnv = process.env;
-  const mockSendMail =
-    vi.fn<(options: Record<string, unknown>) => Promise<unknown>>();
+  let mockSendMail: MockInstance<(options: Mail.Options) => Promise<unknown>>;
+  let consoleLog: MockInstance<(...data: unknown[]) => void>;
+  let consoleError: MockInstance<(...data: unknown[]) => void>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     process.env = {
       ...originalEnv,
       SMTP_HOST: "smtp.example.com",
@@ -28,14 +22,18 @@ describe("mail.server", () => {
       RP_ORIGIN: "https://tvtracker.example.com",
     };
 
-    vi.mocked(createTransport).mockReturnValue({
-      sendMail: mockSendMail,
-      // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
+    mockSendMail = vi.spyOn(
+      Mail.prototype,
+      "sendMail"
+    ) as unknown as typeof mockSendMail;
+    mockSendMail.mockResolvedValue({});
+    consoleLog = vi.spyOn(console, "log");
+    consoleError = vi.spyOn(console, "error");
   });
 
   afterEach(() => {
     process.env = originalEnv;
+    mockSendMail.mockRestore();
   });
 
   describe("sendPasswordResetMail", () => {
@@ -47,7 +45,7 @@ describe("mail.server", () => {
         token: "reset-token-123",
       });
 
-      expect(createTransport).toHaveBeenCalledWith({
+      expect((mockSendMail.mock.contexts[0] as Mail).options).toEqual({
         host: "smtp.example.com",
         port: "587",
         secure: false,
@@ -73,9 +71,11 @@ describe("mail.server", () => {
       expect(call.text).toContain("reset-token-123");
       expect(call.text).toContain("https://tvtracker.example.com");
 
-      expect(logInfo).toHaveBeenCalledWith(
-        "Password reset email sent successfully",
-        { email: "user@example.com" }
+      expect(loggedEntries(consoleLog)).toContainEqual(
+        expect.objectContaining({
+          message: "Password reset email sent successfully",
+          context: { email: "user@example.com" },
+        })
       );
     });
 
@@ -104,14 +104,16 @@ describe("mail.server", () => {
         })
       ).rejects.toThrow(error);
 
-      expect(logError).toHaveBeenCalledWith(
-        "Failed to send password reset email",
-        {
-          email: "user@example.com",
-          smtpHost: "smtp.example.com",
-          smtpPort: "587",
-        },
-        error
+      expect(loggedEntries(consoleError)).toContainEqual(
+        expect.objectContaining({
+          message: "Failed to send password reset email",
+          context: {
+            email: "user@example.com",
+            smtpHost: "smtp.example.com",
+            smtpPort: "587",
+          },
+          error: expect.objectContaining({ message: error.message }),
+        })
       );
     });
 
@@ -124,10 +126,11 @@ describe("mail.server", () => {
       });
 
       expect(mockSendMail).not.toHaveBeenCalled();
-      expect(logInfo).toHaveBeenCalledWith(
-        "SMTP not configured - password reset email will not be sent",
+      expect(loggedEntries(consoleLog)).toContainEqual(
         expect.objectContaining({
-          email: "user@example.com",
+          message:
+            "SMTP not configured - password reset email will not be sent",
+          context: expect.objectContaining({ email: "user@example.com" }),
         })
       );
     });
@@ -145,7 +148,7 @@ describe("mail.server", () => {
         createdAt,
       });
 
-      expect(createTransport).toHaveBeenCalledWith({
+      expect((mockSendMail.mock.contexts[0] as Mail).options).toEqual({
         host: "smtp.example.com",
         port: "587",
         secure: false,
@@ -171,9 +174,11 @@ describe("mail.server", () => {
       expect(call.text).toContain("My YubiKey");
       expect(call.text).toContain("https://tvtracker.example.com");
 
-      expect(logInfo).toHaveBeenCalledWith(
-        "Passkey created email sent successfully",
-        { email: "user@example.com", passkeyName: "My YubiKey" }
+      expect(loggedEntries(consoleLog)).toContainEqual(
+        expect.objectContaining({
+          message: "Passkey created email sent successfully",
+          context: { email: "user@example.com", passkeyName: "My YubiKey" },
+        })
       );
     });
 
@@ -206,15 +211,17 @@ describe("mail.server", () => {
         createdAt,
       });
 
-      expect(logError).toHaveBeenCalledWith(
-        "Failed to send passkey created email",
-        {
-          email: "user@example.com",
-          passkeyName: "My Passkey",
-          smtpHost: "smtp.example.com",
-          smtpPort: "587",
-        },
-        error
+      expect(loggedEntries(consoleError)).toContainEqual(
+        expect.objectContaining({
+          message: "Failed to send passkey created email",
+          context: {
+            email: "user@example.com",
+            passkeyName: "My Passkey",
+            smtpHost: "smtp.example.com",
+            smtpPort: "587",
+          },
+          error: expect.objectContaining({ message: error.message }),
+        })
       );
     });
 
@@ -230,10 +237,11 @@ describe("mail.server", () => {
       });
 
       expect(mockSendMail).not.toHaveBeenCalled();
-      expect(logInfo).toHaveBeenCalledWith(
-        "SMTP not configured - passkey created email will not be sent",
+      expect(loggedEntries(consoleLog)).toContainEqual(
         expect.objectContaining({
-          email: "user@example.com",
+          message:
+            "SMTP not configured - passkey created email will not be sent",
+          context: expect.objectContaining({ email: "user@example.com" }),
         })
       );
     });
