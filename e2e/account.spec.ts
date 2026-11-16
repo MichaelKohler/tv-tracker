@@ -53,6 +53,68 @@ async function addPasskeyRow(email: string, name: string) {
   await prisma.$disconnect();
 }
 
+const MAILPIT_URL = process.env.MAILPIT_URL ?? "http://localhost:8025";
+const EXPIRED_RESET_LINK = "Password reset link expired. Please try again.";
+
+async function logOut(page: Page) {
+  await page.getByRole("button", { name: "Logout" }).click();
+  await expect(page.getByRole("button", { name: "Logout" })).toBeHidden();
+}
+
+async function requestPasswordReset(page: Page, email: string) {
+  await page.goto("/password/reset");
+  await page.getByLabel("Email address").fill(email);
+  const sendButton = page.getByRole("button", {
+    name: "Send password reset email",
+  });
+  await sendButton.click();
+  await expect(sendButton).toBeDisabled();
+}
+
+async function getPasswordResetLinks(
+  page: Page,
+  email: string,
+  expectedCount: number
+) {
+  const inbox = await page.context().newPage();
+  const messages = inbox.getByRole("link", {
+    name: /Password Reset Request/,
+  });
+  await expect(async () => {
+    await inbox.goto(
+      `${MAILPIT_URL}/search?q=${encodeURIComponent(`to:"${email}"`)}`
+    );
+    await expect(messages).toHaveCount(expectedCount, { timeout: 1000 });
+  }).toPass();
+
+  const links: string[] = [];
+  for (let index = 0; index < expectedCount; index++) {
+    await messages.nth(index).click();
+    const href = await inbox
+      .getByRole("tabpanel", { name: "HTML" })
+      .locator("iframe")
+      .contentFrame()
+      .getByRole("link", { name: /\/account\?token=/ })
+      .getAttribute("href");
+    const { pathname, search } = new URL(href!);
+    links.push(`${pathname}${search}`);
+    await inbox.goBack();
+  }
+  await inbox.close();
+  return links;
+}
+
+async function resetPasswordWithLink(
+  page: Page,
+  link: string,
+  newPassword: string
+) {
+  await page.goto(link);
+  await page.getByLabel("New Password").fill(newPassword);
+  await page.getByLabel("Confirm Password").fill(newPassword);
+  await page.getByRole("button", { name: "Change password" }).click();
+}
+
 function uniqueClientIpHeaders() {
   return { "x-vercel-forwarded-for": faker.internet.ipv4() };
 }
@@ -400,4 +462,102 @@ test("resets the Plex token and shows the new webhook URL", async ({
   ).toBeVisible();
   await expect(webhookLink).not.toHaveText(oldWebhookUrl ?? "");
   await expect(webhookLink).toHaveText(/\/plex\/[0-9a-f-]{36}$/);
+});
+
+test.describe("password reset links", () => {
+  const NEW_PASSWORD = "someResetVeryStrongPassword4321";
+
+  test("does not accept a reset link a second time", async ({
+    baseURL,
+    browser,
+    page,
+  }) => {
+    const email = `${faker.internet.username()}@example.com`;
+    await signUp(page, email);
+    await logOut(page);
+    await requestPasswordReset(page, email);
+    const [link] = await getPasswordResetLinks(page, email, 1);
+
+    await resetPasswordWithLink(page, link, NEW_PASSWORD);
+    await expect(
+      page.getByText("Your password has been changed.")
+    ).toBeVisible();
+
+    const otherDevice = await newOtherDevice(browser, baseURL);
+    const otherPage = await otherDevice.newPage();
+    await resetPasswordWithLink(otherPage, link, PASSWORD);
+    await expect(otherPage.getByText(EXPIRED_RESET_LINK)).toBeVisible();
+    await otherDevice.close();
+
+    await logIn(page, email, NEW_PASSWORD);
+  });
+
+  test("revokes a pending reset link when the password is changed in the account", async ({
+    page,
+  }) => {
+    const email = `${faker.internet.username()}@example.com`;
+    await signUp(page, email);
+    await logOut(page);
+    await requestPasswordReset(page, email);
+    const [link] = await getPasswordResetLinks(page, email, 1);
+
+    await logIn(page, email, PASSWORD);
+    await page.getByRole("link", { name: "Account" }).click();
+    await page.getByLabel("Current Password").fill(PASSWORD);
+    await page.getByLabel("New Password").fill(NEW_PASSWORD);
+    await page.getByLabel("Confirm Password").fill(NEW_PASSWORD);
+    await page.getByRole("button", { name: "Change password" }).click();
+    await expect(
+      page.getByText("Your password has been changed.")
+    ).toBeVisible();
+    await logOut(page);
+
+    await resetPasswordWithLink(page, link, PASSWORD);
+    await expect(page.getByText(EXPIRED_RESET_LINK)).toBeVisible();
+  });
+
+  test("only accepts the newest reset link", async ({ page }) => {
+    const email = `${faker.internet.username()}@example.com`;
+    await signUp(page, email);
+    await logOut(page);
+    await requestPasswordReset(page, email);
+    await getPasswordResetLinks(page, email, 1);
+    await requestPasswordReset(page, email);
+    const [newestLink, olderLink] = await getPasswordResetLinks(page, email, 2);
+
+    await resetPasswordWithLink(page, olderLink, NEW_PASSWORD);
+    await expect(page.getByText(EXPIRED_RESET_LINK)).toBeVisible();
+
+    await resetPasswordWithLink(page, newestLink, NEW_PASSWORD);
+    await expect(
+      page.getByText("Your password has been changed.")
+    ).toBeVisible();
+  });
+
+  test("shows the expired link message after the account was deleted", async ({
+    page,
+  }) => {
+    const email = `${faker.internet.username()}@example.com`;
+    await signUp(page, email);
+    await logOut(page);
+    await requestPasswordReset(page, email);
+    const [link] = await getPasswordResetLinks(page, email, 1);
+
+    await logIn(page, email, PASSWORD);
+    await page.getByRole("link", { name: "Account" }).click();
+    await page
+      .getByRole("link", { name: "Delete my account and all data" })
+      .click();
+    await page.getByLabel("Confirm with password").fill(PASSWORD);
+    await page
+      .getByRole("button", { name: "Delete my account and all data" })
+      .click();
+    await expect(page.getByText("What have you watched?")).toBeVisible();
+
+    await resetPasswordWithLink(page, link, NEW_PASSWORD);
+    await expect(page.getByText(EXPIRED_RESET_LINK)).toBeVisible();
+    await expect(
+      page.getByText("Something went wrong. Please try again.")
+    ).toBeHidden();
+  });
 });

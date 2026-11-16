@@ -72,6 +72,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      mailpit:
+        image: axllent/mailpit:v1.27.0
+        env:
+          MP_SMTP_AUTH_ACCEPT_ANY: 1
+          MP_SMTP_AUTH_ALLOW_INSECURE: 1
 
     steps:
       - name: ⬇️ Checkout repo
@@ -118,6 +123,10 @@ jobs:
           FLIPT_URL: ""
           FLIPT_TOKEN: ""
           FLIPT_ENVIRONMENT: ""
+          SMTP_HOST: mailpit
+          SMTP_PORT: 1025
+          SMTP_EMAIL: e2e@example.com
+          SMTP_PASSWORD: e2e
 
       - name: ⏳ Wait for server
         run: vp exec wait-on http://localhost:5173 --timeout 30000
@@ -131,6 +140,7 @@ jobs:
         env:
           HOME: /root
           DATABASE_URL: postgresql://postgres:postgres@postgres:5432/default?sslmode=disable
+          MAILPIT_URL: http://mailpit:8025
 
       - name: ⬆️ Upload artifacts
         uses: actions/upload-artifact@v7.0.2
