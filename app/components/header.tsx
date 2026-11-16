@@ -20,9 +20,14 @@ export default function Header({
   const matches = useMatches();
   const latestRoute = matches[matches.length - 1].id;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [previousRoute, setPreviousRoute] = useState(latestRoute);
+
+  if (latestRoute !== previousRoute) {
+    setPreviousRoute(latestRoute);
+    setMenuOpen(false);
+  }
 
   useEffect(() => {
-    setMenuOpen(false);
     if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }

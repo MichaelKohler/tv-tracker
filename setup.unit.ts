@@ -18,6 +18,7 @@ if (!process.env.VERBOSE) {
 }
 
 beforeEach(() => {
+  vi.stubGlobal("scrollTo", () => {});
   mockReset(prisma);
   evaluateBoolean.mockReset();
   evaluateVariant.mockReset();

@@ -1,8 +1,11 @@
 import { vi } from "vite-plus/test";
 
-export const evaluateBoolean = vi.fn();
-export const evaluateVariant = vi.fn();
-export const evaluateBooleanFromScripts = vi.fn();
+import type * as flags from "../flags.server";
+
+export const evaluateBoolean = vi.fn<typeof flags.evaluateBoolean>();
+export const evaluateVariant = vi.fn<typeof flags.evaluateVariant>();
+export const evaluateBooleanFromScripts =
+  vi.fn<typeof flags.evaluateBooleanFromScripts>();
 
 export const FLAGS = {
   MAINTENANCE_MODE: "maintenance-mode-disabled",

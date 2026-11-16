@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { useActionData, useSubmit } from "react-router";
 import { startAuthentication } from "@simplewebauthn/browser";
 
@@ -16,19 +16,19 @@ export function PasswordRemove({
   const actionData = useActionData<typeof action>();
   const submit = useSubmit();
   const [isRemoving, setIsRemoving] = useState(false);
+  const [previousActionData, setPreviousActionData] = useState(actionData);
 
-  useEffect(() => {
+  if (actionData !== previousActionData) {
+    setPreviousActionData(actionData);
     if (
-      actionData &&
-      "intent" in actionData &&
-      actionData.intent === "remove-password"
+      (actionData &&
+        "intent" in actionData &&
+        actionData.intent === "remove-password") ||
+      actionData?.errors?.generic
     ) {
       setIsRemoving(false);
     }
-    if (actionData?.errors?.generic) {
-      setIsRemoving(false);
-    }
-  }, [actionData]);
+  }
 
   async function handleRemovePassword(e: FormEvent) {
     e.preventDefault();
@@ -50,7 +50,7 @@ export function PasswordRemove({
       }
 
       const options = await optionsResponse.json();
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       const formData = new FormData();
       formData.append("intent", "remove-password");

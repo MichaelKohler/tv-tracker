@@ -48,6 +48,7 @@ describe("ShowHeader", () => {
     await render(
       <VisualTestContainer testid="show-header">
         <ShowHeader
+          now={new Date()}
           show={show}
           watchedEpisodes={[]}
           features={{ markAllAsWatched: true, archive: true }}
@@ -83,6 +84,7 @@ describe("ShowHeader", () => {
   it("does not render a start date for a show without a premiere", async () => {
     await render(
       <ShowHeader
+        now={new Date()}
         show={{ ...show, premiered: null }}
         watchedEpisodes={[]}
         features={{
@@ -104,6 +106,7 @@ describe("ShowHeader", () => {
   it("renders watch count correctly", async () => {
     await render(
       <ShowHeader
+        now={new Date()}
         show={show}
         watchedEpisodes={["1"]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -118,6 +121,7 @@ describe("ShowHeader", () => {
   it("does not render mark all button if no episodes", async () => {
     await render(
       <ShowHeader
+        now={new Date()}
         show={showWithoutEpisodes}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -132,6 +136,7 @@ describe("ShowHeader", () => {
   it("does not render mark all button if all watched", async () => {
     await render(
       <ShowHeader
+        now={new Date()}
         show={show}
         watchedEpisodes={["1", "2"]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -151,6 +156,7 @@ describe("ShowHeader", () => {
 
     await render(
       <ShowHeader
+        now={new Date()}
         show={notArchivedShow}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -168,6 +174,7 @@ describe("ShowHeader", () => {
 
     await render(
       <ShowHeader
+        now={new Date()}
         show={archivedShow}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -193,6 +200,7 @@ describe("ShowHeader", () => {
 
     await render(
       <ShowHeader
+        now={new Date()}
         show={show}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -223,6 +231,7 @@ describe("ShowHeader", () => {
 
     await render(
       <ShowHeader
+        now={new Date()}
         show={show}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -253,6 +262,7 @@ describe("ShowHeader", () => {
 
     await render(
       <ShowHeader
+        now={new Date()}
         show={show}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}
@@ -282,6 +292,7 @@ describe("ShowHeader", () => {
 
     await render(
       <ShowHeader
+        now={new Date()}
         show={archivedShow}
         watchedEpisodes={[]}
         features={{ markAllAsWatched: true, archive: true }}

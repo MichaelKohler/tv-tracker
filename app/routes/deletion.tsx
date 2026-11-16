@@ -258,7 +258,7 @@ export default function DeletionPage() {
         throw new Error("Failed to get authentication options");
       }
       const options = await optionsResponse.json();
-      const credential = await startAuthentication(options);
+      const credential = await startAuthentication({ optionsJSON: options });
 
       const formData = new FormData();
       formData.append("passkeyCredential", JSON.stringify(credential));
@@ -318,10 +318,10 @@ export default function DeletionPage() {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <div
+              <output
                 className="spinner-border inline-block h-4 w-4 animate-spin rounded-full border-2"
-                role="status"
-              ></div>
+                aria-label="Deleting account"
+              />
             ) : (
               "Delete my account and all data"
             )}

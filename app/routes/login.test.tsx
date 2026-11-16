@@ -6,10 +6,8 @@ import {
   useActionData,
   useNavigation,
 } from "react-router";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { Navigation } from "react-router";
-
-import type { AuthenticationResponseJSON } from "@simplewebauthn/browser";
 
 import Login, { action, loader } from "./login";
 import { checkRateLimit, getClientIp } from "../rate-limiter.server";
@@ -64,14 +62,23 @@ vi.mock("../rate-limiter.server", () => ({
   getClientIp: vi.fn<() => string>().mockReturnValue("127.0.0.1"),
 }));
 
-vi.mock("@simplewebauthn/browser", async () => ({
-  ...(await vi.importActual("@simplewebauthn/browser")),
-  startAuthentication: vi.fn<() => Promise<AuthenticationResponseJSON>>(),
-}));
+const stubCredentialRequest = (
+  get: (options: CredentialRequestOptions) => Promise<Credential | null>
+) => {
+  Object.defineProperty(navigator, "credentials", {
+    configurable: true,
+    value: { get },
+  });
+};
 
 describe("Login Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    Reflect.deleteProperty(navigator, "credentials");
   });
 
   it("renders login form", () => {
@@ -88,6 +95,30 @@ describe("Login Route", () => {
     render(<Login />);
 
     expect(screen.getByText("Sign in with Passkey")).toBeInTheDocument();
+  });
+
+  it("requests a passkey credential with the login options", async () => {
+    const options = { challenge: "dGVzdA", rpId: "localhost" };
+    const getCredential = vi
+      .fn<(options: CredentialRequestOptions) => Promise<Credential | null>>()
+      .mockRejectedValue(new DOMException("cancelled", "NotAllowedError"));
+    vi.stubGlobal("PublicKeyCredential", vi.fn<() => void>());
+    vi.stubGlobal(
+      "fetch",
+      vi.fn<() => Promise<Response>>().mockResolvedValue(Response.json(options))
+    );
+    stubCredentialRequest(getCredential);
+
+    render(<Login />);
+    fireEvent.click(screen.getByText("Sign in with Passkey"));
+
+    await waitFor(() =>
+      expect(getCredential).toHaveBeenCalledWith(
+        expect.objectContaining({
+          publicKey: expect.objectContaining({ rpId: "localhost" }),
+        })
+      )
+    );
   });
 
   it("renders logging in on button while submitting form", () => {

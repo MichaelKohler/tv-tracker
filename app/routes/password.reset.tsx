@@ -96,20 +96,15 @@ export function meta(): ReturnType<MetaFunction> {
 }
 
 export default function PasswordResetPage() {
-  const actionData = useActionData();
+  const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const emailRef = React.useRef<HTMLInputElement>(null);
-  const [buttonDisabled, setButtonDisabled] = React.useState(false);
 
   const isSubmitting = navigation.state === "submitting";
 
   React.useEffect(() => {
     if (actionData?.errors.email) {
       emailRef.current?.focus();
-    }
-
-    if (actionData?.done) {
-      setButtonDisabled(true);
     }
   }, [actionData]);
 
@@ -143,7 +138,7 @@ export default function PasswordResetPage() {
         <button
           type="submit"
           className="w-full rounded bg-mk px-4 py-2 text-white hover:bg-mk-tertiary focus:bg-mk-tertiary"
-          disabled={isSubmitting || buttonDisabled}
+          disabled={isSubmitting || actionData?.done}
         >
           {isSubmitting ? "Sending email..." : "Send password reset email"}
         </button>

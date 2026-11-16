@@ -27,6 +27,7 @@ describe("EpisodeList", () => {
     await render(
       <VisualTestContainer testid="episode-list">
         <EpisodeList
+          now={new Date()}
           episodes={[...DEFAULT_EPISODES, upcomingEpisode]}
           watchedEpisodes={[]}
           ignoredEpisodes={[]}
@@ -58,6 +59,7 @@ describe("EpisodeList", () => {
   it("renders unwatched button if watched", async () => {
     await render(
       <EpisodeList
+        now={new Date()}
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={["1"]}
         ignoredEpisodes={[]}
@@ -91,6 +93,7 @@ describe("EpisodeList", () => {
     });
     await render(
       <EpisodeList
+        now={new Date()}
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
         ignoredEpisodes={[]}
@@ -121,6 +124,7 @@ describe("EpisodeList", () => {
     });
     await render(
       <EpisodeList
+        now={new Date()}
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
         ignoredEpisodes={[]}
@@ -135,6 +139,7 @@ describe("EpisodeList", () => {
   it("renders ignored episode with unignore button", async () => {
     await render(
       <EpisodeList
+        now={new Date()}
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
         ignoredEpisodes={["1"]}
@@ -154,6 +159,7 @@ describe("EpisodeList", () => {
   it("renders ignored episode with grayscale styling", async () => {
     await render(
       <EpisodeList
+        now={new Date()}
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
         ignoredEpisodes={["1"]}
@@ -168,6 +174,7 @@ describe("EpisodeList", () => {
   it("renders unignore button if ignored", async () => {
     await render(
       <EpisodeList
+        now={new Date()}
         episodes={[DEFAULT_EPISODES[0]]}
         watchedEpisodes={[]}
         ignoredEpisodes={["1"]}
