@@ -238,5 +238,54 @@ describe("Password Reset Route", () => {
       );
       expect(triggerPasswordReset).toHaveBeenCalledWith("foo@example.com");
     });
+
+    it("should report success once the reset has been triggered", async () => {
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+
+      const response = await action({
+        request: new Request("http://localhost:8080/password/reset", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      expect(response).toStrictEqual({ done: true, errors: { email: null } });
+    });
+
+    it("should return an error when triggering the reset fails", async () => {
+      vi.mocked(triggerPasswordReset).mockRejectedValueOnce(
+        new Error("db down")
+      );
+
+      const formData = new FormData();
+      formData.append("email", "foo@example.com");
+
+      const response = await action({
+        request: new Request("http://localhost:8080/password/reset", {
+          method: "POST",
+          body: formData,
+        }),
+        context: new RouterContextProvider(),
+        url: new URL("http://localhost"),
+        pattern: "",
+        params: {},
+      });
+
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.init?.status).toBe(500);
+      // @ts-expect-error : we do not actually have a real response here..
+      expect(response.data).toStrictEqual({
+        errors: {
+          email:
+            "We could not send the password reset email. Please try again later.",
+        },
+        done: false,
+      });
+    });
   });
 });

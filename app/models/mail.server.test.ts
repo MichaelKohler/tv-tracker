@@ -93,14 +93,16 @@ describe("mail.server", () => {
       expect(call.text).toContain("http://localhost:5173");
     });
 
-    it("should log error when email sending fails", async () => {
+    it("should log and rethrow the error when email sending fails", async () => {
       const error = new Error("SMTP error");
       mockSendMail.mockRejectedValue(error);
 
-      await sendPasswordResetMail({
-        email: "user@example.com",
-        token: "reset-token-123",
-      });
+      await expect(
+        sendPasswordResetMail({
+          email: "user@example.com",
+          token: "reset-token-123",
+        })
+      ).rejects.toThrow(error);
 
       expect(logError).toHaveBeenCalledWith(
         "Failed to send password reset email",
