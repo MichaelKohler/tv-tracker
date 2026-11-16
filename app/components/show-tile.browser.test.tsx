@@ -6,8 +6,8 @@ import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
 
 import ShowTile, { type Props } from "./show-tile";
+import { createLoadingNavigation, testShow } from "../test-utils";
 import { VisualTestContainer } from "./visual-test-helper";
-import { testShow } from "../test-utils";
 
 const show: Props["show"] = {
   ...testShow,
@@ -48,11 +48,9 @@ describe("ShowTile", () => {
   });
 
   it("does not render navigation spinner on different tile", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      state: "loading",
-      // @ts-expect-error (we don't need to specify all properties)
-      location: { pathname: `/tv/not-this-show` },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createLoadingNavigation("/tv/not-this-show")
+    );
 
     await render(<ShowTile show={show} />);
 

@@ -19,6 +19,7 @@ import {
 } from "../models/user.server";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
+import { assertIsDataWithResponseInit } from "../test-utils";
 import { evaluateBoolean } from "../flags.server";
 import { getUserId } from "../session.server";
 import { validateEmail } from "../utils";
@@ -318,9 +319,8 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.init?.status).toBe(429);
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.email).toBe(
         "Too many signup attempts. Please try again later."
       );
@@ -381,7 +381,7 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.email).toBe("Email is invalid");
     });
 
@@ -405,7 +405,7 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.password).toBe("Password is required");
     });
 
@@ -429,7 +429,7 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.password).toBe(
         "Password must be at least 8 characters long"
       );
@@ -462,7 +462,7 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.email).toBe(
         "A user already exists with this email"
       );
@@ -489,7 +489,7 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.invite).toBe("Invite code is required");
     });
 
@@ -517,7 +517,7 @@ describe("Join Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.invite).toBe("Invite code is invalid");
       expect(createUser).not.toHaveBeenCalled();
     });

@@ -5,7 +5,13 @@ import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
 import { useNavigation } from "react-router";
 
-import { testEpisode, testEpisode2, testShow } from "../test-utils";
+import {
+  createFormData,
+  createSubmittingNavigation,
+  testEpisode,
+  testEpisode2,
+  testShow,
+} from "../test-utils";
 import ShowHeader from "./show-header";
 import { VisualTestContainer } from "./visual-test-helper";
 
@@ -38,10 +44,9 @@ describe("ShowHeader", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // @ts-expect-error .. we don't need to specify all of it..
-    vi.mocked(useNavigation).mockReturnValue({
-      formData: new FormData(),
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(new FormData())
+    );
   });
 
   it("renders show header", async () => {
@@ -185,18 +190,9 @@ describe("ShowHeader", () => {
   });
 
   it("renders spinner on mark all watched", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "MARK_ALL_WATCHED";
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(createFormData({ intent: "MARK_ALL_WATCHED" }))
+    );
 
     await render(
       <ShowHeader
@@ -216,18 +212,9 @@ describe("ShowHeader", () => {
   });
 
   it("renders spinner on remove show", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "DELETE_SHOW";
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(createFormData({ intent: "DELETE_SHOW" }))
+    );
 
     await render(
       <ShowHeader
@@ -247,18 +234,9 @@ describe("ShowHeader", () => {
   });
 
   it("renders spinner on archiving", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "ARCHIVE";
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(createFormData({ intent: "ARCHIVE" }))
+    );
 
     await render(
       <ShowHeader
@@ -275,18 +253,9 @@ describe("ShowHeader", () => {
   });
 
   it("renders spinner on unarchiving", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "UNARCHIVE";
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(createFormData({ intent: "UNARCHIVE" }))
+    );
 
     const archivedShow = { ...show, archived: true };
 

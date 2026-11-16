@@ -1,5 +1,62 @@
 import type { Episode, Show } from "@prisma/client";
+import type {
+  Location,
+  UNSAFE_DataWithResponseInit,
+  useNavigation,
+} from "react-router";
+import { expect } from "vite-plus/test";
+
 import type { SearchResultShow } from "./types/show";
+
+type NavigationResult = ReturnType<typeof useNavigation>;
+
+const testLocation: Location = {
+  pathname: "/",
+  search: "",
+  hash: "",
+  state: null,
+  key: "default",
+};
+
+export const createFormData = (entries: Record<string, string>) => {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(entries)) {
+    formData.append(key, value);
+  }
+  return formData;
+};
+
+export const createSubmittingNavigation = (
+  formData: FormData
+): NavigationResult => ({
+  state: "submitting",
+  location: testLocation,
+  formMethod: "POST",
+  formAction: "/",
+  formEncType: "application/x-www-form-urlencoded",
+  formData,
+  json: undefined,
+  text: undefined,
+});
+
+export const createLoadingNavigation = (
+  pathname: string
+): NavigationResult => ({
+  state: "loading",
+  location: { ...testLocation, pathname },
+  formMethod: undefined,
+  formAction: undefined,
+  formEncType: undefined,
+  formData: undefined,
+  json: undefined,
+  text: undefined,
+});
+
+export function assertIsDataWithResponseInit<T>(
+  response: T
+): asserts response is Extract<T, UNSAFE_DataWithResponseInit<unknown>> {
+  expect(response).toHaveProperty("type", "DataWithResponseInit");
+}
 
 export const testShow: Show = {
   id: "1",

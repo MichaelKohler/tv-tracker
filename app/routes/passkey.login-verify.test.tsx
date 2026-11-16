@@ -16,6 +16,7 @@ import {
 } from "../models/passkey.server";
 import type { RateLimitResult } from "../rate-limiter.server";
 import { action } from "./passkey.login-verify";
+import { assertIsDataWithResponseInit } from "../test-utils";
 
 vi.mock("../db.server");
 
@@ -94,9 +95,8 @@ describe("Passkey Login Verify Route", () => {
 
     const response = await action({ request } as ActionFunctionArgs);
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.init?.status).toBe(429);
-    // @ts-expect-error : we do not actually have a real response here..
     expect(response.data.error).toBe(
       "Too many requests. Please try again later."
     );
@@ -138,7 +138,7 @@ describe("Passkey Login Verify Route", () => {
       request,
     } as ActionFunctionArgs);
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data).toEqual({ error: "No challenge found" });
   });
 
@@ -155,7 +155,7 @@ describe("Passkey Login Verify Route", () => {
       request,
     } as ActionFunctionArgs);
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data).toEqual({ error: "Invalid credential" });
   });
 
@@ -174,7 +174,7 @@ describe("Passkey Login Verify Route", () => {
       request,
     } as ActionFunctionArgs);
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data).toEqual({ error: "Invalid credential" });
   });
 
@@ -195,7 +195,7 @@ describe("Passkey Login Verify Route", () => {
     } as ActionFunctionArgs);
 
     expect(getPasskeyByCredentialId).toHaveBeenCalledWith("cred-nonexistent");
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data).toEqual({ error: "Passkey not found" });
   });
 
@@ -220,7 +220,7 @@ describe("Passkey Login Verify Route", () => {
       request,
     } as ActionFunctionArgs);
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data).toEqual({ error: "Verification failed" });
   });
 
@@ -426,7 +426,7 @@ describe("Passkey Login Verify Route", () => {
       request,
     } as ActionFunctionArgs);
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data).toEqual({ error: "Failed to authenticate passkey" });
   });
 

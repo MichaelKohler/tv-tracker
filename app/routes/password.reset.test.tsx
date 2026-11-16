@@ -11,6 +11,7 @@ import type { Navigation } from "react-router";
 import Reset, { action, loader } from "./password.reset";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
+import { assertIsDataWithResponseInit } from "../test-utils";
 import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
 import { triggerPasswordReset } from "../models/password.server";
@@ -163,7 +164,7 @@ describe("Password Reset Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.email).toBe("Email is invalid");
     });
 
@@ -187,10 +188,9 @@ describe("Password Reset Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.init?.status).toBe(429);
       // done: true so UI behaves identically to a successful submission (no enumeration)
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.done).toBe(true);
     });
 
@@ -276,9 +276,8 @@ describe("Password Reset Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.init?.status).toBe(500);
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data).toStrictEqual({
         errors: {
           email:

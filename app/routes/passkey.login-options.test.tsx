@@ -156,10 +156,9 @@ describe("Passkey Login Options Route", () => {
     } as LoaderFunctionArgs);
 
     expect(response.init?.status).toBe(429);
-    // @ts-expect-error : we do not actually have a real response here..
-    expect(response.data.error).toBe(
-      "Too many requests. Please try again later."
-    );
+    expect(response.data).toEqual({
+      error: "Too many requests. Please try again later.",
+    });
     expect(generateAuthenticationOptions).not.toHaveBeenCalled();
   });
 

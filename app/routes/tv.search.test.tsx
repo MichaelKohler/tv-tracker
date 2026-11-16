@@ -15,6 +15,7 @@ import type { TVMazeSearchResult, TVMazeShowResponse } from "../types/tvmaze";
 import { addShow, searchShows } from "../models/show.server";
 import type { SearchResultShow } from "../types/show";
 import type { User } from "../models/user.server";
+import { assertIsDataWithResponseInit } from "../test-utils";
 import { evaluateBoolean } from "../flags.server";
 import { requireUserId } from "../session.server";
 
@@ -230,7 +231,7 @@ describe("TV Show Search Route", () => {
     });
 
     expect(addShow).not.toHaveBeenCalled();
-    // @ts-expect-error -- response is a DataResponse, which has a data property
+    assertIsDataWithResponseInit(response);
     expect(response.data.error).toBe("ADDING_SHOW_DISABLED");
   });
 
@@ -251,7 +252,7 @@ describe("TV Show Search Route", () => {
       pattern: "",
       params: {},
     });
-    // @ts-expect-error -- response is a DataResponse, which has a data property
+    assertIsDataWithResponseInit(response);
     expect(response.data.error).toBe("ADDING_SHOW_FAILED");
   });
 
@@ -274,10 +275,9 @@ describe("TV Show Search Route", () => {
       });
 
       expect(addShow).not.toHaveBeenCalled();
-      // @ts-expect-error -- response is a DataResponse, which has a data property
+      assertIsDataWithResponseInit(response);
       expect(response.data.error).toBe("ADDING_SHOW_FAILED");
-      // @ts-expect-error -- response is a DataResponse, which has an init property
-      expect(response.init.status).toBe(400);
+      expect(response.init?.status).toBe(400);
     }
   );
 
@@ -296,7 +296,7 @@ describe("TV Show Search Route", () => {
     });
 
     expect(addShow).not.toHaveBeenCalled();
-    // @ts-expect-error -- response is a DataResponse, which has a data property
+    assertIsDataWithResponseInit(response);
     expect(response.data.error).toBe("ADDING_SHOW_FAILED");
   });
 });
