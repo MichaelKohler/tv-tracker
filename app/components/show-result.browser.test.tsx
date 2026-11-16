@@ -4,9 +4,13 @@ import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
 import { useNavigation } from "react-router";
 
+import {
+  createFormData,
+  createSubmittingNavigation,
+  testSearchShow,
+} from "../test-utils";
 import ShowResult from "./show-result";
 import { VisualTestContainer } from "./visual-test-helper";
-import { testSearchShow } from "../test-utils";
 
 const show = testSearchShow;
 
@@ -22,10 +26,9 @@ describe("ShowResult", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // @ts-expect-error .. we don't need to specify all of it
-    vi.mocked(useNavigation).mockReturnValue({
-      formData: new FormData(),
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(new FormData())
+    );
   });
 
   it("renders show result", async () => {
@@ -81,22 +84,11 @@ describe("ShowResult", () => {
   });
 
   it("renders spinner on adding show", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "add-show";
-          }
-
-          if (key === "showId") {
-            return show.mazeId.toString();
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(
+        createFormData({ intent: "add-show", showId: show.mazeId.toString() })
+      )
+    );
 
     await render(<ShowResult show={show} features={{ addShow: true }} />);
 
@@ -105,22 +97,11 @@ describe("ShowResult", () => {
   });
 
   it("does not render spinner or button on adding another show", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "add-show";
-          }
-
-          if (key === "showId") {
-            return "not-this-show";
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(
+        createFormData({ intent: "add-show", showId: "not-this-show" })
+      )
+    );
 
     await render(<ShowResult show={show} features={{ addShow: true }} />);
 
@@ -129,22 +110,14 @@ describe("ShowResult", () => {
   });
 
   it("does not render spinner on other action", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "intent") {
-            return "some-other-intent";
-          }
-
-          if (key === "showId") {
-            return show.mazeId.toString();
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(
+        createFormData({
+          intent: "some-other-intent",
+          showId: show.mazeId.toString(),
+        })
+      )
+    );
 
     await render(<ShowResult show={show} features={{ addShow: true }} />);
 

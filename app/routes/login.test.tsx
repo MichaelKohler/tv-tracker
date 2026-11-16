@@ -14,6 +14,7 @@ import { checkRateLimit, getClientIp } from "../rate-limiter.server";
 import { createUserSession, getUserId } from "../session.server";
 import type { RateLimitResult } from "../rate-limiter.server";
 import type { User } from "../models/user.server";
+import { assertIsDataWithResponseInit } from "../test-utils";
 import { validateEmail } from "../utils";
 import { verifyLogin } from "../models/user.server";
 
@@ -201,7 +202,7 @@ describe("Login Route", () => {
     formData.append("password", "foo");
     formData.append("remember", "off");
 
-    const response = await action({
+    await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
         body: formData,
@@ -212,10 +213,9 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.redirectTo).toBe("/tv");
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.remember).toBe(false);
+    expect(createUserSession).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectTo: "/tv", remember: false })
+    );
   });
 
   it("action should show an error when the session can not be created", async () => {
@@ -301,7 +301,7 @@ describe("Login Route", () => {
     formData.append("password", "foo");
     formData.append("remember", "on");
 
-    const response = await action({
+    await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
         body: formData,
@@ -312,8 +312,9 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.remember).toBe(true);
+    expect(createUserSession).toHaveBeenCalledWith(
+      expect.objectContaining({ remember: true })
+    );
   });
 
   it("action should return if everything ok with custom redirect", async () => {
@@ -333,7 +334,7 @@ describe("Login Route", () => {
     formData.append("remember", "off");
     formData.append("redirectTo", "/customRedirectLocation");
 
-    const response = await action({
+    await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
         body: formData,
@@ -344,8 +345,9 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.redirectTo).toBe("/customRedirectLocation");
+    expect(createUserSession).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectTo: "/customRedirectLocation" })
+    );
   });
 
   it("action should ignore a backslash redirect to another origin", async () => {
@@ -365,7 +367,7 @@ describe("Login Route", () => {
     formData.append("remember", "off");
     formData.append("redirectTo", "/\\evil.com");
 
-    const response = await action({
+    await action({
       request: new Request("http://localhost:8080/login", {
         method: "POST",
         body: formData,
@@ -376,8 +378,9 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error .. seems we do not actually have the right type due to mocking..
-    expect(response.redirectTo).toBe("/tv");
+    expect(createUserSession).toHaveBeenCalledWith(
+      expect.objectContaining({ redirectTo: "/tv" })
+    );
   });
 
   it("action should return error if email is invalid", async () => {
@@ -400,7 +403,7 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data.errors.email).toBe("Email is invalid");
   });
 
@@ -424,7 +427,7 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data.errors.password).toBe("Password is required");
   });
 
@@ -449,9 +452,8 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.init?.status).toBe(429);
-    // @ts-expect-error : we do not actually have a real response here..
     expect(response.data.errors.email).toBe(
       "Too many login attempts. Please try again later."
     );
@@ -531,11 +533,9 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.init?.status).toBe(429);
-    // @ts-expect-error : we do not actually have a real response here..
-    expect(response.init?.headers["Retry-After"]).toBe("600");
-    // @ts-expect-error : we do not actually have a real response here..
+    expect(new Headers(response.init?.headers).get("Retry-After")).toBe("600");
     expect(response.data.errors.email).toBe(
       "Too many login attempts. Please try again later."
     );
@@ -587,7 +587,7 @@ describe("Login Route", () => {
       params: {},
     });
 
-    // @ts-expect-error : we do not actually have a real response here..
+    assertIsDataWithResponseInit(response);
     expect(response.data.errors.email).toBe("Invalid email or password");
   });
 });

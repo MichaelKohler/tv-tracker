@@ -4,7 +4,13 @@ import { page } from "vite-plus/test/browser";
 import { render } from "vitest-browser-react";
 import { useNavigation } from "react-router";
 
-import { testEpisode, testEpisode2, upcomingEpisode } from "../test-utils";
+import {
+  createFormData,
+  createSubmittingNavigation,
+  testEpisode,
+  testEpisode2,
+  upcomingEpisode,
+} from "../test-utils";
 import EpisodeList from "./episode-list";
 import { VisualTestContainer } from "./visual-test-helper";
 
@@ -76,21 +82,11 @@ describe("EpisodeList", () => {
   });
 
   it("renders spinner while submitting mark as read", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "episodeId") {
-            return "1";
-          }
-          if (key === "intent") {
-            return "MARK_WATCHED";
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(
+        createFormData({ episodeId: "1", intent: "MARK_WATCHED" })
+      )
+    );
     await render(
       <EpisodeList
         now={new Date()}
@@ -110,18 +106,9 @@ describe("EpisodeList", () => {
   });
 
   it("does not render spinner while submitting mark as read for another episode", async () => {
-    vi.mocked(useNavigation).mockReturnValue({
-      // @ts-expect-error (we don't need to specify all methods of FormData)
-      formData: {
-        get(key: string) {
-          if (key === "episodeId") {
-            return "2";
-          }
-
-          return "";
-        },
-      },
-    });
+    vi.mocked(useNavigation).mockReturnValue(
+      createSubmittingNavigation(createFormData({ episodeId: "2" }))
+    );
     await render(
       <EpisodeList
         now={new Date()}

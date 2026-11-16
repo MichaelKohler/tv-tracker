@@ -14,6 +14,7 @@ import * as user from "../models/user.server";
 import Deletion, { action, loader } from "./deletion";
 import { FLAGS, evaluateBoolean } from "../flags.server";
 import type { User } from "../models/user.server";
+import { assertIsDataWithResponseInit } from "../test-utils";
 import { clearRateLimitStore } from "../rate-limiter.server";
 import { requireUser } from "../session.server";
 
@@ -288,7 +289,7 @@ describe("Account Deletion Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.password).toBe(
         "Password is required to confirm account deletion."
       );
@@ -312,7 +313,7 @@ describe("Account Deletion Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.password).toBe("Incorrect password.");
       expect(user.deleteUserByUserId).not.toHaveBeenCalled();
     });
@@ -375,7 +376,7 @@ describe("Account Deletion Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.deletion).toBe(
         "Could not delete user. Please try again."
       );
@@ -431,7 +432,7 @@ describe("Account Deletion Route", () => {
         params: {},
       });
 
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.data.errors.deletion).toBe("Verification failed");
       expect(user.deleteUserByUserId).not.toHaveBeenCalled();
     });
@@ -457,9 +458,8 @@ describe("Account Deletion Route", () => {
         expect.any(Request),
         FLAGS.DELETE_ACCOUNT
       );
-      // @ts-expect-error : we do not actually have a real response here..
+      assertIsDataWithResponseInit(response);
       expect(response.init?.status).toBe(403);
-      // @ts-expect-error : we do not actually have a real response here..
       expect(response.data.errors.deletion).toBe(
         "The account deletion functionality is currently disabled. Please try again later."
       );
