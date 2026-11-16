@@ -6,9 +6,9 @@ import {
   hashPasswordResetToken,
   revokePasswordResets,
 } from "./user.server";
-import { logError, logInfo } from "../logger.server";
 import type { Prisma } from "../generated/prisma";
 import { lockUser } from "./session.server";
+import { logInfo } from "../logger.server";
 import { prisma } from "../db.server";
 import { sendPasswordResetMail } from "./mail.server";
 
@@ -23,32 +23,20 @@ export async function triggerPasswordReset(email: User["email"]) {
   const user = await getUserByEmail(email);
 
   if (user) {
-    try {
-      await prisma.$transaction(
-        async (transaction: Prisma.TransactionClient) => {
-          await lockUser(transaction, user.id);
-          await revokePasswordResets(transaction, user.id);
-          await transaction.passwordReset.create({
-            data: {
-              userId: user.id,
-              token: hashedToken,
-            },
-          });
-        }
-      );
-
-      logInfo("Password reset entry created", { email });
-
-      void sendPasswordResetMail({ email, token });
-    } catch (error) {
-      logError(
-        "Failed to create password reset entry",
-        {
-          email,
+    await prisma.$transaction(async (transaction: Prisma.TransactionClient) => {
+      await lockUser(transaction, user.id);
+      await revokePasswordResets(transaction, user.id);
+      await transaction.passwordReset.create({
+        data: {
+          userId: user.id,
+          token: hashedToken,
         },
-        error
-      );
-    }
+      });
+    });
+
+    logInfo("Password reset entry created", { email });
+
+    await sendPasswordResetMail({ email, token });
   } else {
     // Simulate the same operations for timing consistency
     // Random delay between 50ms and 150ms to prevent timing attacks

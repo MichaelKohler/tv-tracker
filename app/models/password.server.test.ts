@@ -58,7 +58,7 @@ describe("triggerPasswordReset", () => {
     );
   });
 
-  it("should only touch reset links inside the transaction", async () => {
+  it("should only touch reset links inside the transaction and reject when it fails", async () => {
     prisma.user.findUnique.mockResolvedValue({
       id: "123",
       createdAt: new Date(),
@@ -66,12 +66,24 @@ describe("triggerPasswordReset", () => {
       email: "foo@example.com",
       plexToken: "e4fe1d61-ab49-4e08-ace4-bc070821e9b1",
     });
-    prisma.$transaction.mockRejectedValue(new Error("db down"));
+    prisma.$transaction.mockRejectedValueOnce(new Error("db down"));
 
-    await triggerPasswordReset("foo@example.com");
+    await expect(triggerPasswordReset("foo@example.com")).rejects.toThrow(
+      "db down"
+    );
 
     expect(prisma.passwordReset.deleteMany).not.toHaveBeenCalled();
     expect(prisma.passwordReset.create).not.toHaveBeenCalled();
+  });
+
+  it("should reject when the user lookup fails", async () => {
+    prisma.user.findUnique.mockRejectedValueOnce(new Error("db down"));
+
+    await expect(triggerPasswordReset("foo@example.com")).rejects.toThrow(
+      "db down"
+    );
+
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it("should not create a reset link when no user has the email", async () => {

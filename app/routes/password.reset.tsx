@@ -12,9 +12,9 @@ import {
   useNavigation,
 } from "react-router";
 
+import { logError, logInfo } from "../logger.server";
 import { checkRateLimit } from "../rate-limiter.server";
 import { getUserId } from "../session.server";
-import { logInfo } from "../logger.server";
 import { triggerPasswordReset } from "../models/password.server";
 import { validateAndSanitizeEmail } from "../utils";
 import { withRequestContext } from "../request-handler.server";
@@ -67,7 +67,21 @@ export const action = withRequestContext(
       );
     }
 
-    void triggerPasswordReset(email);
+    try {
+      await triggerPasswordReset(email);
+    } catch (error) {
+      logError("Failed to trigger password reset", { email }, error);
+      return data(
+        {
+          errors: {
+            email:
+              "We could not send the password reset email. Please try again later.",
+          },
+          done: false,
+        },
+        { status: 500 }
+      );
+    }
 
     return { done: true, errors };
   }

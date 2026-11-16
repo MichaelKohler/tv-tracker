@@ -144,6 +144,7 @@ This is an automated security notification from TV Tracker.`;
       },
       error
     );
+    throw error;
   }
 }
 
